@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 11.0, SVG Export Plug-In . SVG Version: 6.0.0 Build 78)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN"    "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd" [
+	<!ENTITY ns_flows "http://ns.adobe.com/Flows/1.0/">
+	<!ENTITY ns_svg "http://www.w3.org/2000/svg">
+	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">
+]>
+<svg  xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+	 width="124.762" height="128" viewBox="0 0 124.762 128" overflow="visible" enable-background="new 0 0 124.762 128"
+	 xml:space="preserve">
+		<g id="Ebene_1">
+			<ellipse opacity="0.25" enable-background="new    " cx="64.157" cy="114.524" rx="60.604" ry="13.475"/> 
+			<circle cx="62.354" cy="62.353" r="62.353"/> 
+			
+				<radialGradient id="XMLID_2_" cx="-160.2881" cy="455.0347" r="87.4324" fx="-160.2881" fy="455.0347" gradientTransform="matrix(1 0 0 -1 235.3892 483.9424)" gradientUnits="userSpaceOnUse">
+				<stop  offset="0" style="stop-color:#FFFFFF"/>
+				<stop  offset="0.7022" style="stop-color:#F7E015"/>
+				<stop  offset="0.8876" style="stop-color:#ECC516"/>
+				<stop  offset="1" style="stop-color:#FBAE10"/>
+				<a:midPointStop  offset="0" style="stop-color:#FFFFFF"/>
+				<a:midPointStop  offset="0.5" style="stop-color:#FFFFFF"/>
+				<a:midPointStop  offset="0.7022" style="stop-color:#F7E015"/>
+				<a:midPointStop  offset="0.5" style="stop-color:#F7E015"/>
+				<a:midPointStop  offset="0.8876" style="stop-color:#ECC516"/>
+				<a:midPointStop  offset="0.5" style="stop-color:#ECC516"/>
+				<a:midPointStop  offset="1" style="stop-color:#FBAE10"/>
+			</radialGradient>
+			<circle fill="url(#XMLID_2_)" cx="62.354" cy="62.353" r="56.433"/> 
+			<ellipse cx="37.77" cy="43.955" rx="9" ry="15.625"/> 
+			<ellipse cx="83.52" cy="43.955" rx="9" ry="15.625"/> 
+			<path opacity="0.25" fill="#FFFFFF" enable-background="new    " d="M79.375,8.535c22.645,6.365,38.26,31,38.734,45.07
+				c0.396,11.75-32.303-3.594-46.711-8.545c-14.404-4.953-61.803-5.906-54.357-16.348C23.867,19.137,46.77-2.17,79.375,8.535z"/>
+			<path d="M90.918,94.272c-1.869,1.871-10.326-14.297-30.184-14.297S32.555,95.217,30.287,92.95S38.76,75.209,61,75.209
+				S92.787,92.403,90.918,94.272z"/>
+		</g>
+	</svg>

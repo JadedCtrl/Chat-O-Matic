@@ -1,0 +1,12 @@
+SubDir TOP libs libinterface ;
+
+SubDirSysHdrs [ FDirName $(TOP) libs ] ;
+
+StaticLibrary libinterface.a :
+	BitmapMenuItem.cpp
+	BitmapUtils.cpp
+	BitmapView.cpp
+	Divider.cpp
+	NotifyingTextView.cpp
+	PictureView.cpp
+;

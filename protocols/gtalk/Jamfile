@@ -1,0 +1,20 @@
+SubDir TOP protocols gtalk ;
+
+SubDirSysHdrs [ FDirName $(TOP) ] ;
+SubDirSysHdrs [ FDirName $(TOP) application ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs libjabber ] ;
+SubDirSysHdrs [ FDirName $(OPENSSL_INCLUDE_DIR) ] ;
+
+AddOn gtalk :
+	main.cpp
+	GoogleTalk.cpp
+	: be libjabber.a ssl crypto $(TARGET_LIBSTDC++) expat
+	: gtalk.rdef SettingsTemplate.rdef
+;
+
+Depends gtalk : libjabber.a ;
+
+LINKFLAGS on gtalk += -L$(OPENSSL_LIBRARY_DIR) ;
+
+InstallBin $(APPS_DIRECTORY)/caya/protocols : gtalk ;

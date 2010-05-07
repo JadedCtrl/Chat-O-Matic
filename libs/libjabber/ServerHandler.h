@@ -1,0 +1,7 @@
+#include "JabberAgent.h"
+#include "JabberContact.h"
+#include "JabberElement.h"
+#include "JabberHandler.h"
+#include "JabberMessage.h"
+#include "JabberPresence.h"
+#include "JabberRegistration.h"

@@ -1,0 +1,144 @@
+#!/bin/sh
+#
+# Copyright 2009, Pier Luigi Fiorini.
+# Distributed under the terms of the MIT License.
+#
+# Authors:
+#		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
+#
+
+current_dir=`pwd`
+defines=""
+
+# Binaries
+jambin=`which jam`
+rcbin=`which rc`
+xresbin=`which xres`
+settypebin=`which settype`
+mimesetbin=`which mimeset`
+setversionbin=`which setversion`
+copyattrbin=`which copyattr`
+
+# Check operating system
+platform=`uname -s`
+release=`uname -r`
+echo -n "Checking operating system... "
+case "$platform" in
+	BeOS)
+		case "$release" in
+			4.*)
+				echo "*** BeOS R4 is not supported!"
+				exit 1
+			;;
+			5.*)
+				echo "*** BeOS R5 is not supported!"
+				exit 1
+			;;
+			6.*)
+				echo "*** Zeta is not supported!"
+				exit 1
+			;;
+			*)
+				echo "*** Unsupported BeOS platform!"
+				exit 1
+			;;
+		esac
+	;;
+	Haiku)
+		defines="HAIKU_TARGET_PLATFORM_HAIKU=1"
+	;;
+	*)
+		echo "*** Unsupported $platform operating system!"
+		exit 1
+	;;
+esac
+echo "$platform $release"
+
+# Check whether jam exists
+echo -n "Checking whether jam exists... "
+if [ -z "$jambin" ]; then
+	echo "not found"
+	echo "*** Caya requires jam, please read our Build.txt file."
+	exit 1
+else
+	echo "found"
+fi
+
+# Check for rc
+echo -n "Checking for rc... "
+if [ -z "$rcbin" ]; then
+	echo "not found"
+	exit 1
+fi
+echo $rcbin
+
+# Check for xres
+echo -n "Checking for xres..."
+if [ -z "$xresbin" ]; then
+	echo "not found"
+	exit 1
+fi
+echo $xresbin
+
+# Check for settype
+echo -n "Checking for settype..."
+if [ -z "$settypebin" ]; then
+	echo "not found"
+	exit 1
+fi
+echo $settypebin
+
+# Check for mimeset
+echo -n "Checking for mimeset..."
+if [ -z "$mimesetbin" ]; then
+	echo "not found"
+	exit 1
+fi
+echo $mimesetbin
+
+# Check for setverion
+echo -n "Checking for setversion..."
+if [ -z "$setversionbin" ]; then
+	echo "not found"
+	exit 1
+fi
+echo $setversionbin
+
+# Check for copyattr
+echo -n "Checking for copyattr..."
+if [ -z "$copyattrbin" ]; then
+	echo "not found"
+	exit 1
+fi
+echo $copyattrbin
+
+# Create the build configuration
+mkdir -p $current_dir/generated
+cat > $current_dir/generated/BuildConfig << EOF
+RC = ${rcbin} ;
+XRES = ${xresbin} ;
+SETTYPE = ${settypebin} ;
+MIMESET = ${mimesetbin} ;
+SETVERSION = ${setversionbin} ;
+COPYATTR = ${copyattrbin} ;
+
+COMMON_DIRECTORY = $(finddir B_COMMON_DIRECTORY) ;
+COMMON_BIN_DIRECTORY = $(finddir B_COMMON_BIN_DIRECTORY) ;
+COMMON_INCLUDE_DIRECTORY = $(finddir B_COMMON_DIRECTORY)/include ;
+COMMON_LIB_DIRECTORY = $(finddir B_COMMON_LIB_DIRECTORY) ;
+COMMON_SERVERS_DIRECTORY = $(finddir B_COMMON_SERVERS_DIRECTORY) ;
+COMMON_ADDONS_DIRECTORY = $(finddir B_COMMON_ADDONS_DIRECTORY) ;
+COMMON_DEVELOP_DIRECTORY = $(finddir B_COMMON_DEVELOP_DIRECTORY) ;
+USER_CONFIG_DIRECTORY = $(finddir B_USER_CONFIG_DIRECTORY) ;
+USER_INCLUDE_DIRECTORY = $(finddir B_USER_CONFIG_DIRECTORY)/include ;
+SYSTEM_DIRECTORY = $(finddir B_SYSTEM_DIRECTORY) ;
+SYSTEM_LIB_DIRECTORY = $(finddir B_SYSTEM_LIB_DIRECTORY) ;
+BEOS_PREFERENCES_DIRECTORY = $(finddir B_BEOS_PREFERENCES_DIRECTORY) ;
+PREFERENCES_DIRECTORY = $(finddir B_PREFERENCES_DIRECTORY) ;
+USER_PREFERENCES_DIRECTORY = $(finddir B_USER_CONFIG_DIRECTORY)/be/Preferences ;
+APPS_DIRECTORY = $(finddir B_APPS_DIRECTORY) ;
+
+DEFINES += ${defines} ;
+EOF
+
+echo "Configuration done."

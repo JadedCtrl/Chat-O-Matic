@@ -1,0 +1,27 @@
+# InstallRules
+#
+# Missing rules for installation.
+
+rule InstallSymLink
+{
+	# InstallSymlink linkname : source ;
+
+	LocalDepends install : $(>) ;
+	LocalDepends install : $(<) ;
+	LocalClean uninstall : $(<) ;
+
+	NoCare $(>) ;
+	InstallSymLink1 $(<) : $(>) ;
+}
+
+actions InstallSymLink1
+{
+	$(RM) $(<) && $(LN) -s $(>) $(<)
+}
+
+rule UninstallTarget
+{
+	# UninstallTarget target ;
+
+	LocalClean uninstall : $(<) ;
+}

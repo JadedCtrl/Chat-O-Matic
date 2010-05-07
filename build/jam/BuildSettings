@@ -1,0 +1,113 @@
+# BuildSettings
+#
+# Setup global variables.
+
+# C and C++ flags
+if $(OSPLAT) = PPC {
+	# filter out -nosyspath
+	CFLAGS = [ FFilter $(CFLAGS) : -nosyspath ] ;
+	C++FLAGS = [ FFilter $(C++FLAGS) : -nosyspath ] ;
+	LINKFLAGS += -warn -export pragma ;
+}
+
+# Use copyattr for copying.
+CP = copyattr --data ;
+
+# Default paths for bison and flex:
+BISON = bison ;
+LEX = flex ;
+
+# mkdir shall not fail, if the directory already exists.
+MKDIR = mkdir -p ;
+
+# by default we do not strip and do not build tests:
+STRIP_APPS ?= 0 ;
+BUILD_TESTS ?= 0 ;
+
+# Enable debugging by default
+DEBUG ?= 1 ;
+
+rule SetUpSubDirBuildSettings
+{
+	# SetUpSubDirBuildSettings <dir> ;
+	#
+	# Sets up the compiler flags and defines based on the WARNINGS, DEBUG, and
+	# OPTIMIZE variables. Also sets the locations for the targets (objects,
+	# libraries and executables).
+	#
+	# <dir>: Parameters as passed to the SubDir rule, i.e. the name of the
+	#        TOP variable and the subdir tokens.
+	#
+	local dir = $(1) ;
+
+	# warnings settings
+	if $(WARNINGS) != 0 {
+		if $(OSPLAT) = X86 {
+			CCFLAGS += -Wall -Wno-multichar -Wpointer-arith 
+							-Wmissing-prototypes -Wcast-align -Wsign-compare ;
+			C++FLAGS += -Wall -Wno-multichar -Wno-ctor-dtor-privacy -Woverloaded-virtual 
+							-Wconversion -Wpointer-arith -Wcast-align
+							-Wsign-compare -Wno-reorder -Wno-unknown-pragmas ;
+		} else {
+			CCFLAGS += -w on -requireprotos ;
+		}
+	}
+
+	local gccString = ;
+	if $(IS_GCC4_PLATFORM) {
+		gccString += gcc4 ;
+	} else {
+		gccString += gcc2 ;
+	}
+
+	local binModeString = ;
+	if $(DEBUG) && $(DEBUG) != 0 {
+		binModeString += debug ;
+	} else {
+		binModeString += release ;
+	}
+
+	# debugging settings
+	if $(DEBUG) && $(DEBUG) != 0 {
+		OPTIMIZE = 0 ;
+		STRIP_APPS = 0 ;
+		DEFINES += DEBUG=$(DEBUG) BM_REF_DEBUGGING ;
+		CCFLAGS += -g ;
+		C++FLAGS += -g -fno-inline ;
+		LINKFLAGS += -g ;
+	}
+
+	DISTRO_DIR = [ FDirName $(TOP) generated distro-$(OS:L)-$(OSPLAT:L)-$(gccString)-$(binModeString) ] ;
+	OBJECTS_DIR = [ FDirName $(TOP) generated objects-$(OS:L)-$(OSPLAT:L)-$(gccString)-$(binModeString) ] ;
+
+	# optimization settings
+	if $(OPTIMIZE) = 0 {
+		if $(OSPLAT) = X86 {
+			OPTIM = -O0 ;
+		} else {
+			OPTIM = -O0 ;
+		}
+	} else {
+		if $(OSPLAT) = X86 {
+			OPTIM ?= -O3 -fstrict-aliasing ;
+		} else {
+			OPTIM ?= -O7 ;
+		}
+	}
+
+	# setup objects location
+	local objdir = [ FDirName $(OBJECTS_DIR) $(dir[2-]) ] ;
+	SEARCH_SOURCE += $(objdir) ;
+	LOCATE_SOURCE = $(objdir) ;
+	LOCATE_TARGET = $(objdir) ;
+
+	# setup main targets location
+	LOCATE_MAIN_TARGET ?= [ FDirName $(DISTRO_DIR) ] ;
+}
+
+# The LOCATE_MAIN_TARGET variable shall be reset for each subdirectory.
+AUTO_SET_UP_CONFIG_VARIABLES += LOCATE_MAIN_TARGET ;
+
+# Add the rules setting up the build settings for a subdirectory to the
+# rules invoked by SubDir.
+SUBDIRRULES += SetUpSubDirBuildSettings ;

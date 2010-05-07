@@ -1,0 +1,12 @@
+SubDir TOP ;
+
+# Include all the components
+SubInclude TOP libs ;
+SubInclude TOP application ;
+SubInclude TOP protocols ;
+SubInclude TOP smileys ;
+
+Distro distro ;
+FullDistro fulldistro ;
+
+UninstallTarget $(APPS_DIRECTORY)/caya ;

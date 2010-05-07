@@ -1,0 +1,21 @@
+SubDir TOP libs librunview ;
+
+SubDirSysHdrs [ FDirName $(TOP) ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs ] ;
+
+SEARCH_SOURCE += [ FDirName $(TOP) libs ] ;
+
+local sources =
+	# libjabber
+	Theme.cpp
+	RunView.cpp
+	Utilities.cpp
+	URLCrunch.cpp
+	Emoticor.cpp
+	Emoconfig.cpp
+;
+
+
+StaticLibrary librunview.a : $(sources) ;
+
+Depends libjabber.a ;

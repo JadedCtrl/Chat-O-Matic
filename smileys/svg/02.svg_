@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!-- Generator: libbsvg 0.5.0 - a native SVG-Library for BeOS -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" width="32.03" height="32.00">
+	<radialGradient id="XMLID_1_" gradientUnits="userSpaceOnUse" cx="-855.50" cy="313.54" r="39.17" fx="-855.50" fy="313.54" gradientTransform="matrix(1.00 0.00 0.00 -1.00 871.50 377.54)">
+		<stop offset="0.00" style="stop-color:#000000;"/>
+		<stop offset="0.67" style="stop-color:#000000;"/>
+		<stop offset="1.00" style="stop-color:#000000; stop-opacity:0.00;"/>
+	</radialGradient>
+	<radialGradient id="XMLID_2_" gradientUnits="userSpaceOnUse" cx="-855.50" cy="360.39" r="13.83" fx="-855.50" fy="360.39" gradientTransform="matrix(1.00 0.00 0.00 -1.00 871.50 377.54)">
+		<stop offset="0.00" style="stop-color:#ff6767;"/>
+		<stop offset="1.00" style="stop-color:#c00000;"/>
+	</radialGradient>
+	<radialGradient id="XMLID_3_" gradientUnits="userSpaceOnUse" cx="-868.00" cy="357.83" r="10.50" fx="-868.00" fy="357.83" gradientTransform="matrix(0.97 -0.26 -0.26 -0.97 939.91 140.37)">
+		<stop offset="0.00" style="stop-color:#ffffff; stop-opacity:0.00;"/>
+		<stop offset="0.75" style="stop-color:#ffffff; stop-opacity:0.00;"/>
+		<stop offset="1.00" style="stop-color:#ffffff;"/>
+	</radialGradient>
+	<radialGradient id="XMLID_4_" gradientUnits="userSpaceOnUse" cx="-843.21" cy="359.40" r="10.50" fx="-843.21" fy="359.40" gradientTransform="matrix(0.97 0.26 0.26 -0.97 744.53 584.75)">
+		<stop offset="0.00" style="stop-color:#ffffff; stop-opacity:0.00;"/>
+		<stop offset="0.75" style="stop-color:#ffffff; stop-opacity:0.00;"/>
+		<stop offset="1.00" style="stop-color:#ffffff;"/>
+	</radialGradient>
+	<radialGradient id="XMLID_5_" gradientUnits="userSpaceOnUse" cx="-855.50" cy="363.04" r="18.55" fx="-855.50" fy="363.04" gradientTransform="matrix(1.00 0.00 0.00 -1.00 871.50 377.54)">
+		<stop offset="0.00" style="stop-color:#000000; stop-opacity:0.00;"/>
+		<stop offset="0.75" style="stop-color:#000000; stop-opacity:0.00;"/>
+		<stop offset="0.88" style="stop-color:#000000; stop-opacity:0.50;"/>
+		<stop offset="1.00" style="stop-color:#000000;"/>
+	</radialGradient>
+	<path fill="none" stroke="none" d=" M32.00 32.00 H0.00 V0.00 H32.00 V32.00 Z"/>
+	<path fill="url(#XMLID_1_)" stroke="none" d=" M0.00 26.00 C0.00 24.90 3.58 24.00
+		8.01 24.00 S16.01 24.90 16.01 26.00 C16.01 24.90 19.59 24.00 24.02 24.00 C28.44
+		24.00 32.02 24.90 32.03 26.00 C32.03 29.31 16.03 32.00 16.04 32.00 S0.00 29.31
+		0.00 26.00 Z"/>
+	<path fill="#800000" stroke="none" d=" M24.00 8.00 C20.74 8.00 17.95 9.95 16.71 12.74
+		C16.53 13.09 16.28 13.31 16.02 13.31 S15.50 13.09 15.32 12.74 C15.32 12.74 15.32
+		12.74 15.33 12.74 C14.05 9.95 11.26 8.00 8.01 8.00 C3.59 8.00 0.01 11.58 0.02
+		16.00 C0.02 29.26 16.02 32.00 16.03 32.00 S32.03 29.26 32.03 16.00 C32.00 11.58
+		28.42 8.00 24.01 8.00 Z"/>
+	<path fill="url(#XMLID_2_)" stroke="none" d=" M1.12 17.79 C1.15 18.03 1.19 18.27
+		1.24 18.51 C2.97 28.19 14.52 30.70 16.01 30.98 C17.49 30.70 29.04 28.19 30.79
+		18.51 C30.83 18.27 30.87 18.03 30.91 17.78 C30.93 17.64 30.94 17.49 30.97 17.35
+		C30.97 16.90 31.00 16.45 31.01 16.00 C31.01 12.14 27.87 9.00 24.02 9.00 C21.27
+		9.00 18.76 10.63 17.64 13.15 L17.62 13.19 C17.26 13.90 16.68 14.31 16.04 14.31
+		C15.39 14.31 14.81 13.90 14.46 13.19 C13.26 10.63 10.75 9.00 8.01 9.00 C4.15 9.00
+		1.01 12.14 1.02 16.00 C1.02 16.45 1.05 16.90 1.10 17.35 C1.08 17.50 1.10 17.64
+		1.13 17.79 Z"/>
+	<path fill="url(#XMLID_3_)" stroke="none" d=" M6.19 9.24 C2.45 10.24 0.24 14.08 1.25
+		17.81 C2.25 21.54 6.09 23.76 9.83 22.76 C13.57 21.76 15.78 17.92 14.79 14.19 C13.76
+		10.45 9.92 8.24 6.20 9.24 Z"/>
+	<path fill="url(#XMLID_4_)" stroke="none" d=" M25.81 9.24 C22.08 8.24 18.24 10.45
+		17.25 14.19 C16.25 17.92 18.47 21.76 22.21 22.76 C25.94 23.76 29.78 21.54 30.79
+		17.81 C31.76 14.08 29.55 10.24 25.82 9.24 Z"/>
+	<path fill="url(#XMLID_5_)" fill-opacity="0.50" stroke="none" d=" M1.12 17.79 C1.15
+		18.03 1.19 18.27 1.24 18.52 C2.97 28.19 14.52 30.70 16.01 30.98 C17.49 30.70 29.04
+		28.19 30.79 18.52 C30.83 18.27 30.87 18.03 30.91 17.79 C30.93 17.64 30.94 17.49
+		30.97 17.35 C30.97 16.90 31.00 16.45 31.01 16.00 C31.01 12.14 27.87 9.00 24.02
+		9.00 C21.27 9.00 18.76 10.63 17.64 13.15 L17.62 13.19 C17.26 13.90 16.68 14.31
+		16.04 14.31 C15.39 14.31 14.81 13.90 14.46 13.19 C13.26 10.63 10.75 9.00 8.01
+		9.00 C4.15 9.00 1.01 12.14 1.02 16.00 C1.02 16.46 1.05 16.91 1.10 17.35 C1.08
+		17.50 1.10 17.64 1.13 17.79 Z"/>
+</svg>

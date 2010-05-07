@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 11.0, SVG Export Plug-In . SVG Version: 6.0.0 Build 78)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN"    "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd" [
+	<!ENTITY ns_flows "http://ns.adobe.com/Flows/1.0/">
+	<!ENTITY ns_svg "http://www.w3.org/2000/svg">
+	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">
+]>
+<svg  xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+	 width="124.758" height="128" viewBox="0 0 124.758 128" overflow="visible" enable-background="new 0 0 124.758 128"
+	 xml:space="preserve">
+		<g id="Ebene_1">
+			<ellipse opacity="0.25" enable-background="new    " cx="64.154" cy="114.524" rx="60.604" ry="13.475"/> 
+			<circle cx="62.352" cy="62.353" r="62.353"/> 
+			
+				<radialGradient id="XMLID_3_" cx="-160.2905" cy="455.0347" r="87.4301" fx="-160.2905" fy="455.0347" gradientTransform="matrix(1 0 0 -1 235.3892 483.9424)" gradientUnits="userSpaceOnUse">
+				<stop  offset="0" style="stop-color:#FFFFFF"/>
+				<stop  offset="0.7022" style="stop-color:#F7E015"/>
+				<stop  offset="0.8876" style="stop-color:#ECC516"/>
+				<stop  offset="1" style="stop-color:#FBAE10"/>
+				<a:midPointStop  offset="0" style="stop-color:#FFFFFF"/>
+				<a:midPointStop  offset="0.5" style="stop-color:#FFFFFF"/>
+				<a:midPointStop  offset="0.7022" style="stop-color:#F7E015"/>
+				<a:midPointStop  offset="0.5" style="stop-color:#F7E015"/>
+				<a:midPointStop  offset="0.8876" style="stop-color:#ECC516"/>
+				<a:midPointStop  offset="0.5" style="stop-color:#ECC516"/>
+				<a:midPointStop  offset="1" style="stop-color:#FBAE10"/>
+			</radialGradient>
+			<circle fill="url(#XMLID_3_)" cx="62.352" cy="62.353" r="56.433"/> 
+			<path d="M46.227,35.031c-2.953,8.111-9.133,13.307-13.805,11.607c-4.668-1.699-6.063-9.652-3.109-17.76
+				c2.945-8.111,9.129-13.309,13.801-11.607C47.781,18.975,49.176,26.924,46.227,35.031z"/>
+			<path d="M91.977,28.879c2.949,8.107,1.555,16.057-3.113,17.76c-4.672,1.701-10.855-3.496-13.801-11.607
+				c-2.953-8.107-1.559-16.061,3.109-17.76C82.844,15.57,89.023,20.768,91.977,28.879z"/>
+			<path d="M26.938,69.331c2.352-2.354,9,2,34,2s31.477-3.188,34.328-0.334c2.859,2.854-6.664,22.334-34.664,22.334
+				S24.582,71.684,26.938,69.331z"/>
+			<path d="M63.328,115.774c27.148,0,17.09-36.883,9.82-36.883c-7.266,0-11.73,1.684-11.73,1.684s-5.867-2.477-10.074-2.477
+				C43.313,78.098,29.297,115.774,63.328,115.774z"/>
+			
+				<radialGradient id="XMLID_4_" cx="62.8535" cy="111.5806" r="29.5349" fx="62.8535" fy="111.5806" gradientUnits="userSpaceOnUse">
+				<stop  offset="0" style="stop-color:#F3B777"/>
+				<stop  offset="0.0889" style="stop-color:#F3AD6D"/>
+				<stop  offset="0.2411" style="stop-color:#F39256"/>
+				<stop  offset="0.4382" style="stop-color:#F26735"/>
+				<stop  offset="0.6704" style="stop-color:#F22B11"/>
+				<stop  offset="0.7022" style="stop-color:#F2230D"/>
+				<stop  offset="0.8708" style="stop-color:#E9130B"/>
+				<stop  offset="1" style="stop-color:#BB060B"/>
+				<a:midPointStop  offset="0" style="stop-color:#F3B777"/>
+				<a:midPointStop  offset="0.5887" style="stop-color:#F3B777"/>
+				<a:midPointStop  offset="0.7022" style="stop-color:#F2230D"/>
+				<a:midPointStop  offset="0.5" style="stop-color:#F2230D"/>
+				<a:midPointStop  offset="0.8708" style="stop-color:#E9130B"/>
+				<a:midPointStop  offset="0.5" style="stop-color:#E9130B"/>
+				<a:midPointStop  offset="1" style="stop-color:#BB060B"/>
+			</radialGradient>
+			<path fill="url(#XMLID_4_)" d="M63.074,113.358c23.668,0,14.898-32.152,8.563-32.152S61.41,82.672,61.41,82.672
+				s-5.117-2.158-8.785-2.158C45.625,80.514,33.406,113.358,63.074,113.358z"/>
+			<path d="M60.277,78.377c0,0,1.25,4.418,1.25,11.084c0,3.523-1.582,13.082-0.082,13.082s1.5-13.25,1.5-13.25
+				s-0.293-10.541,0-10.832S60.277,78.377,60.277,78.377z"/>
+			<path opacity="0.25" fill="#FFFFFF" enable-background="new    " d="M79.375,8.535c22.641,6.365,38.258,31,38.734,45.07
+				c0.395,11.75-32.305-3.594-46.711-8.545c-14.406-4.953-61.805-5.906-54.359-16.348C23.867,19.137,46.766-2.17,79.375,8.535z"/>
+		</g>
+	</svg>

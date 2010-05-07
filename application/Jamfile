@@ -1,0 +1,56 @@
+SubDir TOP application ;
+
+SubDirSysHdrs [ FDirName $(TOP) ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs libjabber ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs librunview ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs libinterface ] ;
+SubDirSysHdrs [ FDirName $(OPENSSL_INCLUDE_DIR) ] ;
+
+SEARCH_SOURCE += [ FDirName $(TOP) application preferences ] ;
+SEARCH_SOURCE += [ FDirName $(TOP) application views ] ;
+
+Application caya :
+	Account.cpp
+	AccountManager.cpp
+	CayaUtils.cpp
+	ChatWindow.cpp
+	ContactLinker.cpp
+	EditingFilter.cpp
+	ImageCache.cpp
+	LooperCayaProtocol.cpp
+	Main.cpp
+	MainWindow.cpp
+	Notifier.cpp
+	ProtocolManager.cpp
+	ProtocolSettings.cpp
+	Server.cpp
+	TheApp.cpp
+	WindowsManager.cpp
+
+	# preferences
+	AccountListItem.cpp
+	PreferencesDialog.cpp
+	PreferencesAccounts.cpp
+
+	# views
+	ContactPopUp.cpp
+	NicknameTextControl.cpp
+	RosterItem.cpp
+	RosterListView.cpp
+	StatusMenuItem.cpp
+	StatusView.cpp
+	CayaRenderView.cpp
+	: be $(TARGET_LIBSTDC++) network translation expat
+	  librunview.a libinterface.a libjabber.a
+	  ssl crypto
+	: caya.rdef
+;
+
+Depends caya : libjabber.a ;
+Depends caya : librunview.a ;
+Depends caya : libinterface.a ;
+
+LINKFLAGS on caya += -L$(OPENSSL_LIBRARY_DIR) ;
+
+InstallBin $(APPS_DIRECTORY)/caya : caya ;

@@ -1,0 +1,31 @@
+# FileRules
+#
+# Rules for files and symbolic links.
+
+rule SymLink
+{
+	# SymLink <target> : <source> : <makeDefaultDependencies> ;
+	# Links <target> to <source>.
+	# <source> is the exact link contents. No binding is done.
+	# <makeDefaultDependencies> If true, <target> will be made a dependency
+	# of the `all' pseudo target, i.e. it will be made by default, and removed
+	# on `jam clean'.
+
+	local target = $(1) ;
+	local source = $(2) ;
+	local makeDefaultDependencies = $(3) ;
+	if ! $(makeDefaultDependencies) {
+		makeDefaultDependencies = true ;
+	}
+	LINKCONTENTS on $(target) = $(source) ;
+	SymLink1 $(target) ;
+	if $(makeDefaultDependencies) = true {
+		LocalDepends files : $(target) ;
+		LocalClean clean : $(target) ;
+	}
+}
+
+actions SymLink1
+{
+	$(RM) "$(1)" && $(LN) -s "$(LINKCONTENTS)" "$(1)"
+}
