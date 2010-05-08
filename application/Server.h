@@ -8,9 +8,10 @@
 #include <Message.h>
 #include <MessageFilter.h>
 
+#include <libsupport/KeyMap.h>
+
 #include "CayaConstants.h"
 #include "ContactLinker.h"
-#include "KeyMap.h"
 
 class MainWindow;
 class RosterItem;

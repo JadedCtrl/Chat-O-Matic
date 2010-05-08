@@ -6,33 +6,35 @@
 #ifndef _PROTOCOL_SETTINGS_H
 #define _PROTOCOL_SETTINGS_H
 
+#include <libsupport/List.h>
+
 class BMessage;
 class CayaProtocol;
 
 class ProtocolSettings {
 public:
-					ProtocolSettings(CayaProtocol* cayap);
-					~ProtocolSettings();
+						ProtocolSettings(CayaProtocol* cayap);
+						~ProtocolSettings();
 
-	status_t		InitCheck() const;
+	status_t			InitCheck() const;
 
-	BList*			Accounts() const;
+	CayaProtocol*		Protocol() const;
+	List<BString>		Accounts() const;
 
-	status_t		Load(const char* account);
-	status_t		Save(const char* account);
-	status_t		Delete(const char* account);
-
-	void			BuildGUI(BView* parent);
-	status_t		SaveGUI(BView* parent);
+	status_t			LoadTemplate(BView* parent);
+	status_t			Load(const char* account, BView* parent);
+	status_t			Save(const char* account, BView* parent);
+	status_t			Delete(const char* account);
 
 private:
-	status_t		fStatus;
-	CayaProtocol*	fProtocol;
-	BString			fAccount;
-	BMessage*		fTemplate;
-	BMessage*		fSettings;
+	status_t			fStatus;
+	CayaProtocol*		fProtocol;
+	BString				fAccount;
+	BMessage*			fTemplate;
 
-	void			_Init();
+	void				_Init();
+	status_t			_Load(const char* account, BMessage** settings);
+	status_t			_Save(const char* account, BMessage* settings);
 };
 
 #endif	// _PROTOCOL_SETTINGS_H

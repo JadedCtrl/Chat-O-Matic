@@ -12,7 +12,7 @@
 #include <GroupLayout.h>
 #include <GroupLayoutBuilder.h>
 #include <ListView.h>
-#include <Menu.h>
+#include <PopUpMenu.h>
 #include <MenuField.h>
 #include <ScrollView.h>
 #include <TextControl.h>
@@ -21,6 +21,7 @@
 #include <libinterface/BitmapMenuItem.h>
 #include <libinterface/Divider.h>
 #include <libinterface/NotifyingTextView.h>
+#include <libinterface/ToolButton.h>
 
 #include "AccountListItem.h"
 #include "CayaProtocol.h"
@@ -28,14 +29,15 @@
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
 
-const uint32 kAddAccount  = 'ADAC';
-const uint32 kEditAccount = 'EDAC';
-const uint32 kDelAccount  = 'DLAC';
-const uint32 kSelect      = 'SELT';
+const uint32 kAddAccount   = 'ADAC';
+const uint32 kEditAccount  = 'EDAC';
+const uint32 kDelAccount   = 'DLAC';
+const uint32 kSelect       = 'SELT';
 
-const uint32 kCancel      = 'CANC';
-const uint32 kOK          = 'SAVE';
-const uint32 kChanged     = 'CHGD';
+const uint32 kCancel       = 'CANC';
+const uint32 kOK           = 'SAVE';
+
+const uint32 kChanged      = 'CHGD';
 
 
 class AccountView : public BView {
@@ -100,21 +102,22 @@ public:
 			B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE)
 	{
 		fSettings = new ProtocolSettings(cayap);
-		if (account)
-			fSettings->Load(account);
 
 		fAccountName = new BTextControl("accountName", "Account name:", NULL, NULL);
 		fAccountName->SetFont(be_bold_font);
-		fAccountName->MakeFocus();
 		if (account) {
 			fAccountName->SetText(account);
 			fAccountName->SetEnabled(false);
-		}
+		} else
+			fAccountName->MakeFocus(true);
 
 		Divider* divider = new Divider("divider", B_WILL_DRAW);
 
 		fTop = new AccountView("top");
-		fSettings->BuildGUI(fTop);
+		if (account)
+			fSettings->Load(account, fTop);
+		else
+			fSettings->LoadTemplate(fTop);
 
 		BButton* cancel = new BButton("Cancel", new BMessage(kCancel));
 		BButton* ok = new BButton("OK", new BMessage(kOK));
@@ -142,9 +145,8 @@ public:
 	{
 		switch (msg->what) {
 			case kOK:
-				if (fSettings->SaveGUI(fTop) == B_OK)
-					if (fSettings->Save(fAccountName->Text()) == B_OK)
-						Close();
+				if (fSettings->Save(fAccountName->Text(), fTop) == B_OK)
+					Close();
 // TODO: Error!
 				break;
 			case kCancel:
@@ -177,20 +179,14 @@ PreferencesAccounts::PreferencesAccounts()
 
 	BList* protocols = ProtocolManager::Get()->GetProtocols();
 
-	fProtosMenu = new BMenu("Add");
+	fProtosMenu = new BPopUpMenu(NULL, true);
 	for (int32 i = 0; i < protocols->CountItems(); i++) {
 		CayaProtocol* cayap
 			= reinterpret_cast<CayaProtocol*>(protocols->ItemAtFast(i));
 		ProtocolSettings* settings = new ProtocolSettings(cayap);
-		BList* accounts = settings->Accounts();
 
 		// Add accounts to list view
-		for (int32 j = 0; j < accounts->CountItems(); j++) {
-			BString* account = reinterpret_cast<BString*>(accounts->ItemAtFast(j));
-			AccountListItem* listItem = new AccountListItem(cayap,
-				account->String());
-			fListView->AddItem(listItem);
-		}
+		_LoadListView(settings);
 
 		// Add menu items
 		BMessage* msg = new BMessage(kAddAccount);
@@ -201,13 +197,13 @@ PreferencesAccounts::PreferencesAccounts()
 			ProtocolManager::Get()->GetProtocolIcon(cayap->GetSignature()));
 		fProtosMenu->AddItem(item);
 
-		delete accounts;
 		delete settings;
 	}
 
-	BMenuField* proto = new BMenuField("addAccountField", NULL, fProtosMenu);
-	fDelButton = new BButton(" - ", new BMessage(kDelAccount));
-	fEditButton = new BButton("Edit...", new BMessage(kEditAccount));
+	ToolButton* proto = new ToolButton("+", NULL);
+	proto->SetMenu(fProtosMenu);
+	fDelButton = new ToolButton("-", new BMessage(kDelAccount));
+	fEditButton = new ToolButton("Edit...", new BMessage(kEditAccount));
 	fDelButton->SetEnabled(false);
 	fEditButton->SetEnabled(false);
 
@@ -255,6 +251,9 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 			if (msg->FindPointer("protocol", &protocol) == B_OK) {
 				CayaProtocol* cayap = (CayaProtocol*) protocol;
 
+				BLooper* looper = new BLooper();
+				looper->AddHandler(this);
+
 				AccountDialog* dialog = new AccountDialog("Add account", cayap);
 				dialog->Show();
 			}
@@ -271,6 +270,9 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 
 				CayaProtocol* cayap = item->Protocol();
 				const char* account = item->Account();
+
+				BLooper* looper = new BLooper();
+				looper->AddHandler(this);
 
 				AccountDialog* dialog = new AccountDialog("Edit account", cayap, account);
 				dialog->Show();
@@ -296,5 +298,23 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 		}
 		default:
 			BView::MessageReceived(msg);
+	}
+}
+
+
+void
+PreferencesAccounts::_LoadListView(ProtocolSettings* settings)
+{
+	if (!settings)
+		return;
+
+	List<BString> accounts = settings->Accounts();
+
+	// Add accounts to list view
+	for (uint32 i = 0; i < accounts.CountItems(); i++) {
+		BString account = accounts.ItemAt(i);
+		AccountListItem* listItem = new AccountListItem(
+			settings->Protocol(), account.String());
+		fListView->AddItem(listItem);
 	}
 }

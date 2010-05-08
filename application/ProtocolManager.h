@@ -9,7 +9,8 @@
 #include <Path.h>
 #include <String.h>
 
-#include "KeyMap.h"
+#include <libs/libsupport/KeyMap.h>
+
 #include "CayaProtocol.h"
 
 class BBitmap;

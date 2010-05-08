@@ -7,9 +7,12 @@
 
 #include <View.h>
 
-class BListView;
-class BMenu;
 class BButton;
+class BListView;
+class BPopUpMenu;
+
+class ToolButton;
+class ProtocolSettings;
 
 class PreferencesAccounts : public BView {
 public:
@@ -20,9 +23,12 @@ public:
 
 private:
 	BListView*		fListView;
-	BMenu*			fProtosMenu;
-	BButton*		fDelButton;
-	BButton*		fEditButton;
+	BPopUpMenu*		fProtosMenu;
+	ToolButton*		fDelButton;
+	ToolButton*		fEditButton;
+
+
+	void			_LoadListView(ProtocolSettings* settings);
 };
 
 #endif	// _PREFERENCES_ACCOUNTS_H

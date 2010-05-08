@@ -44,8 +44,7 @@ const float kDividerWidth = 1.0f;
 
 ProtocolSettings::ProtocolSettings(CayaProtocol* cayap)
 	: fProtocol(cayap),
-	fTemplate(new BMessage()),
-	fSettings(new BMessage())
+	fTemplate(new BMessage())
 {
 	_Init();
 }
@@ -54,7 +53,6 @@ ProtocolSettings::ProtocolSettings(CayaProtocol* cayap)
 ProtocolSettings::~ProtocolSettings()
 {
 	delete fTemplate;
-	delete fSettings;
 }
 
 
@@ -65,19 +63,27 @@ ProtocolSettings::InitCheck() const
 }
 
 
-BList*
+CayaProtocol*
+ProtocolSettings::Protocol() const
+{
+	return fProtocol;
+}
+
+
+List<BString>
 ProtocolSettings::Accounts() const
 {
+	List<BString> list;
+
 	BPath path;
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
-		return NULL;
+		return list;
 
 	path.Append("Caya/Protocols");
 	path.Append(fProtocol->GetSignature());
 	if (create_directory(path.Path(), 0755) != B_OK)
-		return NULL;
+		return list;
 
-	BList* list = new BList();
 	BDirectory dir(path.Path());
 	BEntry entry;
 	while (dir.GetNextEntry(&entry) == B_OK) {
@@ -86,10 +92,8 @@ ProtocolSettings::Accounts() const
 
 		if (msg.Unflatten(&file) == B_OK) {
 			char buffer[B_PATH_NAME_LENGTH];
-			if (entry.GetName(buffer) == B_OK) {
-				BString* string = new BString(buffer);
-				list->AddItem(string);
-			}
+			if (entry.GetName(buffer) == B_OK)
+				list.AddItem(BString(buffer));
 		}
 	}
 
@@ -98,84 +102,25 @@ ProtocolSettings::Accounts() const
 
 
 status_t
-ProtocolSettings::Load(const char* account)
+ProtocolSettings::LoadTemplate(BView* parent)
 {
-	status_t ret = B_ERROR;
-
-	// Find user's settings path
-	BPath path;
-	if ((ret = find_directory(B_USER_SETTINGS_DIRECTORY, &path)) != B_OK)
-		return ret;
-
-	// Create path
-	path.Append("Caya/Protocols");
-	path.Append(fProtocol->GetSignature());
-	if ((ret = create_directory(path.Path(), 0755)) != B_OK)
-		return ret;
-
-	// Load settings file
-	path.Append(account);
-	BFile file(path.Path(), B_READ_ONLY);
-	return fSettings->Unflatten(&file);
+	return Load(NULL, parent);
 }
 
 
 status_t
-ProtocolSettings::Save(const char* account)
-{
-	status_t ret = B_ERROR;
-
-	// Find user's settings path
-	BPath path;
-	if ((ret = find_directory(B_USER_SETTINGS_DIRECTORY, &path)) != B_OK)
-		return ret;
-
-	// Create path
-	path.Append("Caya/Protocols");
-	path.Append(fProtocol->GetSignature());
-	if ((ret = create_directory(path.Path(), 0755)) != B_OK)
-		return ret;
-
-	// Load settings file
-	path.Append(account);
-	BFile file(path.Path(), B_CREATE_FILE | B_ERASE_FILE | B_WRITE_ONLY);
-	return fSettings->Flatten(&file);
-}
-
-
-status_t
-ProtocolSettings::Delete(const char* account)
-{
-	status_t ret = B_ERROR;
-
-	// Find user's settings path
-	BPath path;
-	if ((ret = find_directory(B_USER_SETTINGS_DIRECTORY, &path)) != B_OK)
-		return ret;
-
-	// Create path
-	path.Append("Caya/Protocols");
-	path.Append(fProtocol->GetSignature());
-	if ((ret = create_directory(path.Path(), 0755)) != B_OK)
-		return ret;
-	path.Append(account);
-
-	// Delete settings file
-	BEntry entry(path.Path());
-	if ((ret = entry.Remove()) != B_OK)
-		return ret;
-
-	delete fSettings;
-	fSettings = new BMessage();
-	return B_OK;
-}
-
-
-void
-ProtocolSettings::BuildGUI(BView* parent)
+ProtocolSettings::Load(const char* account, BView* parent)
 {
 	if (!parent)
 		debugger("Couldn't build protocol's settings GUI on a NULL parent!");
+
+	BMessage* settings = NULL;
+
+	if (account) {
+		status_t ret = _Load(account, &settings);
+		if (ret != B_OK)
+			return ret;
+	}
 
 	BMessage curr;
 	float inset = ceilf(be_plain_font->Size() * 0.7f);
@@ -215,17 +160,21 @@ ProtocolSettings::BuildGUI(BView* parent)
 						menu->AddItem(item);
 					}
 
-					value = fSettings->FindString(name);
-					if (value)
-						menu->FindItem(value)->SetMarked(true);
+					if (settings) {
+						value = settings->FindString(name);
+						if (value)
+							menu->FindItem(value)->SetMarked(true);
+					}
 				} else {
 					// It's a free-text setting
 					if (curr.FindBool("multi_line", &multiLine) != B_OK)
 						multiLine = false;
 
-					value = fSettings->FindString(name);
-					if (!value)
-						value = curr.FindString("default");
+					if (settings) {
+						value = settings->FindString(name);
+						if (!value)
+							value = curr.FindString("default");
+					}
 
 					if (curr.FindBool("is_secret",&secret) != B_OK)
 						secret = false;
@@ -240,7 +189,10 @@ ProtocolSettings::BuildGUI(BView* parent)
 					menu = new BPopUpMenu(name);
 
 					int32 def = 0;
-					status_t hasValue = fSettings->FindInt32(name, 0, &def);
+					status_t hasValue = B_ERROR;
+
+					if (settings)
+						settings->FindInt32(name, 0, &def);
 
 					if (hasValue != B_OK)
 						hasValue = curr.FindInt32("default", 0, &def);
@@ -262,7 +214,7 @@ ProtocolSettings::BuildGUI(BView* parent)
 					// It's a free-text (but number) setting
 					int32 v = 0;
 
-					if (fSettings->FindInt32(name, &v) == B_OK) {
+					if (settings && settings->FindInt32(name, &v) == B_OK) {
 						sprintf(temp,"%ld", v);
 						value = temp;
 					} else if (curr.FindInt32("default", &v) == B_OK) {
@@ -278,7 +230,7 @@ ProtocolSettings::BuildGUI(BView* parent)
 			case B_BOOL_TYPE: {
 				bool active;
 
-				if (fSettings->FindBool(name, &active) != B_OK) {
+				if (settings && settings->FindBool(name, &active) != B_OK) {
 					if (curr.FindBool("default", &active) != B_OK)
 						active = false;
 				}
@@ -329,14 +281,18 @@ ProtocolSettings::BuildGUI(BView* parent)
 
 	layout.AddGlue();
 	parent->AddChild(layout);
+
+	return B_OK;
 }
 
 
 status_t
-ProtocolSettings::SaveGUI(BView* parent)
+ProtocolSettings::Save(const char* account, BView* parent)
 {
 	if (!parent)
 		debugger("Couldn't save protocol's settings GUI on a NULL parent!");
+
+	BMessage* settings = new BMessage();
 
 	BMessage cur;
 	for (int32 i = 0; fTemplate->FindMessage("setting", i, &cur) == B_OK; i++) {
@@ -359,10 +315,10 @@ ProtocolSettings::SaveGUI(BView* parent)
 		if (textControl) {
 			switch (type) {
 				case B_STRING_TYPE:
-					fSettings->AddString(name, textControl->Text());
+					settings->AddString(name, textControl->Text());
 					break;
 				case B_INT32_TYPE:
-					fSettings->AddInt32(name, atoi(textControl->Text()));
+					settings->AddInt32(name, atoi(textControl->Text()));
 					break;
 				default:
 					return B_ERROR;
@@ -378,10 +334,10 @@ ProtocolSettings::SaveGUI(BView* parent)
 
 			switch (type) {
 				case B_STRING_TYPE:
-					fSettings->AddString(name, item->Label());
+					settings->AddString(name, item->Label());
 					break;
 				case B_INT32_TYPE:
-					fSettings->AddInt32(name, atoi(item->Label()));
+					settings->AddInt32(name, atoi(item->Label()));
 					break;
 				default:
 					return B_ERROR;
@@ -391,15 +347,40 @@ ProtocolSettings::SaveGUI(BView* parent)
 		BCheckBox* checkBox
 			= dynamic_cast<BCheckBox*>(view);
 		if (checkBox)
-			fSettings->AddBool(name, (checkBox->Value() == B_CONTROL_ON));
+			settings->AddBool(name, (checkBox->Value() == B_CONTROL_ON));
 
 		NotifyingTextView* textView
 			= dynamic_cast<NotifyingTextView*>(view);
 		if (textView)
-			fSettings->AddString(name, textView->Text());
+			settings->AddString(name, textView->Text());
 	}
 
-fSettings->PrintToStream();
+	return _Save(account, settings);
+}
+
+
+status_t
+ProtocolSettings::Delete(const char* account)
+{
+	status_t ret = B_ERROR;
+
+	// Find user's settings path
+	BPath path;
+	if ((ret = find_directory(B_USER_SETTINGS_DIRECTORY, &path)) != B_OK)
+		return ret;
+
+	// Create path
+	path.Append("Caya/Protocols");
+	path.Append(fProtocol->GetSignature());
+	if ((ret = create_directory(path.Path(), 0755)) != B_OK)
+		return ret;
+	path.Append(account);
+
+	// Delete settings file
+	BEntry entry(path.Path());
+	if ((ret = entry.Remove()) != B_OK)
+		return ret;
+
 	return B_OK;
 }
 
@@ -432,4 +413,61 @@ ProtocolSettings::_Init()
 
 	// Load protocol's settings template
 	fTemplate->Unflatten((const char*)data);
+}
+
+
+status_t
+ProtocolSettings::_Load(const char* account, BMessage** settings)
+{
+	*settings = NULL;
+
+	if (!account || !settings)
+		return B_BAD_VALUE;
+
+	status_t ret = B_ERROR;
+
+	// Find user's settings path
+	BPath path;
+	if ((ret = find_directory(B_USER_SETTINGS_DIRECTORY, &path)) != B_OK)
+		return ret;
+
+	// Create path
+	path.Append("Caya/Protocols");
+	path.Append(fProtocol->GetSignature());
+	if ((ret = create_directory(path.Path(), 0755)) != B_OK)
+		return ret;
+
+	// Load settings file
+	path.Append(account);
+	BFile file(path.Path(), B_READ_ONLY);
+	BMessage* msg = new BMessage();
+	ret = msg->Unflatten(&file);
+	*settings = msg;
+	return ret;
+}
+
+
+status_t
+ProtocolSettings::_Save(const char* account, BMessage* settings)
+{
+	if (!account || !settings)
+		return B_BAD_VALUE;
+
+	status_t ret = B_ERROR;
+
+	// Find user's settings path
+	BPath path;
+	if ((ret = find_directory(B_USER_SETTINGS_DIRECTORY, &path)) != B_OK)
+		return ret;
+
+	// Create path
+	path.Append("Caya/Protocols");
+	path.Append(fProtocol->GetSignature());
+	if ((ret = create_directory(path.Path(), 0755)) != B_OK)
+		return ret;
+
+	// Load settings file
+	path.Append(account);
+	BFile file(path.Path(), B_CREATE_FILE | B_ERASE_FILE | B_WRITE_ONLY);
+	return settings->Flatten(&file);
 }

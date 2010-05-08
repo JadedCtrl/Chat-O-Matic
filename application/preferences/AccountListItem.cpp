@@ -20,7 +20,6 @@ AccountListItem::AccountListItem(CayaProtocol* cayap, const char* account)
 	fBaselineOffset(0)
 {
 	fSettings = new ProtocolSettings(cayap);
-	fSettings->Load(account);
 }
 
 

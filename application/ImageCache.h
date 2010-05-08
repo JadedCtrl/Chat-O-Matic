@@ -14,7 +14,8 @@ class BBitmap;
 
 #include <SupportDefs.h>
 #include <String.h>
-#include "KeyMap.h"
+
+#include <libsupport/KeyMap.h>
 
 class ImageCache
 {

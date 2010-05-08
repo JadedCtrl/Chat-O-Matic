@@ -300,6 +300,30 @@ ToolButton::Perform(perform_code code, void* data)
 			((perform_data_preferred_size*)data)->return_value
 					= ToolButton::PreferredSize();
 			return B_OK;
+		case PERFORM_CODE_LAYOUT_ALIGNMENT:
+			((perform_data_layout_alignment*)data)->return_value
+					= ToolButton::LayoutAlignment();
+			return B_OK;
+		case PERFORM_CODE_HAS_HEIGHT_FOR_WIDTH:
+			((perform_data_has_height_for_width*)data)->return_value
+					= ToolButton::HasHeightForWidth();
+			return B_OK;
+		case PERFORM_CODE_GET_HEIGHT_FOR_WIDTH: {
+			perform_data_get_height_for_width* _data
+					= (perform_data_get_height_for_width*)data;
+			ToolButton::GetHeightForWidth(_data->width, &_data->min, &_data->max,
+					&_data->preferred);
+			return B_OK;
+		}
+		case PERFORM_CODE_INVALIDATE_LAYOUT: {
+			perform_data_invalidate_layout* _data
+					= (perform_data_invalidate_layout*)_data;
+			ToolButton::InvalidateLayout(_data->descendants);
+			return B_OK;
+		}
+		case PERFORM_CODE_DO_LAYOUT:
+			ToolButton::DoLayout();
+			return B_OK;
 	}
 
 	return BControl::Perform(code, data);
@@ -375,7 +399,7 @@ ToolButton::_ValidatePreferredSize()
 		GetFontHeight(&fontHeight);
 
 		fPreferredSize.height
-			= ceilf((fontHeight.ascent + fontHeight.descent) * 1.8)
+			= ceilf((fontHeight.ascent + fontHeight.descent) * 1.5)
 				+ (fBitmap ? kToolbarIconSize + 4.0f : 0);
 
 		ResetLayoutInvalidation();
