@@ -87,3 +87,43 @@ BBitmap* IconFromResources(BResources* res, int32 num, icon_size size)
 
 	return icon;
 }
+
+
+BBitmap*
+RescaleBitmap(const BBitmap* src, int32 width, int32 height)
+{
+	width--; height--;
+
+	if (!src || !src->IsValid())
+		return NULL;
+
+	BRect srcSize = src->Bounds();
+
+	if (height < 0) {
+		float srcProp = srcSize.Height() / srcSize.Width();
+		height = (int32)(width * srcProp);
+	}
+
+	BBitmap* res = new BBitmap(BRect(0, 0, width, height), src->ColorSpace());
+
+	float dx = (srcSize.Width() + 1) / (width + 1);
+	float dy = (srcSize.Height() + 1) / (height + 1);
+	uint8 bpp = (uint8)(src->BytesPerRow() / srcSize.Width());
+
+	int srcYOff = src->BytesPerRow();
+	int dstYOff = res->BytesPerRow();
+
+	void* dstData = res->Bits();
+	void* srcData = src->Bits();
+
+	for (int32 y = 0; y <= height; y++) {
+		void* dstRow = (void *)((uint32)dstData + (uint32)(y * dstYOff));
+		void* srcRow = (void *)((uint32)srcData + ((uint32)(y * dy) * srcYOff));
+
+		for (int32 x = 0; x <= width; x++)
+			memcpy((void*)((uint32)dstRow + (x * bpp)), (void*)((uint32)srcRow +
+				((uint32)(x * dx) * bpp)), bpp);
+	}
+
+	return res;
+}

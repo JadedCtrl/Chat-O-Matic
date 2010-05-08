@@ -6,16 +6,12 @@
 #define _CAYA_UTILS_H
 
 #include <image.h>
+
 #include <Mime.h>
 
 #include "CayaConstants.h"
 
-class BBitmap;
-class BResources;
-
 const char* CayaStatusToString(CayaStatus status);
-
-BBitmap* RescaleBitmap(const BBitmap* src, int32 width, int32 height);
 
 extern "C" status_t our_image(image_info& image);
 

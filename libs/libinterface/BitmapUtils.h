@@ -11,5 +11,6 @@
 
 BBitmap*	ReadNodeIcon(const char* name, icon_size size, bool followSymlink);
 BBitmap*	IconFromResources(BResources* res, int32 num, icon_size size);
+BBitmap*	RescaleBitmap(const BBitmap* src, int32 width, int32 height);
 
 #endif	// _BITMAP_UTILS_H

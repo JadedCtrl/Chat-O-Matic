@@ -15,6 +15,7 @@
 #include <PopUpMenu.h>
 
 #include <libinterface/BitmapMenuItem.h>
+#include <libinterface/BitmapUtils.h>
 
 #include "AccountManager.h"
 #include "BitmapView.h"
