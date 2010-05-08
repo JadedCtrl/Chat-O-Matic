@@ -1,5 +1,5 @@
 /*
- * Copyright 2009, Andrea Anzani. All rights reserved.
+ * Copyright 2009-2010, Andrea Anzani. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _KEY_MAP_H

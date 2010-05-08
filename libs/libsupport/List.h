@@ -18,7 +18,7 @@ public:
 
 	void	RemoveItemAt(uint32 position);
 
-	TYPE	ItemAt(uint32 position);
+	T		ItemAt(uint32 position);
 
 private:
 	std::list<T> fList;
@@ -36,7 +36,7 @@ uint32 List<T>::CountItems() const
 template<class T>
 void List<T>::AddItem(T type)
 {
-	fList.push(type);
+	fList.push_back(type);
 }
 
 
@@ -54,9 +54,7 @@ T List<T>::ItemAt(uint32 position)
 {
 	fIter i = fList.begin();
 	std::advance(i, position); 	
-	if (i == fList.end())
-		return NULL;
-	return i;
+	return *i;
 }
 
 #endif	// _LIST_H
