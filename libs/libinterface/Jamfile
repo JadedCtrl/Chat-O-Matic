@@ -1,6 +1,7 @@
 SubDir TOP libs libinterface ;
 
 SubDirSysHdrs [ FDirName $(TOP) libs ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs private ] ;
 
 StaticLibrary libinterface.a :
 	BitmapMenuItem.cpp
@@ -9,4 +10,5 @@ StaticLibrary libinterface.a :
 	Divider.cpp
 	NotifyingTextView.cpp
 	PictureView.cpp
+	ToolButton.cpp
 ;
