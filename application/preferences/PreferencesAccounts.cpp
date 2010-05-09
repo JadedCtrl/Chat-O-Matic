@@ -8,21 +8,16 @@
 
 #include <Button.h>
 #include <ControlLook.h>
-#include <CheckBox.h>
 #include <GroupLayout.h>
 #include <GroupLayoutBuilder.h>
 #include <ListView.h>
 #include <PopUpMenu.h>
-#include <MenuField.h>
 #include <ScrollView.h>
-#include <TextControl.h>
-#include <Window.h>
 
 #include <libinterface/BitmapMenuItem.h>
-#include <libinterface/Divider.h>
-#include <libinterface/NotifyingTextView.h>
 #include <libinterface/ToolButton.h>
 
+#include "AccountDialog.h"
 #include "AccountListItem.h"
 #include "CayaProtocol.h"
 #include "PreferencesAccounts.h"
@@ -33,138 +28,6 @@ const uint32 kAddAccount   = 'ADAC';
 const uint32 kEditAccount  = 'EDAC';
 const uint32 kDelAccount   = 'DLAC';
 const uint32 kSelect       = 'SELT';
-
-const uint32 kCancel       = 'CANC';
-const uint32 kOK           = 'SAVE';
-
-const uint32 kChanged      = 'CHGD';
-
-
-class AccountView : public BView {
-public:
-	AccountView(const char* name)
-		: BView(name, B_WILL_DRAW)
-	{
-	}
-
-	void AttachedToWindow()
-	{
-		// Once we are attached to window, the GUI is already created
-		// so we can set our window as target for messages
-		for (int32 i = 0; i < CountChildren(); i++) {
-			BView* child = ChildAt(i);
-
-			BMenu* menu = dynamic_cast<BMenu*>(child);
-			BMenuField* menuField
-				= dynamic_cast<BMenuField*>(child);
-			BTextControl* textControl
-				= dynamic_cast<BTextControl*>(child);
-			NotifyingTextView* textView
-				= dynamic_cast<NotifyingTextView*>(child);
-			BCheckBox* checkBox = dynamic_cast<BCheckBox*>(child);
-
-			if (menuField)
-				menu = menuField->Menu();
-
-			if (menu) {
-				for (int32 j = 0; j < menu->CountItems(); j++) {
-					BMenuItem* item = menu->ItemAt(j);
-					item->SetMessage(new BMessage(kChanged));
-					item->SetTarget(Window());
-				}
-
-				menu->SetTargetForItems(Window());
-			}
-
-			if (textControl) {
-				textControl->SetMessage(new BMessage(kChanged));
-				textControl->SetTarget(Window());
-			}
-
-			if (checkBox) {
-				checkBox->SetMessage(new BMessage(kChanged));
-				checkBox->SetTarget(Window());
-			}
-
-			if (textView) {
-				textView->SetMessage(new BMessage(kChanged));
-				textView->SetTarget(Window());
-			}
-		}
-	}
-};
-
-
-class AccountDialog : public BWindow {
-public:
-	AccountDialog(const char* title, CayaProtocol* cayap, const char* account = NULL)
-		: BWindow(BRect(0, 0, 1, 1), title, B_MODAL_WINDOW, B_NOT_RESIZABLE |
-			B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE)
-	{
-		fSettings = new ProtocolSettings(cayap);
-
-		fAccountName = new BTextControl("accountName", "Account name:", NULL, NULL);
-		fAccountName->SetFont(be_bold_font);
-		if (account) {
-			fAccountName->SetText(account);
-			fAccountName->SetEnabled(false);
-		} else
-			fAccountName->MakeFocus(true);
-
-		Divider* divider = new Divider("divider", B_WILL_DRAW);
-
-		fTop = new AccountView("top");
-		if (account)
-			fSettings->Load(account, fTop);
-		else
-			fSettings->LoadTemplate(fTop);
-
-		BButton* cancel = new BButton("Cancel", new BMessage(kCancel));
-		BButton* ok = new BButton("OK", new BMessage(kOK));
-
-		const float spacing = be_control_look->DefaultItemSpacing();
-
-		SetLayout(new BGroupLayout(B_VERTICAL, spacing));
-		AddChild(BGroupLayoutBuilder(B_VERTICAL, spacing)
-			.Add(fAccountName)
-			.Add(divider)
-			.Add(fTop)
-			.AddGroup(B_HORIZONTAL, spacing)
-				.AddGlue()
-				.Add(cancel)
-				.Add(ok)
-			.End()
-			.AddGlue()
-			.SetInsets(spacing, spacing, spacing, 0)
-		);
-
-		CenterOnScreen();
-	}
-
-	void MessageReceived(BMessage* msg)
-	{
-		switch (msg->what) {
-			case kOK:
-				if (fSettings->Save(fAccountName->Text(), fTop) == B_OK)
-					Close();
-// TODO: Error!
-				break;
-			case kCancel:
-				Close();
-				break;
-			case kChanged:
-				msg->PrintToStream();
-				break;
-			default:
-				BWindow::MessageReceived(msg);
-		}
-	}
-
-private:
-	ProtocolSettings*	fSettings;
-	AccountView*		fTop;
-	BTextControl*		fAccountName;
-};
 
 
 PreferencesAccounts::PreferencesAccounts()

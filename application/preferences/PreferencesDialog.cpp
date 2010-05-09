@@ -15,7 +15,7 @@
 #include "PreferencesDialog.h"
 #include "PreferencesAccounts.h"
 
-const int32 kOK = 'SAVE';
+const uint32 kApply = 'SAVE';
 
 
 PreferencesDialog::PreferencesDialog()
@@ -25,7 +25,7 @@ PreferencesDialog::PreferencesDialog()
 	BTabView* tabView = new BTabView("tabView", B_WIDTH_AS_USUAL);
 	tabView->AddTab(new PreferencesAccounts());
 
-	BButton* ok = new BButton("OK", new BMessage(kOK));
+	BButton* ok = new BButton("OK", new BMessage(kApply));
 
 	const float spacing = be_control_look->DefaultItemSpacing();
 
@@ -49,7 +49,7 @@ void
 PreferencesDialog::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
-		case kOK:
+		case kApply:
 			Close();
 			break;
 		default:

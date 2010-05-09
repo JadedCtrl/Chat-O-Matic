@@ -29,7 +29,9 @@ Application caya :
 	WindowsManager.cpp
 
 	# preferences
+	AccountDialog.cpp
 	AccountListItem.cpp
+	AccountView.cpp
 	PreferencesDialog.cpp
 	PreferencesAccounts.cpp
 
