@@ -34,6 +34,27 @@ CayaStatusToString(CayaStatus status)
 	}
 }
 
+
+BResources*
+CayaResources()
+{
+	image_info info;
+	if (our_image(info) != B_OK)
+		return NULL;
+
+	BFile file(info.name, B_READ_ONLY);
+	if (file.InitCheck() != B_OK)
+		return NULL;
+
+	BResources* res = new BResources(&file);
+	if (res->InitCheck() != B_OK) {
+		delete res;
+		return NULL;
+	}
+
+	return res;
+}
+
 extern "C" {
 
 status_t

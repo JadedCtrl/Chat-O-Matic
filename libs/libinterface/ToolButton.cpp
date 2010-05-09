@@ -24,7 +24,7 @@
 const float kPopUpMarkerSize   = 5.0f;
 const float kPopUpMarkerTop    = 0.5f;
 const float kPopUpMarkerRect   = (kPopUpMarkerSize * 2) + 2;
-const uint32 kToolbarIconSize  = 24; // this should go on BControlLook
+const uint32 kToolbarIconSize  = 16; // this should go on BControlLook
 
 
 ToolButton::ToolButton(const char* name, const char* label, BMessage* message,
@@ -128,13 +128,19 @@ ToolButton::Draw(BRect updateRect)
 		bounds.right -= kPopUpMarkerRect;
 
 	// Draw bitmap
-	if (fBitmap) {
+	if (Bitmap()) {
+		SetDrawingMode(B_OP_ALPHA);
+		SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
+
+		BPoint center = _Center(bounds);
+		center.x -= kToolbarIconSize / 2;
+		center.y -= kToolbarIconSize / 2;
+
 		BBitmap* bitmap = RescaleBitmap(fBitmap, kToolbarIconSize,
 			kToolbarIconSize);
-		DrawBitmap(bitmap, _Center(bounds));
+		DrawBitmap(bitmap, center);
 
-		bounds.top += kToolbarIconSize + 2;
-		bounds.bottom += kToolbarIconSize + 2;
+		bounds.top = center.y + kToolbarIconSize + 2;
 	}
 
 	// Draw label
@@ -379,8 +385,9 @@ BSize
 ToolButton::_ValidatePreferredSize()
 {
 	if (fPreferredSize.width < 0) {
-		float startWidth = 10.0f;
-		float minWidth = 25.0f;
+		float startWidth = 10;
+		float minSize = 25;
+		float minWidth = minSize;
 
 		if (fMenu) {
 			startWidth += kPopUpMarkerRect;
@@ -395,12 +402,24 @@ ToolButton::_ValidatePreferredSize()
 		fPreferredSize.width = width;
 
 		// Height
-		font_height fontHeight;
-		GetFontHeight(&fontHeight);
+		fPreferredSize.height = 0;
 
-		fPreferredSize.height
-			= ceilf((fontHeight.ascent + fontHeight.descent) * 1.5)
-				+ (fBitmap ? kToolbarIconSize + 4.0f : 0);
+		if (Label()) {
+			font_height fontHeight;
+			GetFontHeight(&fontHeight);
+
+			fPreferredSize.height
+				+= ceilf((fontHeight.ascent + fontHeight.descent) * 1.5);
+		}
+
+		if (Bitmap())
+			fPreferredSize.height += kToolbarIconSize + 6;
+
+		if (Bitmap() && Label())
+			fPreferredSize.height += 4;
+
+		if (fPreferredSize.height < minSize)
+			fPreferredSize.height = minSize;
 
 		ResetLayoutInvalidation();
 	}

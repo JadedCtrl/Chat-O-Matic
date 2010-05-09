@@ -53,16 +53,8 @@ StatusMenuItem::IsCustom() const
 void
 StatusMenuItem::SetIcon()
 {
-	image_info info;
-	if (our_image(info) != B_OK)
-		return;
-
-	BFile file(info.name, B_READ_ONLY);
-	if (file.InitCheck() != B_OK)
-		return;
-
-	BResources res(&file);
-	if (res.InitCheck() != B_OK)
+	BResources* res = CayaResources();
+	if (!res)
 		return;
 
 	int32 num = 0;
@@ -85,6 +77,8 @@ StatusMenuItem::SetIcon()
 			break;
 	}
 
-	BBitmap* bitmap = IconFromResources(&res, num, B_MINI_ICON);
+	BBitmap* bitmap = IconFromResources(res, num, B_MINI_ICON);
 	SetBitmap(bitmap);
+
+	delete res;
 }

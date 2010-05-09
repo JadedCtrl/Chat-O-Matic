@@ -9,25 +9,31 @@
  */
 
 #include <Application.h>
-#include <Button.h>
 #include <Alert.h>
+#include <Button.h>
+#include <CardLayout.h>
 #include <ListView.h>
 #include <Box.h>
 #include <CheckBox.h>
 #include <Entry.h>
+#include <GridLayout.h>
 #include <GridLayoutBuilder.h>
 #include <GroupLayout.h>
-#include <CardLayout.h>
 #include <GroupLayoutBuilder.h>
-#include <Layout.h>
-#include <GridLayout.h>
+#include <MenuItem.h>
+#include <PopUpMenu.h>
 #include <SpaceLayoutItem.h>
 #include <ScrollView.h>
 #include <StringView.h>
 #include <TextControl.h>
 #include <TranslationUtils.h>
 
+#include <libinterface/BitmapUtils.h>
+#include <libinterface/ToolButton.h>
+
 #include "CayaConstants.h"
+#include "CayaResources.h"
+#include "CayaUtils.h"
 #include "NotifyMessage.h"
 #include "MainWindow.h"
 #include "PreferencesDialog.h"
@@ -76,20 +82,28 @@ MainWindow::MainWindow() :
 	BScrollView* scrollView = new BScrollView("scrollview", fListView,
 		B_WILL_DRAW, false, true);
 
-	BButton* wrench = new BButton("wrench", new BMessage(kPreferences));
+	// Wrench menu
+	BPopUpMenu* wrenchMenu = new BPopUpMenu("Wrench");
+	(void)wrenchMenu->AddItem(new BMenuItem("Preferences...",
+		new BMessage(kPreferences)));
+	wrenchMenu->SetTargetForItems(this);
 
-	rosterView->SetLayout(new BGroupLayout(B_HORIZONTAL));
-	rosterView->AddChild(BGroupLayoutBuilder(B_HORIZONTAL)
-		.AddGroup(B_VERTICAL)
-			.AddGroup(B_HORIZONTAL)
-				.AddGroup(B_VERTICAL)
-					.Add(fStatusView)
-					.Add(searchBox)
-				.End()
-				.Add(wrench)
-			.End()
-			.Add(scrollView)
-		.End()
+	// Tool icon
+	BResources* res = CayaResources();
+	BBitmap* toolIcon = IconFromResources(res, kToolIcon);
+	delete res;
+
+	// Wrench tool button
+	ToolButton* wrench = new ToolButton(NULL, NULL);
+	wrench->SetBitmap(toolIcon);
+	wrench->SetMenu(wrenchMenu);
+
+	rosterView->SetLayout(new BGridLayout(5, 5));
+	rosterView->AddChild(BGridLayoutBuilder(5, 0)
+		.Add(fStatusView, 0, 0)
+		.Add(wrench, 1, 0)
+		.Add(searchBox, 0, 1)
+		.Add(scrollView, 0, 2, 2)
 		.SetInsets(5, 5, 5, 10)
 	);
 

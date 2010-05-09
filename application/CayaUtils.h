@@ -8,10 +8,12 @@
 #include <image.h>
 
 #include <Mime.h>
+#include <Resources.h>
 
 #include "CayaConstants.h"
 
 const char* CayaStatusToString(CayaStatus status);
+BResources* CayaResources();
 
 extern "C" status_t our_image(image_info& image);
 

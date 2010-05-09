@@ -11,7 +11,8 @@ enum {
 	kBusyIcon					= 12,
 	kOfflineIcon				= 13,
 
-	kSearchIcon					= 100,
+	kToolIcon                   = 20,
+	kSearchIcon					= 21,
 
 	kProtocolSettingsTemplate	= 1000
 };
