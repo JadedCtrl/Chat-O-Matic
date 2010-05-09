@@ -46,7 +46,7 @@ Application caya :
 	: be $(TARGET_LIBSTDC++) network translation expat
 	  librunview.a libinterface.a libjabber.a
 	  ssl crypto
-	: caya.rdef
+	: Caya.rdef
 ;
 
 Depends caya : libjabber.a ;
