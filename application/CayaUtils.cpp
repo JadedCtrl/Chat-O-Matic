@@ -9,6 +9,9 @@
 #include <memory.h>
 
 #include <Bitmap.h>
+#include <Directory.h>
+#include <FindDirectory.h>
+#include <Path.h>
 
 #include "private/IconUtils.h"
 
@@ -54,6 +57,40 @@ CayaResources()
 
 	return res;
 }
+
+
+const char*
+CayaAccountsPath()
+{
+	BPath path;
+	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
+		return NULL;
+
+	path.Append("Caya/Protocols");
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
+
+	return path.Path();
+}
+
+
+const char*
+CayaAccountPath(const char* signature)
+{
+	if (!signature)
+		return NULL;
+
+	BPath path(CayaAccountsPath());
+	if (path.InitCheck() != B_OK)
+		return NULL;
+
+	path.Append(signature);
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
+
+	return path.Path();
+}
+
 
 extern "C" {
 

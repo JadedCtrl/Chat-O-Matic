@@ -14,7 +14,6 @@
 #include <CheckBox.h>
 #include <Directory.h>
 #include <File.h>
-#include <FindDirectory.h>
 #include <GroupLayout.h>
 #include <GroupLayoutBuilder.h>
 #include <Menu.h>
@@ -34,6 +33,7 @@
 
 #include "CayaProtocol.h"
 #include "CayaResources.h"
+#include "CayaUtils.h"
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
 
@@ -75,13 +75,8 @@ ProtocolSettings::Accounts() const
 {
 	List<BString> list;
 
-	BPath path;
-	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
-		return list;
-
-	path.Append("Caya/Protocols");
-	path.Append(fProtocol->GetSignature());
-	if (create_directory(path.Path(), 0755) != B_OK)
+	BPath path(CayaAccountPath(fProtocol->GetSignature()));
+	if (path.InitCheck() != B_OK)
 		return list;
 
 	BDirectory dir(path.Path());
@@ -365,15 +360,10 @@ ProtocolSettings::Delete(const char* account)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path;
-	if ((ret = find_directory(B_USER_SETTINGS_DIRECTORY, &path)) != B_OK)
+	BPath path(CayaAccountPath(fProtocol->GetSignature()));
+	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
 
-	// Create path
-	path.Append("Caya/Protocols");
-	path.Append(fProtocol->GetSignature());
-	if ((ret = create_directory(path.Path(), 0755)) != B_OK)
-		return ret;
 	path.Append(account);
 
 	// Delete settings file
@@ -427,14 +417,8 @@ ProtocolSettings::_Load(const char* account, BMessage** settings)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path;
-	if ((ret = find_directory(B_USER_SETTINGS_DIRECTORY, &path)) != B_OK)
-		return ret;
-
-	// Create path
-	path.Append("Caya/Protocols");
-	path.Append(fProtocol->GetSignature());
-	if ((ret = create_directory(path.Path(), 0755)) != B_OK)
+	BPath path(CayaAccountPath(fProtocol->GetSignature()));
+	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
 
 	// Load settings file
@@ -456,14 +440,8 @@ ProtocolSettings::_Save(const char* account, BMessage* settings)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path;
-	if ((ret = find_directory(B_USER_SETTINGS_DIRECTORY, &path)) != B_OK)
-		return ret;
-
-	// Create path
-	path.Append("Caya/Protocols");
-	path.Append(fProtocol->GetSignature());
-	if ((ret = create_directory(path.Path(), 0755)) != B_OK)
+	BPath path(CayaAccountPath(fProtocol->GetSignature()));
+	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
 
 	// Load settings file

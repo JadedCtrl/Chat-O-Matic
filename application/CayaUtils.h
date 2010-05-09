@@ -13,7 +13,11 @@
 #include "CayaConstants.h"
 
 const char* CayaStatusToString(CayaStatus status);
+
 BResources* CayaResources();
+
+const char*	CayaAccountsPath();
+const char*	CayaAccountPath(const char* signature);
 
 extern "C" status_t our_image(image_info& image);
 
