@@ -6,6 +6,8 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
+#include <string.h>
+
 #include <Path.h>
 
 #include <private/IconUtils.h>

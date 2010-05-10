@@ -43,7 +43,7 @@ void List<T>::AddItem(T type)
 template<class T>
 void List<T>::RemoveItemAt(uint32 position)
 {
-	fIter i = fMap.begin();
+	fIter i = fList.begin();
 	std::advance(i, position);
 	fList.erase(i);
 }

@@ -24,7 +24,7 @@ const uint32 kOK           = 'SAVE';
 
 
 AccountDialog::AccountDialog(const char* title, CayaProtocol* cayap,
-							 const char* account = NULL)
+							 const char* account)
 	: BWindow(BRect(0, 0, 1, 1), title, B_MODAL_WINDOW, B_NOT_RESIZABLE |
 		B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE)
 {
