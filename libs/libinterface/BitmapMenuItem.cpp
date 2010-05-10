@@ -94,7 +94,8 @@ BitmapMenuItem::DrawContent(void)
 	if (fBitmap) {
 		Menu()->PushState();
 		Menu()->SetDrawingMode(B_OP_ALPHA);
-		Menu()->DrawBitmap(fBitmap, fBitmap->Bounds(), drawrect);
+		Menu()->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
+		Menu()->DrawBitmap(fBitmap, fBitmap->Bounds(), drawrect, B_FILTER_BITMAP_BILINEAR);
 		Menu()->PopState();
 	}
 }

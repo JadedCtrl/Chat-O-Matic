@@ -132,15 +132,15 @@ ToolButton::Draw(BRect updateRect)
 		SetDrawingMode(B_OP_ALPHA);
 		SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
 
-		BPoint center = _Center(bounds);
-		center.x -= kToolbarIconSize / 2;
-		center.y -= kToolbarIconSize / 2;
+		BRect frame(bounds);
+		BPoint center = _Center(frame);
+		frame.bottom = frame.top + kToolbarIconSize + 4;
+		frame.top += 2;
+		frame.left = center.x - (kToolbarIconSize / 2);
+		frame.right = center.x + (kToolbarIconSize / 2);
 
-		BBitmap* bitmap = RescaleBitmap(fBitmap, kToolbarIconSize,
-			kToolbarIconSize);
-		DrawBitmap(bitmap, center);
-
-		bounds.top = center.y + kToolbarIconSize + 2;
+		DrawBitmap(fBitmap, fBitmap->Bounds(), frame, B_FILTER_BITMAP_BILINEAR);
+		bounds.top = frame.bottom;
 	}
 
 	// Draw label

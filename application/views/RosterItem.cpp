@@ -153,7 +153,8 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 		BRect rect(frame.right - h - 2, frame.top + 2, frame.right - 2, frame.top + h );
 		owner->SetDrawingMode(B_OP_ALPHA);
 		owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
-		owner->DrawBitmap(fBitmap, rect);
+		owner->DrawBitmap(fBitmap, fBitmap->Bounds(),
+			rect, B_FILTER_BITMAP_BILINEAR);
 	}
 
     owner->SetHighColor(highColor);

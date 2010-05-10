@@ -76,9 +76,10 @@ PictureView::PreferredSize()
 void
 PictureView::Draw(BRect frame)
 {
-	SetDrawingMode(B_OP_ALPHA);
-	SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
-
-	if (fBitmap)
-		DrawBitmap(fBitmap, BPoint(0, 0));
+	if (fBitmap) {
+		SetDrawingMode(B_OP_ALPHA);
+		SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
+		DrawBitmap(fBitmap, fBitmap->Bounds(),
+			Bounds(), B_FILTER_BITMAP_BILINEAR);
+	}
 }
