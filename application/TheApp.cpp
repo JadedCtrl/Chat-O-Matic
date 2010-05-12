@@ -1,5 +1,6 @@
 /*
- * Copyright 2009, Andrea Anzani. All rights reserved.
+ * Copyright 2009-2010, Andrea Anzani. All rights reserved.
+ * Copyright 2009-2010, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
@@ -13,12 +14,15 @@
 #include <Path.h>
 #include <Roster.h>
 
+#include "AboutWindow.h"
 #include "Caya.h"
 #include "TheApp.h"
 #include "FilePanel.h"
 #include "MainWindow.h"
 #include "Emoticor.h"
 #include "ProtocolManager.h"
+
+#include "svn_revision.h"
 
 
 TheApp::TheApp()
@@ -68,6 +72,32 @@ TheApp::ReadyToRun()
 
 	fMainWin = new MainWindow();
 	fMainWin->Show();
+}
+
+
+void
+TheApp::AboutRequested()
+{
+	const char* holders[] = {
+		"2009-2010 Andrea Anzani",
+		"2009-2010 Pier Luigi Fiorini",
+		NULL
+	};
+
+	const char* authors[] = {
+		"Andrea Anzani",
+		"Pier Luigi Fiorini",
+		NULL
+	};
+
+	BString extraInfo;
+	extraInfo << "SVN Revision: " << kSVNRevision << "\n";
+	extraInfo << "Built: " << BUILD_DATE;
+
+	AboutWindow* about = new AboutWindow("Caya", holders,
+		authors, extraInfo.String());
+	about->Show();
+	delete about;
 }
 
 

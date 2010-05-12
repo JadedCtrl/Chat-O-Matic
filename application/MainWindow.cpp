@@ -85,10 +85,10 @@ MainWindow::MainWindow() :
 
 	// Wrench menu
 	BPopUpMenu* wrenchMenu = new BPopUpMenu("Wrench");
-	(void)wrenchMenu->AddItem(new BMenuItem("About Caya...",
+	(void)wrenchMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
 		new BMessage(B_ABOUT_REQUESTED)));
 	(void)wrenchMenu->AddItem(new BSeparatorItem());
-	(void)wrenchMenu->AddItem(new BMenuItem("Preferences...",
+	(void)wrenchMenu->AddItem(new BMenuItem("Preferences" B_UTF8_ELLIPSIS,
 		new BMessage(kPreferences)));
 	(void)wrenchMenu->AddItem(new BSeparatorItem());
 	(void)wrenchMenu->AddItem(new BMenuItem("Quit",
@@ -201,9 +201,11 @@ MainWindow::MessageReceived(BMessage* message)
 		case IM_ERROR:
 			ImError(message);
 			break;
+		case B_ABOUT_REQUESTED:
+			be_app->PostMessage(message);
+			break;
 		default:
 			BWindow::MessageReceived(message);
-			break;
 	}	
 }
 

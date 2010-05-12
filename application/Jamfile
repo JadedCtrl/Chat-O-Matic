@@ -10,7 +10,13 @@ SubDirSysHdrs [ FDirName $(OPENSSL_INCLUDE_DIR) ] ;
 SEARCH_SOURCE += [ FDirName $(TOP) application preferences ] ;
 SEARCH_SOURCE += [ FDirName $(TOP) application views ] ;
 
+# SVN revision
+local svnRevisionFile = [ FGristFiles svn_revision ] ;
+MakeLocate $(svnRevisionFile) : $(LOCATE_TARGET) ;
+CreateSVNRevisionFile $(svnRevisionFile) ;
+
 Application caya :
+	AboutWindow.cpp
 	Account.cpp
 	AccountManager.cpp
 	CayaUtils.cpp
@@ -27,6 +33,7 @@ Application caya :
 	Server.cpp
 	TheApp.cpp
 	WindowsManager.cpp
+	svn_revision.cpp
 
 	# preferences
 	AccountDialog.cpp
