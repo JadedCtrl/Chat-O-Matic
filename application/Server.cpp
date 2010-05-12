@@ -26,7 +26,7 @@
 Server::Server(MainWindow* mainWindow)
 	: BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
 {
-	CayaProtocol* pp = ProtocolManager::Get()->GetProtocol("gtalk");
+	CayaProtocol* pp = ProtocolManager::Get()->GetProtocol("aim");
 	if (!pp)
 		debugger("something wrong");
 

@@ -2,3 +2,4 @@ SubDir TOP protocols ;
 
 # Include all the components.
 SubInclude TOP protocols gtalk ;
+SubInclude TOP protocols aim ;

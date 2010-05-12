@@ -1,0 +1,23 @@
+SubDir TOP protocols aim ;
+
+SubDirSysHdrs [ FDirName $(TOP) ] ;
+SubDirSysHdrs [ FDirName $(TOP) application ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs libimcomm ] ;
+
+SEARCH_SOURCE += [ FDirName $(TOP) protocols aim ] ;
+
+local sources =
+	AIM.cpp
+	main.cpp
+;
+
+AddOn aim :
+	$(sources)
+	: libimcomm.a be network $(TARGET_LIBSTDC++)
+	: aim.rdef
+;
+
+Depends aim : libimcomm.a ;
+
+InstallBin $(APPS_DIRECTORY)/caya/protocols : aim ;

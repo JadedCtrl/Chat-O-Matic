@@ -1,0 +1,190 @@
+
+This is rather roughly written at the moment. Please forgive any grammar
+mistakes I made when I rushed this together.
+
+-Claudio
+
+-----
+IMCOMM REFERENCE GUIDE
+
+1. Data structures
+
+ IMComm operates on "handles," which are simply structures filled
+ with the information IMComm needs for one single IM session. In
+ order to allow multiple connections per program, IMComm leaves
+ the pointers to those structures up to the user.
+
+ Users should use a void * pointer to set up the structure.
+
+ Example:
+
+ void *handle;
+
+ handle = imcomm_create_handle();
+
+2. Callbacks
+
+ All IMComm events operate on callbacks. The list of events can
+ be found in imcomm.h. Developers should register the callbacks
+ after creating a handle and before signing on.
+
+ Example:
+
+ imcomm_register_callback(handle, IMCOMM_IM_INCOMING, incoming_im);
+
+ This will make the library call the function incoming_im when
+ an incoming message is received on the conncection pointed by
+ handle.
+
+ The first parameter a for any called back function is the handle.
+ Following that, the parameter varies based on the event type.
+
+3. Signing on
+
+ Signing on is rather simple.
+
+ imcomm_im_signon(handle, username, password);
+
+4. Errors and status
+
+ All errors are handled using callbacks. To register the error callback,
+ use the IMCOMM_ERROR callback ID with imcomm_register_callback();
+
+ The error types are in an enumerated list in imcomm.h
+
+ for example:
+
+ void error_cb(void *handle, int event)
+ {
+  switch(event) {
+   case IMCOMM_STATUS_CONNECTED:
+    printf("Connected.\n");
+    break;
+  }
+ }
+
+EVENTS CURRENTLY IMPLEMENTED:
+
+IMCOMM_IM_SIGNON 
+(void *handle, char *who)
+
+Buddy <who> has come online.
+
+IMCOMM_IM_SIGNOFF
+(void *handle, char *who)
+
+Buddy <who> has gone offline.
+
+IMCOMM_IM_BUDDYAWAY
+(void *handle, char *who)
+
+Buddy <who> is away.
+
+IMCOMM_IM_BUDDYUNAWAY
+(void *handle, char *who)
+
+Buddy <who> is no longer away.
+
+IMCOMM_IM_IDLEINFO
+(void *handle, char *who, long idletime)
+
+Buddy's idletime, reported in minutes.
+
+IMCOMM_IM_INCOMING
+(void *handle, char *who, int automessage, char *message)
+
+<who> has sent you a message. If automessage is 1, then
+the message is an auto response.
+
+IMCOMM_IM_PROFILE
+(void *handle, char *who, char *profile)
+
+Buddy's profile after a profile request.
+
+IMCOMM_IM_AWAYMSG
+(void *handle, char *who, char *msg)
+
+Buddy's away message after a away message request.
+
+IMCOMM_ERROR
+(void *handle, int errortype, void *ptr1, void *ptr2, void *ptr3)
+
+Error of error <errortype>. ptr1-3 are currently unused.
+
+
+FUNCTIONS FOR PROGRAMMERS
+
+imcomm_select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout)
+
+This is where the main work is done. It behaves just like a standard
+select() call, meaning it can be used to multiplex keyboard input and
+AIM input. 
+
+It cycles through every handle known to IMComm (a list is kept internally),
+checking for input and processing if necessary.
+
+Example:
+
+fd_set readfs;
+struct timeval tm;
+
+while(1) {
+	FD_ZERO(&readfs);
+	FD_SET(fileno(stdin), &readfs);
+	tm.tv_sec = 1;
+	tm.tv_usec = 15;
+
+	/*
+	 * this will check fileno(stdin) AND all of the 
+	 * sessions currently established.
+	 */
+	imcomm_select(fileno(stdin), &readfs, NULL, NULL &tm);
+
+	if(FD_ISSET(fileno(stdin))) {
+		/* keyboard input handler */
+	}
+}
+
+	
+imcomm_set_profile(void *handle, char *profile);
+
+Sets the user profile.
+
+imcomm_set_away(void *handle, char *msg);
+
+Sets away message.
+
+imcomm_set_unaway(void *handle);
+
+Unsets away message.
+
+imcomm_im_send_message(void *handle, const char *whom, const char *msg, int automsg);
+
+Sends message to user <whom>. If automsg is 1, then it is sent as
+an auto response.
+
+imcomm_request_profile(void *handle, char *sn);
+
+Requests profile for user <sn>.
+
+imcomm_request_awaymsg(void *handle, char *sn);
+
+Requests away message for user <sn>.
+
+imcomm_im_add_buddy(void *handle, char *sn);
+
+Adds buddy to session buddy list.
+
+imcomm_im_remove_buddy(void *handle, char *sn);
+
+Removes buddy from session buddy list.
+
+imcomm_compare_nicks(void *handle, char *sn1, char *sn2)
+
+Compares two screen names, ignoring spaces and case.
+
+char *imcomm_simplify_sn(char *sn)
+
+Returns a simplified version of a screen name, all lowercase
+with no spaces. Note that you must free this string later,
+since it is malloc'ed by imcomm.

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+rm -f protos.h
+for i in *.c; do
+	sed -n -f ./makeprotos-sed $i >> protos.h
+done

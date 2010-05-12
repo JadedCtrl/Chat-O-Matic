@@ -1,7 +1,8 @@
 SubDir TOP libs ;
 
 # Include all the components.
-SubInclude TOP libs libjabber ;
 SubInclude TOP libs librunview ;
-SubInclude TOP libs libinterface ;
+SubInclude TOP libs libjabber ;
 SubInclude TOP libs libsupport ;
+SubInclude TOP libs libinterface ;
+SubInclude TOP libs libimcomm ;

@@ -30,7 +30,7 @@ ContactLinker::ContactLinker(BString id, BMessenger msgn)
 	RegisterObserver(fRosterItem);
 
 	// By default we use protocol icon as avatar icon
-	fAvatarBitmap = ProtocolManager::Get()->GetProtocolIcon("gtalk");
+	fAvatarBitmap = ProtocolManager::Get()->GetProtocolIcon("aim");
 }
 
 
