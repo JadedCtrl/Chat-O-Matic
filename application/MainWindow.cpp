@@ -42,9 +42,10 @@
 #include "Server.h"
 #include "StatusView.h"
 
-const int32 kLogin         = 'LOGI';
-const int32 kSearchContact = 'SRCH';
-const int32 kPreferences   = 'PRFS';
+const uint32 kLogin         = 'LOGI';
+const uint32 kSearchContact = 'SRCH';
+
+const uint32 kPreferences   = 'WPRF';
 
 
 MainWindow::MainWindow() :
@@ -84,8 +85,14 @@ MainWindow::MainWindow() :
 
 	// Wrench menu
 	BPopUpMenu* wrenchMenu = new BPopUpMenu("Wrench");
+	(void)wrenchMenu->AddItem(new BMenuItem("About Caya...",
+		new BMessage(B_ABOUT_REQUESTED)));
+	(void)wrenchMenu->AddItem(new BSeparatorItem());
 	(void)wrenchMenu->AddItem(new BMenuItem("Preferences...",
 		new BMessage(kPreferences)));
+	(void)wrenchMenu->AddItem(new BSeparatorItem());
+	(void)wrenchMenu->AddItem(new BMenuItem("Quit",
+		new BMessage(B_QUIT_REQUESTED)));
 	wrenchMenu->SetTargetForItems(this);
 
 	// Tool icon
