@@ -1,3 +1,8 @@
+/*
+ * Copyright 2010, Alexander Botero-Lowry. All rights reserved.
+ * Distributed under the terms of the MIT License.
+ */
+
 #include <stdio.h>
 #include <errno.h>
 #include <string>
@@ -8,12 +13,11 @@
 
 const char* kProtocolName = "aim";
 
-CayaProtocolMessengerInterface *gServerMsgr;
+CayaProtocolMessengerInterface* gServerMsgr;
 
 
 AIMProtocol::AIMProtocol()
 {
-
 }
 
 
@@ -26,22 +30,23 @@ AIMProtocol::~AIMProtocol()
 status_t
 AIMProtocol::Init(CayaProtocolMessengerInterface* msgr)
 {
-  printf("init\n");
 	gServerMsgr = msgr;
-        fIMCommHandle = imcomm_create_handle();
-        fOnline = false;
 
-        imcomm_register_callback(fIMCommHandle, IMCOMM_IM_INCOMING, (void (*)())GotMessage);
-        imcomm_register_callback(fIMCommHandle, IMCOMM_IM_SIGNON, (void (*)())BuddyOnline);
-        imcomm_register_callback(fIMCommHandle, IMCOMM_IM_SIGNOFF, (void (*)())BuddyOffline);
-        imcomm_register_callback(fIMCommHandle, IMCOMM_IM_BUDDYAWAY, (void (*)())BuddyAway);
-        imcomm_register_callback(fIMCommHandle, IMCOMM_IM_BUDDYUNAWAY, (void (*)())BuddyBack);
-        imcomm_register_callback(fIMCommHandle, IMCOMM_IM_AWAYMSG, (void (*)())BuddyAwayMsg);
-        imcomm_register_callback(fIMCommHandle, IMCOMM_IM_IDLEINFO, (void (*)())BuddyIdle);
-        imcomm_register_callback(fIMCommHandle, IMCOMM_IM_PROFILE, (void (*)())BuddyProfile);
+	fIMCommHandle = imcomm_create_handle();
+	fOnline = false;
 
-        // XXX missing IMCOMM_ERROR, IMCOMM_FORMATTED_SN, IMCOMM_HANDLE_DELETED
-        
+	// Register callbacks
+	imcomm_register_callback(fIMCommHandle, IMCOMM_IM_INCOMING, (void (*)())GotMessage);
+	imcomm_register_callback(fIMCommHandle, IMCOMM_IM_SIGNON, (void (*)())BuddyOnline);
+	imcomm_register_callback(fIMCommHandle, IMCOMM_IM_SIGNOFF, (void (*)())BuddyOffline);
+	imcomm_register_callback(fIMCommHandle, IMCOMM_IM_BUDDYAWAY, (void (*)())BuddyAway);
+	imcomm_register_callback(fIMCommHandle, IMCOMM_IM_BUDDYUNAWAY, (void (*)())BuddyBack);
+	imcomm_register_callback(fIMCommHandle, IMCOMM_IM_AWAYMSG, (void (*)())BuddyAwayMsg);
+	imcomm_register_callback(fIMCommHandle, IMCOMM_IM_IDLEINFO, (void (*)())BuddyIdle);
+	imcomm_register_callback(fIMCommHandle, IMCOMM_IM_PROFILE, (void (*)())BuddyProfile);
+
+	// TODO: Missing IMCOMM_ERROR, IMCOMM_FORMATTED_SN, IMCOMM_HANDLE_DELETED
+
 	return B_OK;
 }
 
@@ -57,158 +62,124 @@ AIMProtocol::Shutdown()
 status_t
 AIMProtocol::Process(BMessage* msg)
 {
-    msg->PrintToStream();
+	switch (msg->what) {
+		case IM_MESSAGE: {
+			int32 im_what = 0;
+ 
+			msg->FindInt32("im_what", &im_what);
 
-    switch (msg->what) {
-    case IM_MESSAGE:
-        {
-            int32 im_what = 0;
-                
-            msg->FindInt32("im_what", &im_what);
+			switch (im_what) {
+				case IM_SET_STATUS: {
+					int32 status = msg->FindInt32("status");
 
-            switch (im_what) {
-            case IM_SET_STATUS:
-                {
-                    int32 status = msg->FindInt32("status");
-                    BString status_msg("");
-                    msg->FindString("message", &status_msg);
-		    char *smsg = strdup(status_msg.String());
+					BString status_msg("");
+					msg->FindString("message", &status_msg);
+					char* smsg = strdup(status_msg.String());
 
-                    switch (status) {
-                    case CAYA_ONLINE:
-		      {
-                        if (!fOnline) {
-                            A_LogOn();
-                        } else {
-                            imcomm_set_unaway(fIMCommHandle);
-                        }
-                        break;
-		      }
-                    case CAYA_AWAY:
-		      imcomm_set_away(fIMCommHandle,
-				      smsg);
+					switch (status) {
+						case CAYA_ONLINE:
+							if (!fOnline)
+								A_LogOn();
+							else
+								imcomm_set_unaway(fIMCommHandle);
+							break;
+						case CAYA_AWAY:
+							imcomm_set_away(fIMCommHandle, smsg);
+							break;
+						case CAYA_EXTENDED_AWAY:
+							imcomm_set_away(fIMCommHandle, smsg);
+							//UnsupportedOperation(); ?
+							break;
+						case CAYA_DO_NOT_DISTURB:
+							imcomm_set_away(fIMCommHandle, smsg);
+							//UnsupportedOperation(); ?
+							break;
+						case CAYA_OFFLINE:
+							LogOff();
+							break;
+						default:
+							break;
+					}
 
-                        break;
-                    case CAYA_EXTENDED_AWAY:
-		      imcomm_set_away(fIMCommHandle,
-				      smsg);
+					free(smsg);
 
-                        // UnsupportedOperation(); ?
-                        break;
-                    case CAYA_DO_NOT_DISTURB:
-		      imcomm_set_away(fIMCommHandle,
-				      smsg);
-                        // UnsupportedOperation(); ?
-                        break;
-                    case CAYA_OFFLINE:
-                        LogOff();
-                        break;
-                    default:
-                        break;
-                    }
+					BMessage msg(IM_MESSAGE);
+					msg.AddInt32("im_what", IM_STATUS_SET);
+					msg.AddString("protocol", kProtocolName);
+					msg.AddInt32("status", status);
+					gServerMsgr->SendMessage(&msg);
+					break;
+				}
+				case IM_SET_NICKNAME:
+					UnsupportedOperation();
+					break;
+				case IM_SEND_MESSAGE: {
+					const char* buddy = msg->FindString("id");
+					const char* sms = msg->FindString("message");
+					imcomm_im_send_message(fIMCommHandle, buddy, sms, 0);
 
-		    free(smsg);
+					// XXX send a message to let caya know we did it
+					BMessage msg(IM_MESSAGE);
+					msg.AddInt32("im_what", IM_MESSAGE_SENT);
+					msg.AddString("protocol", kProtocolName);
+					msg.AddString("id", buddy);
+					msg.AddString("message", sms);
 
-                    BMessage msg(IM_MESSAGE);
-                    msg.AddInt32("im_what", IM_STATUS_SET);
-                    msg.AddString("protocol", kProtocolName);
-                    msg.AddInt32("status", status);
+					gServerMsgr->SendMessage(&msg);
+					break;
+				}
+				case IM_REGISTER_CONTACTS: {
+					const char* buddy = NULL;
+					char *buddy_copy;
 
-                    gServerMsgr->SendMessage(&msg);
+					for (int32 i = 0; msg->FindString("id", i, &buddy) == B_OK; i++) {
+						buddy_copy = strdup(buddy);
+						imcomm_im_add_buddy(fIMCommHandle, buddy_copy);
+						free(buddy_copy);
+					}
+					break;
+				}
+				case IM_UNREGISTER_CONTACTS: {
+					const char* buddy = NULL;
 
-                    break;
-                }
-            case IM_SET_NICKNAME:
-	      {
-	      UnsupportedOperation();
-	      break;
-	      }
-            case IM_SEND_MESSAGE:
-                {
-                    const char* buddy = msg->FindString("id");
-                    const char* sms = msg->FindString("message");
-                    imcomm_im_send_message(fIMCommHandle, buddy, 
-                                           sms, 0);
-
-                    // XXX send a message to let caya know
-                    // we did it
-                    BMessage msg(IM_MESSAGE);
-                    msg.AddInt32("im_what", IM_MESSAGE_SENT);
-                    msg.AddString("protocol", kProtocolName);
-                    msg.AddString("id", buddy);
-                    msg.AddString("message", sms);
-
-                    gServerMsgr->SendMessage(&msg);
-                    break;
-                }
-            case IM_REGISTER_CONTACTS:
-                {
-                    const char* buddy = NULL;
-		    char *buddy_copy;
-
-                    for (int i = 0; 
-                         msg->FindString("id", i, &buddy) == B_OK;
-                         i++) {
-		      buddy_copy = strdup(buddy);
-                        imcomm_im_add_buddy(fIMCommHandle, buddy_copy);
-			free(buddy_copy);
-                                    
-                    }
-                    break;
-                }
-            case IM_UNREGISTER_CONTACTS:
-                {
-                    const char* buddy = NULL;
-
-                    for (int i = 0; 
-                         msg->FindString("id", i, &buddy) == B_OK;
-                         i++) {
-                        imcomm_im_remove_buddy(fIMCommHandle, buddy);
-                                    
-                    }
-
-                    break;
-                }
-            case IM_USER_STARTED_TYPING:
-                {
-                    // UnsupportedOperation();
-                    break;
-                }
-            case IM_USER_STOPPED_TYPING:
-                {
-                    // UnsupportedOperation();
-                    break;
-                }
-            case IM_GET_CONTACT_INFO:
-                UnsupportedOperation();
-                break;
-            case IM_SEND_AUTH_ACK:
-                {
-                    UnsupportedOperation();
-                    break;
-                }
-            case IM_SPECIAL_TO_PROTOCOL:
-                UnsupportedOperation();
-                break;
-            default:
-                msg->PrintToStream();
-                return B_ERROR;
-            }
-            break;
-        }
-    default:
-        // We don't handle this what code
-        return B_ERROR;
-    }
+					for (int32 i = 0; msg->FindString("id", i, &buddy) == B_OK; i++)
+						imcomm_im_remove_buddy(fIMCommHandle, buddy);
+					break;
+				}
+				case IM_USER_STARTED_TYPING:
+					//UnsupportedOperation();
+					break;
+				case IM_USER_STOPPED_TYPING:
+					//UnsupportedOperation();
+					break;
+				case IM_GET_CONTACT_INFO:
+					UnsupportedOperation();
+					break;
+				case IM_SEND_AUTH_ACK:
+					UnsupportedOperation();
+					break;
+				case IM_SPECIAL_TO_PROTOCOL:
+						UnsupportedOperation();
+					break;
+				default:
+					return B_ERROR;
+			}
+			break;
+		}
+		default:
+			// We don't handle this what code
+			return B_ERROR;
+	}
 
     return B_OK;
 }
 
 
 void
-AIMProtocol::UnsupportedOperation() {
-    printf("noop\n");
+AIMProtocol::UnsupportedOperation()
+{
 }
+
 
 const char*
 AIMProtocol::GetSignature()
@@ -220,7 +191,7 @@ AIMProtocol::GetSignature()
 const char*
 AIMProtocol::GetFriendlySignature()
 {
-  return "AOL Instant Messenger";
+	return "AOL Instant Messenger";
 }
 
 
@@ -232,20 +203,20 @@ AIMProtocol::UpdateSettings(BMessage& msg)
 
 	msg.FindString("username", &username);
 	msg.FindString("password", &password);
-        //        msg.FindString("server", &server);
-        //        msg.FindInt32("port", &server);
+	//msg->FindString("server", &server);
+	//msg->FindInt32("port", &server);
 
 	if ((username == NULL) || (password == NULL)) {
-		//LOG( kProtocolName, liHigh, "Invalid settings!");
 		printf("Invalid settings");
 		return B_ERROR;
 	}
 
-        if ((fUsername != username) || (fPassword != password)) {
-            fUsername = username;
-            fPassword = password;
-            // XXX kill the handle and sign back in?
-        }
+	if ((fUsername != username) || (fPassword != password)) {
+		fUsername = username;
+		fPassword = password;
+		// XXX kill the handle and sign back in?
+	}
+
 	return B_OK;
 }
 
@@ -261,160 +232,163 @@ status_t
 AIMProtocol::A_LogOn()
 {
     int ret = imcomm_im_signon(fIMCommHandle, fUsername, fPassword);
-
-    printf("ret: %d\n", ret);
-
     if (ret == IMCOMM_RET_OK) {
-      fIMCommThread = spawn_thread(WaitForData, "imcomm receiver",
-				   B_LOW_PRIORITY, this);
-      resume_thread(fIMCommThread);
+		fIMCommThread = spawn_thread(WaitForData, "imcomm receiver",
+			B_LOW_PRIORITY, this);
+		resume_thread(fIMCommThread);
 
-      fOnline = true;
+		fOnline = true;
 
-      return B_OK;
-    }
-    return B_ERROR;
+		return B_OK;
+	}
+
+	return B_ERROR;
 }
 
 
 status_t
 AIMProtocol::LogOff()
 {
-    fOnline = false;
-    imcomm_delete_handle_now(fIMCommHandle);
+	fOnline = false;
+	imcomm_delete_handle_now(fIMCommHandle);
 
-    return B_OK;
+	return B_OK;
 }
+
 
 int32
-AIMProtocol::WaitForData(void *aimProtocol) {
-    // XXX No need for aimProtocol since imcomm does its own callback thing
-  printf("wait\n");
-  fd_set readset;
-  struct timeval tm;
+AIMProtocol::WaitForData(void* aimProtocol)
+{
+	// XXX No need for aimProtocol since imcomm does its own callback thing
+	fd_set readset;
+	struct timeval tm;
 
-  while (1) {
-    FD_ZERO(&readset);
-    tm.tv_sec = 2;
-    tm.tv_usec = 500000;
+	while (1) {
+		FD_ZERO(&readset);
+		tm.tv_sec = 2;
+		tm.tv_usec = 500000;
 
-    IMCOMM_RET ret = imcomm_select(1, &readset, NULL, NULL, &tm);
-    if (ret != IMCOMM_RET_OK && errno == EINTR) continue;
-  }
+		IMCOMM_RET ret = imcomm_select(1, &readset, NULL, NULL, &tm);
+		if (ret != IMCOMM_RET_OK && errno == EINTR)
+			continue;
+	}
 
-    return 0;
+	return 0;
 }
 
 
 void
-AIMProtocol::GotMessage(void *imcomm, char *who, int auto, char *recvmsg) {
-    BMessage msg(IM_MESSAGE);
-    msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-    msg.AddString("protocol", kProtocolName);
-    msg.AddString("id", who);
-    msg.AddString("message", strip_html(recvmsg));
+AIMProtocol::GotMessage(void* imcomm, char* who, int auto, char* recvmsg)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+	msg.AddString("protocol", kProtocolName);
+	msg.AddString("id", who);
+	msg.AddString("message", strip_html(recvmsg));
 
-    gServerMsgr->SendMessage(&msg);
+	gServerMsgr->SendMessage(&msg);
 }
+
 
 void
-AIMProtocol::BuddyOnline(void *imcomm, char *who) {
-    BMessage msg(IM_MESSAGE);
-    msg.AddInt32("im_what", IM_STATUS_CHANGED);
-    msg.AddString("protocol", kProtocolName);
-    msg.AddString("id", who);
-    msg.AddInt32("status", CAYA_ONLINE);
+AIMProtocol::BuddyOnline(void* imcomm, char* who)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_STATUS_CHANGED);
+	msg.AddString("protocol", kProtocolName);
+	msg.AddString("id", who);
+	msg.AddInt32("status", CAYA_ONLINE);
 
-    gServerMsgr->SendMessage(&msg);
+	gServerMsgr->SendMessage(&msg);
 }
+
 
 void
-AIMProtocol::BuddyOffline(void *imcomm, char *who) {
-    BMessage msg(IM_MESSAGE);
-    msg.AddInt32("im_what", IM_STATUS_CHANGED);
+AIMProtocol::BuddyOffline(void* imcomm, char* who)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_STATUS_CHANGED);
+	msg.AddString("protocol", kProtocolName);
+	msg.AddString("id", who);
+	msg.AddInt32("status", CAYA_OFFLINE);
 
-    msg.AddString("protocol", kProtocolName);
-    msg.AddString("id", who);
-    msg.AddInt32("status", CAYA_OFFLINE);
-
-    gServerMsgr->SendMessage(&msg);
+	gServerMsgr->SendMessage(&msg);
 }
+
 
 void
-AIMProtocol::BuddyAway(void *imcomm, char *who) {
-    imcomm_request_awaymsg(imcomm, who);
+AIMProtocol::BuddyAway(void* imcomm, char* who)
+{
+	imcomm_request_awaymsg(imcomm, who);
 }
+
 
 void
-AIMProtocol::BuddyBack(void *imcomm, char *who) {
-    BMessage msg(IM_MESSAGE);
-    msg.AddInt32("im_what", IM_STATUS_CHANGED);
-    msg.AddString("protocol", kProtocolName);
-    msg.AddString("id", who);
-    msg.AddInt32("status", CAYA_ONLINE);
+AIMProtocol::BuddyBack(void* imcomm, char* who)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_STATUS_CHANGED);
+	msg.AddString("protocol", kProtocolName);
+	msg.AddString("id", who);
+	msg.AddInt32("status", CAYA_ONLINE);
 
-    gServerMsgr->SendMessage(&msg);
+	gServerMsgr->SendMessage(&msg);
 }
+
 
 void
-AIMProtocol::BuddyAwayMsg(void *imcomm, char *who, char *awaymsg) {
-    BMessage msg(IM_MESSAGE);
+AIMProtocol::BuddyAwayMsg(void* imcomm, char* who, char* awaymsg)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_STATUS_CHANGED);
+	msg.AddString("protocol", kProtocolName);
+	msg.AddString("id", who);
+	msg.AddInt32("status", CAYA_EXTENDED_AWAY);
+	msg.AddString("message", strip_html(awaymsg));
 
-    msg.AddInt32("im_what", IM_STATUS_CHANGED);
-    msg.AddString("protocol", kProtocolName);
-    msg.AddString("id", who);
-    msg.AddInt32("status", CAYA_EXTENDED_AWAY);
-    msg.AddString("message", strip_html(awaymsg));
-
-    gServerMsgr->SendMessage(&msg);
+	gServerMsgr->SendMessage(&msg);
 }
+
 
 void
-AIMProtocol::BuddyIdle(void *imcomm, char *who, long idletime) {
-    BMessage msg(IM_MESSAGE);
-    msg.AddInt32("im_what", IM_STATUS_CHANGED);
-    msg.AddString("protocol", kProtocolName);
-    msg.AddString("id", who);
-    msg.AddInt32("status", CAYA_ONLINE);
+AIMProtocol::BuddyIdle(void* imcomm, char* who, long idletime)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_STATUS_CHANGED);
+	msg.AddString("protocol", kProtocolName);
+	msg.AddString("id", who);
+	msg.AddInt32("status", CAYA_ONLINE);
 
-    gServerMsgr->SendMessage(&msg);
-
+	gServerMsgr->SendMessage(&msg);
 }
+
 
 void
-AIMProtocol::BuddyProfile(void *handle, char *who, char *profile) {
-    // XXX vcard is probably an issue
+AIMProtocol::BuddyProfile(void* handle, char* who, char* profile)
+{
+	// XXX vcard is probably an issue
 }
+
 
 char *
-AIMProtocol::strip_html(const char *message)
+AIMProtocol::strip_html(const char* message)
 {
-	char           *temp;
-	int             x, xnot, y, count, inhtml;
-	size_t          len = strlen(message);
+	char* temp;
+	uint32 x, xnot, y, count, inhtml;
+	size_t len = strlen(message);
 
 	temp = (char*)malloc(len + 1);
 	for (x = 0, count = 0, inhtml = 0; x < len; x++) {
 		if (message[x] == '<' && inhtml == 0) {
 			if (x + 10 < len) {
-
-				/**
-				 ** Convert links into
-				 ** [http://url] link text
-				 **/
-
+				// Convert links into [http://url] link text
 				if (strncasecmp(message + x, "<a href=\"", 9) == 0) {
 					xnot = x + 9;
+
 					for (y = xnot; y < len; y++) {
 						if (message[y] == '\"') {
-							/*
-					                 * we don't have to
-					                 * worry about the
-					                 * buffer size,
-					                 * because it's
-					                 * guaranteed to be
-					                 * bigger
-					                 */
+							// We don't have to worry about the buffer size,
+							// because it's guaranteed to be bigger
 							memcpy(temp + count, "[", 1);
 							memcpy(temp + count + 1, message + xnot,
 							       y - xnot);
@@ -426,6 +400,7 @@ AIMProtocol::strip_html(const char *message)
 					}
 				}
 			}
+
 			if (x + 3 < len) {
 				if (strncasecmp(message + x, "<br>", 4) == 0) {
 					temp[count] = '\n';
@@ -434,15 +409,18 @@ AIMProtocol::strip_html(const char *message)
 					continue;
 				}
 			}
+
 			inhtml = 1;
 			continue;
 		}
+
 		if (inhtml) {
 			if (message[x] == '>')
 				inhtml = 0;
 
 			continue;
 		}
+
 		if (message[x] == '&') {
 			if (x + 4 < len) {
 				if (strncmp(message + x, "&amp;", 5) == 0) {
@@ -452,6 +430,7 @@ AIMProtocol::strip_html(const char *message)
 					continue;
 				}
 			}
+
 			if (x + 5 < len) {
 				if (strncmp(message + x, "&quot;", 6) == 0) {
 					temp[count] = '\"';
@@ -459,6 +438,7 @@ AIMProtocol::strip_html(const char *message)
 					x += 5;
 					continue;
 				}
+
 				if (strncmp(message + x, "&nbsp;", 6) == 0) {
 					temp[count] = ' ';
 					count++;
@@ -466,6 +446,7 @@ AIMProtocol::strip_html(const char *message)
 					continue;
 				}
 			}
+
 			if (x + 3 < len) {
 				if (strncmp(message + x, "&lt;", 4) == 0) {
 					temp[count] = '<';
@@ -474,6 +455,7 @@ AIMProtocol::strip_html(const char *message)
 					continue;
 				}
 			}
+
 			if (x + 3 < len) {
 				if (strncmp(message + x, "&gt;", 4) == 0) {
 					temp[count] = '>';
@@ -483,6 +465,7 @@ AIMProtocol::strip_html(const char *message)
 				}
 			}
 		}
+
 		if (message[x] == '\n' || message[x] == '\r')
 			continue;
 		else
