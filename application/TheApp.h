@@ -1,5 +1,6 @@
 /*
- * Copyright 2009, Andrea Anzani. All rights reserved.
+ * Copyright 2009-2010, Andrea Anzani. All rights reserved.
+ * Copyright 2009-2010, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _THE_APP_H
@@ -11,14 +12,15 @@
 
 class TheApp : public BApplication {
 public:
-				TheApp();
+						TheApp();
 
-	void		ReadyToRun();
+	virtual	void		ReadyToRun();
+	virtual	void		AboutRequested();
 
-	MainWindow*	GetMainWindow() const;
+			MainWindow*	GetMainWindow() const;
 
 private:
-	MainWindow*	fMainWin;
+			MainWindow*	fMainWin;
 
 };
 

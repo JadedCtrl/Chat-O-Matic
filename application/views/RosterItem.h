@@ -46,7 +46,7 @@ protected:
 
 private:
 	ContactLinker*	contactLinker;
-	float			myfBaselineOffset;
+	float			fBaselineOffset;
 	BString			fPersonalStatus;
 	CayaStatus		fStatus;
 	BBitmap*		fBitmap;

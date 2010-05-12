@@ -7,11 +7,12 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
-#include <stdio.h>
-
 #include <ListView.h>
 
+#include <libinterface/BitmapUtils.h>
+
 #include "CayaUtils.h"
+#include "CayaResources.h"
 #include "ContactLinker.h"
 #include "NotifyMessage.h"
 #include "RosterItem.h"
@@ -96,8 +97,8 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 	       return;
 
 	rgb_color highlightColor = ui_color(B_CONTROL_HIGHLIGHT_COLOR);
-    rgb_color highColor = owner->HighColor();
-    rgb_color lowColor = owner->LowColor();
+	rgb_color highColor = owner->HighColor();
+	rgb_color lowColor = owner->LowColor();
 
 	// Draw selection
 	if (IsSelected()) {
@@ -110,54 +111,91 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 		owner->FillRect(frame);
 	}
 
-	// Draw contact status
-	switch (fStatus) {
-		case CAYA_ONLINE:
-			owner->SetHighColor(CAYA_GREEN_COLOR);
-			break;
-		case CAYA_EXTENDED_AWAY:
-		case CAYA_AWAY:
-			owner->SetHighColor(CAYA_ORANGE_COLOR);
-			break;
-		case CAYA_DO_NOT_DISTURB:
-			owner->SetHighColor(CAYA_RED_COLOR);
-			break;
-		case CAYA_OFFLINE:
-			break;
-		default:
-	   		break;
+	BResources* res = CayaResources();
+	if (res) {
+		int32 num = 0;
+
+		switch (fStatus) {
+			case CAYA_ONLINE:
+				num = kOnlineIcon;
+				break;
+			case CAYA_EXTENDED_AWAY:
+			case CAYA_AWAY:
+				num = kAwayIcon;
+				break;
+			case CAYA_DO_NOT_DISTURB:
+				num = kBusyIcon;
+				break;
+			case CAYA_OFFLINE:
+				num = kOfflineIcon;
+				break;
+			default:
+				break;
+		}
+
+		BBitmap* bitmap = IconFromResources(res, num, B_MINI_ICON);
+		BRect bitmapRect(frame.left + 2, frame.top + 2,
+			frame.left + 2 + 14, frame.top + 2 + 14);
+
+		owner->SetDrawingMode(B_OP_ALPHA);
+		owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
+		owner->DrawBitmap(bitmap, bitmap->Bounds(),
+			bitmapRect, B_FILTER_BITMAP_BILINEAR);
+
+		delete res;
+	} else {
+		// Draw contact status
+		switch (fStatus) {
+			case CAYA_ONLINE:
+				owner->SetHighColor(CAYA_GREEN_COLOR);
+				break;
+			case CAYA_EXTENDED_AWAY:
+			case CAYA_AWAY:
+				owner->SetHighColor(CAYA_ORANGE_COLOR);
+				break;
+			case CAYA_DO_NOT_DISTURB:
+				owner->SetHighColor(CAYA_RED_COLOR);
+				break;
+			case CAYA_OFFLINE:
+				break;
+			default:
+		   		break;
+		}
+
+		owner->FillEllipse(BRect(frame.left + 4, frame.top + 4,
+			frame.left + 4 + 10 , frame.top + 4 + 10));
 	}
-    owner->FillEllipse(BRect(frame.left + 6, frame.top + 6,
-		frame.left + 6 + 7 , frame.top + 6 + 7));
 
 	// Draw contact name
-    owner->MovePenTo(frame.left + 20, frame.top + myfBaselineOffset);
-    owner->SetHighColor(ui_color(B_CONTROL_TEXT_COLOR));
+	owner->MovePenTo(frame.left + 20, frame.top + fBaselineOffset);
+	owner->SetHighColor(ui_color(B_CONTROL_TEXT_COLOR));
 	owner->DrawString(Text());
 
 	// Draw contact status string
-    owner->MovePenTo(frame.left + 20, frame.top + myfBaselineOffset +
-		myfBaselineOffset + 2);
+	owner->MovePenTo(frame.left + 20, frame.top + fBaselineOffset +
+		fBaselineOffset + 2);
 	owner->SetHighColor(tint_color(lowColor, B_DARKEN_1_TINT));
-    if (fPersonalStatus.Length() == 0)
+	if (fPersonalStatus.Length() == 0)
 		owner->DrawString(CayaStatusToString(fStatus));
 	else
 		owner->DrawString(fPersonalStatus);
 
 	// Draw separator between items
-    owner->StrokeLine(BPoint(frame.left, frame.bottom), BPoint(frame.right, frame.bottom));
+	owner->StrokeLine(BPoint(frame.left, frame.bottom),
+		BPoint(frame.right, frame.bottom));
 
 	// Draw avatar icon
 	if (fBitmap != NULL) {
 		float h = frame.Height() - 4;
-		BRect rect(frame.right - h - 2, frame.top + 2, frame.right - 2, frame.top + h );
+		BRect rect(frame.right - h - 2, frame.top + 2,
+			frame.right - 2, frame.top + h );
 		owner->SetDrawingMode(B_OP_ALPHA);
 		owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
 		owner->DrawBitmap(fBitmap, fBitmap->Bounds(),
 			rect, B_FILTER_BITMAP_BILINEAR);
 	}
 
-    owner->SetHighColor(highColor);
+	owner->SetHighColor(highColor);
 	owner->SetLowColor(lowColor);
 }
 
@@ -168,7 +206,7 @@ RosterItem::Update(BView* owner, const BFont* font)
 	font_height fheight;
 	font->GetHeight(&fheight);
 
-	myfBaselineOffset = 2 + ceilf(fheight.ascent + fheight.leading / 2);
+	fBaselineOffset = 2 + ceilf(fheight.ascent + fheight.leading / 2);
 
 	SetHeight((ceilf(fheight.ascent) + ceilf(fheight.descent) +
 		ceilf(fheight.leading) + 4 ) * 2);
