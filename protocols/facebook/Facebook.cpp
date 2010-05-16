@@ -3,34 +3,34 @@
 
 #include <Entry.h>
 
-#include <libjabber/JabberSSLPlug.h>
+#include <libjabber/JabberSocketPlug.h>
 #include <libjabber/States.h>
 
-#include "GoogleTalk.h"
+#include "Facebook.h"
 
-const char* kProtocolSignature = "gtalk";
-const char* kProtocolName = "Google Talk";
+const char* kProtocolSignature = "facebook";
+const char* kProtocolName = "Facebook";
 
 int64 idsms = 0;
 
 
-GoogleTalk::GoogleTalk()
-	: JabberHandler("jabberHandler", fPlug = new JabberSSLPlug("talk.google.com", 5223)),
+Facebook::Facebook()
+	: JabberHandler("jabberHandler", fPlug = new JabberSocketPlug()),
 	fUsername(""),
-	fServer("gmail.com"),
+	fServer("chat.facebook.com"),
 	fPassword("") 
 {
 }
 
 
-GoogleTalk::~GoogleTalk()
+Facebook::~Facebook()
 {
 	Shutdown();
 }
 
 
 status_t
-GoogleTalk::Init(CayaProtocolMessengerInterface* msgr)
+Facebook::Init(CayaProtocolMessengerInterface* msgr)
 {
 	fServerMsgr = msgr;
 	fRostered = false;
@@ -44,26 +44,26 @@ GoogleTalk::Init(CayaProtocolMessengerInterface* msgr)
 
 
 status_t
-GoogleTalk::Shutdown()
+Facebook::Shutdown()
 {
 	LogOff();
 
 	fLaterBuddyList->clear();
 	delete fLaterBuddyList;
 
-	thread_id plug = fPlug->Thread();
-	BMessenger(fPlug).SendMessage(B_QUIT_REQUESTED);
+//	thread_id plug = fPlug->Thread();
+//	BMessenger(fPlug).SendMessage(B_QUIT_REQUESTED);
 	fPlug = NULL;
 
 	int32 res = 0;
-	wait_for_thread(plug, &res);
+//	wait_for_thread(plug, &res);
 
 	return B_OK;
 }
 
 
 status_t
-GoogleTalk::Process(BMessage* msg)
+Facebook::Process(BMessage* msg)
 {
 	switch (msg->what) {
 		case IM_MESSAGE:
@@ -97,7 +97,7 @@ GoogleTalk::Process(BMessage* msg)
 								if (fPassword == "")
 									Error("Empty Password!",NULL);
 
-								Progress("GoogleTalk Login", "GoogleTalk: Connecting...", 0.0f);
+								Progress("Facebook Login", "Facebook: Connecting...", 0.0f);
 								SetStatus(S_ONLINE, "");
 								RequestVCard(GetJid()); //by default we ask for our own vCard.
 							} else {
@@ -278,21 +278,21 @@ GoogleTalk::Process(BMessage* msg)
 
 
 const char*
-GoogleTalk::Signature() const
+Facebook::Signature() const
 {
 	return kProtocolSignature;
 }
 
 
 const char*
-GoogleTalk::FriendlySignature() const
+Facebook::FriendlySignature() const
 {
 	return kProtocolName;
 }
 
 
 status_t
-GoogleTalk::UpdateSettings(BMessage* msg)
+Facebook::UpdateSettings(BMessage* msg)
 {
 	const char* username = NULL;
 	const char* password = NULL;
@@ -316,7 +316,7 @@ GoogleTalk::UpdateSettings(BMessage* msg)
 		fUsername.Remove(atpos,fUsername.Length()-atpos);
 		fServer = server;		
 	} else
-		fServer.SetTo("gmail.com");
+		fServer.SetTo("chat.facebook.com");
 
 	fPassword = password;
 	
@@ -330,16 +330,16 @@ GoogleTalk::UpdateSettings(BMessage* msg)
 		SetResource(res);
 
 	SetPriority(5);
-	SetPort(5223);
+	SetPort(5222);
 
 	return B_OK;
 }
 
 
 uint32
-GoogleTalk::GetEncoding()
+Facebook::GetEncoding()
 {
-	return 0xffff; // No conversion, GoogleTalk handles UTF-8 ???
+	return 0xffff; // No conversion, Facebook handles UTF-8 ???
 }
 
 
@@ -347,9 +347,9 @@ GoogleTalk::GetEncoding()
 
 
 void
-GoogleTalk::Error(const char* message, const char* who)
+Facebook::Error(const char* message, const char* who)
 {
-	//LOG("GoogleTalk", liDebug, "GoogleTalk::Error(%s,%s)", message, who);
+	//LOG("Facebook", liDebug, "Facebook::Error(%s,%s)", message, who);
 
 	BMessage msg(IM_ERROR);
 	msg.AddString("protocol", kProtocolSignature);
@@ -362,9 +362,9 @@ GoogleTalk::Error(const char* message, const char* who)
 
 
 void
-GoogleTalk::GotMessage(const char* from, const char* message)
+Facebook::GotMessage(const char* from, const char* message)
 {
-	//LOG("GoogleTalk", liDebug, "GoogleTalk::GotMessage()");
+	//LOG("Facebook", liDebug, "Facebook::GotMessage()");
 
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
@@ -377,9 +377,9 @@ GoogleTalk::GotMessage(const char* from, const char* message)
 
 
 void
-GoogleTalk::MessageSent(const char* to, const char* message)
+Facebook::MessageSent(const char* to, const char* message)
 {
-	//LOG("GoogleTalk", liDebug, "GoogleTalk::GotMessage()");
+	//LOG("Facebook", liDebug, "Facebook::GotMessage()");
 
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_MESSAGE_SENT);
@@ -392,9 +392,9 @@ GoogleTalk::MessageSent(const char* to, const char* message)
 
 
 void
-GoogleTalk::LoggedIn()
+Facebook::LoggedIn()
 {
-	Progress("GoogleTalk Login", "GoogleTalk: Logged in!", 1.00);
+	Progress("Facebook Login", "Facebook: Logged in!", 1.00);
 
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_SET);
@@ -421,9 +421,9 @@ GoogleTalk::LoggedIn()
 
 
 void
-GoogleTalk::SetAway(bool away)
+Facebook::SetAway(bool away)
 {
-	//LOG("GoogleTalk", liDebug, "GoogleTalk::SetAway()");
+	//LOG("Facebook", liDebug, "Facebook::SetAway()");
 
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_SET);
@@ -438,9 +438,9 @@ GoogleTalk::SetAway(bool away)
 
 
 void
-GoogleTalk::LoggedOut()
+Facebook::LoggedOut()
 {
-	//LOG("GoogleTalk", liDebug, "GoogleTalk::LoggedOut()");
+	//LOG("Facebook", liDebug, "Facebook::LoggedOut()");
 
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_SET);
@@ -455,16 +455,16 @@ GoogleTalk::LoggedOut()
 
 
 void
-GoogleTalk::BuddyStatusChanged(JabberContact* who)
+Facebook::BuddyStatusChanged(JabberContact* who)
 {
 	BuddyStatusChanged(who->GetPresence());
 }
 
 
 void
-GoogleTalk::BuddyStatusChanged(JabberPresence* jp)
+Facebook::BuddyStatusChanged(JabberPresence* jp)
 {
-	//LOG("GoogleTalk", liDebug, "GoogleTalk::BuddyStatusChanged(%s)",jp->GetJid().String());
+	//LOG("Facebook", liDebug, "Facebook::BuddyStatusChanged(%s)",jp->GetJid().String());
 
 	//avoid a receiving self status changes or empty status:
 	if (jp->GetJid() == "" || jp->GetJid().ICompare(GetJid()) == 0)
@@ -482,7 +482,7 @@ GoogleTalk::BuddyStatusChanged(JabberPresence* jp)
 
 
 void
-GoogleTalk::AddStatusString(JabberPresence* jp, BMessage* msg)
+Facebook::AddStatusString(JabberPresence* jp, BMessage* msg)
 {
 	int32 show = jp->GetShow();
 	switch (show) {
@@ -517,9 +517,9 @@ GoogleTalk::AddStatusString(JabberPresence* jp, BMessage* msg)
 
 
 void
-GoogleTalk::BuddyStatusChanged(const char* who, CayaStatus status)
+Facebook::BuddyStatusChanged(const char* who, CayaStatus status)
 {
-	//LOG("GoogleTalk", liDebug, "GoogleTalk::BuddyStatusChanged(%s,%s)",who,status);
+	//LOG("Facebook", liDebug, "Facebook::BuddyStatusChanged(%s,%s)",who,status);
 
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_CHANGED);
@@ -532,7 +532,7 @@ GoogleTalk::BuddyStatusChanged(const char* who, CayaStatus status)
 
 
 void
-GoogleTalk::Progress(const char* id, const char* message, float progress)
+Facebook::Progress(const char* id, const char* message, float progress)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_PROGRESS );
@@ -547,7 +547,7 @@ GoogleTalk::Progress(const char* id, const char* message, float progress)
 
 
 JabberContact*
-GoogleTalk::getContact(const char* id)
+Facebook::getContact(const char* id)
 {
 	RosterList *rl = getRosterList();
 	JabberContact* contact = NULL;
@@ -567,7 +567,7 @@ GoogleTalk::getContact(const char* id)
 }
 
 void			
-GoogleTalk::SendContactInfo(const JabberContact* jid)
+Facebook::SendContactInfo(const JabberContact* jid)
 {
 	int32 what = IM_CONTACT_INFO;
 	BMessage msg(IM_MESSAGE);
@@ -597,7 +597,7 @@ GoogleTalk::SendContactInfo(const JabberContact* jid)
 }
 
 void			
-GoogleTalk::SendContactInfo(const char* id)
+Facebook::SendContactInfo(const char* id)
 {
 	JabberContact* jid = getContact(id);
 	if (!jid)
@@ -608,7 +608,7 @@ GoogleTalk::SendContactInfo(const char* id)
 
 
 void
-GoogleTalk::SendBuddyIcon(const char* id)
+Facebook::SendBuddyIcon(const char* id)
 {
 	JabberContact* jid = getContact(id);
 	if (!jid)
@@ -632,14 +632,14 @@ GoogleTalk::SendBuddyIcon(const char* id)
 // Callbacks
 
 void
-GoogleTalk::Authorized()
+Facebook::Authorized()
 {
 	SetAway(false);
 
 	fPerc +=0.3333f;
 
-	Progress("GoogleTalk Login", "GoogleTalk: Authorized", fPerc);
-	//LOG(kProtocolSignature, liDebug, "GoogleTalk:Login %f - Authorized",fPerc) ;
+	Progress("Facebook Login", "Facebook: Authorized", fPerc);
+	//LOG(kProtocolSignature, liDebug, "Facebook:Login %f - Authorized",fPerc) ;
 	CheckLoginStatus();
 
 	JabberHandler::Authorized();
@@ -647,7 +647,7 @@ GoogleTalk::Authorized()
 
 
 void
-GoogleTalk::Message(JabberMessage* message)
+Facebook::Message(JabberMessage* message)
 {
 	// We have something to tell
 	if (message->GetBody() != "")
@@ -694,14 +694,14 @@ GoogleTalk::Message(JabberMessage* message)
 
 
 void
-GoogleTalk::Presence(JabberPresence* presence)
+Facebook::Presence(JabberPresence* presence)
 {
 	BuddyStatusChanged(presence);
 }
 
 
 void
-GoogleTalk::Roster(RosterList* roster)
+Facebook::Roster(RosterList* roster)
 {
 	// Fix me! (Roster message can arrive at different times)
 	BMessage serverBased(IM_SERVER_BASED_CONTACT_LIST);
@@ -725,27 +725,27 @@ GoogleTalk::Roster(RosterList* roster)
 	if(!fRostered) {
 		fPerc += 0.3333f;
 		fRostered = true;
-		Progress("GoogleTalk Login", "GoogleTalk: Roster", fPerc);
+		Progress("Facebook Login", "Facebook: Roster", fPerc);
 	}
 
-	//LOG(kProtocolSignature, liDebug, "GoogleTalk:Login %f - Rostered",fPerc) ;
+	//LOG(kProtocolSignature, liDebug, "Facebook:Login %f - Rostered",fPerc) ;
 	CheckLoginStatus();	
 }
 
 
 void
-GoogleTalk::Agents(AgentList* agents)
+Facebook::Agents(AgentList* agents)
 {
 	fPerc +=0.3333f;
 	fAgent = true;
-	Progress("GoogleTalk Login", "GoogleTalk: Agents", fPerc);
-	//LOG(kProtocolSignature, liDebug, "GoogleTalk:Login %f - Agents",fPerc) ;
+	Progress("Facebook Login", "Facebook: Agents", fPerc);
+	//LOG(kProtocolSignature, liDebug, "Facebook:Login %f - Agents",fPerc) ;
 	CheckLoginStatus();
 }
 
 
 void
-GoogleTalk::Disconnected(const BString& reason)
+Facebook::Disconnected(const BString& reason)
 {
 	LoggedOut();
 	
@@ -757,7 +757,7 @@ GoogleTalk::Disconnected(const BString& reason)
 
 
 void
-GoogleTalk::SubscriptionRequest(JabberPresence* presence)
+Facebook::SubscriptionRequest(JabberPresence* presence)
 {
 	BMessage im_msg(IM_MESSAGE);
 	im_msg.AddInt32("im_what", IM_AUTH_REQUEST);
@@ -770,11 +770,11 @@ GoogleTalk::SubscriptionRequest(JabberPresence* presence)
 
 
 void
-GoogleTalk::Unsubscribe(JabberPresence* presence)
+Facebook::Unsubscribe(JabberPresence* presence)
 {	
 	// What should we do when a people unsubscrive from us?
 	//debugger("Unsubscribe");
-	//LOG("GoogleTalk", liDebug, "GoogleTalk::Unsubscribe()");
+	//LOG("Facebook", liDebug, "Facebook::Unsubscribe()");
 
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_CHANGED);
@@ -786,7 +786,7 @@ GoogleTalk::Unsubscribe(JabberPresence* presence)
 
 
 void
-GoogleTalk::OwnContactInfo(JabberContact* contact)
+Facebook::OwnContactInfo(JabberContact* contact)
 {
 	int32 what = IM_OWN_CONTACT_INFO;
 
@@ -818,7 +818,7 @@ GoogleTalk::OwnContactInfo(JabberContact* contact)
 
 
 void
-GoogleTalk::GotBuddyPhoto(const BString& jid, const BString& imagePath)
+Facebook::GotBuddyPhoto(const BString& jid, const BString& imagePath)
 {
 	BMessage msg(IM_MESSAGE);
 
@@ -835,7 +835,7 @@ GoogleTalk::GotBuddyPhoto(const BString& jid, const BString& imagePath)
 
 
 void
-GoogleTalk::Registration(JabberRegistration* registration)
+Facebook::Registration(JabberRegistration* registration)
 {
 	// Just created a new account ?
 	// or we have ack of a registration? ack of registartion!
@@ -845,7 +845,7 @@ GoogleTalk::Registration(JabberRegistration* registration)
 
 
 void
-GoogleTalk::CheckLoginStatus()
+Facebook::CheckLoginStatus()
 {
 	if (fRostered &&  fAgent && !fFullLogged) 
 		LoggedIn();	

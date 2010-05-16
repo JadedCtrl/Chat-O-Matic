@@ -439,7 +439,7 @@ JabberHandler::BeginSession()
 
 	fSocket = fPlug->StartConnection(fHost, fPort, this);
 	if (fSocket >= 0) {
-		xml << "<stream:stream to=\'" << fHost
+		xml << "<stream:stream version='1.0' to=\'" << fHost
 			<< "\' xmlns='jabber:client' "
 			<< "xmlns:stream='http://etherx.jabber.org/streams'>\n";
 		Send(xml);

@@ -72,8 +72,9 @@ RosterListView::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
 		case kGetInfo:
-			msg->PrintToStream();
 			break;
+		default:
+			BListView::MessageReceived(msg);
 	}
 }
 

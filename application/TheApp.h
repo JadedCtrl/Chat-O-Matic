@@ -8,7 +8,7 @@
 
 #include <Application.h>
 
-#include "MainWindow.h"
+class MainWindow;
 
 class TheApp : public BApplication {
 public:
@@ -21,7 +21,6 @@ public:
 
 private:
 			MainWindow*	fMainWin;
-
 };
 
 #endif	// _THE_APP_H

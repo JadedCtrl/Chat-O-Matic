@@ -31,7 +31,7 @@
 
 #include <libinterface/NotifyingTextView.h>
 
-#include "CayaProtocol.h"
+#include "CayaProtocolAddOn.h"
 #include "CayaResources.h"
 #include "CayaUtils.h"
 #include "ProtocolManager.h"
@@ -42,8 +42,8 @@
 const float kDividerWidth = 1.0f;
 
 
-ProtocolSettings::ProtocolSettings(CayaProtocol* cayap)
-	: fProtocol(cayap),
+ProtocolSettings::ProtocolSettings(CayaProtocolAddOn* addOn)
+	: fAddOn(addOn),
 	fTemplate(new BMessage())
 {
 	_Init();
@@ -63,10 +63,10 @@ ProtocolSettings::InitCheck() const
 }
 
 
-CayaProtocol*
-ProtocolSettings::Protocol() const
+CayaProtocolAddOn*
+ProtocolSettings::AddOn() const
 {
-	return fProtocol;
+	return fAddOn;
 }
 
 
@@ -75,7 +75,7 @@ ProtocolSettings::Accounts() const
 {
 	List<BString> list;
 
-	BPath path(CayaAccountPath(fProtocol->GetSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature()));
 	if (path.InitCheck() != B_OK)
 		return list;
 
@@ -155,21 +155,19 @@ ProtocolSettings::Load(const char* account, BView* parent)
 						menu->AddItem(item);
 					}
 
-					if (settings) {
+					if (settings)
 						value = settings->FindString(name);
-						if (value)
-							menu->FindItem(value)->SetMarked(true);
-					}
+					if (value)
+						menu->FindItem(value)->SetMarked(true);
 				} else {
 					// It's a free-text setting
 					if (curr.FindBool("multi_line", &multiLine) != B_OK)
 						multiLine = false;
 
-					if (settings) {
+					if (settings)
 						value = settings->FindString(name);
-						if (!value)
-							value = curr.FindString("default");
-					}
+					if (!value)
+						value = curr.FindString("default");
 
 					if (curr.FindBool("is_secret",&secret) != B_OK)
 						secret = false;
@@ -355,12 +353,33 @@ ProtocolSettings::Save(const char* account, BView* parent)
 
 
 status_t
+ProtocolSettings::Rename(const char* from, const char* to)
+{
+	status_t ret = B_ERROR;
+
+	// Find user's settings path
+	BPath path(CayaAccountPath(fAddOn->Signature()));
+	if ((ret = path.InitCheck()) != B_OK)
+		return ret;
+
+	path.Append(from);
+
+	// Delete settings file
+	BEntry entry(path.Path());
+	if ((ret = entry.Rename(to)) != B_OK)
+		return ret;
+
+	return B_OK;
+}
+
+
+status_t
 ProtocolSettings::Delete(const char* account)
 {
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fProtocol->GetSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature()));
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
 
@@ -379,9 +398,8 @@ void
 ProtocolSettings::_Init()
 {
 	// Find protocol add-on
-	BPath* dllPath = ProtocolManager::Get()->GetProtocolPath(
-		fProtocol->GetSignature());
-	BFile file(dllPath->Path(), B_READ_ONLY);
+	BPath dllPath(fAddOn->Path());
+	BFile file(dllPath.Path(), B_READ_ONLY);
 	if (file.InitCheck() < B_OK) {
 		fStatus = file.InitCheck();
 		return;
@@ -417,7 +435,7 @@ ProtocolSettings::_Load(const char* account, BMessage** settings)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fProtocol->GetSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature()));
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
 
@@ -440,7 +458,7 @@ ProtocolSettings::_Save(const char* account, BMessage* settings)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fProtocol->GetSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature()));
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
 

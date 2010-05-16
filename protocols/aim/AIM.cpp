@@ -11,7 +11,8 @@
 
 #include "AIM.h"
 
-const char* kProtocolName = "aim";
+const char* kProtocolSignature = "aim";
+const char* kProtocolName = "AOL Instant Messenger";
 
 CayaProtocolMessengerInterface* gServerMsgr;
 
@@ -105,7 +106,7 @@ AIMProtocol::Process(BMessage* msg)
 
 					BMessage msg(IM_MESSAGE);
 					msg.AddInt32("im_what", IM_STATUS_SET);
-					msg.AddString("protocol", kProtocolName);
+					msg.AddString("protocol", kProtocolSignature);
 					msg.AddInt32("status", status);
 					gServerMsgr->SendMessage(&msg);
 					break;
@@ -121,7 +122,7 @@ AIMProtocol::Process(BMessage* msg)
 					// XXX send a message to let caya know we did it
 					BMessage msg(IM_MESSAGE);
 					msg.AddInt32("im_what", IM_MESSAGE_SENT);
-					msg.AddString("protocol", kProtocolName);
+					msg.AddString("protocol", kProtocolSignature);
 					msg.AddString("id", buddy);
 					msg.AddString("message", sms);
 
@@ -182,27 +183,27 @@ AIMProtocol::UnsupportedOperation()
 
 
 const char*
-AIMProtocol::GetSignature()
+AIMProtocol::Signature() const
+{
+	return kProtocolSignature;
+}
+
+
+const char*
+AIMProtocol::FriendlySignature() const
 {
 	return kProtocolName;
 }
 
 
-const char*
-AIMProtocol::GetFriendlySignature()
-{
-	return "AOL Instant Messenger";
-}
-
-
 status_t
-AIMProtocol::UpdateSettings(BMessage& msg)
+AIMProtocol::UpdateSettings(BMessage* msg)
 {
 	const char* username = NULL;
 	const char* password = NULL;
 
-	msg.FindString("username", &username);
-	msg.FindString("password", &password);
+	msg->FindString("username", &username);
+	msg->FindString("password", &password);
 	//msg->FindString("server", &server);
 	//msg->FindInt32("port", &server);
 
@@ -225,6 +226,13 @@ uint32
 AIMProtocol::GetEncoding()
 {
 	return 0xffff; // No conversion, AIMProtocol handles UTF-8 ???
+}
+
+
+CayaProtocolMessengerInterface*
+AIMProtocol::MessengerInterface() const
+{
+	return gServerMsgr;
 }
 
 
@@ -282,7 +290,7 @@ AIMProtocol::GotMessage(void* imcomm, char* who, int auto, char* recvmsg)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-	msg.AddString("protocol", kProtocolName);
+	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", who);
 	msg.AddString("message", strip_html(recvmsg));
 
@@ -295,7 +303,7 @@ AIMProtocol::BuddyOnline(void* imcomm, char* who)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_CHANGED);
-	msg.AddString("protocol", kProtocolName);
+	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", who);
 	msg.AddInt32("status", CAYA_ONLINE);
 
@@ -308,7 +316,7 @@ AIMProtocol::BuddyOffline(void* imcomm, char* who)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_CHANGED);
-	msg.AddString("protocol", kProtocolName);
+	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", who);
 	msg.AddInt32("status", CAYA_OFFLINE);
 
@@ -328,7 +336,7 @@ AIMProtocol::BuddyBack(void* imcomm, char* who)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_CHANGED);
-	msg.AddString("protocol", kProtocolName);
+	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", who);
 	msg.AddInt32("status", CAYA_ONLINE);
 
@@ -341,7 +349,7 @@ AIMProtocol::BuddyAwayMsg(void* imcomm, char* who, char* awaymsg)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_CHANGED);
-	msg.AddString("protocol", kProtocolName);
+	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", who);
 	msg.AddInt32("status", CAYA_EXTENDED_AWAY);
 	msg.AddString("message", strip_html(awaymsg));
@@ -355,7 +363,7 @@ AIMProtocol::BuddyIdle(void* imcomm, char* who, long idletime)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_CHANGED);
-	msg.AddString("protocol", kProtocolName);
+	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", who);
 	msg.AddInt32("status", CAYA_ONLINE);
 

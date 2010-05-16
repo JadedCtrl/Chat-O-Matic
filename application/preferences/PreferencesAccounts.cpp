@@ -23,11 +23,23 @@
 #include "PreferencesAccounts.h"
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
+#include "MainWindow.h"
+#include "TheApp.h"
 
-const uint32 kAddAccount   = 'ADAC';
-const uint32 kEditAccount  = 'EDAC';
-const uint32 kDelAccount   = 'DLAC';
-const uint32 kSelect       = 'SELT';
+const uint32 kAddAccount   = 'adac';
+const uint32 kEditAccount  = 'edac';
+const uint32 kDelAccount   = 'dlac';
+const uint32 kSelect       = 'selt';
+
+
+static int
+compare_by_name(const void* _item1, const void* _item2)
+{
+	AccountListItem* item1 = *(AccountListItem**)_item1;
+	AccountListItem* item2 = *(AccountListItem**)_item2;
+
+	return strcasecmp(item1->Account(), item2->Account());
+}
 
 
 PreferencesAccounts::PreferencesAccounts()
@@ -40,27 +52,23 @@ PreferencesAccounts::PreferencesAccounts()
 	BScrollView* scrollView = new BScrollView("scrollView", fListView,
 		B_WILL_DRAW, false, true);
 
-	BList* protocols = ProtocolManager::Get()->GetProtocols();
+	ProtocolAddOns addOns = ProtocolManager::Get()->Protocols();
 
 	fProtosMenu = new BPopUpMenu(NULL, true);
-	for (int32 i = 0; i < protocols->CountItems(); i++) {
-		CayaProtocol* cayap
-			= reinterpret_cast<CayaProtocol*>(protocols->ItemAtFast(i));
-		ProtocolSettings* settings = new ProtocolSettings(cayap);
+	for (uint32 i = 0; i < addOns.CountItems(); i++) {
+		CayaProtocolAddOn* addOn = addOns.ItemAt(i);
+		ProtocolSettings* settings = new ProtocolSettings(addOn);
 
 		// Add accounts to list view
 		_LoadListView(settings);
 
 		// Add menu items
 		BMessage* msg = new BMessage(kAddAccount);
-		msg->AddPointer("protocol", cayap);
+		msg->AddPointer("settings", settings);
 
 		BitmapMenuItem* item = new BitmapMenuItem(
-			cayap->GetFriendlySignature(), msg,
-			ProtocolManager::Get()->GetProtocolIcon(cayap->GetSignature()));
+			addOn->FriendlySignature(), msg, addOn->Icon());
 		fProtosMenu->AddItem(item);
-
-		delete settings;
 	}
 
 	ToolButton* proto = new ToolButton("+", NULL);
@@ -110,15 +118,16 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 			}
 			break;
 		case kAddAccount: {
-			void *protocol = NULL;
-			if (msg->FindPointer("protocol", &protocol) == B_OK) {
-				CayaProtocol* cayap = (CayaProtocol*) protocol;
-
-				BLooper* looper = new BLooper();
-				looper->AddHandler(this);
-
-				AccountDialog* dialog = new AccountDialog("Add account", cayap);
-				dialog->Show();
+			void *pointer = NULL;
+			if (msg->FindPointer("settings", &pointer) == B_OK) {
+				ProtocolSettings* settings
+					= reinterpret_cast<ProtocolSettings*>(pointer);
+				if (settings) {
+					AccountDialog* dialog = new AccountDialog("Add account",
+						settings);
+					dialog->SetTarget(this);
+					dialog->Show();
+				}
 			}
 			break;
 		}
@@ -131,13 +140,9 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 				AccountListItem* item
 					= dynamic_cast<AccountListItem*>(fListView->ItemAt(selected));
 
-				CayaProtocol* cayap = item->Protocol();
-				const char* account = item->Account();
-
-				BLooper* looper = new BLooper();
-				looper->AddHandler(this);
-
-				AccountDialog* dialog = new AccountDialog("Edit account", cayap, account);
+				AccountDialog* dialog = new AccountDialog("Edit account",
+					item->Settings(), item->Account());
+				dialog->SetTarget(this);
 				dialog->Show();
 			}
 			break;
@@ -159,6 +164,57 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 			}
 			break;
 		}
+		case kAccountSaved:
+		case kAccountRenamed: {
+			void* pointer = NULL;
+			BString account;
+			BString account2;
+
+			if (msg->FindPointer("settings", &pointer) != B_OK)
+				return;
+			if (msg->what == kAccountSaved) {
+				if (msg->FindString("account", &account) != B_OK)
+					return;
+			} else {
+				if (msg->FindString("from", &account) != B_OK)
+					return;
+				if (msg->FindString("to", &account2) != B_OK)
+					return;
+			}
+
+			ProtocolSettings* settings
+				= reinterpret_cast<ProtocolSettings*>(pointer);
+			if (!settings)
+				return;
+
+			if (msg->what == kAccountSaved) {
+				// Add list item
+				AccountListItem* listItem
+					= new AccountListItem(settings, account.String());
+				fListView->AddItem(listItem);
+
+				// Add protocol/account instance
+				TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
+				ProtocolManager::Get()->AddAccount(settings->AddOn(),
+					account.String(), theApp->GetMainWindow());
+			} else {
+				// Rename list item
+				for (int32 i = 0; i < fListView->CountItems(); i++) {
+					AccountListItem* listItem
+						= dynamic_cast<AccountListItem*>(fListView->ItemAt(i));
+					if (!listItem)
+						continue;
+
+					if (account == listItem->Account()) {
+						listItem->SetAccount(account2.String());
+						break;
+					}
+				}
+			}
+
+			fListView->SortItems(compare_by_name);
+			break;
+		}
 		default:
 			BView::MessageReceived(msg);
 	}
@@ -176,8 +232,8 @@ PreferencesAccounts::_LoadListView(ProtocolSettings* settings)
 	// Add accounts to list view
 	for (uint32 i = 0; i < accounts.CountItems(); i++) {
 		BString account = accounts.ItemAt(i);
-		AccountListItem* listItem = new AccountListItem(
-			settings->Protocol(), account.String());
+		AccountListItem* listItem
+			= new AccountListItem(settings, account.String());
 		fListView->AddItem(listItem);
 	}
 }

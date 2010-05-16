@@ -22,15 +22,13 @@
 #include <ScrollView.h>
 #include <String.h>
 
+#include "CayaMessages.h"
 #include "ChatWindow.h"
 #include "ContactLinker.h"
 #include "EditingFilter.h"
 #include "CayaConstants.h"
 #include "CayaRenderView.h"
 #include "NotifyMessage.h"
-
-const int32 kCloseWindow = 'clwn';
-const int32 kChat = 'chat';
 
 
 ChatWindow::ChatWindow(ContactLinker* cl)
@@ -68,9 +66,9 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 bool
 ChatWindow::QuitRequested()
 {
-	BMessage msg(kCloseWindow);
+	BMessage msg(CAYA_CLOSE_WINDOW);
 	msg.AddString("id", fContactLinker->GetId());
-	fContactLinker->GetMessenger().SendMessage(&msg);
+	fContactLinker->Messenger().SendMessage(&msg);
 	return false;
 }
 
@@ -79,7 +77,7 @@ void
 ChatWindow::MessageReceived(BMessage* message)
 {
 	switch(message->what) {
-		case kChat:
+		case CAYA_CHAT:
 		{
 			BString message = fSendView->Text();
 			if (message == "")
@@ -91,7 +89,7 @@ ChatWindow::MessageReceived(BMessage* message)
 			msg.AddInt32("im_what", IM_SEND_MESSAGE);
 			msg.AddString("id", fContactLinker->GetId());
 			msg.AddString("message", message);
-			fContactLinker->GetMessenger().SendMessage(&msg);
+			fContactLinker->Messenger().SendMessage(&msg);
 
 			fSendView->SetText("");
 			break;
@@ -177,6 +175,7 @@ ChatWindow::ImMessage(BMessage* msg)
 			break;
 	}
 }
+
 
 void 
 ChatWindow::ObserveString(int32 what, BString str)

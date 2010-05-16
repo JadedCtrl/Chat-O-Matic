@@ -18,12 +18,11 @@ class StatusView;
 class RosterListView;
 class RosterItem;
 
-#define OPEN_WINDOW	'opwn'
-#define CLOSE_WINDOW 'clwn'
-
 class MainWindow: public BWindow, public Observer {
 public:
 						MainWindow();
+
+			void		Start();
 
 	virtual	void		MessageReceived(BMessage* message);
 			void		ImMessage(BMessage* msg);
@@ -32,7 +31,7 @@ public:
 
 			void		ObserveInteger(int32 what, int32 val);
 
-			Server*		GetServer() const { return fSrv; }
+			Server*		GetServer() const { return fServer; }
 
 			void		UpdateListItem(RosterItem* item);		
 
@@ -45,10 +44,7 @@ public:
 private:
 	StatusView*			fStatusView;
 	RosterListView*		fListView;
-	BCardLayout*		fStack;
-	BTextControl*		fUsername;
-	BTextControl*		fPassword;
-	Server*				fSrv;
+	Server*				fServer;
 };
 
 #endif	// _MAIN_WINDOW_H

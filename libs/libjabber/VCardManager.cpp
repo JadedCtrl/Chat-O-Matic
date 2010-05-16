@@ -88,7 +88,6 @@ VCardManager::RefinePresence(JabberPresence* presence)
 		logmsg("   not found in cache.. adding\n");
 		jid.AddString("photo-sha1", presence->GetPhotoSHA1().String());
 		fCache.AddMessage(presence->GetJid().String(), &jid);
-		jid.PrintToStream();
 		SaveCache();
 		logmsg("...asking for downloading the image..\n");
 		fJabberHandler->RequestVCard(presence->GetJid());

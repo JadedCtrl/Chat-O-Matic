@@ -1,0 +1,19 @@
+SubDir TOP protocols facebook ;
+
+SubDirSysHdrs [ FDirName $(TOP) ] ;
+SubDirSysHdrs [ FDirName $(TOP) application ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs libjabber ] ;
+
+AddOn facebook :
+	main.cpp
+	Facebook.cpp
+	: be libjabber.a $(TARGET_LIBSTDC++) expat network
+	: facebook.rdef settings_template.rdef
+;
+
+Depends facebook : libjabber.a ;
+
+LINKFLAGS on facebook += -L$(OPENSSL_LIBRARY_DIR) ;
+
+InstallBin $(CAYA_DIRECTORY)/protocols : facebook ;

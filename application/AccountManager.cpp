@@ -7,6 +7,7 @@
  */
 
 #include "AccountManager.h"
+#include "MainWindow.h"
 #include "NotifyMessage.h"
 #include "Server.h"
 #include "TheApp.h"
@@ -49,7 +50,7 @@ AccountManager::SetNickname(BString nick)
 	// Send message
 	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
 	MainWindow* win = theApp->GetMainWindow();
-	win->GetServer()->SendProtocolMessage(msg);
+	win->GetServer()->SendAllProtocolMessage(msg);
 }
 
 
@@ -74,7 +75,7 @@ AccountManager::SetStatus(CayaStatus status, const char* str)
 		// Send message
 		TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
 		MainWindow* win = theApp->GetMainWindow();
-		win->GetServer()->SendProtocolMessage(msg);
+		win->GetServer()->SendAllProtocolMessage(msg);
 
 		// Notify status change
 		fStatus = status;

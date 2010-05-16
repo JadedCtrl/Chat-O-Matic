@@ -32,6 +32,7 @@
 #include <libinterface/ToolButton.h>
 
 #include "CayaConstants.h"
+#include "CayaMessages.h"
 #include "CayaResources.h"
 #include "CayaUtils.h"
 #include "NotifyMessage.h"
@@ -48,38 +49,16 @@ const uint32 kSearchContact = 'SRCH';
 const uint32 kPreferences   = 'WPRF';
 
 
-MainWindow::MainWindow() :
-	BWindow(BRect(0, 0, 300, 400), "Caya", B_DOCUMENT_WINDOW, 0)
+MainWindow::MainWindow()
+	: BWindow(BRect(0, 0, 300, 400), "Caya", B_DOCUMENT_WINDOW, 0)
 {	
-	SetLayout(fStack = new BCardLayout());
-
-	BBox* loginView = new BBox("loginView");
-	
-	BButton* login = new BButton(BRect(294.0, 302.0, 392.0, 328.0), "login",
-		"Login", new BMessage(kLogin), B_FOLLOW_BOTTOM | B_FOLLOW_RIGHT);
-
-	loginView->SetLayout(new BGroupLayout(B_HORIZONTAL));
-	loginView->AddChild(BGroupLayoutBuilder(B_VERTICAL, 5)
-		.Add(BGridLayoutBuilder(10, 10)
-		.Add(new BStringView("label_u", "Username"), 0, 0)
-		.Add(fUsername = new BTextControl("username", NULL, NULL, NULL), 1, 0)
-		.Add(new BStringView("label_p", "Password"), 0, 1)
-		.Add(fPassword = new BTextControl("password", NULL, NULL,
-			new BMessage(kLogin)), 1, 1), 2)
-		.Add(login, 3)				
-	);
-
-	fStack->AddView(loginView);
-
 	fStatusView = new StatusView("statusView");
 
 	BTextControl* searchBox = new BTextControl("searchBox", NULL, NULL,
 		new BMessage(kSearchContact));
 
-	BBox* rosterView = new BBox("rosterView");
-
 	fListView = new RosterListView("buddyView");
-	fListView->SetInvocationMessage(new BMessage(OPEN_WINDOW));
+	fListView->SetInvocationMessage(new BMessage(CAYA_OPEN_WINDOW));
 	BScrollView* scrollView = new BScrollView("scrollview", fListView,
 		B_WILL_DRAW, false, true);
 
@@ -105,8 +84,8 @@ MainWindow::MainWindow() :
 	wrench->SetBitmap(toolIcon);
 	wrench->SetMenu(wrenchMenu);
 
-	rosterView->SetLayout(new BGridLayout(5, 5));
-	rosterView->AddChild(BGridLayoutBuilder(5, 0)
+	SetLayout(new BGridLayout(5, 5));
+	AddChild(BGridLayoutBuilder(5, 5)
 		.Add(fStatusView, 0, 0)
 		.Add(wrench, 1, 0)
 		.Add(searchBox, 0, 1)
@@ -114,19 +93,22 @@ MainWindow::MainWindow() :
 		.SetInsets(5, 5, 5, 10)
 	);
 
-	fStack->AddView(rosterView);			
-	fStack->SetVisibleItem((long)0);
-
 	AddShortcut('a', B_COMMAND_KEY, new BMessage(B_ABOUT_REQUESTED));
 	MoveTo(BAlert::AlertPosition(Bounds().Width(), Bounds().Height() / 2));
 
-	fPassword->TextView()->HideTyping(true);
-	fUsername->MakeFocus(true);
-
-	fSrv = new Server(this);
-	AddFilter(fSrv);
+	// Filter messages using Server
+	fServer = new Server();
+	AddFilter(fServer);
 
 	CenterOnScreen();
+}
+
+
+void
+MainWindow::Start()
+{
+	// Login all accounts
+	fServer->LoginAll();
 }
 
 
@@ -134,7 +116,7 @@ bool
 MainWindow::QuitRequested()
 {
 	fListView->MakeEmpty();
-	fSrv->Quit();
+	fServer->Quit();
 	be_app->PostMessage(B_QUIT_REQUESTED);
 	return true;
 }
@@ -143,27 +125,8 @@ MainWindow::QuitRequested()
 void
 MainWindow::MessageReceived(BMessage* message)
 {
-	switch(message->what) {
-		case kLogin:
-		{
-			BString username(fUsername->Text());
-			BString password(fPassword->Text());
-			if (username == "" || password == "")
-				return;
-
-			BMessage config;
-			config.AddString("username", username);
-			config.AddString("password", password);
-			config.AddString("resource", "caya");
-
-			fSrv->UpdateSettings(config);
-			fSrv->Login();
-
-			fStack->SetVisibleItem((long)1);
-			break;			
-		}
-		case kSearchContact:
-		{
+	switch (message->what) {
+		case kSearchContact: {
 			void* control = NULL;
 			if (message->FindPointer("source", &control) != B_OK)
 				return;
@@ -172,7 +135,7 @@ MainWindow::MessageReceived(BMessage* message)
 			if (searchBox == NULL)
 				return;
 
-			RosterMap map = fSrv->RosterItems();
+			RosterMap map = fServer->RosterItems();
 			for (uint32 i = 0; i < map.CountItems(); i++) {
 				ContactLinker* linker = map.ValueAt(i);
 				RosterItem* item = linker->GetRosterItem();
@@ -195,6 +158,13 @@ MainWindow::MessageReceived(BMessage* message)
 			dialog->Show();
 			break;
 		}
+		case CAYA_OPEN_WINDOW: {
+			int index = message->FindInt32("index");
+			RosterItem* ritem = ItemAt(index);
+			if (ritem != NULL)
+				ritem->GetContactLinker()->ShowWindow();
+			break;
+		}
 		case IM_MESSAGE:
 			ImMessage(message);
 			break;
@@ -209,20 +179,21 @@ MainWindow::MessageReceived(BMessage* message)
 	}	
 }
 
+
 void
 MainWindow::ImError(BMessage* msg)
 {
 	//FIXME: better error handling..
 	BAlert* alert = new BAlert("Error", msg->FindString("error"), "Ouch!");
 	alert->Go();
-	fStack->SetVisibleItem((long)0);	
 }
+
 
 void
 MainWindow::ImMessage(BMessage* msg)
 {	
 	int32 im_what = msg->FindInt32("im_what");
-	switch(im_what) {
+	switch (im_what) {
 		case IM_OWN_CONTACT_INFO:
 		{			
 			fStatusView->SetName(msg->FindString("nick"));
@@ -241,7 +212,7 @@ MainWindow::ImMessage(BMessage* msg)
 			if (msg->FindInt32("status", &status) != B_OK)
 				return;
 
-			RosterItem*	rosterItem = fSrv->RosterItemForId(msg->FindString("id"));
+			RosterItem*	rosterItem = fServer->RosterItemForId(msg->FindString("id"));
 
 			if (rosterItem) {
 				// Add or remove item
@@ -266,7 +237,7 @@ MainWindow::ImMessage(BMessage* msg)
 		case IM_AVATAR_CHANGED:
 		case IM_CONTACT_INFO:
 		{
-			RosterItem*	rosterItem = fSrv->RosterItemForId(msg->FindString("id"));
+			RosterItem*	rosterItem = fServer->RosterItemForId(msg->FindString("id"));
 			if (rosterItem)
 				UpdateListItem(rosterItem);
 			break;

@@ -11,7 +11,7 @@ PACKAGE_OBJECT_DIR  = [ FDirName $(PACKAGE_DIR) objects ] ;
 ##-------------------------------------------------------------------
 ## Defines
 ##-------------------------------------------------------------------
-VERSION = 10 ;
+VERSION = 0.0.1 ;
 DEFINES += VERSION=\"\\\"$(VERSION)\\\"\" ;
 DEFINES += BUILD_DATE=\"\\\"$(JAMDATE)\\\"\" ;
 CHGRP = ;

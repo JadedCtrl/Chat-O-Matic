@@ -1,5 +1,6 @@
 /*
- * Copyright 2009, Andrea Anzani. All rights reserved.
+ * Copyright 2009-2010, Andrea Anzani. All rights reserved.
+ * Copyright 2009-2010, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _SERVER_H
@@ -13,40 +14,46 @@
 #include "CayaConstants.h"
 #include "ContactLinker.h"
 
-class MainWindow;
+class CayaProtocol;
 class RosterItem;
-class LooperCayaProtocol;
+class ProtocolLooper;
 
 typedef KeyMap<BString, ContactLinker*> RosterMap;
+typedef KeyMap<bigtime_t, ProtocolLooper*> ProtocolLoopers;
 
 class Server: public BMessageFilter {
 public:
-							Server(MainWindow* mainWindow);
+							Server();
 
 	virtual	filter_result	Filter(BMessage* message, BHandler** target);
 			filter_result	ImMessage(BMessage* msg);
 
-			void			UpdateSettings(BMessage settings);
+			void			Quit();
 
-			void			Login();
+			void			AddProtocolLooper(bigtime_t instanceId, CayaProtocol* cayap);
+			void			RemoveProtocolLooper(bigtime_t instanceId);
+
+			void			LoginAll();
+
+#if 0
+			void			UpdateSettings(BMessage settings);
+#endif
 
 			void			SendProtocolMessage(BMessage* msg);
-			void			SendChatMessage(BMessage* msg);
+			void			SendAllProtocolMessage(BMessage* msg);
 
 			RosterMap		RosterItems() const;
 			RosterItem*		RosterItemForId(BString id);
 
-			void			Quit();
-			
 			//TODO: there should be a contact for each account.
 			ContactLinker*	GetOwnContact();
 
 private:
-	ContactLinker*			EnsureContactLinker(BString id);
+	ProtocolLooper*			_LooperFromMessage(BMessage* message);
+	ContactLinker*			_EnsureContactLinker(BMessage* message);
 
 	RosterMap				fRosterMap;
-	MainWindow*				fMainWindow;
-	LooperCayaProtocol*		fProtocol;
+	ProtocolLoopers			fLoopers;
 	ContactLinker*			fMySelf;
 };
 

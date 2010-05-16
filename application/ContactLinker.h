@@ -16,6 +16,7 @@ class BBitmap;
 
 class ChatWindow;
 class ContactPopUp;
+class ProtocolLooper;
 class RosterItem;
 
 class ContactLinker : public Notifier {
@@ -36,7 +37,11 @@ public:
 
 	BString			GetId() { return fID; }
 
-	BMessenger		GetMessenger() { return fMessenger; }
+	BMessenger		Messenger() const;
+	void			SetMessenger(BMessenger messenger);
+
+	ProtocolLooper*	GetProtocolLooper() const;
+	void			SetProtocolLooper(ProtocolLooper* looper);
 
 	BString			GetName() { return fName; }
 	BBitmap*		AvatarBitmap() { return fAvatarBitmap; }
@@ -52,8 +57,10 @@ private:
 	RosterItem*		fRosterItem;
 	ChatWindow*		fChatWindow;
 	BMessenger		fMessenger;
+	ProtocolLooper*	fLooper;
 
 	BString			fID;
+	bigtime_t		fInstance;
 	BString			fName;
 	BString			fPersonalStatus;
 	BBitmap*		fAvatarBitmap;

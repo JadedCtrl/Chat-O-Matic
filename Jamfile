@@ -6,7 +6,4 @@ SubInclude TOP application ;
 SubInclude TOP protocols ;
 SubInclude TOP smileys ;
 
-Distro distro ;
-FullDistro fulldistro ;
-
-UninstallTarget $(APPS_DIRECTORY)/caya ;
+UninstallTarget $(CAYA_DIRECTORY) ;

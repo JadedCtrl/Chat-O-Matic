@@ -5,25 +5,32 @@
 #ifndef _ACCOUNT_DIALOG_H
 #define _ACCOUNT_DIALOG_H
 
+#include <String.h>
 #include <Window.h>
 
 class BTextControl;
 
 class AccountView;
-class CayaProtocol;
 class ProtocolSettings;
+
+const uint32 kAccountSaved = 'acsd';
+const uint32 kAccountRenamed = 'acrd';
 
 class AccountDialog : public BWindow {
 public:
-						AccountDialog(const char* title, CayaProtocol* cayap,
-					    	          const char* account = NULL);
+						AccountDialog(const char* title, ProtocolSettings* settings,
+									  const char* account = NULL);
+
+			void		SetTarget(BHandler* target);
 
 	virtual	void		MessageReceived(BMessage* msg);
 
 private:
 	ProtocolSettings*	fSettings;
+	BString				fAccount;
 	AccountView*		fTop;
 	BTextControl*		fAccountName;
+	BHandler*			fTarget;
 };
 
 #endif	// _ACCOUNT_DIALOG_H

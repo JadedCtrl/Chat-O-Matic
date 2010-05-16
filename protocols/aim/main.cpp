@@ -5,9 +5,26 @@
 
 #include "AIM.h"
 
-extern "C" __declspec(dllexport) CayaProtocol *main_protocol();
+extern "C" __declspec(dllexport) CayaProtocol* protocol();
+extern "C" __declspec(dllexport) const char* signature();
+extern "C" __declspec(dllexport) const char* friendly_signature();
 
-CayaProtocol *main_protocol()
+CayaProtocol*
+protocol()
 {
 	return (CayaProtocol*)new AIMProtocol();
+}
+
+
+const char*
+signature()
+{
+	return kProtocolSignature;
+}
+
+
+const char*
+friendly_signature()
+{
+	return kProtocolName;
 }

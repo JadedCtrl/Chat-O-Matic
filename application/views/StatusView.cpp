@@ -24,7 +24,7 @@
 #include "StatusMenuItem.h"
 #include "StatusView.h"
 
-const int32 kSetNickname = 'NICH';
+const int32 kSetNickname = 'stnk';
 
 
 StatusView::StatusView(const char* name)

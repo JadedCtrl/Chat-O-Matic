@@ -9,23 +9,20 @@
 #include <View.h>
 
 #include "AccountListItem.h"
-#include "CayaProtocol.h"
 #include "ProtocolSettings.h"
 
 
-AccountListItem::AccountListItem(CayaProtocol* cayap, const char* account)
+AccountListItem::AccountListItem(ProtocolSettings* settings, const char* account)
 	: BStringItem(account),
-	fProtocol(cayap),
+	fSettings(settings),
 	fAccount(account),
 	fBaselineOffset(0)
 {
-	fSettings = new ProtocolSettings(cayap);
 }
 
 
 AccountListItem::~AccountListItem()
 {
-	delete fSettings;
 }
 
 
@@ -36,17 +33,18 @@ AccountListItem::Settings() const
 }
 
 
-CayaProtocol*
-AccountListItem::Protocol() const
-{
-	return fProtocol;
-}
-
-
 const char*
 AccountListItem::Account() const
 {
 	return fAccount.String();
+}
+
+
+void
+AccountListItem::SetAccount(const char* name)
+{
+	fAccount = name;
+	SetText(fAccount);
 }
 
 

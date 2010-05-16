@@ -1,5 +1,6 @@
 /*
- * Copyright 2009, Andrea Anzani. All rights reserved.
+ * Copyright 2009-2010, Andrea Anzani. All rights reserved.
+ * Copyright 2009-2010, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
@@ -8,36 +9,26 @@
  */
 
 #include <Application.h>
+#include <Debug.h>
 #include <Entry.h>
 #include <Path.h>
 #include <TranslationUtils.h>
 
-#include "AccountManager.h"
-#include "ImageCache.h"
-#include "LooperCayaProtocol.h"
-#include "ProtocolManager.h"
-#include "Server.h"
-#include "MainWindow.h"
-#include "RosterItem.h"
-#include "ChatWindow.h"
-#include <Debug.h>
 #include "Account.h"
+#include "AccountManager.h"
+#include "ProtocolLooper.h"
+#include "CayaMessages.h"
+#include "CayaProtocol.h"
+#include "ChatWindow.h"
+#include "ImageCache.h"
+#include "ProtocolManager.h"
+#include "RosterItem.h"
+#include "Server.h"
 
-Server::Server(MainWindow* mainWindow)
+
+Server::Server()
 	: BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
 {
-	CayaProtocol* pp = ProtocolManager::Get()->GetProtocol("aim");
-	if (!pp)
-		debugger("something wrong");
-
-	//FIXME: here just a first draft of the final design:
-	
-	Account*	gtalkAccount = new Account(mainWindow);		
-
-	pp->Init(gtalkAccount);
-
-	fMainWindow = mainWindow;
-	fProtocol = new LooperCayaProtocol(pp);
 }
 
 
@@ -45,6 +36,7 @@ void
 Server::Quit()
 {
 	ContactLinker* linker = NULL;	
+
 	while ((linker = fRosterMap.ValueAt(0))) {
 		linker->DeleteWindow();
 		linker->DeletePopUp();
@@ -54,27 +46,74 @@ Server::Quit()
 
 
 void
-Server::Login()
+Server::AddProtocolLooper(bigtime_t instanceId, CayaProtocol* cayap)
 {
-	BMessage* msg = new BMessage(IM_MESSAGE);
-	msg->AddInt32("im_what", IM_SET_STATUS);
-	msg->AddInt32("status", CAYA_ONLINE);
-	fProtocol->PostMessage(msg);
+	ProtocolLooper* looper = new ProtocolLooper(cayap);
+	fLoopers.AddItem(instanceId, looper);
 }
+
+
+void
+Server::RemoveProtocolLooper(bigtime_t instanceId)
+{
+}
+
+
+void
+Server::LoginAll()
+{
+	for (uint32 i = 0; i < fLoopers.CountItems(); i++) {
+		ProtocolLooper* looper = fLoopers.ValueAt(i);
+
+		BMessage* msg = new BMessage(IM_MESSAGE);
+		msg->AddInt32("im_what", IM_SET_STATUS);
+		msg->AddInt32("status", CAYA_ONLINE);
+		looper->PostMessage(msg);
+	}
+}
+
+
+#if 0
+void
+Server::UpdateSettings(BMessage settings)
+{
+	fProtocol->Protocol()->UpdateSettings(settings);
+}
+#endif
 
 
 void
 Server::SendProtocolMessage(BMessage* msg)
 {
-	if (msg != NULL)
-		fProtocol->PostMessage(msg);
+	// Skip null messages
+	if (!msg)
+		return;
+
+	// Check if message contains the instance field
+	bigtime_t id;
+	if (msg->FindInt64("instance", &id) == B_OK) {
+		bool found = false;
+		ProtocolLooper* looper
+			= fLoopers.ValueFor(id, &found);
+
+		if (found)
+			looper->PostMessage(msg);
+	}
 }
 
 
 void
-Server::UpdateSettings(BMessage settings)
+Server::SendAllProtocolMessage(BMessage* msg)
 {
-	fProtocol->Protocol()->UpdateSettings(settings);
+	// Skip null messages
+	if (!msg)
+		return;
+
+	// Send message to all protocols
+	for (uint32 i = 0; i < fLoopers.CountItems(); i++) {
+		ProtocolLooper* looper = fLoopers.ValueAt(i);
+		looper->PostMessage(msg);
+	}
 }
 
 
@@ -92,27 +131,35 @@ Server::Filter(BMessage* message, BHandler **target)
 				bool found = false;
 				ContactLinker* item = fRosterMap.ValueFor(id, &found);
 
-				if (!found) {
-					item = new ContactLinker(id.String(), Looper());
-					fRosterMap.AddItem(id, item);
+				if (found)
+					continue;
+
+				item = new ContactLinker(id.String(), Looper());
+				item->SetProtocolLooper(_LooperFromMessage(message));
+				fRosterMap.AddItem(id, item);
+			}
+			result = B_SKIP_MESSAGE;
+			break;
+		}
+		case IM_MESSAGE_RECEIVED:
+		{
+			BString id = message->FindString("id");
+			if (id.Length() > 0) {
+				bool found = false;
+				ContactLinker* item = fRosterMap.ValueFor(id, &found);
+				if (found) {
+					ChatWindow* win = item->GetChatWindow();
+					item->ShowWindow();
+					win->PostMessage(message);
 				}
 			}
 			result = B_SKIP_MESSAGE;
 			break;
 		}
-		case OPEN_WINDOW:
-		{
-			int index = message->FindInt32("index");
-			RosterItem* ritem = fMainWindow->ItemAt(index);
-			if (ritem != NULL)
-				ritem->GetContactLinker()->ShowWindow();
-			result = B_SKIP_MESSAGE;			
-			break;
-		}
-		case CLOSE_WINDOW:
+		case CAYA_CLOSE_WINDOW:
 		{
 			BString id = message->FindString("id");
-			if (id != "") {
+			if (id.Length() > 0) {
 				bool found = false;
 				ContactLinker *item = fRosterMap.ValueFor(id, &found);
 
@@ -124,6 +171,9 @@ Server::Filter(BMessage* message, BHandler **target)
 		}
 		case IM_MESSAGE:
 			result = ImMessage(message);
+			break;
+		default:
+			// Dispatch not handled messages to main window
 			break;
 	}
 
@@ -175,22 +225,23 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindInt32("status", &status) != B_OK)
 				return B_SKIP_MESSAGE;
 
-			ContactLinker* linker = EnsureContactLinker(msg->FindString("id"));
+			ContactLinker* linker = _EnsureContactLinker(msg);
 			linker->SetNotifyStatus((CayaStatus)status);
 			linker->SetNotifyPersonalStatus(msg->FindString("message"));
 			break;
 		}
 		case IM_CONTACT_INFO:		
 		{
-			ContactLinker* linker = EnsureContactLinker(msg->FindString("id"));
+			ContactLinker* linker = _EnsureContactLinker(msg);
+
 			BString fullName = msg->FindString("nick");
 			if (fullName != "")
-				linker->SetNotifyName(fullName);	
+				linker->SetNotifyName(fullName);
 			break;
 		}
 		case IM_AVATAR_CHANGED:
 		{
-			ContactLinker* linker = EnsureContactLinker(msg->FindString("id"));
+			ContactLinker* linker = _EnsureContactLinker(msg);
 			entry_ref ref;
 			if (linker) {
 				if (msg->FindRef("ref", &ref) == B_OK) {
@@ -203,13 +254,17 @@ Server::ImMessage(BMessage* msg)
 			}
 			break;
 		}
-		case IM_SEND_MESSAGE:
-			fProtocol->PostMessage(msg);
+		case IM_SEND_MESSAGE: {
+			// Route this message through the appropriate ProtocolLooper
+			ContactLinker* linker = _EnsureContactLinker(msg);
+			if (linker->GetProtocolLooper())
+				linker->GetProtocolLooper()->PostMessage(msg);
 			break;
+		}
 		case IM_MESSAGE_RECEIVED:
 		{
 			BString id = msg->FindString("id");
-			if (id != "") {
+			if (id.Length() > 0) {
 				bool found = false;
 				ContactLinker* item = fRosterMap.ValueFor(id, &found);
 				if (found) {
@@ -222,7 +277,6 @@ Server::ImMessage(BMessage* msg)
 			break;
 		}
 		default:
-			msg->PrintToStream();
 			break;
 	}
 
@@ -231,24 +285,51 @@ Server::ImMessage(BMessage* msg)
 
 
 ContactLinker*	
-Server::EnsureContactLinker(BString id)
+Server::GetOwnContact()
 {
+	return fMySelf;
+}
+
+
+ProtocolLooper*
+Server::_LooperFromMessage(BMessage* message)
+{
+	if (!message)
+		return NULL;
+
+	bigtime_t identifier;
+
+	if (message->FindInt64("instance", &identifier) == B_OK) {
+		bool found = false;
+
+		ProtocolLooper* looper = fLoopers.ValueFor(identifier, &found);
+		if (found)
+			return looper;
+	}
+
+	return NULL;
+}
+
+
+ContactLinker*	
+Server::_EnsureContactLinker(BMessage* message)
+{
+	if (!message)
+		return NULL;
+
+	BString id = message->FindString("id");
 	ContactLinker* item = NULL;
-	if (id != "") {
+
+	if (id.Length() > 0) {
 		bool found = false;
 		item = fRosterMap.ValueFor(id, &found);
 
 		if (!found) {
 			item = new ContactLinker(id.String(), Looper());
+			item->SetProtocolLooper(_LooperFromMessage(message));
 			fRosterMap.AddItem(id, item);
 		}
 	}
 
 	return item;
-}
-
-ContactLinker*	
-Server::GetOwnContact()
-{
-	return fMySelf;
 }

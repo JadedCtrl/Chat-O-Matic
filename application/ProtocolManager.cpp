@@ -7,47 +7,43 @@
  */
 
 #include <stdio.h>
-
-#include <Entry.h>
 #include <image.h>
 
-#include <libinterface/BitmapUtils.h>
+#include <Directory.h>
+#include <Entry.h>
+#include <Handler.h>
 
+#include "Account.h"
 #include "ProtocolManager.h"
 #include "CayaProtocol.h"
 #include "CayaUtils.h"
+#include "MainWindow.h"
+#include "Server.h"
+#include "TheApp.h"
 
 static ProtocolManager*	fInstance = NULL;
 
 
 void
-ProtocolManager::Init(BDirectory protocolDir)
+ProtocolManager::Init(BDirectory dir, BHandler* target)
 {
 	BEntry entry;
 	BPath path;
 
-	protocolDir.Rewind();
+	dir.Rewind();
 
-	while (protocolDir.GetNextEntry(&entry) == B_OK) {
+	while (dir.GetNextEntry(&entry) == B_OK) {
 		path = BPath(&entry);
 
+		// Load protocol addon
 		image_id id = load_add_on(path.Path());
-		if (id >= 0) {
-			CayaProtocol* (*main_protocol)();
-			if (get_image_symbol(id, "main_protocol", B_SYMBOL_TYPE_TEXT,
-				(void**)&main_protocol) == B_OK) {
-				CayaProtocol* cayp = (*main_protocol)();
+		if (id < 0)
+			continue;
 
-				if (cayp) {
-					printf("Found a new Protocol: %s [%s]\n", cayp->GetFriendlySignature(),
-						cayp->GetSignature());
-					fProtocolMap.AddItem(BString(cayp->GetSignature()), cayp);
-					fAddonMap.AddItem(BString(cayp->GetSignature()), new BPath(path));
-				} else
-					unload_add_on(id);
-			} else
-				unload_add_on(id);
-		}
+		CayaProtocolAddOn* addOn = new CayaProtocolAddOn(id, path.Path());
+		fAddOnMap.AddItem(addOn->Signature(), addOn);
+
+		_GetAccounts(addOn, target);
 	}
 }
 
@@ -66,30 +62,69 @@ ProtocolManager::Get()
 }
 
 
+ProtocolAddOns
+ProtocolManager::Protocols()
+{
+	return fAddOnMap.Values();
+}
+
+
+ProtocolMap
+ProtocolManager::ProtocolInstances() const
+{
+	return fProtocolMap;
+}
+
+
 CayaProtocol*	
-ProtocolManager::GetProtocol(BString signature)
+ProtocolManager::ProtocolInstance(bigtime_t identifier)
 {
-	return fProtocolMap.ValueFor(signature);
+	return fProtocolMap.ValueFor(identifier);
 }
 
 
-BList*
-ProtocolManager::GetProtocols()
+CayaProtocolAddOn*
+ProtocolManager::ProtocolAddOn(const char* signature)
 {
-	return fProtocolMap.Items();
+	return fAddOnMap.ValueFor(signature);
 }
 
 
-BPath*
-ProtocolManager::GetProtocolPath(BString signature)
+void
+ProtocolManager::AddAccount(CayaProtocolAddOn* addOn, const char* account,
+							BHandler* target)
 {
-	return fAddonMap.ValueFor(signature);
+	bigtime_t instanceId = system_time();
+	CayaProtocol* cayap = addOn->Protocol();
+	(void)new Account(instanceId, cayap, account, target);
+	fProtocolMap.AddItem(instanceId, cayap);
+
+	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
+	theApp->GetMainWindow()->GetServer()->AddProtocolLooper(
+		instanceId, cayap);
 }
 
 
-BBitmap*
-ProtocolManager::GetProtocolIcon(BString signature)
+void
+ProtocolManager::_GetAccounts(CayaProtocolAddOn* addOn, BHandler* target)
 {
-	BPath* path = fAddonMap.ValueFor(signature);
-	return ReadNodeIcon(path->Path(), B_LARGE_ICON, true);
+	// Find accounts path for this protocol
+	BPath path(CayaAccountPath(addOn->Signature()));
+	if (path.InitCheck() != B_OK)
+		return;
+
+	BDirectory dir(path.Path());
+	BEntry entry;
+	while (dir.GetNextEntry(&entry) == B_OK) {
+		BFile file(&entry, B_READ_ONLY);
+		BMessage msg;
+
+		if (msg.Unflatten(&file) == B_OK) {
+			char buffer[B_PATH_NAME_LENGTH];
+			if (entry.GetName(buffer) == B_OK) {
+				printf("Found %s for protocol %s!\n", buffer, addOn->Signature());
+				AddAccount(addOn, buffer, target);
+			}
+		}
+	}
 }

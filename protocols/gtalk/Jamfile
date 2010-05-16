@@ -10,11 +10,11 @@ AddOn gtalk :
 	main.cpp
 	GoogleTalk.cpp
 	: be libjabber.a ssl crypto $(TARGET_LIBSTDC++) expat
-	: gtalk.rdef SettingsTemplate.rdef
+	: gtalk.rdef settings_template.rdef
 ;
 
 Depends gtalk : libjabber.a ;
 
 LINKFLAGS on gtalk += -L$(OPENSSL_LIBRARY_DIR) ;
 
-InstallBin $(APPS_DIRECTORY)/caya/protocols : gtalk ;
+InstallBin $(CAYA_DIRECTORY)/protocols : gtalk ;

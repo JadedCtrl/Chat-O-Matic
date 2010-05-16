@@ -1,38 +1,49 @@
 /*
- * Copyright 2009, Andrea Anzani. All rights reserved.
+ * Copyright 2009-2010, Andrea Anzani. All rights reserved.
+ * Copyright 2009-2010, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef ProtocolManager_h
-#define ProtocolManager_h
+#ifndef _PROTOCOL_MANAGER_H
+#define _PROTOCOL_MANAGER_H
 
-#include <Directory.h>
 #include <Path.h>
 #include <String.h>
 
-#include <libs/libsupport/KeyMap.h>
+#include <libsupport/KeyMap.h>
 
 #include "CayaProtocol.h"
+#include "CayaProtocolAddOn.h"
 
 class BBitmap;
+class BDirectory;
+class BHandler;
 
-class ProtocolManager 
-{
+typedef List<CayaProtocolAddOn*> ProtocolAddOns;
+typedef KeyMap<BString, CayaProtocolAddOn*> AddOnMap;
+typedef KeyMap<bigtime_t, CayaProtocol*> ProtocolMap;
+
+class ProtocolManager  {
 public:
-						void				Init(BDirectory protocolDir);
-				static	ProtocolManager*	Get();
-					
-		CayaProtocol*	GetProtocol(BString signature);
+			void				Init(BDirectory dir, BHandler* target);
 
-		BList*			GetProtocols();
+	static	ProtocolManager*	Get();
 
-		BPath*			GetProtocolPath(BString signature);
-		BBitmap*		GetProtocolIcon(BString signature);
-	
-	private:
-		
-		ProtocolManager();
-		
-		KeyMap<BString, CayaProtocol*>	fProtocolMap;
-		KeyMap<BString, BPath*>			fAddonMap;
+			ProtocolAddOns		Protocols();
+			ProtocolMap			ProtocolInstances() const;
+
+			CayaProtocol*		ProtocolInstance(bigtime_t identifier);
+			CayaProtocolAddOn*	ProtocolAddOn(const char* signature);
+
+			void				AddAccount(CayaProtocolAddOn* addOn,
+										   const char* account,
+										   BHandler* target);
+
+private:
+								ProtocolManager();
+			void				_GetAccounts(CayaProtocolAddOn* addOn, BHandler* target);
+
+			AddOnMap			fAddOnMap;
+			ProtocolMap			fProtocolMap;
 };
-#endif
+
+#endif	// _PROTOCOL_MANAGER_H

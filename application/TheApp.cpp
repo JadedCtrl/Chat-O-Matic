@@ -16,11 +16,12 @@
 
 #include "AboutWindow.h"
 #include "Caya.h"
-#include "TheApp.h"
+#include "Emoticor.h"
 #include "FilePanel.h"
 #include "MainWindow.h"
-#include "Emoticor.h"
 #include "ProtocolManager.h"
+#include "Server.h"
+#include "TheApp.h"
 
 #include "svn_revision.h"
 
@@ -37,13 +38,18 @@ TheApp::ReadyToRun()
 {	
 	app_info theInfo;
 
-	if (be_app->GetAppInfo(&theInfo) == B_OK) {
-		BPath applicationDirectory(&theInfo.ref);
-		applicationDirectory.GetParent(&applicationDirectory);
+	fMainWin = new MainWindow();
 
-		BPath currentPath = applicationDirectory;
+	if (be_app->GetAppInfo(&theInfo) == B_OK) {
+		BPath appDir(&theInfo.ref);
+		appDir.GetParent(&appDir);
+
+		// Emoticons settings
+		BPath currentPath = appDir;
 		currentPath.Append("smileys");
 		currentPath.Append("settings.xml");
+
+		// Load emoticons
 		BEntry entry(currentPath.Path());
 		if (entry.Exists())
 			Emoticor::Get()->LoadConfig(currentPath.Path());
@@ -55,11 +61,13 @@ TheApp::ReadyToRun()
 		}
 		printf("Loaded Emoticons settings from: %s\n", currentPath.Path());
 
-		currentPath = applicationDirectory;
+		currentPath = appDir;
 		currentPath.Append("protocols");
 		if (BEntry(currentPath.Path()).Exists()) {
 			printf("Looking for protocols from: %s\n", currentPath.Path());
-			ProtocolManager::Get()->Init(BDirectory(currentPath.Path()));
+
+			ProtocolManager::Get()->Init(BDirectory(currentPath.Path()),
+				fMainWin);
 		} else {
 			BString msg("Can't find protocols in:\n\n");
 			msg << currentPath.Path();
@@ -67,10 +75,10 @@ TheApp::ReadyToRun()
 			alert->Go();
 			PostMessage(B_QUIT_REQUESTED);
 			return;
-		}	
+		}
 	}
 
-	fMainWin = new MainWindow();
+	fMainWin->Start();
 	fMainWin->Show();
 }
 

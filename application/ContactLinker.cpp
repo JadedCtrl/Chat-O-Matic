@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 
+#include "CayaProtocolAddOn.h"
 #include "ChatWindow.h"
 #include "ContactLinker.h"
 #include "ContactPopUp.h"
@@ -22,6 +23,7 @@ ContactLinker::ContactLinker(BString id, BMessenger msgn)
 	fID(id),
 	fName(id),
 	fMessenger(msgn),
+	fLooper(NULL),
 	fStatus(CAYA_OFFLINE),
 	fPopUp(NULL)
 {
@@ -30,7 +32,8 @@ ContactLinker::ContactLinker(BString id, BMessenger msgn)
 	RegisterObserver(fRosterItem);
 
 	// By default we use protocol icon as avatar icon
-	fAvatarBitmap = ProtocolManager::Get()->GetProtocolIcon("aim");
+	CayaProtocolAddOn* addOn = ProtocolManager::Get()->ProtocolAddOn("gtalk");
+	fAvatarBitmap = addOn->Icon();
 }
 
 
@@ -108,6 +111,35 @@ ContactLinker::DeletePopUp()
 		fPopUp->Quit();
 		fPopUp = NULL;
 	}
+}
+
+
+BMessenger
+ContactLinker::Messenger() const
+{
+	return fMessenger;
+}
+
+
+void
+ContactLinker::SetMessenger(BMessenger messenger)
+{
+	fMessenger = messenger;
+}
+
+
+ProtocolLooper*
+ContactLinker::GetProtocolLooper() const
+{
+	return fLooper;
+}
+
+
+void
+ContactLinker::SetProtocolLooper(ProtocolLooper* looper)
+{
+	if (looper)
+		fLooper = looper;
 }
 
 

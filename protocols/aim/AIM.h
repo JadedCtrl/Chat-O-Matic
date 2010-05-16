@@ -24,10 +24,14 @@ public:
 	virtual	status_t		Shutdown();
 	virtual	status_t		Process(BMessage*);
 
-	virtual	const char*		GetSignature();
-	virtual	const char*		GetFriendlySignature();
-	virtual	status_t		UpdateSettings(BMessage&);
+	virtual	const char*		Signature() const;
+	virtual	const char*		FriendlySignature() const;
+
+	virtual	status_t		UpdateSettings(BMessage*);
 	virtual	uint32			GetEncoding();
+
+	virtual	CayaProtocolMessengerInterface*
+							MessengerInterface() const;
 
 	static	int32			WaitForData(void*);
 
@@ -54,5 +58,8 @@ private:
 			thread_id		fIMCommThread;
 			void*			fIMCommHandle;
 };
+
+extern const char* kProtocolSignature;
+extern const char* kProtocolName;
 
 #endif	// _AIM_H

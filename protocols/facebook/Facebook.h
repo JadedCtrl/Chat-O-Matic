@@ -2,8 +2,9 @@
  * Copyright 2004-2009, IM Kit Team. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef IMKIT_GoogleTalk_H
-#define IMKIT_GoogleTalk_H
+ 
+#ifndef CAYA_Facebook_H
+#define CAYA_Facebook_H
 
 #include <list>
 
@@ -17,17 +18,17 @@
 #include "CayaProtocol.h"
 #include "CayaConstants.h"
 
-class GoogleTalkConnection;
-class JabberSSLPlug;
+//class FacebookConnection;
+class JabberSocketPlug;
 
 #define RosterList BObjectList<JabberContact>
 #define AgentList BObjectList<JabberAgent>
 
-class GoogleTalk : public JabberManager, public JabberHandler, public CayaProtocol {
+class Facebook : public JabberManager, public JabberHandler, public CayaProtocol {
 public:
 
-				 GoogleTalk();
-		virtual ~GoogleTalk();
+				 Facebook();
+		virtual ~Facebook();
 
 		// IM::Protocol part begins here
 		// messenger to im_server
@@ -69,7 +70,7 @@ public:
 		// JabberManager part ends here
 
 private:
-		JabberSSLPlug*	fPlug;
+		JabberSocketPlug*	fPlug;
 		CayaProtocolMessengerInterface*	fServerMsgr;
 
 		BString		fUsername;
@@ -116,4 +117,4 @@ protected:
 extern const char* kProtocolSignature;
 extern const char* kProtocolName;
 
-#endif	// IMKIT_GoogleTalk_H
+#endif	// CAYA_Facebook_H

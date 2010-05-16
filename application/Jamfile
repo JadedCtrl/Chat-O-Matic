@@ -15,19 +15,20 @@ local svnRevisionFile = [ FGristFiles svn_revision ] ;
 MakeLocate $(svnRevisionFile) : $(LOCATE_TARGET) ;
 CreateSVNRevisionFile $(svnRevisionFile) ;
 
-Application caya :
+Application Caya :
 	AboutWindow.cpp
 	Account.cpp
 	AccountManager.cpp
+	CayaProtocolAddOn.cpp
 	CayaUtils.cpp
 	ChatWindow.cpp
 	ContactLinker.cpp
 	EditingFilter.cpp
 	ImageCache.cpp
-	LooperCayaProtocol.cpp
 	Main.cpp
 	MainWindow.cpp
 	Notifier.cpp
+	ProtocolLooper.cpp
 	ProtocolManager.cpp
 	ProtocolSettings.cpp
 	Server.cpp
@@ -56,10 +57,10 @@ Application caya :
 	: Caya.rdef
 ;
 
-Depends caya : libjabber.a ;
-Depends caya : librunview.a ;
-Depends caya : libinterface.a ;
+Depends Caya : libjabber.a ;
+Depends Caya : librunview.a ;
+Depends Caya : libinterface.a ;
 
-LINKFLAGS on caya += -L$(OPENSSL_LIBRARY_DIR) ;
+LINKFLAGS on Caya += -L$(OPENSSL_LIBRARY_DIR) ;
 
-InstallBin $(APPS_DIRECTORY)/caya : caya ;
+InstallBin $(CAYA_DIRECTORY) : Caya ;

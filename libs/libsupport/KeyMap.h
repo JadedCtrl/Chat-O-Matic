@@ -7,25 +7,24 @@
 
 #include <map>
 
-#include <List.h>
-#include <SupportDefs.h>
+#include <libsupport/List.h>
 
 template<class KEY, class TYPE>
 class KeyMap {
 public:
-	uint32 	CountItems();
+	uint32 		CountItems();
 
-	void  	AddItem(KEY k, TYPE t);
+	void  		AddItem(KEY k, TYPE t);
 
-	TYPE	ValueFor(KEY, bool* found = NULL);
+	TYPE		ValueFor(KEY, bool* found = NULL);
 
-	void	RemoveItemAt(int32 position);
-	void	RemoveItemFor(KEY);
+	void		RemoveItemAt(int32 position);
+	void		RemoveItemFor(KEY);
 
-	TYPE	ValueAt(int32 position);
-	KEY		KeyAt(int32 position);
+	TYPE		ValueAt(int32 position);
+	KEY			KeyAt(int32 position);
 
-	BList*	Items();
+	List<TYPE>	Values();
 
 private:
 	std::map<KEY,TYPE> fMap;
@@ -104,12 +103,12 @@ KEY KeyMap<KEY, TYPE>::KeyAt(int32 position)
 
 
 template<class KEY, class TYPE>
-BList* KeyMap<KEY, TYPE>::Items()
+List<TYPE> KeyMap<KEY, TYPE>::Values()
 {
-	BList* list = new BList();
+	List<TYPE> list;
 
 	for (fIter i = fMap.begin(); i != fMap.end(); ++i)
-		list->AddItem(i->second);
+		list.AddItem(i->second);
 
 	return list;
 }

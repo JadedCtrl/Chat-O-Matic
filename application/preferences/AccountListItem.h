@@ -8,18 +8,18 @@
 #include <String.h>
 #include <StringItem.h>
 
-class CayaProtocol;
 class ProtocolSettings;
 
 class AccountListItem : public BStringItem {
 public:
-								AccountListItem(CayaProtocol* cayap,
+								AccountListItem(ProtocolSettings* settings,
 								                const char* account);
 	virtual						~AccountListItem();
 
 			ProtocolSettings*	Settings() const;
-			CayaProtocol*		Protocol() const;
+
 			const char*			Account() const;
+			void				SetAccount(const char* name);
 
 			void				DrawItem(BView* owner, BRect frame,
 									     bool complete = false);
@@ -27,9 +27,8 @@ public:
 			void				Update(BView* owner, const BFont* font);
 
 private:
-			CayaProtocol*		fProtocol;
-			BString				fAccount;
 			ProtocolSettings*	fSettings;
+			BString				fAccount;
 			float				fBaselineOffset;
 };
 

@@ -1,4 +1,4 @@
-#include "GoogleTalk.h"
+#include "Facebook.h"
 
 extern "C" __declspec(dllexport) CayaProtocol* protocol();
 extern "C" __declspec(dllexport) const char* signature();
@@ -7,7 +7,7 @@ extern "C" __declspec(dllexport) const char* friendly_signature();
 CayaProtocol*
 protocol()
 {
-	return (CayaProtocol*)new GoogleTalk();
+	return (CayaProtocol*)new Facebook();
 }
 
 
