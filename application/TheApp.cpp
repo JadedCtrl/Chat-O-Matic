@@ -27,7 +27,8 @@
 
 
 TheApp::TheApp()
-	: BApplication(CAYA_SIGNATURE),
+	:
+	BApplication(CAYA_SIGNATURE),
 	fMainWin(NULL)
 {
 }

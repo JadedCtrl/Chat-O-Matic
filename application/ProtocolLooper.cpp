@@ -15,7 +15,8 @@
 
 
 ProtocolLooper::ProtocolLooper(CayaProtocol* protocol)
-	: BLooper(),
+	:
+	BLooper(),
 	fProtocol(protocol)
 {
 	Account* account = reinterpret_cast<Account*>(

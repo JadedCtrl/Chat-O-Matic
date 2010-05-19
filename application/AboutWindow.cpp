@@ -17,7 +17,7 @@
 
 
 AboutWindow::AboutWindow(const char* appName, const char** holders,
-						   const char** authors, const char* extraInfo)
+	const char** authors, const char* extraInfo)
 {
 	fAppName = new BString(appName);
 

@@ -23,8 +23,8 @@ ImageCache::ImageCache()
 
 ImageCache::~ImageCache()
 {
-	while(m_bitmaps.CountItems()) {
-		BBitmap* bit=m_bitmaps.ValueFor(0);
+	while (m_bitmaps.CountItems()) {
+		BBitmap* bit = m_bitmaps.ValueFor(0);
 		delete bit;
 	}
 }

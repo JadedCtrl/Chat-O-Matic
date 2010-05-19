@@ -20,7 +20,8 @@
 #include "CayaPreferences.h"
 
 ContactLinker::ContactLinker(BString id, BMessenger msgn)
-	: fChatWindow(NULL),
+	:
+	fChatWindow(NULL),
 	fID(id),
 	fName(id),
 	fMessenger(msgn),

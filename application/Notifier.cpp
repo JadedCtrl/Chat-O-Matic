@@ -26,7 +26,7 @@ Notifier::UnregisterObserver(Observer* obs)
 }
 
 
-void 
+void
 Notifier::NotifyString(int32 what, BString str)
 {
 	for (int i = 0; i < fObserverList.CountItems(); i++)
@@ -34,14 +34,15 @@ Notifier::NotifyString(int32 what, BString str)
 }
 
 
-void 
+void
 Notifier::NotifyInteger(int32 what, int32 value)
 {
 	for (int i = 0; i < fObserverList.CountItems(); i++)
 		fObserverList.ItemAt(i)->ObserveInteger(what, value);
 }
 
-void 
+
+void
 Notifier::NotifyPointer(int32 what, void* ptr)
 {
 	for (int i = 0; i < fObserverList.CountItems(); i++)

@@ -33,7 +33,8 @@
 
 
 ChatWindow::ChatWindow(ContactLinker* cl)
-	: BWindow(BRect(200, 200, 500, 500),
+	:
+	BWindow(BRect(200, 200, 500, 500),
 		cl->GetName().String(), B_DOCUMENT_WINDOW, 0),
 	fContactLinker(cl)
 {
@@ -77,7 +78,7 @@ ChatWindow::QuitRequested()
 void
 ChatWindow::MessageReceived(BMessage* message)
 {
-	switch(message->what) {
+	switch (message->what) {
 		case CAYA_CHAT:
 		{
 			BString message = fSendView->Text();
@@ -122,10 +123,10 @@ ChatWindow::ImMessage(BMessage* msg)
 }
 
 
-void 
+void
 ChatWindow::ObserveString(int32 what, BString str)
 {
-	switch(what) {
+	switch (what) {
 		case STR_CONTACT_NAME:
 			if (Lock()){
 				SetTitle(str);
@@ -139,7 +140,7 @@ ChatWindow::ObserveString(int32 what, BString str)
 }
 
 
-void 
+void
 ChatWindow::ObservePointer(int32 what, void* ptr)
 {
 	switch (what) {
@@ -149,7 +150,7 @@ ChatWindow::ObservePointer(int32 what, void* ptr)
 }
 
 
-void 
+void
 ChatWindow::ObserveInteger(int32 what, int32 val)
 {
 	switch (what) {
@@ -168,25 +169,25 @@ ChatWindow::AppendStatus(CayaStatus status)
 {	
 	BString message(fContactLinker->GetName());
 
-    switch (status) {
+	switch (status) {
 		case CAYA_ONLINE:
 			message << " is available";
-   			break;
-	   	case CAYA_EXTENDED_AWAY:   		
-	   	case CAYA_AWAY:
+			break;
+		case CAYA_EXTENDED_AWAY:
+		case CAYA_AWAY:
 			message << " is away";
-	   		break;
-	   	case CAYA_DO_NOT_DISTURB:
+	 		break;
+		case CAYA_DO_NOT_DISTURB:
 			message << " is busy, please do not disturb!";
-	   		break;
-	   	case CAYA_OFFLINE:	    
+	 		break;
+	 	case CAYA_OFFLINE:
 			message << " is offline";			
-	   		break;
+			break;
 		default:
-	   		break;
+	 		break;
 	}
 
-	fReceiveView->Append(message.String(), COL_TEXT, COL_TEXT, R_TEXT); 
+	fReceiveView->Append(message.String(), COL_TEXT, COL_TEXT, R_TEXT);
  	fReceiveView->Append("\n", COL_TEXT, COL_TEXT, R_TEXT);
 	fReceiveView->ScrollToSelection();
 }

@@ -11,7 +11,7 @@
 class AboutWindow {
 public:
 						AboutWindow(const char* appName, const char** holders,
-								    const char** authors, const char* extraInfo = NULL);
+							const char** authors, const char* extraInfo = NULL);
 	virtual				~AboutWindow();
 
 			void		Show();

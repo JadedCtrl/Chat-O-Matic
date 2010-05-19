@@ -16,7 +16,8 @@
 
 
 CayaProtocolAddOn::CayaProtocolAddOn(image_id image, const char* path)
-	: fImage(image),
+	:
+	fImage(image),
 	fPath(path),
 	fIcon(NULL)
 {

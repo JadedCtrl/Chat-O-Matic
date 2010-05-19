@@ -15,7 +15,8 @@
 
 
 EditingFilter::EditingFilter(BTextView* view)
-	: BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE, B_KEY_DOWN, NULL),
+	:
+	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE, B_KEY_DOWN, NULL),
 	_view(view)
 {
 }

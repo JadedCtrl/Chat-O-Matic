@@ -44,14 +44,15 @@
 #include "Server.h"
 #include "StatusView.h"
 
-const uint32 kLogin         = 'LOGI';
+const uint32 kLogin			= 'LOGI';
 const uint32 kSearchContact = 'SRCH';
 
-const uint32 kPreferences   = 'WPRF';
+const uint32 kPreferences	= 'WPRF';
 
 
 MainWindow::MainWindow()
-	: BWindow(BRect(0, 0, 300, 400), "Caya", B_DOCUMENT_WINDOW, 0)
+	:
+	BWindow(BRect(0, 0, 300, 400), "Caya", B_DOCUMENT_WINDOW, 0)
 {	
 	fStatusView = new StatusView("statusView");
 
@@ -184,7 +185,7 @@ MainWindow::MessageReceived(BMessage* message)
 void
 MainWindow::ImError(BMessage* msg)
 {
-	//FIXME: better error handling..
+	// FIXME: better error handling..
 	BAlert* alert = new BAlert("Error", msg->FindString("error"), "Ouch!");
 	alert->Go();
 }

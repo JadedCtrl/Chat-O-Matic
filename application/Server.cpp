@@ -28,12 +28,13 @@
 
 
 Server::Server()
-	: BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
+	:
+	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
 {
 }
 
 
-void 
+void
 Server::Quit()
 {
 	ContactLinker* linker = NULL;	
@@ -72,15 +73,6 @@ Server::LoginAll()
 		looper->PostMessage(msg);
 	}
 }
-
-
-#if 0
-void
-Server::UpdateSettings(BMessage settings)
-{
-	fProtocol->Protocol()->UpdateSettings(settings);
-}
-#endif
 
 
 void
@@ -123,7 +115,7 @@ Server::Filter(BMessage* message, BHandler **target)
 {
 	filter_result result = B_DISPATCH_MESSAGE;
 
-	switch(message->what) {
+	switch (message->what) {
 		case IM_MESSAGE_RECEIVED:
 		{
 			BString id = message->FindString("id");
@@ -249,8 +241,9 @@ Server::ImMessage(BMessage* msg)
 			entry_ref ref;
 			if (linker) {
 				if (msg->FindRef("ref", &ref) == B_OK) {
-					//BPath fullPath(&ref);
-					//BBitmap *bitmap = ImageCache::GetImage(BString(fullPath.Path()), BString(fullPath.Path()));										
+					// BPath fullPath(&ref);
+					// BBitmap* bitmap = ImageCache::GetImage(
+					//	BString(fullPath.Path()), BString(fullPath.Path()));
 					BBitmap *bitmap = BTranslationUtils::GetBitmap(&ref);
 					linker->SetNotifyAvatarBitmap(bitmap);
 				} else

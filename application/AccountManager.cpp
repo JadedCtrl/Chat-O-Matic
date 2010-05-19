@@ -17,7 +17,8 @@ static AccountManager* fInstance = NULL;
 
 
 AccountManager::AccountManager()
-	: fStatus(CAYA_OFFLINE)
+	:
+	fStatus(CAYA_OFFLINE)
 {
 	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
 	RegisterObserver(theApp->GetMainWindow());

@@ -43,7 +43,8 @@ const float kDividerWidth = 1.0f;
 
 
 ProtocolSettings::ProtocolSettings(CayaProtocolAddOn* addOn)
-	: fAddOn(addOn),
+	:
+	fAddOn(addOn),
 	fTemplate(new BMessage())
 {
 	_Init();
@@ -149,9 +150,10 @@ ProtocolSettings::Load(const char* account, BView* parent)
 					freeText = false;
 
 					menu = new BPopUpMenu(name);
-					for (int j = 0; curr.FindString("valid_value", j); j++)  {
+					for (int j = 0; curr.FindString("valid_value", j); j++) {
 						BMenuItem* item
-							= new BMenuItem(curr.FindString("valid_value", j), NULL);
+							= new BMenuItem(curr.FindString("valid_value", j),
+								NULL);
 						menu->AddItem(item);
 					}
 
@@ -246,11 +248,14 @@ ProtocolSettings::Load(const char* account, BView* parent)
 					control = new BTextControl(name, _T(desc), value, NULL);
 					if (secret) {
 						dynamic_cast<BTextControl*>(control)->TextView()->HideTyping(true);
-						dynamic_cast<BTextControl*>(control)->SetText(_T(value));
+						dynamic_cast<BTextControl*>(control)->SetText(
+							_T(value));
 					}
-					dynamic_cast<BTextControl*>(control)->SetDivider(kDividerWidth);
+					dynamic_cast<BTextControl*>(control)->SetDivider(
+						kDividerWidth);
 				} else {
-					BStringView* label = new BStringView("NA", _T(desc), B_WILL_DRAW);
+					BStringView* label = new BStringView("NA", _T(desc),
+						B_WILL_DRAW);
 					layout.Add(label);
 
 					NotifyingTextView* textView

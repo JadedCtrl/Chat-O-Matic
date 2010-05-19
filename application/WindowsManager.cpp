@@ -10,6 +10,7 @@
 
 WindowsManager*	WindowsManager::fInstance = NULL;
 
+
 WindowsManager::WindowsManager()
 {
 	fCurrentPoint.Set(40.0f, 40.0f);
