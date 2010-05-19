@@ -13,10 +13,11 @@ class BPopUpMenu;
 class ToolButton : public BControl {
 public:
 							ToolButton(const char* name, const char* label,
-							            BMessage* message,
-							            uint32 flags = B_WILL_DRAW | B_NAVIGABLE
-							                    | B_FULL_UPDATE_ON_RESIZE);
-							ToolButton(const char* label, BMessage* message = NULL);
+								BMessage* message,
+								uint32 flags = B_WILL_DRAW | B_NAVIGABLE
+									| B_FULL_UPDATE_ON_RESIZE);
+							ToolButton(const char* label,
+								BMessage* message = NULL);
 							ToolButton(BMessage* archive);
 
 	virtual					~ToolButton();
@@ -33,7 +34,7 @@ public:
 
 	virtual	void			MouseDown(BPoint where);
 	virtual	void			MouseMoved(BPoint where, uint32 transit,
-									   const BMessage* message);
+								const BMessage* message);
 	virtual	void			MouseUp(BPoint where);
 
 	virtual	void			SetLabel(const char* string);

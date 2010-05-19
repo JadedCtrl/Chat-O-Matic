@@ -29,7 +29,8 @@ ReadNodeIcon(const char* name, icon_size size, bool followSymlink)
 
 	BNode node(BPath(&ref).Path());
 
-	BBitmap* ret = new BBitmap(BRect(0, 0, (float)size - 1, (float)size - 1), B_RGBA32);
+	BBitmap* ret = new BBitmap(BRect(0, 0, (float)size - 1, (float)size - 1),
+		B_RGBA32);
 	if (BIconUtils::GetIcon(&node, BEOS_ICON_ATTRIBUTE, BEOS_MINI_ICON_ATTRIBUTE,
 		BEOS_LARGE_ICON_ATTRIBUTE, size, ret) != B_OK) {
 		delete ret;
@@ -72,7 +73,8 @@ BBitmap* IconFromResources(BResources* res, int32 num, icon_size size)
 		cspace = B_CMAP8;
 	}
 
-	BBitmap* icon = new BBitmap(BRect(0, 0, size - 1, size - 1), cspace);
+	BBitmap* icon = new BBitmap(BRect(0, 0, (float)size - 1, (float)size - 1),
+		cspace);
 	if (icon->InitCheck() != B_OK)
 		return NULL;
 
@@ -103,28 +105,29 @@ RescaleBitmap(const BBitmap* src, int32 width, int32 height)
 
 	if (height < 0) {
 		float srcProp = srcSize.Height() / srcSize.Width();
-		height = (int32)(width * srcProp);
+		height = (width * (int32)srcProp);
 	}
 
-	BBitmap* res = new BBitmap(BRect(0, 0, width, height), src->ColorSpace());
+	BBitmap* res = new BBitmap(BRect(0, 0, (float)width, (float)height),
+		src->ColorSpace());
 
-	float dx = (srcSize.Width() + 1) / (width + 1);
-	float dy = (srcSize.Height() + 1) / (height + 1);
-	uint8 bpp = (uint8)(src->BytesPerRow() / srcSize.Width());
+	float dx = (srcSize.Width() + 1) / ((float)width + 1);
+	float dy = (srcSize.Height() + 1) / ((float)height + 1);
+	uint8 bpp = (uint8)(src->BytesPerRow() / (int32)srcSize.Width());
 
-	int srcYOff = src->BytesPerRow();
-	int dstYOff = res->BytesPerRow();
+	int32 srcYOff = src->BytesPerRow();
+	int32 dstYOff = res->BytesPerRow();
 
 	void* dstData = res->Bits();
 	void* srcData = src->Bits();
 
 	for (int32 y = 0; y <= height; y++) {
-		void* dstRow = (void *)((uint32)dstData + (uint32)(y * dstYOff));
-		void* srcRow = (void *)((uint32)srcData + ((uint32)(y * dy) * srcYOff));
+		void* dstRow = (void*)((uint32)dstData + (uint32)(y * dstYOff));
+		void* srcRow = (void*)((uint32)srcData + ((uint32)(y * (int32)dy) * srcYOff));
 
 		for (int32 x = 0; x <= width; x++)
 			memcpy((void*)((uint32)dstRow + (x * bpp)), (void*)((uint32)srcRow +
-				((uint32)(x * dx) * bpp)), bpp);
+				((uint32)(x * (int32)dx) * bpp)), bpp);
 	}
 
 	return res;

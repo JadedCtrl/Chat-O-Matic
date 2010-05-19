@@ -21,32 +21,34 @@
 
 #include "ToolButton.h"
 
-const float kPopUpMarkerSize   = 5.0f;
-const float kPopUpMarkerTop    = 0.5f;
-const float kPopUpMarkerRect   = (kPopUpMarkerSize * 2) + 2;
-const uint32 kToolbarIconSize  = 16; // this should go on BControlLook
+const float kPopUpMarkerSize	= 5.0f;
+const float kPopUpMarkerTop		= 0.5f;
+const float kPopUpMarkerRect	= (kPopUpMarkerSize * 2) + 2;
+const uint32 kToolbarIconSize	= 16;
+		// this should go on BControlLook
 
 
 ToolButton::ToolButton(const char* name, const char* label, BMessage* message,
-					   uint32 flags)
-	: BControl(name, label, message,
-	           flags | B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE),
+	uint32 flags)
+	:
+	BControl(name, label, message,
+		flags | B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE),
 	fBitmap(NULL),
 	fMenu(NULL),
 	fPreferredSize(-1, -1)
 {
-	SetFontSize(be_plain_font->Size() * 0.85);
+	SetFontSize(be_plain_font->Size() * 0.85f);
 }
 
 
 ToolButton::ToolButton(const char* label, BMessage* message)
 	: BControl(NULL, label, message,
-			   B_WILL_DRAW | B_NAVIGABLE | B_FULL_UPDATE_ON_RESIZE),
+		B_WILL_DRAW | B_NAVIGABLE | B_FULL_UPDATE_ON_RESIZE),
 	fBitmap(NULL),
 	fMenu(NULL),
 	fPreferredSize(-1, -1)
 {
-	SetFontSize(be_plain_font->Size() * 0.85);
+	SetFontSize(be_plain_font->Size() * 0.85f);
 }
 
 
@@ -56,7 +58,7 @@ ToolButton::ToolButton(BMessage* archive)
 	fMenu(NULL),
 	fPreferredSize(-1, -1)
 {
-	SetFontSize(be_plain_font->Size() * 0.85);
+	SetFontSize(be_plain_font->Size() * 0.85f);
 }
 
 
@@ -117,7 +119,7 @@ ToolButton::Draw(BRect updateRect)
 	uint32 flags = be_control_look->Flags(this);
 
 	// Draw background and borders
-	rgb_color button = IsEnabled() ? tint_color(base, 1.07) : base;
+	rgb_color button = IsEnabled() ? tint_color(base, 1.07f) : base;
 	be_control_look->DrawButtonBackground(this, bounds, updateRect,
 		button, flags, 0);
 	be_control_look->DrawBorder(this, bounds, updateRect,
@@ -160,9 +162,11 @@ ToolButton::Draw(BRect updateRect)
 		float tint = IsEnabled() ? B_DARKEN_4_TINT : B_DARKEN_1_TINT;
 		BPoint center(_Center(bounds));
 		BPoint triangle[3];
-		triangle[0] = center + BPoint(-(kPopUpMarkerSize / 2.0), -kPopUpMarkerTop);
+		triangle[0] = center + BPoint(-(kPopUpMarkerSize / 2.0),
+			-kPopUpMarkerTop);
 		triangle[1] = center + BPoint(kPopUpMarkerSize, -kPopUpMarkerTop);
-		triangle[2] = center + BPoint(0.0, (kPopUpMarkerSize / 2.0f) - kPopUpMarkerTop);
+		triangle[2] = center + BPoint(0.0, (kPopUpMarkerSize / 2.0f)
+			- kPopUpMarkerTop);
 
 		uint32 origFlags = Flags();
 		SetFlags(origFlags | B_SUBPIXEL_PRECISE);
@@ -375,8 +379,8 @@ ToolButton::SetMenu(BPopUpMenu* menu)
 BPoint
 ToolButton::_Center(BRect rect)
 {
-	BPoint center(roundf((rect.left + rect.right) / 2.0),
-		roundf((rect.top + rect.bottom) / 2.0));
+	BPoint center(roundf((rect.left + rect.right) / 2.0f),
+		roundf((rect.top + rect.bottom) / 2.0f));
 	return center;
 }
 
@@ -409,7 +413,7 @@ ToolButton::_ValidatePreferredSize()
 			GetFontHeight(&fontHeight);
 
 			fPreferredSize.height
-				+= ceilf((fontHeight.ascent + fontHeight.descent) * 1.5);
+				+= ceilf((fontHeight.ascent + fontHeight.descent) * 1.5f);
 		}
 
 		if (Bitmap())
