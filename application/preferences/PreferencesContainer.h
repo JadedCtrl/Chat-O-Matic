@@ -20,7 +20,7 @@ public:
 	static SettingsType*
 	Item()
 	{
-		return &Get()->fSettings;
+		return &(Singleton<PreferencesContainer<SettingsType> >::Get()->fSettings);
 	}
 
 	// TODO:
