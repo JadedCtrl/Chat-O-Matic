@@ -14,6 +14,7 @@
 
 #include "PreferencesDialog.h"
 #include "PreferencesAccounts.h"
+#include "PreferencesBehavior.h"
 
 const uint32 kApply = 'SAVE';
 
@@ -24,6 +25,7 @@ PreferencesDialog::PreferencesDialog()
 {
 	BTabView* tabView = new BTabView("tabView", B_WIDTH_AS_USUAL);
 	tabView->AddTab(new PreferencesAccounts());
+	tabView->AddTab(new PreferencesBehavior());
 
 	BButton* ok = new BButton("OK", new BMessage(kApply));
 

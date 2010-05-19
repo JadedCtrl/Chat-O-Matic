@@ -17,6 +17,7 @@
 #include "RosterItem.h"
 #include "WindowsManager.h"
 
+#include "CayaPreferences.h"
 
 ContactLinker::ContactLinker(BString id, BMessenger msgn)
 	: fChatWindow(NULL),
@@ -37,7 +38,7 @@ ContactLinker::ContactLinker(BString id, BMessenger msgn)
 }
 
 
-ChatWindow*	
+ChatWindow*
 ContactLinker::GetChatWindow()
 {
 	if (fChatWindow == NULL)
@@ -46,7 +47,7 @@ ContactLinker::GetChatWindow()
 }
 
 
-void 
+void
 ContactLinker::DeleteWindow()
 {
 	if (fChatWindow != NULL) {
@@ -64,10 +65,15 @@ ContactLinker::ShowWindow()
 {
 	if (fChatWindow == NULL)
 		CreateChatWindow();
-	fChatWindow->SetWorkspaces(B_CURRENT_WORKSPACE);
+
+	if (CayaPreferences::Item()->MoveToCurrentWorkspace)
+		fChatWindow->SetWorkspaces(B_CURRENT_WORKSPACE);
+
 	if (fChatWindow->IsHidden())
 		fChatWindow->Show();
-	fChatWindow->Activate(true);
+
+	if (CayaPreferences::Item()->ActivateWindow)
+		fChatWindow->Activate(true);
 }
 
 
@@ -145,8 +151,8 @@ ContactLinker::SetProtocolLooper(ProtocolLooper* looper)
 
 void
 ContactLinker::SetNotifyName(BString name)
-{	
-	if (fName.Compare(name) != 0) {			
+{
+	if (fName.Compare(name) != 0) {
 		fName = name;
 		NotifyString(STR_CONTACT_NAME, name);
 	}

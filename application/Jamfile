@@ -42,6 +42,7 @@ Application Caya :
 	AccountView.cpp
 	PreferencesDialog.cpp
 	PreferencesAccounts.cpp
+	PreferencesBehavior.cpp
 
 	# views
 	ContactPopUp.cpp
