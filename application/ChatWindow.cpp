@@ -23,6 +23,7 @@
 #include <String.h>
 
 #include "CayaMessages.h"
+#include "CayaProtocolMessages.h"
 #include "ChatWindow.h"
 #include "ContactLinker.h"
 #include "EditingFilter.h"
@@ -88,7 +89,7 @@ ChatWindow::MessageReceived(BMessage* message)
 			BMessage msg(IM_MESSAGE);
 			msg.AddInt32("im_what", IM_SEND_MESSAGE);
 			msg.AddString("id", fContactLinker->GetId());
-			msg.AddString("message", message);
+			msg.AddString("body", message);
 			fContactLinker->Messenger().SendMessage(&msg);
 
 			fSendView->SetText("");
@@ -111,66 +112,10 @@ ChatWindow::ImMessage(BMessage* msg)
 	switch (im_what) {
 		case IM_MESSAGE_RECEIVED:
 		{
-			BString message = msg->FindString("message");
+			BString message = msg->FindString("body");
 			fReceiveView->AppendOtherMessage(message.String());
 			break;
 		}		
-		case IM_STATUS_CHANGED:
-		{
-#if 0
-			int32 status;
-
-			if (msg->FindInt32("status", &status) != B_OK)
-				return;
-
-			BString id = msg->FindString("id");
-
-			if (id != "" && status >= CAYA_ONLINE) {
-				bool found = false;
-				BStringItem *item = fRosterMap.ValueFor(id,&found);
-
-				if (!found) {
-					item = new BStringItem(id.String());
-					item->SetHeight(50.0);
-					listView->AddItem(item);
-					fRosterMap.AddItem(id, item);
-				} else {
-					bool itemPresent = listView->HasItem(item);
-					if (status == CAYA_OFFLINE) {
-						//remove from list. (for now)
-						if (itemPresent)
-							listView->RemoveItem(item);
-					} else {
-						if(!itemPresent)
-							listView->AddItem(item);
-					}
-				}
-
-				UpdateListItem(item);
-			}
-#endif
-			break;
-		}
-		case IM_CONTACT_INFO:
-		{
-#if 0
-			BString id = msg->FindString("id");
-			BString fullName = msg->FindString("nick");
-			if (id != "" && fullName != "") {
-				bool found = false;
-				BStringItem *item = fRosterMap.ValueFor(id,&found);
-				if (!found) {
-					item = new BStringItem(id.String());
-					item->SetHeight(50.0);
-					fRosterMap.AddItem(id, item);
-				}
-
-				item->SetText(fullName);
-				UpdateListItem(item);
-			}
-#endif
-			break;
-		}
 		default:
 			break;
 	}

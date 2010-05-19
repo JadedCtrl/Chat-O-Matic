@@ -22,6 +22,7 @@
 const uint32 kToCurrentWorkspace = 'CBcw';
 const uint32 kActivateChatWindow = 'CBac';
 
+
 PreferencesBehavior::PreferencesBehavior()
 	: BView("Behavior", B_WILL_DRAW)
 {
@@ -65,7 +66,6 @@ PreferencesBehavior::PreferencesBehavior()
 		.Add(fHideEmoticons)
 		.SetInsets(spacing, spacing, spacing, spacing)
 		.End()
-
 	);
 }
 
@@ -76,8 +76,10 @@ PreferencesBehavior::AttachedToWindow()
 	fToCurrentWorkspace->SetTarget(this);
 	fActivateChatWindow->SetTarget(this);
 
-	fToCurrentWorkspace->SetValue(CayaPreferences::Item()->MoveToCurrentWorkspace);
-	fActivateChatWindow->SetValue(CayaPreferences::Item()->ActivateWindow);
+	fToCurrentWorkspace->SetValue(
+		CayaPreferences::Item()->MoveToCurrentWorkspace);
+	fActivateChatWindow->SetValue(
+		CayaPreferences::Item()->ActivateWindow);
 }
 
 
@@ -86,12 +88,13 @@ PreferencesBehavior::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kToCurrentWorkspace:
-			CayaPreferences::Item()->MoveToCurrentWorkspace = fToCurrentWorkspace->Value();
+			CayaPreferences::Item()->MoveToCurrentWorkspace
+				= fToCurrentWorkspace->Value();
 			break;
 		case kActivateChatWindow:
-			CayaPreferences::Item()->ActivateWindow = fActivateChatWindow->Value();
+			CayaPreferences::Item()->ActivateWindow
+				= fActivateChatWindow->Value();
 			break;
-
 		default:
 			BView::MessageReceived(message);
 	}

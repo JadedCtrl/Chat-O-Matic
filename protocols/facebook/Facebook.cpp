@@ -6,6 +6,7 @@
 #include <libjabber/JabberSocketPlug.h>
 #include <libjabber/States.h>
 
+#include "CayaProtocolMessages.h"
 #include "Facebook.h"
 
 const char* kProtocolSignature = "facebook";
@@ -81,7 +82,7 @@ Facebook::Process(BMessage* msg)
 						SetOwnNickname(nick);
 					break;
 				}
-				case IM_SET_STATUS:
+				case IM_SET_OWN_STATUS:
 				{
 					int32 status = msg->FindInt32("status");
 					BString status_msg("");
@@ -231,7 +232,7 @@ Facebook::Process(BMessage* msg)
 				case IM_GET_CONTACT_INFO:
 					SendContactInfo(msg->FindString("id"));
 					break;
-				case IM_SEND_AUTH_ACK:
+				case IM_ASK_AUTHORIZATION:
 				{
 					if (!IsAuthorized())
 						return B_ERROR;
@@ -471,7 +472,7 @@ Facebook::BuddyStatusChanged(JabberPresence* jp)
 		return;
 
 	BMessage msg(IM_MESSAGE);
-	msg.AddInt32("im_what", IM_STATUS_CHANGED);
+	msg.AddInt32("im_what", IM_STATUS_SET);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", jp->GetJid());
 	msg.AddString("resource", jp->GetResource());
@@ -522,7 +523,7 @@ Facebook::BuddyStatusChanged(const char* who, CayaStatus status)
 	//LOG("Facebook", liDebug, "Facebook::BuddyStatusChanged(%s,%s)",who,status);
 
 	BMessage msg(IM_MESSAGE);
-	msg.AddInt32("im_what", IM_STATUS_CHANGED);
+	msg.AddInt32("im_what", IM_STATUS_SET);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", who);
 	msg.AddInt32("status", status);
@@ -620,7 +621,7 @@ Facebook::SendBuddyIcon(const char* id)
 		BString data = vCard->GetPhotoContent();
 
 		BMessage msg(IM_MESSAGE);
-		msg.AddInt32("im_what", IM_SET_AVATAR);
+		msg.AddInt32("im_what", IM_SET_OWN_AVATAR);
 		msg.AddString("protocol", kProtocolSignature);
 		msg.AddString("id", id);
 		msg.AddData("icondata", B_RAW_TYPE, data.String(), data.Length());
@@ -704,7 +705,8 @@ void
 Facebook::Roster(RosterList* roster)
 {
 	// Fix me! (Roster message can arrive at different times)
-	BMessage serverBased(IM_SERVER_BASED_CONTACT_LIST);
+	BMessage serverBased(IM_MESSAGE);
+	serverBased.AddInt32("im_what", IM_CONTACT_LIST);
 	serverBased.AddString("protocol", kProtocolSignature);
 	JabberContact* contact;
 	int size = roster->CountItems();
@@ -760,7 +762,7 @@ void
 Facebook::SubscriptionRequest(JabberPresence* presence)
 {
 	BMessage im_msg(IM_MESSAGE);
-	im_msg.AddInt32("im_what", IM_AUTH_REQUEST);
+	im_msg.AddInt32("im_what", IM_AUTHORIZATION_REQUEST);
 	im_msg.AddString("protocol", kProtocolSignature);
 	im_msg.AddString("id", presence->GetJid());
 	im_msg.AddString("message", presence->GetStatus());
@@ -777,7 +779,7 @@ Facebook::Unsubscribe(JabberPresence* presence)
 	//LOG("Facebook", liDebug, "Facebook::Unsubscribe()");
 
 	BMessage msg(IM_MESSAGE);
-	msg.AddInt32("im_what", IM_STATUS_CHANGED);
+	msg.AddInt32("im_what", IM_STATUS_SET);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", presence->GetJid());
 	msg.AddInt32("status", CAYA_OFFLINE);
@@ -822,7 +824,7 @@ Facebook::GotBuddyPhoto(const BString& jid, const BString& imagePath)
 {
 	BMessage msg(IM_MESSAGE);
 
-	msg.AddInt32("im_what", IM_AVATAR_CHANGED);
+	msg.AddInt32("im_what", IM_AVATAR_SET);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", jid);
 

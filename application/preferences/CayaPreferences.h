@@ -11,16 +11,12 @@ typedef struct CayaPreferencesData
 {
 	bool MoveToCurrentWorkspace;
 	bool ActivateWindow;
-	// Add here as much fields as desired
 
 	CayaPreferencesData()
-		:
-		MoveToCurrentWorkspace(true),
+		: MoveToCurrentWorkspace(true),
 		ActivateWindow(true)
-		// Add here its default values
-	{ }
-
-
+	{
+	}
 };
 
 typedef PreferencesContainer<CayaPreferencesData> CayaPreferences;

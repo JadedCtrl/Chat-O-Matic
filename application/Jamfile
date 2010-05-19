@@ -52,16 +52,13 @@ Application Caya :
 	StatusMenuItem.cpp
 	StatusView.cpp
 	CayaRenderView.cpp
-	: be $(TARGET_LIBSTDC++) network translation expat
-	  librunview.a libinterface.a libjabber.a
-	  ssl crypto
+	: be $(TARGET_LIBSTDC++) translation expat
+	  libinterface.a librunview.a libsupport.a
 	: Caya.rdef
 ;
 
-Depends Caya : libjabber.a ;
-Depends Caya : librunview.a ;
 Depends Caya : libinterface.a ;
-
-LINKFLAGS on Caya += -L$(OPENSSL_LIBRARY_DIR) ;
+Depends Caya : librunview.a ;
+Depends Caya : libsupport.a ;
 
 InstallBin $(CAYA_DIRECTORY) : Caya ;

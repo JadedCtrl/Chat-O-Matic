@@ -8,12 +8,11 @@
  *		Ryan Leavengood, leavengood@gmail.com
  */
 
+#include <AboutWindow.h>
 #include <Alert.h>
 #include <Font.h>
 #include <String.h>
 #include <TextView.h>
-
-#include "AboutWindow.h"
 
 
 AboutWindow::AboutWindow(const char* appName, const char** holders,

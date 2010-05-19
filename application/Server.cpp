@@ -19,6 +19,7 @@
 #include "ProtocolLooper.h"
 #include "CayaMessages.h"
 #include "CayaProtocol.h"
+#include "CayaProtocolMessages.h"
 #include "ChatWindow.h"
 #include "ImageCache.h"
 #include "ProtocolManager.h"
@@ -66,7 +67,7 @@ Server::LoginAll()
 		ProtocolLooper* looper = fLoopers.ValueAt(i);
 
 		BMessage* msg = new BMessage(IM_MESSAGE);
-		msg->AddInt32("im_what", IM_SET_STATUS);
+		msg->AddInt32("im_what", IM_SET_OWN_STATUS);
 		msg->AddInt32("status", CAYA_ONLINE);
 		looper->PostMessage(msg);
 	}
@@ -123,24 +124,6 @@ Server::Filter(BMessage* message, BHandler **target)
 	filter_result result = B_DISPATCH_MESSAGE;
 
 	switch(message->what) {
-		case IM_SERVER_BASED_CONTACT_LIST:
-		{
-			int i = 0;
-			BString id;
-			while (message->FindString("id", i++, &id) == B_OK) {
-				bool found = false;
-				ContactLinker* item = fRosterMap.ValueFor(id, &found);
-
-				if (found)
-					continue;
-
-				item = new ContactLinker(id.String(), Looper());
-				item->SetProtocolLooper(_LooperFromMessage(message));
-				fRosterMap.AddItem(id, item);
-			}
-			result = B_SKIP_MESSAGE;
-			break;
-		}
 		case IM_MESSAGE_RECEIVED:
 		{
 			BString id = message->FindString("id");
@@ -204,7 +187,25 @@ Server::ImMessage(BMessage* msg)
 	int32 im_what = msg->FindInt32("im_what");
 
 	switch (im_what) {
-		case IM_STATUS_SET:
+		case IM_CONTACT_LIST:
+		{
+			int i = 0;
+			BString id;
+			while (msg->FindString("id", i++, &id) == B_OK) {
+				bool found = false;
+				ContactLinker* item = fRosterMap.ValueFor(id, &found);
+
+				if (found)
+					continue;
+
+				item = new ContactLinker(id.String(), Looper());
+				item->SetProtocolLooper(_LooperFromMessage(msg));
+				fRosterMap.AddItem(id, item);
+			}
+			result = B_SKIP_MESSAGE;
+			break;
+		}
+		case IM_OWN_STATUS_SET:
 		{
 			int32 status;
 			const char* protocol;
@@ -218,7 +219,7 @@ Server::ImMessage(BMessage* msg)
 			accountManager->SetStatus((CayaStatus)status);
 			break;
 		}
-		case IM_STATUS_CHANGED:
+		case IM_STATUS_SET:
 		{
 			int32 status;
 
@@ -226,11 +227,13 @@ Server::ImMessage(BMessage* msg)
 				return B_SKIP_MESSAGE;
 
 			ContactLinker* linker = _EnsureContactLinker(msg);
-			linker->SetNotifyStatus((CayaStatus)status);
-			linker->SetNotifyPersonalStatus(msg->FindString("message"));
+			if (linker) {
+				linker->SetNotifyStatus((CayaStatus)status);
+				linker->SetNotifyPersonalStatus(msg->FindString("message"));
+			}
 			break;
 		}
-		case IM_CONTACT_INFO:		
+		case IM_CONTACT_INFO:
 		{
 			ContactLinker* linker = _EnsureContactLinker(msg);
 
@@ -240,7 +243,7 @@ Server::ImMessage(BMessage* msg)
 				linker->SetNotifyName(name);
 			break;
 		}
-		case IM_AVATAR_CHANGED:
+		case IM_AVATAR_SET:
 		{
 			ContactLinker* linker = _EnsureContactLinker(msg);
 			entry_ref ref;

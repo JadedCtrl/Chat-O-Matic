@@ -7,6 +7,7 @@
  */
 
 #include "AccountManager.h"
+#include "CayaProtocolMessages.h"
 #include "MainWindow.h"
 #include "NotifyMessage.h"
 #include "Server.h"
@@ -44,7 +45,7 @@ AccountManager::SetNickname(BString nick)
 {
 	// Create message
 	BMessage* msg = new BMessage(IM_MESSAGE);
-	msg->AddInt32("im_what", IM_SET_NICKNAME);
+	msg->AddInt32("im_what", IM_SET_OWN_NICKNAME);
 	msg->AddString("nick", nick);
 
 	// Send message
@@ -67,7 +68,7 @@ AccountManager::SetStatus(CayaStatus status, const char* str)
 	if (fStatus != status) {
 		// Create status change message
 		BMessage* msg = new BMessage(IM_MESSAGE);
-		msg->AddInt32("im_what", IM_SET_STATUS);
+		msg->AddInt32("im_what", IM_SET_OWN_STATUS);
 		msg->AddInt32("status", (int32)status);
 		if (str != NULL)
 			msg->AddString("message", str);

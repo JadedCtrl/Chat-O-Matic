@@ -33,6 +33,7 @@
 
 #include "CayaConstants.h"
 #include "CayaMessages.h"
+#include "CayaProtocolMessages.h"
 #include "CayaResources.h"
 #include "CayaUtils.h"
 #include "NotifyMessage.h"
@@ -196,7 +197,7 @@ MainWindow::ImMessage(BMessage* msg)
 	switch (im_what) {
 		case IM_OWN_CONTACT_INFO:
 		{			
-			fStatusView->SetName(msg->FindString("nick"));
+			fStatusView->SetName(msg->FindString("name"));
 
 			entry_ref ref;
 			if (msg->FindRef("ref", &ref) == B_OK) {
@@ -205,7 +206,7 @@ MainWindow::ImMessage(BMessage* msg)
 			}
 			break;
 		}
-		case IM_STATUS_CHANGED:
+		case IM_STATUS_SET:
 		{
 			int32 status;
 
@@ -234,10 +235,11 @@ MainWindow::ImMessage(BMessage* msg)
 			}
 			break;
 		}
-		case IM_AVATAR_CHANGED:
+		case IM_AVATAR_SET:
 		case IM_CONTACT_INFO:
 		{
-			RosterItem*	rosterItem = fServer->RosterItemForId(msg->FindString("id"));
+			RosterItem*	rosterItem
+				= fServer->RosterItemForId(msg->FindString("id"));
 			if (rosterItem)
 				UpdateListItem(rosterItem);
 			break;
