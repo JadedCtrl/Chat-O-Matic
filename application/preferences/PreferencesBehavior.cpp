@@ -61,11 +61,11 @@ PreferencesBehavior::PreferencesBehavior()
 			.Add(fActivateChatWindow)
 			.Add(fMarkUnreadWindow)
 			.Add(fPlaySoundOnMessageReceived)
-		.SetInsets(spacing * 2, spacing, spacing * 5, spacing)
+		.SetInsets(spacing * 2, spacing, spacing, spacing)
 		.End()
 		.Add(fHideEmoticons)
+		.AddGlue()
 		.SetInsets(spacing, spacing, spacing, spacing)
-		.End()
 	);
 }
 
