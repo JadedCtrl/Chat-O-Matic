@@ -234,9 +234,10 @@ Server::ImMessage(BMessage* msg)
 		{
 			ContactLinker* linker = _EnsureContactLinker(msg);
 
-			BString fullName = msg->FindString("nick");
-			if (fullName != "")
-				linker->SetNotifyName(fullName);
+			const char* name = NULL;
+
+			if (msg->FindString("name", &name) == B_OK)
+				linker->SetNotifyName(name);
 			break;
 		}
 		case IM_AVATAR_CHANGED:

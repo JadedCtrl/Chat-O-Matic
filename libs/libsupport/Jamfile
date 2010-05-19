@@ -3,5 +3,6 @@ SubDir TOP libs libsupport ;
 SubDirSysHdrs [ FDirName $(TOP) libs ] ;
 
 StaticLibrary libsupport.a :
+	Base64.cpp
 	Singleton.cpp
 ;

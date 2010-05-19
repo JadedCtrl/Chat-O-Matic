@@ -67,6 +67,9 @@ enum im_what_code {
 
 	// Received information on contact
 	IM_CONTACT_INFO					= 10,
+
+	// Received extended information on contact
+	IM_EXTENDED_CONTACT_INFO		= 30,
 	
 	// Start listening to changes in these contact's statuses
 	IM_REGISTER_CONTACTS			= 11,
