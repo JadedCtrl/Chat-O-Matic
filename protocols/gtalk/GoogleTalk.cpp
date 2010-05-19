@@ -135,7 +135,7 @@ GoogleTalk::Process(BMessage* msg)
 				case IM_SEND_MESSAGE:
 				{
 					const char* buddy = msg->FindString("id");
-					const char* sms = msg->FindString("message");
+					const char* sms = msg->FindString("body");
 
 					JabberMessage jm;
 					jm.SetTo(buddy);
@@ -371,7 +371,7 @@ GoogleTalk::GotMessage(const char* from, const char* message)
 	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", from);
-	msg.AddString("message", message);
+	msg.AddString("body", message);
 
 	fServerMsgr->SendMessage( &msg );
 }
@@ -386,7 +386,7 @@ GoogleTalk::MessageSent(const char* to, const char* message)
 	msg.AddInt32("im_what", IM_MESSAGE_SENT);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", to);
-	msg.AddString("message", message);
+	msg.AddString("body", message);
 
 	fServerMsgr->SendMessage( &msg );
 }
@@ -575,7 +575,7 @@ GoogleTalk::SendContactInfo(const JabberContact* jid)
 	msg.AddInt32("im_what", what);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", jid->GetJid());
-	msg.AddString("nick", jid->GetName());
+	msg.AddString("name", jid->GetName());
 
 	// vCard information
 	JabberVCard* vCard = jid->GetVCard();
@@ -796,7 +796,7 @@ GoogleTalk::OwnContactInfo(JabberContact* contact)
 	msg.AddInt32("im_what", what);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", contact->GetJid());
-	msg.AddString("nick", contact->GetName());
+	msg.AddString("name", contact->GetName());
 
 	// vCard information
 	JabberVCard* vCard = contact->GetVCard();
