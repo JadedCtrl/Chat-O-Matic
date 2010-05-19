@@ -10,20 +10,5 @@
 
 #include "Singleton.h"
 
+
 template<typename T> T* Singleton<T>::fInstance = 0;
-
-
-template<typename T>
-Singleton<T>::Singleton()
-{
-}
-
-
-template<typename T>
-T*
-Singleton<T>::Get()
-{
-	if (!fInstance)
-		fInstance = new T();
-	return fInstance;
-}

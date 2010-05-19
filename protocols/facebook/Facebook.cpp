@@ -398,7 +398,7 @@ Facebook::LoggedIn()
 	Progress("Facebook Login", "Facebook: Logged in!", 1.00);
 
 	BMessage msg(IM_MESSAGE);
-	msg.AddInt32("im_what", IM_STATUS_SET);
+	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddInt32("status", CAYA_ONLINE);
 

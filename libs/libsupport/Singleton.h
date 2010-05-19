@@ -8,12 +8,17 @@
 template<typename T>
 class Singleton {
 public:
-	static	T*		Get();
+	static	T*			Get()
+						{
+							if (!fInstance)
+								fInstance = new T();
+							return fInstance;
+						}
 
 protected:
-	static	T*		fInstance;
+	static	T*			fInstance;
 
-					Singleton();
+						Singleton() {}
 };
 
 #endif	// _SINGLETON_H
