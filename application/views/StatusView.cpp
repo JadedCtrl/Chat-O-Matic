@@ -63,6 +63,8 @@ StatusView::StatusView(const char* name)
 
 	// Icon
 	fAvatar = new BitmapView("icon");
+	fAvatar->SetExplicitMaxSize(BSize(50, 50));
+	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
 
 	// Set layout
 	SetLayout(new BGroupLayout(B_VERTICAL));
@@ -134,6 +136,5 @@ StatusView::SetStatus(CayaStatus status)
 void
 StatusView::SetAvatar(BBitmap* bitmap)
 {
-	BBitmap* b = RescaleBitmap(bitmap, 49, 49);
-	fAvatar->SetBitmap(b);
+	fAvatar->SetBitmap(bitmap);
 }

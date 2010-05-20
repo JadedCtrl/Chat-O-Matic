@@ -7,20 +7,24 @@
  */
 
 #include <Bitmap.h>
+#include <LayoutUtils.h>
 #include <TranslationUtils.h>
 
 #include "BitmapView.h"
 
+const float kMinWidth = 32.0f;
+const float kMinHeight = 32.0f;
+
 
 BitmapView::BitmapView(const char* name, uint32 flags)
-	: BView(name, flags),
+	:
+	BView(name, flags | B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE),
 	fBitmap(NULL),
-	fWidth(0.0f),
-	fHeight(0.0f)
+	fWidth(kMinWidth),
+	fHeight(kMinHeight)
 {
-	// Set transparent
-	//SetViewColor(B_TRANSPARENT_COLOR);
-	SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
+	// Set transparent view color
+	SetViewColor(B_TRANSPARENT_COLOR);
 }
 
 
@@ -40,19 +44,26 @@ BitmapView::InitCheck()
 }
 
 
+BBitmap*
+BitmapView::Bitmap() const
+{
+	return fBitmap;
+}
+
+
 void
 BitmapView::SetBitmap(BBitmap* bitmap)
 {
 	delete fBitmap;
 	fBitmap = bitmap;
 
-	if (fBitmap != NULL) {
+	if (fBitmap) {
 		BRect frame(fBitmap->Bounds());
 
-		fWidth  = frame.Width();
+		fWidth = frame.Width();
 		fHeight = frame.Height();
 
-		ResizeTo(fWidth, fHeight);
+		Invalidate();
 	}
 }
 
@@ -60,30 +71,36 @@ BitmapView::SetBitmap(BBitmap* bitmap)
 BSize
 BitmapView::MinSize()
 {
-	return BSize(fWidth, fHeight);
+	return BLayoutUtils::ComposeSize(ExplicitMinSize(),
+		BSize(kMinWidth, kMinHeight));
 }
 
 
 BSize
 BitmapView::MaxSize()
 {
-	return MinSize();
+	return BLayoutUtils::ComposeSize(ExplicitMaxSize(),
+		BSize(fWidth, fHeight));
 }
 
 
 BSize
 BitmapView::PreferredSize()
 {
-	return MinSize();
+	return BLayoutUtils::ComposeSize(ExplicitPreferredSize(),
+		BSize(fWidth, fHeight));
 }
 
 
 void
 BitmapView::Draw(BRect frame)
 {
+	if (!fBitmap)
+		return;
+
 	SetDrawingMode(B_OP_ALPHA);
 	SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
 
-	if (fBitmap != NULL)
-		DrawBitmap(fBitmap, BPoint(0, 0));
+	DrawBitmap(fBitmap, fBitmap->Bounds(),
+		Bounds(), B_FILTER_BITMAP_BILINEAR);
 }

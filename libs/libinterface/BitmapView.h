@@ -11,11 +11,13 @@ class BBitmap;
 
 class BitmapView : public BView {
 public:
-						BitmapView(const char* name, uint32 flags = B_WILL_DRAW);
+						BitmapView(const char* name, uint32 flags
+							= B_WILL_DRAW);
 						~BitmapView();
 
 			status_t	InitCheck();
 
+			BBitmap*	Bitmap() const;
 			void		SetBitmap(BBitmap* bitmap);
 
 	virtual BSize		MinSize();
