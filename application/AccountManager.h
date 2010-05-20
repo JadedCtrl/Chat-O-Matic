@@ -15,14 +15,14 @@ public:
 			void			SetNickname(BString nick);
 
 			CayaStatus		Status() const;
-			void			SetStatus(CayaStatus status, const char* str = NULL);
+			void			SetStatus(CayaStatus status,
+								const char* str = NULL);
 
 private:
 							AccountManager();
 							~AccountManager();
 
 	CayaStatus				fStatus;
-	//BObjectList<Account*>	fAccounts;
 };
 
 #endif	// _ACCOUNT_MANAGER_H

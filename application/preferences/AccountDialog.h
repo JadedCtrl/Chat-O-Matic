@@ -18,8 +18,9 @@ const uint32 kAccountRenamed = 'acrd';
 
 class AccountDialog : public BWindow {
 public:
-						AccountDialog(const char* title, ProtocolSettings* settings,
-									  const char* account = NULL);
+						AccountDialog(const char* title,
+							ProtocolSettings* settings,
+							const char* account = NULL);
 
 			void		SetTarget(BHandler* target);
 

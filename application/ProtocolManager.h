@@ -22,7 +22,7 @@ typedef List<CayaProtocolAddOn*> ProtocolAddOns;
 typedef KeyMap<BString, CayaProtocolAddOn*> AddOnMap;
 typedef KeyMap<bigtime_t, CayaProtocol*> ProtocolMap;
 
-class ProtocolManager  {
+class ProtocolManager {
 public:
 			void				Init(BDirectory dir, BHandler* target);
 
@@ -35,12 +35,13 @@ public:
 			CayaProtocolAddOn*	ProtocolAddOn(const char* signature);
 
 			void				AddAccount(CayaProtocolAddOn* addOn,
-										   const char* account,
-										   BHandler* target);
+									const char* account,
+									BHandler* target);
 
 private:
 								ProtocolManager();
-			void				_GetAccounts(CayaProtocolAddOn* addOn, BHandler* target);
+			void				_GetAccounts(CayaProtocolAddOn* addOn,
+									BHandler* target);
 
 			AddOnMap			fAddOnMap;
 			ProtocolMap			fProtocolMap;

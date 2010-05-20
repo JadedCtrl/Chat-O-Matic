@@ -17,13 +17,14 @@
 #include "CayaUtils.h"
 #include "StatusMenuItem.h"
 
-const float kSize   = 16;
-const float kCircle = 12;
+const float kSize	= 16;
+const float kCircle	= 12;
 
 
 StatusMenuItem::StatusMenuItem(const char* label, CayaStatus status,
-                               bool custom, char shortcut, uint32 modifiers)
-	: BitmapMenuItem(label, NULL, NULL, shortcut, modifiers),
+	bool custom, char shortcut, uint32 modifiers)
+	:
+	BitmapMenuItem(label, NULL, NULL, shortcut, modifiers),
 	fStatus(status),
 	fCustom(custom)
 {

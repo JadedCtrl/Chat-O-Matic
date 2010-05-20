@@ -5,6 +5,6 @@
 #ifndef _CAYA_H
 #define _CAYA_H
 
-#define CAYA_SIGNATURE "application/x-vnd.xeD.Caya"
+#define CAYA_SIGNATURE "application/x-vnd.caya.Caya"
 
 #endif	// _CAYA_H

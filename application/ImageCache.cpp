@@ -13,7 +13,7 @@
 #include <Debug.h>
 #include <TranslationUtils.h>
 
-ImageCache *ImageCache::m_instance = NULL;
+ImageCache* ImageCache::fInstance = NULL;
 
 
 ImageCache::ImageCache()
@@ -23,8 +23,8 @@ ImageCache::ImageCache()
 
 ImageCache::~ImageCache()
 {
-	while (m_bitmaps.CountItems()) {
-		BBitmap* bit = m_bitmaps.ValueFor(0);
+	while (fBitmaps.CountItems()) {
+		BBitmap* bit = fBitmaps.ValueFor(0);
 		delete bit;
 	}
 }
@@ -33,20 +33,21 @@ ImageCache::~ImageCache()
 BBitmap*
 ImageCache::GetImage(BString which, BString name)
 {
-	if (m_instance == NULL)
-		m_instance = new ImageCache();
+	if (fInstance == NULL)
+		fInstance = new ImageCache();
 
 	// Loads the bitmap if found
 	bool found;
-	BBitmap* bitmap = m_instance->m_bitmaps.ValueFor(name, &found);
+	BBitmap* bitmap = fInstance->fBitmaps.ValueFor(name, &found);
 
 	if (!found) {
 		bitmap = LoadImage(which.String(), name.String());
 		if (bitmap)
-			m_instance->m_bitmaps.AddItem(name, bitmap);
+			fInstance->fBitmaps.AddItem(name, bitmap);
 		return bitmap;
 	} else
 		return bitmap;
+
 	return NULL;
 }
 
@@ -54,22 +55,22 @@ ImageCache::GetImage(BString which, BString name)
 void
 ImageCache::AddImage(BString name, BBitmap* which)
 {
-	if (m_instance == NULL)
-		m_instance = new ImageCache();
+	if (fInstance == NULL)
+		fInstance = new ImageCache();
 
-	m_instance->m_bitmaps.AddItem(name, which);
+	fInstance->fBitmaps.AddItem(name, which);
 }
 
 
 void
 ImageCache::DeleteImage(BString name)
 {
-	if (m_instance == NULL)
-		m_instance = new ImageCache();
+	if (fInstance == NULL)
+		fInstance = new ImageCache();
 
-	BBitmap* bitmap = m_instance->m_bitmaps.ValueFor(name);	
-	if (bitmap){
-		m_instance->m_bitmaps.RemoveItemFor(name);
+	BBitmap* bitmap = fInstance->fBitmaps.ValueFor(name);	
+	if (bitmap) {
+		fInstance->fBitmaps.RemoveItemFor(name);
 		delete bitmap;	
 	}
 }
@@ -78,9 +79,9 @@ ImageCache::DeleteImage(BString name)
 void
 ImageCache::Release()
 {
-	if (m_instance != NULL) {
-		delete m_instance;
-		m_instance = NULL;
+	if (fInstance != NULL) {
+		delete fInstance;
+		fInstance = NULL;
 	}
 }
 
@@ -93,6 +94,6 @@ ImageCache::LoadImage(const char* fullName, const char* shortName)
 		bitmap = BTranslationUtils::GetBitmap('PNG ', shortName);
 
 	if (!bitmap)
-		printf("ImageCache: Can't load bitmap! %s\n",fullName);
+		printf("ImageCache: Can't load bitmap! %s\n", fullName);
 	return bitmap;
 }

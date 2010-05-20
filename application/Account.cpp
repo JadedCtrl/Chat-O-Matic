@@ -17,7 +17,7 @@
 
 
 Account::Account(bigtime_t instanceId, CayaProtocol* cayap,
-	 const char* name, BHandler* target)
+	const char* name, BHandler* target)
 	:
 	fIdentifier(instanceId),
 	fName(name),
@@ -63,6 +63,6 @@ Account::Name() const
 status_t
 Account::SendMessage(BMessage* message)
 {
-	 message->AddInt64("instance", fIdentifier);
-	 return fMessenger.SendMessage(message);
+	message->AddInt64("instance", fIdentifier);
+	return fMessenger.SendMessage(message);
 }

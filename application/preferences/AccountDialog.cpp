@@ -20,14 +20,15 @@
 #include "AccountView.h"
 #include "ProtocolSettings.h"
 
-const uint32 kCancel       = 'canc';
-const uint32 kOK           = 'save';
+const uint32 kCancel	= 'canc';
+const uint32 kOK		= 'save';
 
 
 AccountDialog::AccountDialog(const char* title, ProtocolSettings* settings,
-							 const char* account)
-	: BWindow(BRect(0, 0, 1, 1), title, B_MODAL_WINDOW, B_NOT_RESIZABLE |
-		B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
+	const char* account)
+	:
+	BWindow(BRect(0, 0, 1, 1), title, B_MODAL_WINDOW, B_NOT_RESIZABLE
+		| B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
 	fSettings(settings),
 	fAccount(account),
 	fTarget(NULL)

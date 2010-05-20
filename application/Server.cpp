@@ -136,7 +136,7 @@ Server::Filter(BMessage* message, BHandler **target)
 			BString id = message->FindString("id");
 			if (id.Length() > 0) {
 				bool found = false;
-				ContactLinker *item = fRosterMap.ValueFor(id, &found);
+				ContactLinker* item = fRosterMap.ValueFor(id, &found);
 
 				if (found)
 					item->HideWindow();	
@@ -244,7 +244,7 @@ Server::ImMessage(BMessage* msg)
 					// BPath fullPath(&ref);
 					// BBitmap* bitmap = ImageCache::GetImage(
 					//	BString(fullPath.Path()), BString(fullPath.Path()));
-					BBitmap *bitmap = BTranslationUtils::GetBitmap(&ref);
+					BBitmap* bitmap = BTranslationUtils::GetBitmap(&ref);
 					linker->SetNotifyAvatarBitmap(bitmap);
 				} else
 					linker->SetNotifyAvatarBitmap(NULL);

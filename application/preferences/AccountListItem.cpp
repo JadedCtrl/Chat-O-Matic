@@ -12,8 +12,10 @@
 #include "ProtocolSettings.h"
 
 
-AccountListItem::AccountListItem(ProtocolSettings* settings, const char* account)
-	: BStringItem(account),
+AccountListItem::AccountListItem(ProtocolSettings* settings,
+	const char* account)
+	:
+	BStringItem(account),
 	fSettings(settings),
 	fAccount(account),
 	fBaselineOffset(0)
@@ -55,7 +57,7 @@ AccountListItem::DrawItem(BView* owner, BRect frame, bool complete)
 	rgb_color lowColor = owner->LowColor();
 
 	// Draw selection
-    if (IsSelected()) {
+	if (IsSelected()) {
 		rgb_color highlightColor = ui_color(B_CONTROL_HIGHLIGHT_COLOR);
 
 		owner->SetLowColor(highlightColor);
@@ -65,11 +67,11 @@ AccountListItem::DrawItem(BView* owner, BRect frame, bool complete)
 
 	// Draw account name
 	rgb_color textColor = ui_color(B_CONTROL_TEXT_COLOR);
-    owner->MovePenTo(frame.left, frame.top + fBaselineOffset);
+	owner->MovePenTo(frame.left, frame.top + fBaselineOffset);
 	if (!IsEnabled())
 		owner->SetHighColor(tint_color(textColor, B_LIGHTEN_2_TINT));
 	else
-	    owner->SetHighColor(textColor);
+		owner->SetHighColor(textColor);
 	owner->DrawString(Text());
 
 	owner->SetHighColor(highColor);

@@ -17,7 +17,7 @@
 EditingFilter::EditingFilter(BTextView* view)
 	:
 	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE, B_KEY_DOWN, NULL),
-	_view(view)
+	fView(view)
 {
 }
 
@@ -36,10 +36,10 @@ EditingFilter::Filter(BMessage* message, BHandler** target)
 
 	// If the Alt key jives with the command_enter status
 	if ((modifiers & B_COMMAND_KEY) != 0 && byte == B_ENTER) {
-		_view->Insert("\n");
+		fView->Insert("\n");
 		return B_SKIP_MESSAGE;
 	} else if ((modifiers & B_COMMAND_KEY) == 0 && byte == B_ENTER) {
-		_view->Window()->PostMessage(CAYA_CHAT);
+		fView->Window()->PostMessage(CAYA_CHAT);
 		return B_SKIP_MESSAGE;
 	}
 

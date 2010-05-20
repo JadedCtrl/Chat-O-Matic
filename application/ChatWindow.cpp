@@ -40,8 +40,8 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 {
 	fReceiveView = new CayaRenderView("fReceiveView");
 	fReceiveView->SetOtherNick(cl->GetName());
-	BScrollView* scrollViewReceive = new BScrollView("scrollviewR", fReceiveView,
-		B_WILL_DRAW, false, true);
+	BScrollView* scrollViewReceive = new BScrollView("scrollviewR",
+		fReceiveView, B_WILL_DRAW, false, true);
 
 	fSendView = new BTextView("fReceiveView");
 	BScrollView* scrollViewSend = new BScrollView("scrollviewS", fSendView,
@@ -61,7 +61,6 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 	MoveTo(BAlert::AlertPosition(Bounds().Width(), Bounds().Height() / 2));
 
 	fSendView->MakeFocus(true);
-	
 }
 
 
@@ -128,7 +127,7 @@ ChatWindow::ObserveString(int32 what, BString str)
 {
 	switch (what) {
 		case STR_CONTACT_NAME:
-			if (Lock()){
+			if (Lock()) {
 				SetTitle(str);
 				fReceiveView->SetOtherNick(str);
 				Unlock();
@@ -176,15 +175,15 @@ ChatWindow::AppendStatus(CayaStatus status)
 		case CAYA_EXTENDED_AWAY:
 		case CAYA_AWAY:
 			message << " is away";
-	 		break;
+			break;
 		case CAYA_DO_NOT_DISTURB:
 			message << " is busy, please do not disturb!";
-	 		break;
-	 	case CAYA_OFFLINE:
+			break;
+		case CAYA_OFFLINE:
 			message << " is offline";			
 			break;
 		default:
-	 		break;
+			break;
 	}
 
 	fReceiveView->Append(message.String(), COL_TEXT, COL_TEXT, R_TEXT);

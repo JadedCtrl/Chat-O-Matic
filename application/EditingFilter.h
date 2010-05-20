@@ -2,20 +2,20 @@
  * Copyright 2009, Andrea Anzani. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef EDITING_FILTER_H
-#define EDITING_FILTER_H
+#ifndef _EDITING_FILTER_H
+#define _EDITING_FILTER_H
 
 #include <MessageFilter.h>
-#include <interface/TextView.h>
+#include <TextView.h>
 
 class EditingFilter : public BMessageFilter {
 public:
-	                      EditingFilter(BTextView *view);
+							EditingFilter(BTextView* view);
 
-	virtual filter_result Filter(BMessage *message, BHandler **target);
+	virtual	filter_result	Filter(BMessage* message, BHandler** target);
 
 private:
-	BTextView           *_view;
+			BTextView*		fView;
 };
-#endif
 
+#endif	// _EDITING_FILTER_H

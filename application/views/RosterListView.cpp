@@ -164,9 +164,6 @@ RosterListView::Draw(BRect updateRect)
 }
 
 
-//	#pragama mark -
-
-
 void
 RosterListView::Sort()
 {

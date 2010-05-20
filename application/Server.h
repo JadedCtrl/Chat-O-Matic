@@ -30,14 +30,11 @@ public:
 
 			void			Quit();
 
-			void			AddProtocolLooper(bigtime_t instanceId, CayaProtocol* cayap);
+			void			AddProtocolLooper(bigtime_t instanceId,
+								CayaProtocol* cayap);
 			void			RemoveProtocolLooper(bigtime_t instanceId);
 
 			void			LoginAll();
-
-#if 0
-			void			UpdateSettings(BMessage settings);
-#endif
 
 			void			SendProtocolMessage(BMessage* msg);
 			void			SendAllProtocolMessage(BMessage* msg);
@@ -45,7 +42,7 @@ public:
 			RosterMap		RosterItems() const;
 			RosterItem*		RosterItemForId(BString id);
 
-			//TODO: there should be a contact for each account.
+			// TODO: there should be a contact for each account.
 			ContactLinker*	GetOwnContact();
 
 private:
