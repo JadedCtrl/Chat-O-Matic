@@ -21,6 +21,8 @@
 
 const uint32 kToCurrentWorkspace = 'CBcw';
 const uint32 kActivateChatWindow = 'CBac';
+const uint32 kIgnoreEmoticons = 'CBhe';
+
 
 
 PreferencesBehavior::PreferencesBehavior()
@@ -43,9 +45,10 @@ PreferencesBehavior::PreferencesBehavior()
 		"Play sound event", NULL);
 	fPlaySoundOnMessageReceived->SetEnabled(false);  // not implemented
 
-	fHideEmoticons = new BCheckBox("HideEmoticons",
-		"Hide Emoticons", NULL);
-	fHideEmoticons->SetEnabled(false);  // not implemented
+	fIgnoreEmoticons = new BCheckBox("IgnoreEmoticons",
+		"Ignore Emoticons",
+		new BMessage(kIgnoreEmoticons));
+	fIgnoreEmoticons->SetEnabled(true);
 
 	fMarkUnreadWindow = new BCheckBox("MarkUnreadWindow",
 		"Mark unread window chat", NULL);
@@ -63,7 +66,7 @@ PreferencesBehavior::PreferencesBehavior()
 			.Add(fPlaySoundOnMessageReceived)
 		.SetInsets(spacing * 2, spacing, spacing, spacing)
 		.End()
-		.Add(fHideEmoticons)
+		.Add(fIgnoreEmoticons)
 		.AddGlue()
 		.SetInsets(spacing, spacing, spacing, spacing)
 	);
@@ -75,11 +78,15 @@ PreferencesBehavior::AttachedToWindow()
 {
 	fToCurrentWorkspace->SetTarget(this);
 	fActivateChatWindow->SetTarget(this);
+	fIgnoreEmoticons->SetTarget(this);
 
 	fToCurrentWorkspace->SetValue(
 		CayaPreferences::Item()->MoveToCurrentWorkspace);
 	fActivateChatWindow->SetValue(
 		CayaPreferences::Item()->ActivateWindow);
+	fIgnoreEmoticons->SetValue(
+		CayaPreferences::Item()->IgnoreEmoticons);
+
 }
 
 
@@ -94,6 +101,10 @@ PreferencesBehavior::MessageReceived(BMessage* message)
 		case kActivateChatWindow:
 			CayaPreferences::Item()->ActivateWindow
 				= fActivateChatWindow->Value();
+			break;
+		case kIgnoreEmoticons:
+			CayaPreferences::Item()->IgnoreEmoticons
+				= fIgnoreEmoticons->Value();
 			break;
 		default:
 			BView::MessageReceived(message);

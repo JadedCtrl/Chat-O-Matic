@@ -25,7 +25,7 @@ private:
 	BCheckBox*		fPlaySoundOnMessageReceived;
 	BCheckBox*		fMarkUnreadWindow;
 
-	BCheckBox*		fHideEmoticons;
+	BCheckBox*		fIgnoreEmoticons;
 
 };
 

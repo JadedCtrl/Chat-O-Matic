@@ -11,10 +11,13 @@ typedef struct CayaPreferencesData
 {
 	bool MoveToCurrentWorkspace;
 	bool ActivateWindow;
+	bool IgnoreEmoticons;
 
 	CayaPreferencesData()
-		: MoveToCurrentWorkspace(true),
-		ActivateWindow(true)
+		:
+		MoveToCurrentWorkspace(true),
+		ActivateWindow(true),
+		IgnoreEmoticons(false)
 	{
 	}
 };
