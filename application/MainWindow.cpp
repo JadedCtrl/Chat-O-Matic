@@ -34,6 +34,7 @@
 #include "CayaConstants.h"
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
+#include "CayaPreferences.h"
 #include "CayaResources.h"
 #include "CayaUtils.h"
 #include "NotifyMessage.h"
@@ -53,7 +54,7 @@ const uint32 kPreferences	= 'WPRF';
 MainWindow::MainWindow()
 	:
 	BWindow(BRect(0, 0, 300, 400), "Caya", B_DOCUMENT_WINDOW, 0)
-{	
+{
 	fStatusView = new StatusView("statusView");
 
 	BTextControl* searchBox = new BTextControl("searchBox", NULL, NULL,
@@ -119,6 +120,7 @@ MainWindow::QuitRequested()
 {
 	fListView->MakeEmpty();
 	fServer->Quit();
+	CayaPreferences::Get()->Save();
 	be_app->PostMessage(B_QUIT_REQUESTED);
 	return true;
 }
@@ -178,7 +180,7 @@ MainWindow::MessageReceived(BMessage* message)
 			break;
 		default:
 			BWindow::MessageReceived(message);
-	}	
+	}
 }
 
 
@@ -193,11 +195,11 @@ MainWindow::ImError(BMessage* msg)
 
 void
 MainWindow::ImMessage(BMessage* msg)
-{	
+{
 	int32 im_what = msg->FindInt32("im_what");
 	switch (im_what) {
 		case IM_OWN_CONTACT_INFO:
-		{			
+		{
 			fStatusView->SetName(msg->FindString("name"));
 
 			entry_ref ref;
@@ -260,7 +262,7 @@ MainWindow::ObserveInteger(int32 what, int32 val)
 }
 
 
-void	
+void
 MainWindow::UpdateListItem(RosterItem* item)
 {
 	if (fListView->HasItem(item))
@@ -275,14 +277,14 @@ MainWindow::CountItems() const
 }
 
 
-RosterItem*		
+RosterItem*
 MainWindow::ItemAt(int index)
 {
 	return dynamic_cast<RosterItem*>(fListView->ItemAt(index));
 }
 
 
-void		
+void
 MainWindow::AddItem(RosterItem* item)
 {
 	// Don't add offline items and avoid duplicates
@@ -295,15 +297,15 @@ MainWindow::AddItem(RosterItem* item)
 }
 
 
-bool		
-MainWindow::HasItem(RosterItem* item) 
+bool
+MainWindow::HasItem(RosterItem* item)
 {
 	return fListView->HasItem(item);
 }
 
 
-void		
-MainWindow::RemoveItem(RosterItem* item) 
+void
+MainWindow::RemoveItem(RosterItem* item)
 {
 	// Remove item and sort
 	fListView->RemoveItem(item);

@@ -40,6 +40,7 @@ Application Caya :
 	AccountDialog.cpp
 	AccountListItem.cpp
 	AccountView.cpp
+	CayaPreferences.cpp
 	PreferencesDialog.cpp
 	PreferencesAccounts.cpp
 	PreferencesBehavior.cpp
