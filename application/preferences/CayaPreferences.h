@@ -7,20 +7,20 @@
 
 #include "PreferencesContainer.h"
 
-typedef struct CayaPreferencesData
+typedef struct _CayaPreferencesData
 {
 	bool MoveToCurrentWorkspace;
 	bool ActivateWindow;
 	bool IgnoreEmoticons;
 
-	CayaPreferencesData()
+	_CayaPreferencesData()
 		:
 		MoveToCurrentWorkspace(true),
 		ActivateWindow(true),
 		IgnoreEmoticons(false)
 	{
 	}
-};
+} CayaPreferencesData;
 
 typedef PreferencesContainer<CayaPreferencesData> CayaPreferences;
 
