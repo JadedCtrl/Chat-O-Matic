@@ -8,6 +8,8 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
+#include <stdio.h>
+
 #include <File.h>
 #include <Message.h>
 #include <Path.h>

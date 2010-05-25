@@ -34,7 +34,7 @@ ContactLinker::ContactLinker(BString id, BMessenger msgn)
 	RegisterObserver(fRosterItem);
 
 	// By default we use protocol icon as avatar icon
-	CayaProtocolAddOn* addOn = ProtocolManager::Get()->ProtocolAddOn("gtalk");
+	CayaProtocolAddOn* addOn = ProtocolManager::Get()->ProtocolAddOn("msn");
 	fAvatarBitmap = addOn->Icon();
 }
 
