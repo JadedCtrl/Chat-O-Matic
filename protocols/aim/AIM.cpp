@@ -71,7 +71,7 @@ AIMProtocol::Process(BMessage* msg)
 			msg->FindInt32("im_what", &im_what);
 
 			switch (im_what) {
-				case IM_OWN_STATUS_SET: {
+				case IM_SET_OWN_STATUS: {
 					int32 status = msg->FindInt32("status");
 
 					BString status_msg("");
