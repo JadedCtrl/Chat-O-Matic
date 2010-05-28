@@ -1,4 +1,4 @@
 SubDir TOP protocols ;
 
 # Include all the components.
-SubInclude TOP protocols jabber ;
+SubInclude TOP protocols xmpp ;

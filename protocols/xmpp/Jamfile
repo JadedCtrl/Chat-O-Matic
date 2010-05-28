@@ -1,4 +1,4 @@
-SubDir TOP protocols jabber ;
+SubDir TOP protocols xmpp ;
 
 SubDirSysHdrs [ FDirName $(TOP) ] ;
 SubDirSysHdrs [ FDirName $(TOP) libs ] ;
