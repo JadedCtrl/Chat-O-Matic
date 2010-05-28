@@ -150,7 +150,7 @@ ContactLinker::SetProtocolLooper(ProtocolLooper* looper)
 		CayaProtocol* protocol = fLooper->Protocol();
 		CayaProtocolAddOn* addOn
 			= ProtocolManager::Get()->ProtocolAddOn(protocol->Signature());
-		fAvatarBitmap = addOn->Icon();
+		SetNotifyAvatarBitmap(addOn->Icon());
 	}
 }
 
