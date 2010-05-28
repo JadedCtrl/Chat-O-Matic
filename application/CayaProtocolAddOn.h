@@ -22,6 +22,7 @@ public:
 	const char*		Path() const;
 
 	CayaProtocol*	Protocol() const;
+
 	const char*		Signature() const;
 	const char*		FriendlySignature() const;
 	BBitmap*		Icon() const;

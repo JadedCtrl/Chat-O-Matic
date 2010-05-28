@@ -18,27 +18,28 @@ class BBitmap;
 class BDirectory;
 class BHandler;
 
-typedef List<CayaProtocolAddOn*> ProtocolAddOns;
-typedef KeyMap<BString, CayaProtocolAddOn*> AddOnMap;
-typedef KeyMap<bigtime_t, CayaProtocol*> ProtocolMap;
-
 class ProtocolManager {
 public:
 			void				Init(BDirectory dir, BHandler* target);
 
 	static	ProtocolManager*	Get();
 
-			ProtocolAddOns		Protocols();
-			ProtocolMap			ProtocolInstances() const;
-
-			CayaProtocol*		ProtocolInstance(bigtime_t identifier);
+			uint32				CountProtocolAddOns() const;
+			CayaProtocolAddOn*	ProtocolAddOnAt(uint32 i) const;
 			CayaProtocolAddOn*	ProtocolAddOn(const char* signature);
+
+			uint32				CountProtocolInstances() const;
+			CayaProtocol*		ProtocolInstanceAt(uint32 i) const;
+			CayaProtocol*		ProtocolInstance(bigtime_t identifier);
 
 			void				AddAccount(CayaProtocolAddOn* addOn,
 									const char* account,
 									BHandler* target);
 
 private:
+	typedef KeyMap<BString, CayaProtocolAddOn*> AddOnMap;
+	typedef KeyMap<bigtime_t, CayaProtocol*> ProtocolMap;
+
 								ProtocolManager();
 			void				_GetAccounts(CayaProtocolAddOn* addOn,
 									BHandler* target);

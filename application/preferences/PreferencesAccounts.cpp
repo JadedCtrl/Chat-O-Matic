@@ -52,11 +52,11 @@ PreferencesAccounts::PreferencesAccounts()
 	BScrollView* scrollView = new BScrollView("scrollView", fListView,
 		B_WILL_DRAW, false, true);
 
-	ProtocolAddOns addOns = ProtocolManager::Get()->Protocols();
+	ProtocolManager* pm = ProtocolManager::Get();
 
 	fProtosMenu = new BPopUpMenu(NULL, true);
-	for (uint32 i = 0; i < addOns.CountItems(); i++) {
-		CayaProtocolAddOn* addOn = addOns.ItemAt(i);
+	for (uint32 i = 0; i < pm->CountProtocolAddOns(); i++) {
+		CayaProtocolAddOn* addOn = pm->ProtocolAddOnAt(i);
 		ProtocolSettings* settings = new ProtocolSettings(addOn);
 
 		// Add accounts to list view

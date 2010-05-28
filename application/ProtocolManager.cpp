@@ -62,24 +62,17 @@ ProtocolManager::Get()
 }
 
 
-ProtocolAddOns
-ProtocolManager::Protocols()
+uint32
+ProtocolManager::CountProtocolAddOns() const
 {
-	return fAddOnMap.Values();
+	return fAddOnMap.CountItems();
 }
 
 
-ProtocolMap
-ProtocolManager::ProtocolInstances() const
+CayaProtocolAddOn*
+ProtocolManager::ProtocolAddOnAt(uint32 i) const
 {
-	return fProtocolMap;
-}
-
-
-CayaProtocol*	
-ProtocolManager::ProtocolInstance(bigtime_t identifier)
-{
-	return fProtocolMap.ValueFor(identifier);
+	return fAddOnMap.ValueAt(i);
 }
 
 
@@ -87,6 +80,27 @@ CayaProtocolAddOn*
 ProtocolManager::ProtocolAddOn(const char* signature)
 {
 	return fAddOnMap.ValueFor(signature);
+}
+
+
+uint32
+ProtocolManager::CountProtocolInstances() const
+{
+	return fProtocolMap.CountItems();
+}
+
+
+CayaProtocol*
+ProtocolManager::ProtocolInstanceAt(uint32 i) const
+{
+	return fProtocolMap.ValueAt(i);
+}
+
+
+CayaProtocol*	
+ProtocolManager::ProtocolInstance(bigtime_t identifier)
+{
+	return fProtocolMap.ValueFor(identifier);
 }
 
 
