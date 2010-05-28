@@ -46,17 +46,6 @@ LOCATE on $(HCACHEFILE) $(JCACHEFILE) = $(GENERATED_DIR) ;
 include [ FDirName $(JAM_DIR) CheckRules ] ;
 CheckGccPlatform ;
 CheckOpenSSL ;
-if ! $(HAVE_OPENSSL) {
-#	Echo "** MSN, GoogleTalk and OSCAR protocols are disabled for lack of OpenSSL" ;
-}
-CheckLibYahoo2 ;
-if ! $(HAVE_LIBYAHOO2) {
-#	Echo "** Yahoo protocol is disabled for lack of libyahoo2" ;
-}
-CheckInfoPopper ;
-if ! $(HAVE_INFOPOPPER) {
-#	Echo "** im_infopopper client is disabled for lack of InfoPopper" ;
-}
 
 # Include jam scripts
 include [ FDirName $(JAM_DIR) HelperRules ] ;
