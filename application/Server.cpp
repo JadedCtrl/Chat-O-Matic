@@ -37,7 +37,7 @@ Server::Server()
 void
 Server::Quit()
 {
-	ContactLinker* linker = NULL;	
+	ContactLinker* linker = NULL;
 
 	while ((linker = fRosterMap.ValueAt(0))) {
 		linker->DeleteWindow();
@@ -139,7 +139,7 @@ Server::Filter(BMessage* message, BHandler **target)
 				ContactLinker* item = fRosterMap.ValueFor(id, &found);
 
 				if (found)
-					item->HideWindow();	
+					item->HideWindow();
 			}
 			result = B_SKIP_MESSAGE;
 			break;
@@ -152,7 +152,7 @@ Server::Filter(BMessage* message, BHandler **target)
 			break;
 	}
 
-	return result;	
+	return result;
 }
 
 
@@ -163,18 +163,18 @@ Server::RosterItems() const
 }
 
 
-RosterItem*		
+RosterItem*
 Server::RosterItemForId(BString id)
 {
 	bool found = false;
 	ContactLinker* item = fRosterMap.ValueFor(id, &found);
-	return item ? item->GetRosterItem() : NULL;			
+	return item ? item->GetRosterItem() : NULL;
 }
 
 
 filter_result
 Server::ImMessage(BMessage* msg)
-{	
+{
 	filter_result result = B_DISPATCH_MESSAGE;
 	int32 im_what = msg->FindInt32("im_what");
 
@@ -274,6 +274,8 @@ Server::ImMessage(BMessage* msg)
 			break;
 		}
 		case IM_MESSAGE_RECEIVED:
+		case IM_CONTACT_STARTED_TYPING:
+		case IM_CONTACT_STOPPED_TYPING:
 		{
 			BString id = msg->FindString("id");
 			if (id.Length() > 0) {
@@ -296,7 +298,7 @@ Server::ImMessage(BMessage* msg)
 }
 
 
-ContactLinker*	
+ContactLinker*
 Server::GetOwnContact()
 {
 	return fMySelf;
@@ -323,7 +325,7 @@ Server::_LooperFromMessage(BMessage* message)
 }
 
 
-ContactLinker*	
+ContactLinker*
 Server::_EnsureContactLinker(BMessage* message)
 {
 	if (!message)

@@ -4,9 +4,10 @@
  */
 #ifndef _CHAT_WINDOW_H
 #define _CHAT_WINDOW_H
- 
+
 #include <Window.h>
 #include <TextView.h>
+#include <StringView.h>
 #include "Observer.h"
 
 #include "CayaConstants.h"
@@ -30,8 +31,10 @@ public:
 
 private:
 		BTextView*		fSendView;
-		ContactLinker*	fContactLinker;		
+		ContactLinker*	fContactLinker;
 		CayaRenderView*	fReceiveView;
+		BStringView*	fStatus;
+
 };
 
 #endif	// _CHAT_WINDOW_H

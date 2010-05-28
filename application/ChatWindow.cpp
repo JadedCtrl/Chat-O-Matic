@@ -45,18 +45,21 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 
 	fSendView = new BTextView("fReceiveView");
 	BScrollView* scrollViewSend = new BScrollView("scrollviewS", fSendView,
-		B_WILL_DRAW, false, true);	
+		B_WILL_DRAW, false, true);
 	fSendView->SetWordWrap(true);
 	AddCommonFilter(new EditingFilter(fSendView));
 	fSendView->MakeFocus(true);
+
+	fStatus = new BStringView("status", "");
 
 	SetLayout(new BGroupLayout(B_HORIZONTAL));
 
 	AddChild(BGroupLayoutBuilder(B_VERTICAL, 10)
 		.Add(scrollViewReceive, 2)
 		.Add(scrollViewSend)
+		.Add(fStatus)
 		.SetInsets(5, 5, 5, 5)
-	);	
+	);
 
 	MoveTo(BAlert::AlertPosition(Bounds().Width(), Bounds().Height() / 2));
 
@@ -101,7 +104,7 @@ ChatWindow::MessageReceived(BMessage* message)
 		default:
 			BWindow::MessageReceived(message);
 			break;
-	}	
+	}
 }
 
 
@@ -115,7 +118,15 @@ ChatWindow::ImMessage(BMessage* msg)
 			BString message = msg->FindString("body");
 			fReceiveView->AppendOtherMessage(message.String());
 			break;
-		}		
+		}
+		case IM_CONTACT_STARTED_TYPING:
+			fStatus->SetText("Buddy is typing ...");
+			break;
+
+		case IM_CONTACT_STOPPED_TYPING:
+			fStatus->SetText("");
+			break;
+
 		default:
 			break;
 	}
@@ -143,7 +154,7 @@ void
 ChatWindow::ObservePointer(int32 what, void* ptr)
 {
 	switch (what) {
-		case PTR_AVATAR_BITMAP:			
+		case PTR_AVATAR_BITMAP:
 			break;
 	}
 }
@@ -163,9 +174,9 @@ ChatWindow::ObserveInteger(int32 what, int32 val)
 }
 
 
-void	
+void
 ChatWindow::AppendStatus(CayaStatus status)
-{	
+{
 	BString message(fContactLinker->GetName());
 
 	switch (status) {
@@ -180,7 +191,7 @@ ChatWindow::AppendStatus(CayaStatus status)
 			message << " is busy, please do not disturb!";
 			break;
 		case CAYA_OFFLINE:
-			message << " is offline";			
+			message << " is offline";
 			break;
 		default:
 			break;
