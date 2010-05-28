@@ -51,6 +51,7 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 	fSendView->MakeFocus(true);
 
 	fStatus = new BStringView("status", "");
+	fStatus->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 
 	SetLayout(new BGroupLayout(B_HORIZONTAL));
 
@@ -117,6 +118,8 @@ ChatWindow::ImMessage(BMessage* msg)
 		{
 			BString message = msg->FindString("body");
 			fReceiveView->AppendOtherMessage(message.String());
+			// Message received, clear status anyway
+			fStatus->SetText(" ");
 			break;
 		}
 		case IM_CONTACT_STARTED_TYPING:
@@ -124,7 +127,7 @@ ChatWindow::ImMessage(BMessage* msg)
 			break;
 
 		case IM_CONTACT_STOPPED_TYPING:
-			fStatus->SetText("");
+			fStatus->SetText(" ");
 			break;
 
 		default:
