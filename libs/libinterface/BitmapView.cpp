@@ -52,6 +52,14 @@ BitmapView::Bitmap() const
 
 
 void
+BitmapView::SetBitmap(const char* filename)
+{
+	delete fBitmap;
+	fBitmap = BTranslationUtils::GetBitmap(filename);
+}
+
+
+void
 BitmapView::SetBitmap(BBitmap* bitmap)
 {
 	delete fBitmap;

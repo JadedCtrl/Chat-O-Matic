@@ -1,5 +1,5 @@
 /*
- * Copyright 2009, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2009-2010, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _BITMAP_VIEW_H
@@ -18,6 +18,7 @@ public:
 			status_t	InitCheck();
 
 			BBitmap*	Bitmap() const;
+			void		SetBitmap(const char* filename);
 			void		SetBitmap(BBitmap* bitmap);
 
 	virtual BSize		MinSize();
