@@ -12,44 +12,48 @@
 template<class KEY, class TYPE>
 class KeyMap {
 public:
-	uint32 		CountItems();
+	uint32 		CountItems() const;
 
 	void  		AddItem(KEY k, TYPE t);
 
-	TYPE		ValueFor(KEY, bool* found = NULL);
+	TYPE		ValueFor(KEY, bool* found = NULL) const;
 
 	void		RemoveItemAt(int32 position);
 	void		RemoveItemFor(KEY);
 
-	TYPE		ValueAt(int32 position);
-	KEY			KeyAt(int32 position);
+	KEY			KeyAt(uint32 position) const;
+	TYPE		ValueAt(uint32 position) const;
 
-	List<TYPE>	Values();
+	List<TYPE>	Values() const;
 
 private:
-	std::map<KEY,TYPE> fMap;
-	typedef typename std::map<KEY,TYPE>::iterator fIter;
+	std::map<KEY, TYPE> fMap;
+	typedef typename std::map<KEY, TYPE>::iterator fIter;
+	typedef typename std::map<KEY, TYPE>::const_iterator fConstIter;
 };
 
 
 template<class KEY, class TYPE>
-uint32 KeyMap<KEY, TYPE>::CountItems()
+inline uint32
+KeyMap<KEY, TYPE>::CountItems() const
 {
 	return fMap.size();
 }
 
 
 template<class KEY, class TYPE>
-void KeyMap<KEY, TYPE>::AddItem(KEY k, TYPE t)
+inline void
+KeyMap<KEY, TYPE>::AddItem(KEY k, TYPE t)
 {
 	fMap[k] = t;
 }
 
 
 template<class KEY, class TYPE>
-TYPE KeyMap<KEY, TYPE>::ValueFor(KEY k, bool* found)
+inline TYPE
+KeyMap<KEY, TYPE>::ValueFor(KEY k, bool* found) const
 {
-	fIter i = fMap.find(k);
+	fConstIter i = fMap.find(k);
 
 	if (found) {
 		if (i == fMap.end())
@@ -65,7 +69,8 @@ TYPE KeyMap<KEY, TYPE>::ValueFor(KEY k, bool* found)
 
 
 template<class KEY, class TYPE>
-void KeyMap<KEY, TYPE>::RemoveItemAt(int32 position)
+inline void
+KeyMap<KEY, TYPE>::RemoveItemAt(int32 position)
 {
 	fIter i = fMap.begin();
 	std::advance(i, position);
@@ -74,25 +79,16 @@ void KeyMap<KEY, TYPE>::RemoveItemAt(int32 position)
 
 
 template<class KEY, class TYPE>
-void KeyMap<KEY, TYPE>::RemoveItemFor(KEY k)
+inline void
+KeyMap<KEY, TYPE>::RemoveItemFor(KEY k)
 {
 	fMap.erase(k);
 }
 
 
 template<class KEY, class TYPE>
-TYPE KeyMap<KEY, TYPE>::ValueAt(int32 position)
-{
-	fIter i = fMap.begin();
-	std::advance(i, position); 	
-	if (i == fMap.end())
-		return NULL;
-	return i->second;
-}
-
-
-template<class KEY, class TYPE>
-KEY KeyMap<KEY, TYPE>::KeyAt(int32 position)
+inline KEY
+KeyMap<KEY, TYPE>::KeyAt(uint32 position) const
 {
 	fIter i = fMap.begin();
 	std::advance(i, position); 	
@@ -103,7 +99,20 @@ KEY KeyMap<KEY, TYPE>::KeyAt(int32 position)
 
 
 template<class KEY, class TYPE>
-List<TYPE> KeyMap<KEY, TYPE>::Values()
+inline TYPE
+KeyMap<KEY, TYPE>::ValueAt(uint32 position) const
+{
+	fConstIter i = fMap.begin();
+	std::advance(i, position); 	
+	if (i == fMap.end())
+		return NULL;
+	return i->second;
+}
+
+
+template<class KEY, class TYPE>
+inline List<TYPE>
+KeyMap<KEY, TYPE>::Values() const
 {
 	List<TYPE> list;
 
