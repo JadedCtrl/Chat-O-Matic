@@ -1,0 +1,7 @@
+SubDir TOP ;
+
+# Include all the components
+SubInclude TOP libs ;
+SubInclude TOP protocols ;
+
+UninstallTarget $(CAYA_DIRECTORY) ;

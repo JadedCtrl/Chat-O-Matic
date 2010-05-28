@@ -1,0 +1,35 @@
+# DistroRules
+#
+# Rules to archive binary distributions.
+
+rule Distro
+{
+	local target = $(1) ;
+
+	NotFile $(target) ;
+	Always $(target) ;
+}
+
+actions Distro
+{
+	echo "== Making distro $(DISTRO_DIR) ==" ;
+	mimeset $(DISTRO_DIR) ;
+}
+
+Depends fulldistro : distro ;
+
+rule FullDistro
+{
+	local target = $(1) ;
+
+	NotFile $(target) ;
+	Always $(target) ;
+}
+
+actions FullDistro
+{
+	echo "== Making full distro $(FULL_DISTRO_DIR) ==" ;
+	rm -rf $(FULL_DISTRO_DIR) ;
+	cp -a $(DISTRO_DIR) $(FULL_DISTRO_DIR) ;
+	mimeset $(FULL_DISTRO_DIR) ;
+}
