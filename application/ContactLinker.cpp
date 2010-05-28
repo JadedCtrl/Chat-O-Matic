@@ -13,11 +13,13 @@
 #include "ContactLinker.h"
 #include "ContactPopUp.h"
 #include "NotifyMessage.h"
+#include "ProtocolLooper.h"
 #include "ProtocolManager.h"
 #include "RosterItem.h"
 #include "WindowsManager.h"
 
 #include "CayaPreferences.h"
+
 
 ContactLinker::ContactLinker(BString id, BMessenger msgn)
 	:
@@ -32,10 +34,6 @@ ContactLinker::ContactLinker(BString id, BMessenger msgn)
 	// Create the roster item and register it as observer
 	fRosterItem = new RosterItem(id.String(), this);
 	RegisterObserver(fRosterItem);
-
-	// By default we use protocol icon as avatar icon
-	CayaProtocolAddOn* addOn = ProtocolManager::Get()->ProtocolAddOn("msn");
-	fAvatarBitmap = addOn->Icon();
 }
 
 
@@ -145,8 +143,15 @@ ContactLinker::GetProtocolLooper() const
 void
 ContactLinker::SetProtocolLooper(ProtocolLooper* looper)
 {
-	if (looper)
+	if (looper) {
 		fLooper = looper;
+
+		// By default we use protocol icon as avatar icon
+		CayaProtocol* protocol = fLooper->Protocol();
+		CayaProtocolAddOn* addOn
+			= ProtocolManager::Get()->ProtocolAddOn(protocol->Signature());
+		fAvatarBitmap = addOn->Icon();
+	}
 }
 
 
