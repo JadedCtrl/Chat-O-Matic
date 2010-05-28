@@ -7,3 +7,4 @@ SubInclude TOP protocols ;
 SubInclude TOP smileys ;
 
 UninstallTarget $(CAYA_DIRECTORY) ;
+UninstallTarget $(COMMON_INCLUDE_DIRECTORY)/caya ;

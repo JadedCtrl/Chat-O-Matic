@@ -63,3 +63,7 @@ Depends Caya : librunview.a ;
 Depends Caya : libsupport.a ;
 
 InstallBin $(CAYA_DIRECTORY) : Caya ;
+
+InstallFile $(COMMON_INCLUDE_DIRECTORY)/caya : CayaConstants.h ;
+InstallFile $(COMMON_INCLUDE_DIRECTORY)/caya : CayaProtocol.h ;
+InstallFile $(COMMON_INCLUDE_DIRECTORY)/caya : CayaProtocolMessages.h ;

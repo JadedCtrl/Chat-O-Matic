@@ -1,5 +1,5 @@
 /*
- * Copyright 2009, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2009-2010, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
@@ -12,8 +12,8 @@
 
 #include "BitmapView.h"
 
-const float kMinWidth = 32.0f;
-const float kMinHeight = 32.0f;
+const float kMinWidth	= 32.0f;
+const float kMinHeight	= 32.0f;
 
 
 BitmapView::BitmapView(const char* name, uint32 flags)
