@@ -2,8 +2,8 @@
  * Copyright 2010, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the GPL v2 License.
  */
-#ifndef _JABBER_H
-#define _JABBER_H
+#ifndef _JABBER_HANDLER_H
+#define _JABBER_HANDLER_H
 
 #include <String.h>
 
@@ -24,11 +24,11 @@
 #include "CayaProtocol.h"
 #include "CayaConstants.h"
 
-class Jabber : public CayaProtocol, gloox::RosterListener, gloox::ConnectionListener,
-					  gloox::LogHandler, gloox::MessageHandler, gloox::VCardHandler {
+class JabberHandler : public CayaProtocol, gloox::RosterListener, gloox::ConnectionListener,
+								gloox::LogHandler, gloox::MessageHandler, gloox::VCardHandler {
 public:
-									 Jabber();
-	virtual							~Jabber();
+									JabberHandler();
+	virtual							~JabberHandler();
 
 	virtual	status_t				Init(CayaProtocolMessengerInterface*);
 
@@ -46,12 +46,16 @@ public:
 	virtual CayaProtocolMessengerInterface*
 									MessengerInterface() const;
 
-private:
+	virtual	void					OverrideSettings() = 0;
+	virtual	BString					ComposeJID() const = 0;
+
+protected:
 			BString					fUsername;
 			BString					fPassword;
 			BString					fServer;
 			BString					fResource;
 
+private:
 			CayaProtocolMessengerInterface*
 									fServerMessenger;
 
@@ -60,9 +64,11 @@ private:
 									fConnection;
 			gloox::VCardManager*	fVCardManager;
 
-			void					MessageSent(const char* id, const char* subject,
+			thread_id				fRecvThread;
+
+			void					_MessageSent(const char* id, const char* subject,
 												const char* body);
-			CayaStatus				GlooxStatusToCaya(gloox::Presence::PresenceType type);
+			CayaStatus				_GlooxStatusToCaya(gloox::Presence::PresenceType type);
 
 	virtual	void					onConnect();
 	virtual	void					onDisconnect(gloox::ConnectionError);
@@ -94,4 +100,4 @@ private:
 extern const char* kProtocolSignature;
 extern const char* kProtocolName;
 
-#endif	// _JABBER_H
+#endif	// _JABBER_HANDLER_H

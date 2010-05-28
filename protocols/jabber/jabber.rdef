@@ -2,12 +2,12 @@
 resource app_version {
 	major  = 0,
 	middle = 0,
-	minor  = 0,
+	minor  = 1,
 
 	variety = B_APPV_ALPHA,
 	internal = 0,
 
-	short_info = "Jabber Protocol for Caya",
+	short_info = "Jabber Protocol AddOn for Caya",
 	long_info = "©2010 Pier Luigi Fiorini"
 };
 

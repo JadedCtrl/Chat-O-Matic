@@ -8,11 +8,9 @@
 
 //#include <libsupport/Base64.h>
 
-#include "CayaProtocolMessages.h"
-#include "Jabber.h"
+#include <CayaProtocolMessages.h>
 
-const char* kProtocolSignature = "jabber";
-const char* kProtocolName = "Jabber";
+#include "JabberHandler.h"
 
 
 static status_t
@@ -22,24 +20,21 @@ connect_thread(void* data)
 	if (!client)
 		return B_BAD_VALUE;
 
-#if 1
-	client->connect();
-#else
-	client->recv(-1);
-#endif
+	while (client->recv(1000) == gloox::ConnNoError);
 
 	return B_OK;
 }
 
 
-Jabber::Jabber()
-	: fClient(NULL),
+JabberHandler::JabberHandler()
+	:
+	fClient(NULL),
 	fVCardManager(NULL)
 {
 }
 
 
-Jabber::~Jabber()
+JabberHandler::~JabberHandler()
 {
 	fVCardManager->cancelVCardOperations(this);
 	Shutdown();
@@ -47,7 +42,7 @@ Jabber::~Jabber()
 
 
 status_t
-Jabber::Init(CayaProtocolMessengerInterface* messenger)
+JabberHandler::Init(CayaProtocolMessengerInterface* messenger)
 {
 	fServerMessenger = messenger;
 
@@ -56,7 +51,7 @@ Jabber::Init(CayaProtocolMessengerInterface* messenger)
 
 
 status_t
-Jabber::Process(BMessage* msg)
+JabberHandler::Process(BMessage* msg)
 {
 	if (msg->what != IM_MESSAGE)
 		return B_ERROR;
@@ -73,8 +68,10 @@ Jabber::Process(BMessage* msg)
 			switch (status) {
 				case CAYA_ONLINE:
 					// Log in if we still need to
-					if (!fClient->authed())
-						fClient->login();
+					resume_thread(fRecvThread);
+					break;
+				case CAYA_OFFLINE:
+					kill_thread(fRecvThread);
 					break;
 				default:
 					break;
@@ -89,13 +86,13 @@ Jabber::Process(BMessage* msg)
 			if (!id || !body)
 				return B_ERROR;
 
-			// Send Jabber message
+			// Send JabberHandler message
 			gloox::Message jm(gloox::Message::Chat, gloox::JID(id),
 				body, (subject ? subject : gloox::EmptyString));
 			fClient->send(jm);
 
 			// Tell Caya we actually sent the message
-			MessageSent(id, subject, body);
+			_MessageSent(id, subject, body);
 			break;
 		}
 		default:
@@ -107,7 +104,7 @@ Jabber::Process(BMessage* msg)
 
 
 status_t
-Jabber::Shutdown()
+JabberHandler::Shutdown()
 {
 	if (fClient)
 		fClient->disconnect();
@@ -116,21 +113,21 @@ Jabber::Shutdown()
 
 
 const char*
-Jabber::Signature() const
+JabberHandler::Signature() const
 {
 	return kProtocolSignature;
 }
 
 
 const char*
-Jabber::FriendlySignature() const
+JabberHandler::FriendlySignature() const
 {
 	return kProtocolName;
 }
 
 
 status_t
-Jabber::UpdateSettings(BMessage* msg)
+JabberHandler::UpdateSettings(BMessage* msg)
 {
 	const char* username = msg->FindString("username");
 	const char* password = msg->FindString("password");
@@ -138,7 +135,7 @@ Jabber::UpdateSettings(BMessage* msg)
 	const char* resource = msg->FindString("resource");
 
 	// Sanity check
-	if (!username || !password || !server || !resource)
+	if (!username || !password || !resource)
 		return B_ERROR;
 
 	// Store settings
@@ -147,18 +144,15 @@ Jabber::UpdateSettings(BMessage* msg)
 	fServer = server;
 	fResource = resource;
 
-	// Compose jid
-	BString jidString(fUsername);
-	jidString << "@" << fServer << "/" << fResource;
-	gloox::JID jid(jidString.String());
+	// Give the add-on a change to override settings
+	OverrideSettings();
+
+	// Compose JID
+	BString jid = ComposeJID();
 
 	// Register our client
-	fClient = new gloox::Client(jid, fPassword.String());
-#if 0
-	fConnection = new gloox::ConnectionTCPClient(fClient, fClient->logInstance(),
-		fServer.String(), 5222);
-	fClient->setConnectionImpl(fConnection);
-#endif
+	fClient = new gloox::Client(gloox::JID(jid.String()), fPassword.String());
+	fClient->setServer(fServer.String());
 	fClient->registerConnectionListener(this);
 	fClient->registerMessageHandler(this);
 	fClient->rosterManager()->registerRosterListener(this);
@@ -170,35 +164,34 @@ Jabber::UpdateSettings(BMessage* msg)
 	// Register vCard manager
 	fVCardManager = new gloox::VCardManager(fClient);
 
-#if 0
 	// Connect to the server
 	fClient->connect(false);
-#endif
 
 	// Read data from another thread
-	// FIXME: Maybe get data using select() and recv() on the socket
-	thread_id tid = spawn_thread(connect_thread, "connect_thread",
+	fRecvThread = spawn_thread(connect_thread, "connect_thread",
 		B_NORMAL_PRIORITY, (void*)fClient);
-	return resume_thread(tid);
+	if (fRecvThread < B_OK)
+		return B_ERROR;
+	return B_OK;
 }
 
 
 uint32
-Jabber::GetEncoding()
+JabberHandler::GetEncoding()
 {
 	return 0xffff;
 }
 
 
 CayaProtocolMessengerInterface*
-Jabber::MessengerInterface() const
+JabberHandler::MessengerInterface() const
 {
 	return fServerMessenger;
 }
 
 
 void
-Jabber::MessageSent(const char* id, const char* subject,
+JabberHandler::_MessageSent(const char* id, const char* subject,
 					const char* body)
 {
 	BMessage msg(IM_MESSAGE);
@@ -212,7 +205,7 @@ Jabber::MessageSent(const char* id, const char* subject,
 
 
 CayaStatus
-Jabber::GlooxStatusToCaya(gloox::Presence::PresenceType type)
+JabberHandler::_GlooxStatusToCaya(gloox::Presence::PresenceType type)
 {
 	switch (type) {
 		case gloox::Presence::Available:
@@ -240,7 +233,7 @@ Jabber::GlooxStatusToCaya(gloox::Presence::PresenceType type)
 
 
 void
-Jabber::onConnect()
+JabberHandler::onConnect()
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
@@ -251,7 +244,7 @@ Jabber::onConnect()
 
 
 void
-Jabber::onDisconnect(gloox::ConnectionError e)
+JabberHandler::onDisconnect(gloox::ConnectionError e)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
@@ -262,20 +255,20 @@ Jabber::onDisconnect(gloox::ConnectionError e)
 
 
 bool
-Jabber::onTLSConnect(const gloox::CertInfo& info)
+JabberHandler::onTLSConnect(const gloox::CertInfo& info)
 {
 	return true;
 }
 
 
 void
-Jabber::onResourceBindError(const gloox::Error* error)
+JabberHandler::onResourceBindError(const gloox::Error* error)
 {
 }
 
 
 void
-Jabber::handleRoster(const gloox::Roster& roster)
+JabberHandler::handleRoster(const gloox::Roster& roster)
 {
 	std::list<BMessage> msgs;
 
@@ -332,7 +325,7 @@ Jabber::handleRoster(const gloox::Roster& roster)
 
 
 void
-Jabber::handleMessage(const gloox::Message& m, gloox::MessageSession*)
+JabberHandler::handleMessage(const gloox::Message& m, gloox::MessageSession*)
 {
 	// Only chat messages are handled now
 	if (m.subtype() != gloox::Message::Chat)
@@ -353,37 +346,37 @@ Jabber::handleMessage(const gloox::Message& m, gloox::MessageSession*)
 
 
 void
-Jabber::handleItemAdded(const gloox::JID&)
+JabberHandler::handleItemAdded(const gloox::JID&)
 {
 }
 
 
 void
-Jabber::handleItemSubscribed(const gloox::JID&)
+JabberHandler::handleItemSubscribed(const gloox::JID&)
 {
 }
 
 
 void
-Jabber::handleItemUnsubscribed(const gloox::JID&)
+JabberHandler::handleItemUnsubscribed(const gloox::JID&)
 {
 }
 
 
 void
-Jabber::handleItemRemoved(const gloox::JID&)
+JabberHandler::handleItemRemoved(const gloox::JID&)
 {
 }
 
 
 void
-Jabber::handleItemUpdated(const gloox::JID&)
+JabberHandler::handleItemUpdated(const gloox::JID&)
 {
 }
 
 
 void
-Jabber::handleRosterPresence(const gloox::RosterItem& item,
+JabberHandler::handleRosterPresence(const gloox::RosterItem& item,
 									const std::string&,
 									gloox::Presence::PresenceType type,
 									const std::string& presenceMsg)
@@ -392,14 +385,14 @@ Jabber::handleRosterPresence(const gloox::RosterItem& item,
 	msg.AddInt32("im_what", IM_STATUS_SET);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", item.jid().c_str());
-	msg.AddInt32("status", GlooxStatusToCaya(type));
+	msg.AddInt32("status", _GlooxStatusToCaya(type));
 	msg.AddString("message", presenceMsg.c_str());
 	fServerMessenger->SendMessage(&msg);
 }
 
 
 void
-Jabber::handleSelfPresence(const gloox::RosterItem& item, const std::string&,
+JabberHandler::handleSelfPresence(const gloox::RosterItem& item, const std::string&,
 								  gloox::Presence::PresenceType type,
 								  const std::string& presenceMsg)
 {
@@ -411,40 +404,40 @@ Jabber::handleSelfPresence(const gloox::RosterItem& item, const std::string&,
 	msg.AddInt32("subscription", item.subscription());
 //resource
 //groups
-	msg.AddInt32("status", GlooxStatusToCaya(type));
+	msg.AddInt32("status", _GlooxStatusToCaya(type));
 	msg.AddString("message", presenceMsg.c_str());
 	fServerMessenger->SendMessage(&msg);
 }
 
 
 bool
-Jabber::handleSubscriptionRequest(const gloox::JID&, const std::string&)
+JabberHandler::handleSubscriptionRequest(const gloox::JID&, const std::string&)
 {
 	return true;
 }
 
 
 bool
-Jabber::handleUnsubscriptionRequest(const gloox::JID&, const std::string&)
+JabberHandler::handleUnsubscriptionRequest(const gloox::JID&, const std::string&)
 {
 	return true;
 }
 
 
 void
-Jabber::handleNonrosterPresence(const gloox::Presence&)
+JabberHandler::handleNonrosterPresence(const gloox::Presence&)
 {
 }
 
 
 void
-Jabber::handleRosterError(const gloox::IQ&)
+JabberHandler::handleRosterError(const gloox::IQ&)
 {
 }
 
 
 void
-Jabber::handleLog(gloox::LogLevel level, gloox::LogArea,
+JabberHandler::handleLog(gloox::LogLevel level, gloox::LogArea,
 						 const std::string& msg)
 {
 	if (level >= gloox::LogLevelWarning)
@@ -453,7 +446,7 @@ Jabber::handleLog(gloox::LogLevel level, gloox::LogArea,
 
 
 void
-Jabber::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
+JabberHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
 {
 	if (!card)
 		return;
@@ -484,7 +477,7 @@ Jabber::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
 
 
 void
-Jabber::handleVCardResult(gloox::VCardHandler::VCardContext context,
+JabberHandler::handleVCardResult(gloox::VCardHandler::VCardContext context,
 								 const gloox::JID& jid,
 								 gloox::StanzaError)
 {
