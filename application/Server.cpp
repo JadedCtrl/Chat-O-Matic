@@ -231,7 +231,22 @@ Server::ImMessage(BMessage* msg)
 
 			const char* name = NULL;
 
-			if (msg->FindString("name", &name) == B_OK)
+			if ((msg->FindString("name", &name) == B_OK)
+				&& (strcmp(name, "") != 0))
+				linker->SetNotifyName(name);
+			break;
+		}
+		case IM_EXTENDED_CONTACT_INFO:
+		{
+			ContactLinker* linker = _EnsureContactLinker(msg);
+
+			if (linker->GetName().Length() > 0)
+				return result;
+
+			const char* name = NULL;
+
+			if ((msg->FindString("full name", &name) == B_OK)
+				&& (strcmp(name, "") != 0))
 				linker->SetNotifyName(name);
 			break;
 		}
