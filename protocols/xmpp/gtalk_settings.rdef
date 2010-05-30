@@ -1,7 +1,7 @@
 resource(1000) message('IMst') {
 	"setting" = message {
 		"name" = "username",
-		"description" = "Username",
+		"description" = "Identifier",
 		int32 "type" = 'CSTR'
 	},
 	"setting" = message {
