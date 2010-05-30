@@ -34,6 +34,7 @@ public:
 									JabberHandler();
 	virtual							~JabberHandler();
 
+			// CayaProtocol inheritance
 	virtual	status_t				Init(CayaProtocolMessengerInterface*);
 
 	virtual	status_t				Process(BMessage* msg);
@@ -50,6 +51,11 @@ public:
 	virtual CayaProtocolMessengerInterface*
 									MessengerInterface() const;
 
+			// Functions for gloox
+			gloox::Client*			Client() const;
+			void					HandleError(gloox::ConnectionError& e);
+
+			// Callbacks for protocols
 	virtual	void					OverrideSettings() = 0;
 	virtual	BString					ComposeJID() const = 0;
 

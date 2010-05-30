@@ -22,11 +22,19 @@
 static status_t
 connect_thread(void* data)
 {
-	gloox::Client* client = (gloox::Client*)data;
+	JabberHandler* handler = (JabberHandler*)data;
+	if (!handler)
+		return B_BAD_VALUE;
+
+	gloox::Client* client = handler->Client();
 	if (!client)
 		return B_BAD_VALUE;
 
-	while (client->recv(1000) == gloox::ConnNoError);
+	gloox::ConnectionError e;
+	while ((e = client->recv(1000)) == gloox::ConnNoError);
+
+	if (e != gloox::ConnUserDisconnected)
+		handler->HandleError(e);
 
 	return B_OK;
 }
@@ -185,7 +193,7 @@ JabberHandler::UpdateSettings(BMessage* msg)
 
 	// Read data from another thread
 	fRecvThread = spawn_thread(connect_thread, "connect_thread",
-		B_NORMAL_PRIORITY, (void*)fClient);
+		B_NORMAL_PRIORITY, (void*)this);
 	if (fRecvThread < B_OK)
 		return B_ERROR;
 	return B_OK;
@@ -203,6 +211,267 @@ CayaProtocolMessengerInterface*
 JabberHandler::MessengerInterface() const
 {
 	return fServerMessenger;
+}
+
+
+gloox::Client*
+JabberHandler::Client() const
+{
+	return fClient;
+}
+
+
+void
+JabberHandler::HandleError(gloox::ConnectionError& e)
+{
+	// Handle error
+	BMessage errMsg(IM_ERROR);
+
+	switch (e) {
+		case gloox::ConnStreamError:
+		{
+			gloox::StreamError streamError = fClient->streamError();
+
+			errMsg.AddString("error", "Bad or malformed XML stream.");
+
+			switch (streamError) {
+				case gloox::StreamErrorBadFormat:
+					errMsg.AddString("detail", "The entity has sent XML that "
+						"cannot be processed");
+					break;
+				case gloox::StreamErrorBadNamespacePrefix:
+					errMsg.AddString("detail", "The entity has sent a namespace "
+						"prefix which is not supported, or has sent no namespace "
+						"prefix on an element that requires such prefix.");
+					break;
+				case gloox::StreamErrorConflict:
+					errMsg.AddString("detail", "The server is closing the active "
+						"stream for this entity because a new stream has been "
+						"initiated that conflicts with the existing stream.");
+					break;
+				case gloox::StreamErrorConnectionTimeout:
+					errMsg.AddString("detail", "The entity has not generated any "
+						"traffic over the stream for some period of time.");
+					break;
+				case gloox::StreamErrorHostGone:
+					errMsg.AddString("detail", "The host initially used corresponds "
+						"to a hostname that is no longer hosted by the server.");
+					break;
+				case gloox::StreamErrorHostUnknown:
+					errMsg.AddString("detail", "The host initially used does not "
+						"correspond to a hostname that is hosted by the server.");
+					break;
+				case gloox::StreamErrorImproperAddressing:
+					errMsg.AddString("detail", "A stanza sent between two servers "
+						"lacks a 'to' or 'from' attribute (or the attribute has no "
+						"value.");
+					break;
+				case gloox::StreamErrorInternalServerError:
+					errMsg.AddString("detail", "The Server has experienced a "
+						"misconfiguration or an otherwise-undefined internal error "
+						"that prevents it from servicing the stream.");
+					break;
+				case gloox::StreamErrorInvalidFrom:
+					errMsg.AddString("detail", "The JID or hostname provided in a "
+						"'from' address does not match an authorized JID or validated "
+						"domain negotiation between servers via SASL or dialback, or "
+						"between a client and a server via authentication and resource "
+						"binding.");
+					break;
+				case gloox::StreamErrorInvalidId:
+					errMsg.AddString("detail", "The stream ID or dialback ID is invalid "
+						"or does not match and ID previously provdided.");
+					break;
+				case gloox::StreamErrorInvalidNamespace:
+					errMsg.AddString("detail", "The streams namespace name is something "
+						"other than \"http://etherx.jabber.org/streams\" or the dialback "
+						"namespace name is something other than \"jabber:server:dialback\".");
+					break;
+				case gloox::StreamErrorInvalidXml:
+					errMsg.AddString("detail", "The entity has sent invalid XML over the "
+						"stream to a server that performs validation.");
+					break;
+				case gloox::StreamErrorNotAuthorized:
+					errMsg.AddString("detail", "The entity has attempted to send data before "
+						"the stream has been authenticated, or otherwise is not authorized to "
+						"perform an action related to stream negotiation; the receiving entity "
+						"must not process the offending stanza before sending the stream error.");
+					break;
+				case gloox::StreamErrorPolicyViolation:
+					errMsg.AddString("detail", "The entity has violated some local service "
+						"policy; the server may choose to specify the policy in the <text/> "
+						"element or an application-specific condition element.");
+					break;
+				case gloox::StreamErrorRemoteConnectionFailed:
+					errMsg.AddString("detail", "The server is unable to properly connect to "
+						"a remote entit that is required for authentication.");
+					break;
+				case gloox::StreamErrorResourceConstraint:
+					errMsg.AddString("detail", "The server lacks the system resources necessary "
+						"to service the stream.");
+					break;
+				case gloox::StreamErrorRestrictedXml:
+					errMsg.AddString("detail", "The entity has attempted to send restricted XML "
+						"features such as a comment, processing instruction, DTD, entity reference "
+						"or unescaped character.");
+					break;
+				case gloox::StreamErrorSeeOtherHost:
+					errMsg.AddString("detail", "The server will not provide service to the initiating "
+						"entity but is redirecting traffic to another host; the server should specify "
+						"the alternate hostname or IP address (which MUST be a valid domain identifier) "
+						"as the XML characted data of the <see-other-host/> element.");
+					break;
+				case gloox::StreamErrorSystemShutdown:
+					errMsg.AddString("detail", "The server is being shut down and all active streams "
+						"are being closed.");
+					break;
+				case gloox::StreamErrorUndefinedCondition:
+					errMsg.AddString("detail", "The error condition is not one of those defined by the "
+						"other condition in this list; this error condition should be used only in "
+						"conjunction with an application-specific condition.");
+					break;
+				case gloox::StreamErrorUnsupportedEncoding:
+					errMsg.AddString("detail", "The initiating entity has encoded the stream in an "
+						"encoding that is not supported by the server.");
+					break;
+				case gloox::StreamErrorUnsupportedStanzaType:
+					errMsg.AddString("detail", "The initiating entity has sent a first-level child "
+						"of the stream that is not supported by the server.");
+					break;
+				case gloox::StreamErrorUnsupportedVersion:
+					errMsg.AddString("detail", "The value of the 'version' attribute provided by the "
+						"initiating entity in the stream header specifies a version of XMPP that is not "
+						"supported by the server; the server may specify the version(s) it supports in "
+						"the <text/> element.");
+					break;
+				case gloox::StreamErrorXmlNotWellFormed:
+					errMsg.AddString("detail", "The initiating entity has sent XML that is not "
+						"well-formed as defined by XML.");
+					break;
+				default:
+					break;
+			}
+			break;
+		}
+		case gloox::ConnStreamVersionError:
+			errMsg.AddString("detail", "The incoming stream's version is not "
+				"supported.");
+			break;
+		case gloox::ConnStreamClosed:
+			errMsg.AddString("detail", "The stream has been closed by the server.");
+			break;
+		case gloox::ConnProxyAuthRequired:
+			errMsg.AddString("detail", "The HTTP/SOCKS5 proxy requires authentication.");
+			break;
+		case gloox::ConnProxyAuthFailed:
+			errMsg.AddString("detail", "HTTP/SOCKS5 proxy authentication failed.");
+			break;
+		case gloox::ConnProxyNoSupportedAuth:
+			errMsg.AddString("detail", "The HTTP/SOCKS5 proxy requires an unsupported "
+				"authentication mechanism.");
+			break;
+		case gloox::ConnIoError:
+			errMsg.AddString("detail", "Input/output error.");
+			break;
+		case gloox::ConnParseError:
+			errMsg.AddString("detail", "A XML parse error occurred.");
+			break;
+		case gloox::ConnConnectionRefused:
+			errMsg.AddString("detail", "The connection was refused by the server "
+				"on the socket level.");
+			break;
+		case gloox::ConnDnsError:
+			errMsg.AddString("detail", "Server's hostname resolution failed.");
+			break;
+		case gloox::ConnOutOfMemory:
+			errMsg.AddString("detail", "Out of memory.");
+			break;
+		case gloox::ConnTlsFailed:
+			errMsg.AddString("detail", "The server's certificate could not be verified or "
+				"the TLS handshake did not complete successfully.");
+			break;
+		case gloox::ConnTlsNotAvailable:
+			errMsg.AddString("detail", "The server didn't offer TLS while it was set to be "
+				"required, or TLS was not compiled in.");
+			break;
+		case gloox::ConnCompressionFailed:
+			errMsg.AddString("detail", "Negotiating or initializing compression failed.");
+			break;
+		case gloox::ConnAuthenticationFailed:
+		{
+			gloox::AuthenticationError authError = fClient->authError();
+
+			errMsg.AddString("error", "Authentication failed. Username or password wrong "
+				"or account does not exist.");
+
+			switch (authError) {
+				case gloox::SaslAborted:
+					errMsg.AddString("detail", "The receiving entity acknowledges an <abort/> "
+						"element sent by initiating entity; sent in reply to the <abort/> "
+						"element.");
+					break;
+				case gloox::SaslIncorrectEncoding:
+					errMsg.AddString("detail", "The data provided by the initiating entity "
+						"could not be processed because the base64 encoding is incorrect.");
+					break;
+				case gloox::SaslInvalidAuthzid:
+					errMsg.AddString("detail", "The authid provided by the initiating entity "
+						"is invalid, either because it is incorrectly formatted or because "
+						"the initiating entity does not have permissions to authorize that ID; "
+						"sent in reply to a <response/> element or an <auth/> element with "
+						"initial response data.");
+					break;
+				case gloox::SaslInvalidMechanism:
+					errMsg.AddString("detail", "The initiating element did not provide a "
+						"mechanism or requested a mechanism that is not supported by the "
+						"receiving entity; sent in reply to an <auth/> element.");
+					break;
+				case gloox::SaslMalformedRequest:
+					errMsg.AddString("detail", "The request is malformed (e.g., the <auth/> "
+						"element includes an initial response but the mechanism does not "
+						"allow that); sent in reply to an <abort/>, <auth/>, <challenge/>, or "
+						"<response/> element.");
+					break;
+				case gloox::SaslMechanismTooWeak:
+					errMsg.AddString("detail", "The mechanism requested by the initiating entity "
+						"is weaker than server policy permits for that initiating entity; sent in "
+						"reply to a <response/> element or an <auth/> element with initial "
+						"response data.");
+					break;
+				case gloox::SaslNotAuthorized:
+					errMsg.AddString("detail", "The authentication failed because the initiating "
+						"entity did not provide valid credentials (this includes but is not "
+						"limited to the case of an unknown username); sent in reply to a "
+						"<response/> element or an <auth/> element with initial response data.");
+					break;
+				case gloox::SaslTemporaryAuthFailure:
+					errMsg.AddString("detail", "The authentication failed because of a temporary "
+						"error condition within the receiving entity; sent in reply to an "
+						"<auth/> element or <response/> element.");
+					break;
+				case gloox::NonSaslConflict:
+					errMsg.AddString("detail", "Resource conflict, see XEP-0078.");
+					break;
+				case gloox::NonSaslNotAcceptable:
+					errMsg.AddString("detail", "Required information not provided, "
+						"see XEP-0078.");
+					break;
+				case gloox::NonSaslNotAuthorized:
+					errMsg.AddString("detail", "Incorrect credentials.");
+					break;
+				default:
+					break;
+			}
+			break;
+		}
+		case gloox::ConnNotConnected:
+			errMsg.AddString("error", "There is no active connection.");
+			break;
+		default:
+			break;
+	}
+
+	_SendMessage(&errMsg);
 }
 
 
@@ -421,11 +690,13 @@ JabberHandler::_GlooxStatusToCaya(gloox::Presence::PresenceType type)
 void
 JabberHandler::onConnect()
 {
+	// We are online
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
 	msg.AddInt32("status", CAYA_ONLINE);
 	_SendMessage(&msg);
 
+	// Notify our online status
 	BString content(fUsername);
 	content << " has logged in!";
 	_Notify(B_INFORMATION_NOTIFICATION, "Connected",
@@ -438,15 +709,23 @@ JabberHandler::onConnect()
 void
 JabberHandler::onDisconnect(gloox::ConnectionError e)
 {
+	// We are offline
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
 	msg.AddInt32("status", CAYA_OFFLINE);
 	_SendMessage(&msg);
 
-	BString content(fUsername);
-	content << " has logged out!";
-	_Notify(B_INFORMATION_NOTIFICATION, "Disconnected",
-		content.String());
+	if (e == gloox::ConnNoError) {
+		// Notify our offline status
+		BString content(fUsername);
+		content << " has logged out!";
+		_Notify(B_INFORMATION_NOTIFICATION, "Disconnected",
+			content.String());
+		return;
+	}
+
+	// Handle error
+	HandleError(e);
 }
 
 
@@ -595,10 +874,21 @@ JabberHandler::handleSelfPresence(const gloox::RosterItem& item, const std::stri
 	msg.AddString("id", item.jid().c_str());
 	msg.AddString("name", item.name().c_str());
 	msg.AddInt32("subscription", item.subscription());
-//resource
-//groups
 	msg.AddInt32("status", _GlooxStatusToCaya(type));
 	msg.AddString("message", presenceMsg.c_str());
+
+	// Groups
+	gloox::StringList g = item.groups();
+	gloox::StringList::const_iterator it_g = g.begin();
+	for (; it_g != g.end(); ++it_g)
+		msg.AddString("group", (*it_g).c_str());
+
+	// Resources
+	gloox::RosterItem::ResourceMap::const_iterator rit
+		= item.resources().begin();
+	for (; rit != item.resources().end(); ++rit)
+		msg.AddString("resource", (*rit).first.c_str());
+
 	_SendMessage(&msg);
 }
 
