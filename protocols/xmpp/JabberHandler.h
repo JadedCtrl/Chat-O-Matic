@@ -76,15 +76,18 @@ private:
 			BMessage				fAvatarCache;
 			BList*					fAvatars;
 
+			void					_SendMessage(BMessage* msg);
+
 			void					_MessageSent(const char* id, const char* subject,
 												const char* body);
-			CayaStatus				_GlooxStatusToCaya(gloox::Presence::PresenceType type);
+			void					_Progress(const char* title, const char* message, float progress);
 
 			status_t				_SetupAvatarCache();
 			status_t				_SaveAvatarCache();
 			void					_CacheAvatar(const char* id, const char* binval, size_t length);
 			void					_AvatarChanged(const char*id, const char* filename);
-			void					_Progress(const char* title, const char* message, float progress);
+
+			CayaStatus				_GlooxStatusToCaya(gloox::Presence::PresenceType type);
 
 	virtual	void					onConnect();
 	virtual	void					onDisconnect(gloox::ConnectionError);

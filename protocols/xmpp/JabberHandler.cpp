@@ -207,16 +207,39 @@ JabberHandler::MessengerInterface() const
 
 
 void
+JabberHandler::_SendMessage(BMessage* msg)
+{
+	// Skip invalid messages
+	if (!msg)
+		return;
+
+	msg->AddString("protocol", kProtocolSignature);
+	fServerMessenger->SendMessage(msg);
+}
+
+
+void
+JabberHandler::_Progress(const char* title, const char* message, float progress)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_PROGRESS);
+	msg.AddString("title", title);
+	msg.AddString("message", message);
+	msg.AddFloat("progress", progress);
+	_SendMessage(&msg);
+}
+
+
+void
 JabberHandler::_MessageSent(const char* id, const char* subject,
 					const char* body)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_MESSAGE_SENT);
-	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", id);
 	msg.AddString("subject", subject);
 	msg.AddString("body", body);
-	fServerMessenger->SendMessage(&msg);
+	_SendMessage(&msg);
 }
 
 
@@ -350,22 +373,8 @@ JabberHandler::_AvatarChanged(const char* id, const char* filename)
 		msg.AddInt32("im_what", IM_AVATAR_SET);
 		msg.AddString("id", id);
 	}
-	msg.AddString("protocol", kProtocolSignature);
 	msg.AddRef("ref", &ref);
-	fServerMessenger->SendMessage(&msg);
-}
-
-
-void
-JabberHandler::_Progress(const char* title, const char* message, float progress)
-{
-	BMessage msg(IM_MESSAGE);
-	msg.AddInt32("im_what", IM_PROGRESS);
-	msg.AddString("protocol", kProtocolSignature);
-	msg.AddString("title", title);
-	msg.AddString("message", message);
-	msg.AddFloat("progress", progress);
-	fServerMessenger->SendMessage(&msg);
+	_SendMessage(&msg);
 }
 
 
@@ -402,9 +411,8 @@ JabberHandler::onConnect()
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
-	msg.AddString("protocol", kProtocolSignature);
 	msg.AddInt32("status", CAYA_ONLINE);
-	fServerMessenger->SendMessage(&msg);
+	_SendMessage(&msg);
 
 	BString content(fUsername);
 	content << " has logged in!";
@@ -419,9 +427,8 @@ JabberHandler::onDisconnect(gloox::ConnectionError e)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
-	msg.AddString("protocol", kProtocolSignature);
 	msg.AddInt32("status", CAYA_OFFLINE);
-	fServerMessenger->SendMessage(&msg);
+	_SendMessage(&msg);
 
 	BString content(fUsername);
 	content << " has logged out!";
@@ -462,7 +469,6 @@ JabberHandler::handleRoster(const gloox::Roster& roster)
 		// Contact information message
 		BMessage infoMsg(IM_MESSAGE);
 		infoMsg.AddInt32("im_what", IM_CONTACT_INFO);
-		infoMsg.AddString("protocol", kProtocolSignature);
 		infoMsg.AddString("id", jid);
 		infoMsg.AddString("name", name);
 		infoMsg.AddInt32("subscription", subscription);
@@ -485,15 +491,14 @@ JabberHandler::handleRoster(const gloox::Roster& roster)
 	}
 
 	// Send server based contact list
-	contactListMsg.AddString("protocol", kProtocolSignature);
-	fServerMessenger->SendMessage(&contactListMsg);
+	_SendMessage(&contactListMsg);
 
 	// Contact list and vCard request
 	std::list<BMessage>::iterator msgsIt;
 	for (msgsIt = msgs.begin(); msgsIt != msgs.end(); ++msgsIt) {
 		BMessage msg = (*msgsIt);
 		const char* jid = msg.FindString("id");
-		fServerMessenger->SendMessage(&msg);
+		_SendMessage(&msg);
 		fVCardManager->fetchVCard(gloox::JID(jid), this);
 	}
 }
@@ -511,11 +516,10 @@ JabberHandler::handleMessage(const gloox::Message& m, gloox::MessageSession*)
 	} else {
 		BMessage msg(IM_MESSAGE);
 		msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-		msg.AddString("protocol", kProtocolSignature);
 		msg.AddString("id", m.from().bare().c_str());
 		msg.AddString("subject", m.subject().c_str());
 		msg.AddString("body", m.body().c_str());
-		fServerMessenger->SendMessage(&msg);
+		_SendMessage(&msg);
 	}
 }
 
@@ -558,11 +562,10 @@ JabberHandler::handleRosterPresence(const gloox::RosterItem& item,
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_SET);
-	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", item.jid().c_str());
 	msg.AddInt32("status", _GlooxStatusToCaya(type));
 	msg.AddString("message", presenceMsg.c_str());
-	fServerMessenger->SendMessage(&msg);
+	_SendMessage(&msg);
 }
 
 
@@ -581,7 +584,7 @@ JabberHandler::handleSelfPresence(const gloox::RosterItem& item, const std::stri
 //groups
 	msg.AddInt32("status", _GlooxStatusToCaya(type));
 	msg.AddString("message", presenceMsg.c_str());
-	fServerMessenger->SendMessage(&msg);
+	_SendMessage(&msg);
 }
 
 
@@ -633,7 +636,6 @@ JabberHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
 
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_EXTENDED_CONTACT_INFO);
-	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", jid.bare().c_str());
 	msg.AddString("nick", card->nickname().c_str());
 	msg.AddString("family name", name.family.c_str());
@@ -642,7 +644,7 @@ JabberHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
 	msg.AddString("prefix", name.prefix.c_str());
 	msg.AddString("suffix", name.suffix.c_str());
 	msg.AddString("full name", fullName.c_str());
-	fServerMessenger->SendMessage(&msg);
+	_SendMessage(&msg);
 
 	// Return if there's no avatar icon
 	if (!photo.binval.c_str())
