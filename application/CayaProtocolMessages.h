@@ -13,11 +13,11 @@ enum message_what_codes {
 	//! All client <> protocol communication uses this what-code
 	IM_MESSAGE						= 'IMme',
 
-	//! Used for all error messages
+	//! Used for very important (blocking) error messages
 	IM_ERROR						= 'IMer',
 
 	//! Returned after a request has succeded
-	IM_ACTION_PERFORMED				= 'IMok'
+	IM_ACTION_PERFORMED				= 'IMap'
 };
 
 /**
@@ -157,6 +157,9 @@ enum im_what_code {
 
 	//! Progress message received, could be login sequence, file transfer etc...
 	IM_PROGRESS						= 140,
+
+	//! Notifications
+	IM_NOTIFICATION					= 141,
 
 	/*
 	 * Special messages

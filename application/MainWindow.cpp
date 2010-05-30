@@ -21,7 +21,9 @@
 #include <GroupLayout.h>
 #include <GroupLayoutBuilder.h>
 #include <MenuItem.h>
+#include <Notification.h>
 #include <PopUpMenu.h>
+#include <Roster.h>
 #include <SpaceLayoutItem.h>
 #include <ScrollView.h>
 #include <StringView.h>
@@ -221,22 +223,51 @@ MainWindow::ImMessage(BMessage* msg)
 			RosterItem*	rosterItem = fServer->RosterItemForId(msg->FindString("id"));
 
 			if (rosterItem) {
-				// Add or remove item
 				UpdateListItem(rosterItem);
+
+				// Add or remove item
 				switch (status) {
 					case CAYA_OFFLINE:
+						// By default offline contacts are hidden
 						if (HasItem(rosterItem))
 							RemoveItem(rosterItem);
 						return;
 					default:
+						// Add item because it has a non-offline status
 						if (!HasItem(rosterItem))
 							AddItem(rosterItem);
 						break;
 				}
+
 				UpdateListItem(rosterItem);
 
 				// Sort list view again
 				fListView->Sort();
+
+				switch (status) {
+					case CAYA_ONLINE:
+					case CAYA_OFFLINE:
+						// Notify when contact is online or offline
+						if (status == CAYA_ONLINE) {
+							BString message;
+							message << rosterItem->GetContactLinker()->GetName();
+
+							if (status == CAYA_ONLINE)
+								message << " is available!";
+							else
+								message << " is offline!";
+
+							BNotification notification(B_INFORMATION_NOTIFICATION);
+							notification.SetApplication("Caya");
+							notification.SetTitle("Presence");
+							notification.SetIcon(rosterItem->Bitmap());
+							notification.SetContent(message.String());
+							be_roster->Notify(notification);
+						}
+						break;
+					default:
+						break;
+				}
 			}
 			break;
 		}

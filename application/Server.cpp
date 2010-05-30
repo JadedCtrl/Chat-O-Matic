@@ -324,6 +324,33 @@ Server::ImMessage(BMessage* msg)
 			be_roster->Notify(notification);
 			break;
 		}
+		case IM_NOTIFICATION:
+		{
+			int32 type = (int32)B_INFORMATION_NOTIFICATION;
+			const char* protocol = NULL;
+			const char* title = NULL;
+			const char* message = NULL;
+
+			if (msg->FindString("protocol", &protocol) != B_OK)
+				return result;
+			if (msg->FindInt32("type", &type) != B_OK)
+				return result;
+			if (msg->FindString("title", &title) != B_OK)
+				return result;
+			if (msg->FindString("message", &message) != B_OK)
+				return result;
+
+			CayaProtocolAddOn* addOn
+				= ProtocolManager::Get()->ProtocolAddOn(protocol);
+
+			BNotification notification((notification_type)type);
+			notification.SetApplication("Caya");
+			notification.SetTitle(title);
+			notification.SetIcon(addOn->Icon());
+			notification.SetContent(message);
+			be_roster->Notify(notification);
+			break;
+		}
 		default:
 			break;
 	}
