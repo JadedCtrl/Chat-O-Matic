@@ -84,9 +84,10 @@ AccountDialog::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
 		case kOK: {
-			// Are we renaming settings?
+			// Are we renaming or adding?
 			bool renaming = ((fAccount.Length() > 0)
 				&& (fAccount != fAccountName->Text()));
+			bool adding = fAccount.Length() == 0;
 
 			// Rename account settings
 			if (renaming) {
@@ -102,9 +103,9 @@ AccountDialog::MessageReceived(BMessage* msg)
 
 			// Save account settings
 			if (fSettings->Save(fAccountName->Text(), fTop) == B_OK) {
-				if (fTarget) {
+				if (fTarget && (adding || renaming)) {
 					BMessage* saveMsg = new BMessage(renaming
-							? kAccountRenamed : kAccountSaved);
+							? kAccountRenamed : kAccountAdded);
 					saveMsg->AddPointer("settings", fSettings);
 					if (renaming) {
 						saveMsg->AddString("from", fAccount.String());

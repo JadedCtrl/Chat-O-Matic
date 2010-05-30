@@ -240,6 +240,7 @@ MainWindow::ImMessage(BMessage* msg)
 		}
 		case IM_AVATAR_SET:
 		case IM_CONTACT_INFO:
+		case IM_EXTENDED_CONTACT_INFO:
 		{
 			RosterItem*	rosterItem
 				= fServer->RosterItemForId(msg->FindString("id"));

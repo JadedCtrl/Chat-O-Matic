@@ -219,15 +219,18 @@ Server::ImMessage(BMessage* msg)
 				return B_SKIP_MESSAGE;
 
 			ContactLinker* linker = _EnsureContactLinker(msg);
-			if (linker) {
-				linker->SetNotifyStatus((CayaStatus)status);
-				linker->SetNotifyPersonalStatus(msg->FindString("message"));
-			}
+			if (!linker)
+				break;
+
+			linker->SetNotifyStatus((CayaStatus)status);
+			linker->SetNotifyPersonalStatus(msg->FindString("message"));
 			break;
 		}
 		case IM_CONTACT_INFO:
 		{
 			ContactLinker* linker = _EnsureContactLinker(msg);
+			if (!linker)
+				break;
 
 			const char* name = NULL;
 
@@ -239,9 +242,11 @@ Server::ImMessage(BMessage* msg)
 		case IM_EXTENDED_CONTACT_INFO:
 		{
 			ContactLinker* linker = _EnsureContactLinker(msg);
+			if (!linker)
+				break;
 
 			if (linker->GetName().Length() > 0)
-				return result;
+				break;
 
 			const char* name = NULL;
 
@@ -253,17 +258,16 @@ Server::ImMessage(BMessage* msg)
 		case IM_AVATAR_SET:
 		{
 			ContactLinker* linker = _EnsureContactLinker(msg);
+			if (!linker)
+				break;
+
 			entry_ref ref;
-			if (linker) {
-				if (msg->FindRef("ref", &ref) == B_OK) {
-					// BPath fullPath(&ref);
-					// BBitmap* bitmap = ImageCache::GetImage(
-					//	BString(fullPath.Path()), BString(fullPath.Path()));
-					BBitmap* bitmap = BTranslationUtils::GetBitmap(&ref);
-					linker->SetNotifyAvatarBitmap(bitmap);
-				} else
-					linker->SetNotifyAvatarBitmap(NULL);
-			}
+
+			if (msg->FindRef("ref", &ref) == B_OK) {
+				BBitmap* bitmap = BTranslationUtils::GetBitmap(&ref);
+				linker->SetNotifyAvatarBitmap(bitmap);
+			} else
+				linker->SetNotifyAvatarBitmap(NULL);
 			break;
 		}
 		case IM_SEND_MESSAGE: {

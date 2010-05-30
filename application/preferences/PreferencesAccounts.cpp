@@ -164,7 +164,7 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 			}
 			break;
 		}
-		case kAccountSaved:
+		case kAccountAdded:
 		case kAccountRenamed: {
 			void* pointer = NULL;
 			BString account;
@@ -172,7 +172,7 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 
 			if (msg->FindPointer("settings", &pointer) != B_OK)
 				return;
-			if (msg->what == kAccountSaved) {
+			if (msg->what == kAccountAdded) {
 				if (msg->FindString("account", &account) != B_OK)
 					return;
 			} else {
@@ -187,7 +187,7 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 			if (!settings)
 				return;
 
-			if (msg->what == kAccountSaved) {
+			if (msg->what == kAccountAdded) {
 				// Add list item
 				AccountListItem* listItem
 					= new AccountListItem(settings, account.String());

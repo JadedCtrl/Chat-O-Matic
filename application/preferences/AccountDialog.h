@@ -13,8 +13,8 @@ class BTextControl;
 class AccountView;
 class ProtocolSettings;
 
-const uint32 kAccountSaved = 'acsd';
-const uint32 kAccountRenamed = 'acrd';
+const uint32 kAccountAdded		= 'acad';
+const uint32 kAccountRenamed	= 'acrd';
 
 class AccountDialog : public BWindow {
 public:
