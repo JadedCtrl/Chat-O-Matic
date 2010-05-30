@@ -29,7 +29,7 @@ PreferencesBehavior::PreferencesBehavior()
 	: BView("Behavior", B_WILL_DRAW)
 {
 
-	fOnIncoming = new BStringView("onIncoming", "On incomming message...");
+	fOnIncoming = new BStringView("onIncoming", "On incoming message...");
 	fOnIncoming->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 	fOnIncoming->SetFont(be_bold_font);
 
