@@ -6,11 +6,14 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
+#include <BeBuild.h>
+
 #include "JabberProtocol.h"
 
-extern "C" __declspec(dllexport) CayaProtocol* protocol();
-extern "C" __declspec(dllexport) const char* signature();
-extern "C" __declspec(dllexport) const char* friendly_signature();
+extern "C" _EXPORT CayaProtocol* protocol();
+extern "C" _EXPORT const char* signature();
+extern "C" _EXPORT const char* friendly_signature();
+
 
 CayaProtocol*
 protocol()
