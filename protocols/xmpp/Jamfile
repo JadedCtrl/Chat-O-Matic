@@ -9,7 +9,7 @@ AddOn jabber :
 	JabberMain.cpp
 	JabberProtocol.cpp
 	JabberHandler.cpp
-	: be libgloox.a network ssl crypto z $(TARGET_LIBSTDC++)
+	: be libsupport.a libgloox.a network ssl crypto z $(TARGET_LIBSTDC++)
 	: jabber.rdef jabber_settings.rdef
 ;
 
@@ -17,7 +17,7 @@ AddOn gtalk :
 	GoogleTalkMain.cpp
 	GoogleTalkProtocol.cpp
 	JabberHandler.cpp
-	: be libgloox.a network ssl crypto z $(TARGET_LIBSTDC++)
+	: be libsupport.a libgloox.a network ssl crypto z $(TARGET_LIBSTDC++)
 	: gtalk.rdef gtalk_settings.rdef
 ;
 
@@ -25,12 +25,15 @@ AddOn facebook :
 	FacebookMain.cpp
 	FacebookProtocol.cpp
 	JabberHandler.cpp
-	: be libgloox.a network ssl crypto z $(TARGET_LIBSTDC++)
+	: be libsupport.a libgloox.a network ssl crypto z $(TARGET_LIBSTDC++)
 	: facebook.rdef facebook_settings.rdef
 ;
 
+Depends jabber : libsupport.a ;
 Depends jabber : libgloox.a ;
+Depends gtalk : libsupport.a ;
 Depends gtalk : libgloox.a ;
+Depends facebook : libsupport.a ;
 Depends facebook : libgloox.a ;
 
 LINKFLAGS on jabber += -L$(OPENSSL_LIBRARY_DIR) ;

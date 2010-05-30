@@ -6,9 +6,15 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
-//#include <libsupport/Base64.h>
+#include <Directory.h>
+#include <Entry.h>
+#include <File.h>
+#include <FindDirectory.h>
+#include <List.h>
 
 #include <CayaProtocolMessages.h>
+
+#include <libsupport/SHA1.h>
 
 #include "JabberHandler.h"
 
@@ -31,6 +37,7 @@ JabberHandler::JabberHandler()
 	fClient(NULL),
 	fVCardManager(NULL)
 {
+	fAvatars = new BList();
 }
 
 
@@ -38,6 +45,11 @@ JabberHandler::~JabberHandler()
 {
 	fVCardManager->cancelVCardOperations(this);
 	Shutdown();
+
+	BString* item = NULL;
+	for (int32 i = 0; (item = (BString*)fAvatars->ItemAt(i)); i++)
+		delete item;
+	delete fAvatars;
 }
 
 
@@ -200,6 +212,138 @@ JabberHandler::_MessageSent(const char* id, const char* subject,
 	msg.AddString("id", id);
 	msg.AddString("subject", subject);
 	msg.AddString("body", body);
+	fServerMessenger->SendMessage(&msg);
+}
+
+
+status_t
+JabberHandler::_SetupAvatarCache()
+{
+	if (fAvatarCachePath.InitCheck() == B_OK)
+		return B_OK;
+
+	BPath path;
+
+	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
+		return B_ERROR;
+
+	path.Append("Caya");
+	path.Append("Cache");
+	path.Append(kProtocolSignature);
+
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return B_ERROR;
+
+	fCachePath = path;
+
+	path.Append("avatar-cache");
+
+	BFile file(path.Path(), B_READ_ONLY);
+	fAvatarCache.Unflatten(&file);
+
+	fAvatarCachePath = path;
+
+	return B_OK;
+}
+
+
+status_t
+JabberHandler::_SaveAvatarCache()
+{
+	if (fAvatarCachePath.InitCheck() != B_OK)
+		return B_ERROR;
+
+	BFile file(fAvatarCachePath.Path(), B_CREATE_FILE | B_WRITE_ONLY | B_ERASE_FILE);
+	return fAvatarCache.Flatten(&file);
+}
+
+
+void
+JabberHandler::_CacheAvatar(const char* id, const char* binimage, size_t length)
+{
+	if (!id || !binimage || length <= 0)
+		return;
+
+	// Calculate avatar hash
+	CSHA1 s1;
+	char hash[256];
+	s1.Reset();
+	s1.Update((uchar*)binimage, length);
+	s1.Final();
+	s1.ReportHash(hash, CSHA1::REPORT_HEX);
+
+	BString sha1;
+	sha1.SetTo(hash, 256);
+
+	BString oldSha1;
+	if (fAvatarCache.FindString("id", &oldSha1) != B_OK || oldSha1 == "" || sha1 != oldSha1) {
+		// Replace old hash and save cache
+		fAvatarCache.RemoveName(id);
+		fAvatarCache.AddString(id, sha1);
+		_SaveAvatarCache();
+
+		if (oldSha1 != "") {
+			BPath path(fCachePath);
+			path.Append(oldSha1);
+
+			// Remove old image file
+			BEntry entry(path.Path());
+			entry.Remove();
+
+			// Remove old hash from the list
+			BString* item = NULL;
+			for (int32 i = 0; (item = (BString*)fAvatars->ItemAt(i)); i++) {
+				if (item->Compare(oldSha1) == 0) {
+					fAvatars->RemoveItem(item);
+					break;
+				}
+			}
+		}
+	}
+
+	// Determine file path
+	BPath path(fCachePath);
+	path.Append(sha1);
+
+	BEntry entry(path.Path());
+	if (!entry.Exists()) {
+		// Save to file
+		BFile file(path.Path(), B_CREATE_FILE | B_WRITE_ONLY | B_ERASE_FILE);
+		file.Write(binimage, length);
+	}
+
+	// Do we need to notify Caya?
+	bool found = false;
+	BString* item = NULL;
+	for (int32 i = 0; (item = (BString*)fAvatars->ItemAt(i)); i++) {
+		if (item->Compare(sha1) == 0) {
+			found = true;
+			break;
+		}
+	}
+
+	if (!found) {
+		// Add new hash to the list if needed
+		fAvatars->AddItem(new BString(sha1));
+
+		// Notify Caya that the avatar has changed
+		_AvatarChanged(id, path.Path());
+	}
+}
+
+
+void
+JabberHandler::_AvatarChanged(const char* id, const char* filename)
+{
+	entry_ref ref;
+	if (get_ref_for_path(filename, &ref) != B_OK)
+		return;
+
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_AVATAR_SET);
+	msg.AddString("protocol", kProtocolSignature);
+	msg.AddString("id", id);
+	msg.AddRef("ref", &ref);
 	fServerMessenger->SendMessage(&msg);
 }
 
@@ -456,11 +600,6 @@ JabberHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
 
 	std::string fullName = name.family + " " + name.given;
 
-#if 0
-	BString decoded
-		= Base64::Decode(BString(photo.binval.c_str()));
-#endif
-
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_EXTENDED_CONTACT_INFO);
 	msg.AddString("protocol", kProtocolSignature);
@@ -473,6 +612,15 @@ JabberHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
 	msg.AddString("suffix", name.suffix.c_str());
 	msg.AddString("full name", fullName.c_str());
 	fServerMessenger->SendMessage(&msg);
+
+	// Return if there's no avatar icon
+	if (!photo.binval.c_str())
+		return;
+
+	if (_SetupAvatarCache() == B_OK)
+		// Cache avatar icon
+		_CacheAvatar(jid.bare().c_str(), photo.binval.c_str(),
+			photo.binval.length());
 }
 
 

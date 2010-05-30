@@ -5,6 +5,7 @@
 #ifndef _JABBER_HANDLER_H
 #define _JABBER_HANDLER_H
 
+#include <Path.h>
 #include <String.h>
 
 #include <libgloox/client.h>
@@ -21,8 +22,10 @@
 #include <libgloox/vcardhandler.h>
 #include <libgloox/vcardmanager.h>
 
-#include "CayaProtocol.h"
-#include "CayaConstants.h"
+#include <CayaProtocol.h>
+#include <CayaConstants.h>
+
+class BList;
 
 class JabberHandler : public CayaProtocol, gloox::RosterListener, gloox::ConnectionListener,
 								gloox::LogHandler, gloox::MessageHandler, gloox::VCardHandler {
@@ -66,9 +69,19 @@ private:
 
 			thread_id				fRecvThread;
 
+			BPath					fCachePath;
+			BPath					fAvatarCachePath;
+			BMessage				fAvatarCache;
+			BList*					fAvatars;
+
 			void					_MessageSent(const char* id, const char* subject,
 												const char* body);
 			CayaStatus				_GlooxStatusToCaya(gloox::Presence::PresenceType type);
+
+			status_t				_SetupAvatarCache();
+			status_t				_SaveAvatarCache();
+			void					_CacheAvatar(const char* id, const char* binval, size_t length);
+			void					_AvatarChanged(const char*id, const char* filename);
 
 	virtual	void					onConnect();
 	virtual	void					onDisconnect(gloox::ConnectionError);
