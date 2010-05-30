@@ -5,6 +5,7 @@
 #ifndef _JABBER_HANDLER_H
 #define _JABBER_HANDLER_H
 
+#include <Notification.h>
 #include <Path.h>
 #include <String.h>
 
@@ -80,7 +81,9 @@ private:
 
 			void					_MessageSent(const char* id, const char* subject,
 												const char* body);
-			void					_Progress(const char* title, const char* message, float progress);
+
+			void					_Notify(notification_type type, const char* title, const char* message);
+			void					_NotifyProgress(const char* title, const char* message, float progress);
 
 			status_t				_SetupAvatarCache();
 			status_t				_SaveAvatarCache();

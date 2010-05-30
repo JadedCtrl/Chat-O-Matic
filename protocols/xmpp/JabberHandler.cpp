@@ -219,7 +219,19 @@ JabberHandler::_SendMessage(BMessage* msg)
 
 
 void
-JabberHandler::_Progress(const char* title, const char* message, float progress)
+JabberHandler::_Notify(notification_type type, const char* title, const char* message)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_NOTIFICATION);
+	msg.AddInt32("type", (int32)type);
+	msg.AddString("title", title);
+	msg.AddString("message", message);
+	_SendMessage(&msg);
+}
+
+
+void
+JabberHandler::_NotifyProgress(const char* title, const char* message, float progress)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_PROGRESS);
@@ -416,7 +428,8 @@ JabberHandler::onConnect()
 
 	BString content(fUsername);
 	content << " has logged in!";
-	_Progress("Connected", content.String(), 1.0f);
+	_Notify(B_INFORMATION_NOTIFICATION, "Connected",
+		content.String());
 
 	fVCardManager->fetchVCard(fJid, this);
 }
@@ -432,7 +445,8 @@ JabberHandler::onDisconnect(gloox::ConnectionError e)
 
 	BString content(fUsername);
 	content << " has logged out!";
-	_Progress("Disconnected", content.String(), 1.0f);
+	_Notify(B_INFORMATION_NOTIFICATION, "Disconnected",
+		content.String());
 }
 
 
@@ -556,7 +570,7 @@ JabberHandler::handleItemUpdated(const gloox::JID&)
 
 void
 JabberHandler::handleRosterPresence(const gloox::RosterItem& item,
-									const std::string&,
+									const std::string& resource,
 									gloox::Presence::PresenceType type,
 									const std::string& presenceMsg)
 {
@@ -564,6 +578,7 @@ JabberHandler::handleRosterPresence(const gloox::RosterItem& item,
 	msg.AddInt32("im_what", IM_STATUS_SET);
 	msg.AddString("id", item.jid().c_str());
 	msg.AddInt32("status", _GlooxStatusToCaya(type));
+	msg.AddString("resource", resource.c_str());
 	msg.AddString("message", presenceMsg.c_str());
 	_SendMessage(&msg);
 }
