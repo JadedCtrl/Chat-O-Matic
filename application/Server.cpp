@@ -11,7 +11,9 @@
 #include <Application.h>
 #include <Debug.h>
 #include <Entry.h>
+#include <Notification.h>
 #include <Path.h>
+#include <Roster.h>
 #include <TranslationUtils.h>
 
 #include "Account.h"
@@ -292,6 +294,34 @@ Server::ImMessage(BMessage* msg)
 				}
 			}
 			result = B_SKIP_MESSAGE;
+			break;
+		}
+		case IM_PROGRESS:
+		{
+			const char* protocol = NULL;
+			const char* title = NULL;
+			const char* message = NULL;
+			float progress = 0.0f;
+
+			if (msg->FindString("protocol", &protocol) != B_OK)
+				return result;
+			if (msg->FindString("title", &title) != B_OK)
+				return result;
+			if (msg->FindString("message", &message) != B_OK)
+				return result;
+			if (msg->FindFloat("progress", &progress) != B_OK)
+				return result;
+
+			CayaProtocolAddOn* addOn
+				= ProtocolManager::Get()->ProtocolAddOn(protocol);
+
+			BNotification notification(B_PROGRESS_NOTIFICATION);
+			notification.SetApplication("Caya");
+			notification.SetTitle(title);
+			notification.SetIcon(addOn->Icon());
+			notification.SetContent(message);
+			notification.SetProgress(progress);
+			be_roster->Notify(notification);
 			break;
 		}
 		default:
