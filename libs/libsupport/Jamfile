@@ -1,0 +1,7 @@
+SubDir TOP libs libsupport ;
+
+SubDirSysHdrs [ FDirName $(TOP) libs ] ;
+
+StaticLibrary libsupport.a :
+	SHA1.cpp
+;

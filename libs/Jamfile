@@ -2,3 +2,4 @@ SubDir TOP libs ;
 
 # Include all the components.
 SubInclude TOP libs libgloox ;
+SubInclude TOP libs libsupport ;
