@@ -199,13 +199,15 @@ MainWindow::ImMessage(BMessage* msg)
 	int32 im_what = msg->FindInt32("im_what");
 	switch (im_what) {
 		case IM_OWN_CONTACT_INFO:
-		{
 			fStatusView->SetName(msg->FindString("name"));
-
+			break;
+		case IM_OWN_AVATAR_SET:
+		{
 			entry_ref ref;
+
 			if (msg->FindRef("ref", &ref) == B_OK) {
 				BBitmap* bitmap = BTranslationUtils::GetBitmap(&ref);
-				fStatusView->SetAvatar(bitmap);
+				fStatusView->SetAvatarIcon(bitmap);
 			}
 			break;
 		}

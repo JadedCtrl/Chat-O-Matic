@@ -28,10 +28,11 @@ const int32 kSetNickname = 'stnk';
 
 
 StatusView::StatusView(const char* name)
-	: BView(name, B_WILL_DRAW)
+	:
+	BView(name, B_WILL_DRAW)
 {
 	// Nick name
-	fNickname = new NicknameTextControl("nickname", new BMessage(kSetNickname));
+	fNickname = new NicknameTextControl("Nickname", new BMessage(kSetNickname));
 
 	// Status menu
 	fStatusMenu = new BPopUpMenu("-");
@@ -58,11 +59,11 @@ StatusView::StatusView(const char* name)
 	}
 
 	// Menu field
-	BMenuField* statusField = new BMenuField("statusField", NULL,
+	BMenuField* statusField = new BMenuField("StatusField", NULL,
 		fStatusMenu, NULL);
 
 	// Icon
-	fAvatar = new BitmapView("icon");
+	fAvatar = new BitmapView("AvatarIcon");
 	fAvatar->SetExplicitMaxSize(BSize(50, 50));
 	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
 
@@ -134,7 +135,7 @@ StatusView::SetStatus(CayaStatus status)
 
 
 void
-StatusView::SetAvatar(BBitmap* bitmap)
+StatusView::SetAvatarIcon(BBitmap* bitmap)
 {
 	fAvatar->SetBitmap(bitmap);
 }
