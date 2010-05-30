@@ -27,6 +27,7 @@ void
 GoogleTalkProtocol::OverrideSettings()
 {
 	fServer = "talk.google.com";
+	fPort = 0;
 }
 
 

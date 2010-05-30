@@ -57,6 +57,7 @@ protected:
 			BString					fPassword;
 			BString					fServer;
 			BString					fResource;
+			uint16					fPort;
 
 private:
 			CayaProtocolMessengerInterface*
@@ -67,6 +68,7 @@ private:
 									fConnection;
 			gloox::VCardManager*	fVCardManager;
 
+			gloox::JID				fJid;
 			thread_id				fRecvThread;
 
 			BPath					fCachePath;
@@ -82,6 +84,7 @@ private:
 			status_t				_SaveAvatarCache();
 			void					_CacheAvatar(const char* id, const char* binval, size_t length);
 			void					_AvatarChanged(const char*id, const char* filename);
+			void					_Progress(const char* title, const char* message, float progress);
 
 	virtual	void					onConnect();
 	virtual	void					onDisconnect(gloox::ConnectionError);

@@ -155,16 +155,20 @@ JabberHandler::UpdateSettings(BMessage* msg)
 	fPassword = password;
 	fServer = server;
 	fResource = resource;
+	fPort = 5222;
 
 	// Give the add-on a change to override settings
 	OverrideSettings();
 
 	// Compose JID
 	BString jid = ComposeJID();
+	fJid.setJID(jid.String());
 
 	// Register our client
-	fClient = new gloox::Client(gloox::JID(jid.String()), fPassword.String());
+	fClient = new gloox::Client(fJid, fPassword.String());
 	fClient->setServer(fServer.String());
+	if (fPort > 0)
+		fClient->setPort(fPort);
 	fClient->registerConnectionListener(this);
 	fClient->registerMessageHandler(this);
 	fClient->rosterManager()->registerRosterListener(this);
@@ -276,7 +280,7 @@ JabberHandler::_CacheAvatar(const char* id, const char* binimage, size_t length)
 	sha1.SetTo(hash, 256);
 
 	BString oldSha1;
-	if (fAvatarCache.FindString("id", &oldSha1) != B_OK || oldSha1 == "" || sha1 != oldSha1) {
+	if (fAvatarCache.FindString(id, &oldSha1) != B_OK || oldSha1 == "" || sha1 != oldSha1) {
 		// Replace old hash and save cache
 		fAvatarCache.RemoveName(id);
 		fAvatarCache.AddString(id, sha1);
@@ -340,10 +344,27 @@ JabberHandler::_AvatarChanged(const char* id, const char* filename)
 		return;
 
 	BMessage msg(IM_MESSAGE);
-	msg.AddInt32("im_what", IM_AVATAR_SET);
+	if (fJid.bare() == id)
+		msg.AddInt32("im_what", IM_OWN_AVATAR_SET);
+	else {
+		msg.AddInt32("im_what", IM_AVATAR_SET);
+		msg.AddString("id", id);
+	}
 	msg.AddString("protocol", kProtocolSignature);
-	msg.AddString("id", id);
 	msg.AddRef("ref", &ref);
+	fServerMessenger->SendMessage(&msg);
+}
+
+
+void
+JabberHandler::_Progress(const char* title, const char* message, float progress)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_PROGRESS);
+	msg.AddString("protocol", kProtocolSignature);
+	msg.AddString("title", title);
+	msg.AddString("message", message);
+	msg.AddFloat("progress", progress);
 	fServerMessenger->SendMessage(&msg);
 }
 
@@ -384,6 +405,12 @@ JabberHandler::onConnect()
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddInt32("status", CAYA_ONLINE);
 	fServerMessenger->SendMessage(&msg);
+
+	BString content(fUsername);
+	content << " has logged in!";
+	_Progress("Connected", content.String(), 1.0f);
+
+	fVCardManager->fetchVCard(fJid, this);
 }
 
 
@@ -395,6 +422,10 @@ JabberHandler::onDisconnect(gloox::ConnectionError e)
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddInt32("status", CAYA_OFFLINE);
 	fServerMessenger->SendMessage(&msg);
+
+	BString content(fUsername);
+	content << " has logged out!";
+	_Progress("Disconnected", content.String(), 1.0f);
 }
 
 
@@ -618,7 +649,7 @@ JabberHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
 		return;
 
 	if (_SetupAvatarCache() == B_OK)
-		// Cache avatar icon
+		// Cache avatar icon and notify the change
 		_CacheAvatar(jid.bare().c_str(), photo.binval.c_str(),
 			photo.binval.length());
 }
