@@ -113,23 +113,23 @@ void
 ChatWindow::ImMessage(BMessage* msg)
 {
 	int32 im_what = msg->FindInt32("im_what");
+
 	switch (im_what) {
 		case IM_MESSAGE_RECEIVED:
 		{
 			BString message = msg->FindString("body");
 			fReceiveView->AppendOtherMessage(message.String());
+
 			// Message received, clear status anyway
-			fStatus->SetText(" ");
+			fStatus->SetText("");
 			break;
 		}
 		case IM_CONTACT_STARTED_TYPING:
-			fStatus->SetText("Buddy is typing ...");
+			fStatus->SetText("Contact is typing...");
 			break;
-
 		case IM_CONTACT_STOPPED_TYPING:
-			fStatus->SetText(" ");
+			fStatus->SetText("");
 			break;
-
 		default:
 			break;
 	}
