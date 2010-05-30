@@ -29,9 +29,9 @@ PreferencesBehavior::PreferencesBehavior()
 	: BView("Behavior", B_WILL_DRAW)
 {
 
-	fOnIncomming = new BStringView("onIncomming", "On incomming message ... ");
-	fOnIncomming->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
-	fOnIncomming->SetFont(be_bold_font);
+	fOnIncoming = new BStringView("onIncoming", "On incomming message...");
+	fOnIncoming->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+	fOnIncoming->SetFont(be_bold_font);
 
 	fToCurrentWorkspace = new BCheckBox("ToCurrentWorkspace",
 		"Move window to current workspace",
@@ -52,13 +52,14 @@ PreferencesBehavior::PreferencesBehavior()
 
 	fMarkUnreadWindow = new BCheckBox("MarkUnreadWindow",
 		"Mark unread window chat", NULL);
-	fMarkUnreadWindow->SetEnabled(false); // not implemented
+	fMarkUnreadWindow->SetEnabled(false);
+			// not implemented
 
 	const float spacing = be_control_look->DefaultItemSpacing();
 
 	SetLayout(new BGroupLayout(B_HORIZONTAL, spacing));
 	AddChild(BGroupLayoutBuilder(B_VERTICAL)
-		.Add(fOnIncomming)
+		.Add(fOnIncoming)
 		.AddGroup(B_VERTICAL, spacing)
 			.Add(fToCurrentWorkspace)
 			.Add(fActivateChatWindow)

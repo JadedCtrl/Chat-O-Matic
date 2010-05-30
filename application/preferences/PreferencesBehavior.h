@@ -19,7 +19,7 @@ public:
 
 private:
 
-	BStringView*	fOnIncomming;
+	BStringView*	fOnIncoming;
 	BCheckBox*		fToCurrentWorkspace;
 	BCheckBox*		fActivateChatWindow;
 	BCheckBox*		fPlaySoundOnMessageReceived;
