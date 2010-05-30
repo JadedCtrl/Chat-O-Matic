@@ -23,8 +23,6 @@ BitmapView::BitmapView(const char* name, uint32 flags)
 	fWidth(kMinWidth),
 	fHeight(kMinHeight)
 {
-	// Set transparent view color
-	SetViewColor(B_TRANSPARENT_COLOR);
 }
 
 
@@ -32,6 +30,14 @@ BitmapView::~BitmapView()
 {
 	delete fBitmap;
 	fBitmap = NULL;
+}
+
+
+void
+BitmapView::AttachedToWindow()
+{
+	// Set view color to parent's view color
+	SetViewColor(Parent()->ViewColor());
 }
 
 

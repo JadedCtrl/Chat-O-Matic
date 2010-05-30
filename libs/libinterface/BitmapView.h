@@ -15,6 +15,8 @@ public:
 							= B_WILL_DRAW);
 						~BitmapView();
 
+	virtual	void		AttachedToWindow();
+
 			status_t	InitCheck();
 
 			BBitmap*	Bitmap() const;
