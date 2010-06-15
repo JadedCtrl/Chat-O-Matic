@@ -11,7 +11,7 @@ class BBitmap;
 
 class BitmapView : public BView {
 public:
-						BitmapView(const char* name, uint32 flags
+						BitmapView(const char* name = NULL, uint32 flags
 							= B_WILL_DRAW);
 						~BitmapView();
 
@@ -20,8 +20,9 @@ public:
 			status_t	InitCheck();
 
 			BBitmap*	Bitmap() const;
-			void		SetBitmap(const char* filename);
-			void		SetBitmap(BBitmap* bitmap);
+
+			status_t	SetBitmap(const char* filename);
+			status_t	SetBitmap(const BBitmap* bitmap);
 
 	virtual BSize		MinSize();
 	virtual BSize		MaxSize();

@@ -6,6 +6,8 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
+#include <new>
+
 #include <Bitmap.h>
 #include <LayoutUtils.h>
 #include <TranslationUtils.h>
@@ -57,28 +59,38 @@ BitmapView::Bitmap() const
 }
 
 
-void
+status_t
 BitmapView::SetBitmap(const char* filename)
 {
 	delete fBitmap;
+
 	fBitmap = BTranslationUtils::GetBitmap(filename);
+	if (fBitmap == NULL)
+		return B_ERROR;
+
+	return B_OK;
 }
 
 
-void
-BitmapView::SetBitmap(BBitmap* bitmap)
+status_t
+BitmapView::SetBitmap(const BBitmap* bitmap)
 {
 	delete fBitmap;
-	fBitmap = bitmap;
+	fBitmap = NULL;
 
-	if (fBitmap) {
-		BRect frame(fBitmap->Bounds());
+	if (bitmap != NULL) {
+		fBitmap = new(std::nothrow) BBitmap(bitmap);
+		if (fBitmap == NULL)
+			return B_NO_MEMORY;
+		if (fBitmap->InitCheck() != B_OK)
+			return fBitmap->InitCheck();
 
-		fWidth = frame.Width();
-		fHeight = frame.Height();
-
+		fWidth = fBitmap->Bounds().Width();
+		fHeight = fBitmap->Bounds().Height();
 		Invalidate();
 	}
+
+	return B_OK;
 }
 
 
@@ -109,7 +121,7 @@ BitmapView::PreferredSize()
 void
 BitmapView::Draw(BRect frame)
 {
-	if (!fBitmap)
+	if (fBitmap == NULL)
 		return;
 
 	SetDrawingMode(B_OP_ALPHA);
