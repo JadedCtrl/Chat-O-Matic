@@ -23,7 +23,7 @@ public:
 
 			void			SetName(BString name);
 			void			SetStatus(CayaStatus status);
-			void			SetAvatarIcon(BBitmap* bitmap);
+			void			SetAvatarIcon(const BBitmap* bitmap);
 
 private:
 	BPopUpMenu*				fStatusMenu;

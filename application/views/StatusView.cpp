@@ -135,7 +135,7 @@ StatusView::SetStatus(CayaStatus status)
 
 
 void
-StatusView::SetAvatarIcon(BBitmap* bitmap)
+StatusView::SetAvatarIcon(const BBitmap* bitmap)
 {
 	fAvatar->SetBitmap(bitmap);
 }
