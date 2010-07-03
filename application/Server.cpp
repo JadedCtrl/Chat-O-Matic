@@ -13,7 +13,6 @@
 #include <Entry.h>
 #include <Notification.h>
 #include <Path.h>
-#include <Roster.h>
 #include <TranslationUtils.h>
 
 #include "Account.h"
@@ -315,13 +314,15 @@ Server::ImMessage(BMessage* msg)
 			CayaProtocolAddOn* addOn
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
 
+#if 0
 			BNotification notification(B_PROGRESS_NOTIFICATION);
-			notification.SetApplication("Caya");
+			notification.SetGroup(BString("Caya"));
 			notification.SetTitle(title);
 			notification.SetIcon(addOn->Icon());
 			notification.SetContent(message);
 			notification.SetProgress(progress);
-			be_roster->Notify(notification);
+			notification.Send();
+#endif
 			break;
 		}
 		case IM_NOTIFICATION:
@@ -344,11 +345,11 @@ Server::ImMessage(BMessage* msg)
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
 
 			BNotification notification((notification_type)type);
-			notification.SetApplication("Caya");
+			notification.SetGroup(BString("Caya"));
 			notification.SetTitle(title);
 			notification.SetIcon(addOn->Icon());
 			notification.SetContent(message);
-			be_roster->Notify(notification);
+			notification.Send();
 			break;
 		}
 		default:

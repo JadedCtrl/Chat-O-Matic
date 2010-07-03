@@ -23,7 +23,6 @@
 #include <MenuItem.h>
 #include <Notification.h>
 #include <PopUpMenu.h>
-#include <Roster.h>
 #include <SpaceLayoutItem.h>
 #include <ScrollView.h>
 #include <StringView.h>
@@ -255,6 +254,7 @@ MainWindow::ImMessage(BMessage* msg)
 				// Sort list view again
 				fListView->Sort();
 
+#if 0
 				switch (status) {
 					case CAYA_ONLINE:
 					case CAYA_OFFLINE:
@@ -269,16 +269,17 @@ MainWindow::ImMessage(BMessage* msg)
 								message << " is offline!";
 
 							BNotification notification(B_INFORMATION_NOTIFICATION);
-							notification.SetApplication("Caya");
-							notification.SetTitle("Presence");
+							notification.SetGroup(BString("Caya"));
+							notification.SetTitle(BString("Presence"));
 							notification.SetIcon(rosterItem->Bitmap());
-							notification.SetContent(message.String());
-							be_roster->Notify(notification);
+							notification.SetContent(message);
+							notification.Send();
 						}
 						break;
 					default:
 						break;
 				}
+#endif
 			}
 			break;
 		}
