@@ -344,12 +344,14 @@ Server::ImMessage(BMessage* msg)
 			CayaProtocolAddOn* addOn
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
 
+#if 0
 			BNotification notification((notification_type)type);
 			notification.SetGroup(BString("Caya"));
 			notification.SetTitle(title);
 			notification.SetIcon(addOn->Icon());
 			notification.SetContent(message);
 			notification.Send();
+#endif
 			break;
 		}
 		default:
