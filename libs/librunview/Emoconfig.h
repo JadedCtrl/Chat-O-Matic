@@ -8,23 +8,25 @@
 
 class Emoconfig : public BMessage
 {
-	public:
-			Emoconfig(const char* xmlfile);
-			~Emoconfig();
-			int numfaces;			
-			BMessage					menu;
-			
-			float	GetEmoticonSize() { return fEmoticonSize; }
-	
-	private:
+public:
+	Emoconfig(const char* xmlfile);
+	~Emoconfig();
+	int numfaces;
+	BMessage					menu;
 
-		float		fEmoticonSize;
-		XML_Parser	fParser;
+	float	GetEmoticonSize() {
+		return fEmoticonSize;
+	}
 
-		static void StartElement(void * pUserData, const char * pName, const char ** pAttr);
-		static void EndElement(void * pUserData, const char * pName);
-		static void Characters(void * pUserData, const char * pString, int pLen);		
-	
+private:
+
+	float		fEmoticonSize;
+	XML_Parser	fParser;
+
+	static void StartElement(void* pUserData, const char* pName, const char** pAttr);
+	static void EndElement(void* pUserData, const char* pName);
+	static void Characters(void* pUserData, const char* pString, int pLen);
+
 };
 
 #endif
