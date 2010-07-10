@@ -40,10 +40,12 @@ ProtocolManager::Init(BDirectory dir, BHandler* target)
 		if (id < 0)
 			continue;
 
+		// If add-on's API version fits then load accounts...
 		CayaProtocolAddOn* addOn = new CayaProtocolAddOn(id, path.Path());
-		fAddOnMap.AddItem(addOn->Signature(), addOn);
-
-		_GetAccounts(addOn, target);
+		if (addOn->Protocol()->Version() == CAYA_VERSION) {
+			fAddOnMap.AddItem(addOn->Signature(), addOn);
+			_GetAccounts(addOn, target);
+		}
 	}
 }
 

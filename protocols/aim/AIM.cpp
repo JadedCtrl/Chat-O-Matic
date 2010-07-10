@@ -241,6 +241,13 @@ AIMProtocol::MessengerInterface() const
 }
 
 
+uint32
+AIMProtocol::Version() const
+{
+	return CAYA_VERSION_1_PRE_ALPHA_1;
+}
+
+
 status_t
 AIMProtocol::A_LogOn()
 {

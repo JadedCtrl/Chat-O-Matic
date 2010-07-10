@@ -33,6 +33,8 @@ public:
 	virtual	CayaProtocolMessengerInterface*
 							MessengerInterface() const;
 
+	virtual	uint32			Version() const;
+
 	static	int32			WaitForData(void*);
 
 	static	void			GotMessage(void*, char*, int, char*);
