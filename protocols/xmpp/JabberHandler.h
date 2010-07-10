@@ -10,6 +10,7 @@
 #include <String.h>
 
 #include <libgloox/client.h>
+#include <libgloox/chatstatehandler.h>
 #include <libgloox/connectionlistener.h>
 #include <libgloox/connectiontcpclient.h>
 #include <libgloox/discohandler.h>
@@ -18,6 +19,9 @@
 #include <libgloox/loghandler.h>
 #include <libgloox/logsink.h>
 #include <libgloox/messagehandler.h>
+#include <libgloox/messagesession.h>
+#include <libgloox/messagesessionhandler.h>
+#include <libgloox/messageeventhandler.h>
 #include <libgloox/message.h>
 #include <libgloox/presence.h>
 #include <libgloox/vcardhandler.h>
@@ -29,7 +33,9 @@
 class BList;
 
 class JabberHandler : public CayaProtocol, gloox::RosterListener, gloox::ConnectionListener,
-								gloox::LogHandler, gloox::MessageHandler, gloox::VCardHandler {
+								gloox::LogHandler, gloox::MessageSessionHandler,
+								gloox::MessageHandler, gloox::MessageEventHandler,
+								gloox::ChatStateHandler, gloox::VCardHandler {
 public:
 									JabberHandler();
 	virtual							~JabberHandler();
@@ -50,6 +56,8 @@ public:
 
 	virtual CayaProtocolMessengerInterface*
 									MessengerInterface() const;
+
+	virtual	uint32					Version() const;
 
 			// Functions for gloox
 			gloox::Client*			Client() const;
@@ -74,6 +82,7 @@ private:
 			gloox::ConnectionTCPClient*
 									fConnection;
 			gloox::VCardManager*	fVCardManager;
+			gloox::MessageSession*	fSession;
 
 			gloox::JID				fJid;
 			thread_id				fRecvThread;
@@ -103,7 +112,11 @@ private:
 	virtual	bool					onTLSConnect(const gloox::CertInfo&);
 	virtual	void					onResourceBindError(const gloox::Error*);
 	virtual	void					handleRoster(const gloox::Roster&);
-	virtual	void					handleMessage(const gloox::Message&, gloox::MessageSession*);
+	virtual	void					handleMessageSession(gloox::MessageSession* session);
+	virtual	void					handleMessage(const gloox::Message& m, gloox::MessageSession*);
+	virtual	void					handleMessageEvent(const gloox::JID& from, gloox::MessageEventType event);
+	virtual	void					handleChatState(const gloox::JID& from, gloox::ChatStateType state);
+
 	virtual	void					handleItemAdded(const gloox::JID&);
 	virtual	void					handleItemSubscribed(const gloox::JID&);
 	virtual	void					handleItemUnsubscribed(const gloox::JID&);

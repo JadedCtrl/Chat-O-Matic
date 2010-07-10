@@ -16,6 +16,9 @@
 
 #include <libsupport/SHA1.h>
 
+#include <libgloox/chatstatefilter.h>
+#include <libgloox/messageeventfilter.h>
+
 #include "JabberHandler.h"
 
 
@@ -43,7 +46,8 @@ connect_thread(void* data)
 JabberHandler::JabberHandler()
 	:
 	fClient(NULL),
-	fVCardManager(NULL)
+	fVCardManager(NULL),
+	fSession(NULL)
 {
 	fAvatars = new BList();
 }
@@ -51,7 +55,6 @@ JabberHandler::JabberHandler()
 
 JabberHandler::~JabberHandler()
 {
-	fVCardManager->cancelVCardOperations(this);
 	Shutdown();
 
 	BString* item = NULL;
@@ -126,8 +129,14 @@ JabberHandler::Process(BMessage* msg)
 status_t
 JabberHandler::Shutdown()
 {
-	if (fClient)
+	if (fVCardManager)
+		fVCardManager->cancelVCardOperations(this);
+
+	if (fClient) {
+		fClient->disposeMessageSession(fSession);
 		fClient->disconnect();
+	}
+
 	return B_OK;
 }
 
@@ -178,7 +187,7 @@ JabberHandler::UpdateSettings(BMessage* msg)
 	if (fPort > 0)
 		fClient->setPort(fPort);
 	fClient->registerConnectionListener(this);
-	fClient->registerMessageHandler(this);
+	fClient->registerMessageSessionHandler(this);
 	fClient->rosterManager()->registerRosterListener(this);
 	fClient->disco()->setVersion("Caya", VERSION);
 	fClient->disco()->setIdentity("client", "caya");
@@ -211,6 +220,13 @@ CayaProtocolMessengerInterface*
 JabberHandler::MessengerInterface() const
 {
 	return fServerMessenger;
+}
+
+
+uint32
+JabberHandler::Version() const
+{
+	return CAYA_VERSION_1_PRE_ALPHA_1;
 }
 
 
@@ -798,22 +814,82 @@ JabberHandler::handleRoster(const gloox::Roster& roster)
 
 
 void
+JabberHandler::handleMessageSession(gloox::MessageSession* session)
+{
+	// Delete previous session
+	if (fSession)
+		fClient->disposeMessageSession(fSession);
+	fSession = session;
+
+	// Register message handler
+	fSession->registerMessageHandler(this);
+
+	// Message event filter
+	gloox::MessageEventFilter* messageFilter
+		= new gloox::MessageEventFilter(fSession);
+	messageFilter->registerMessageEventHandler(this);
+
+	// Chat state filter
+	gloox::ChatStateFilter* chatFilter
+		= new gloox::ChatStateFilter(fSession);
+	chatFilter->registerChatStateHandler(this);
+}
+
+
+void
 JabberHandler::handleMessage(const gloox::Message& m, gloox::MessageSession*)
 {
 	// Only chat messages are handled now
 	if (m.subtype() != gloox::Message::Chat)
 		return;
 
-	if (m.body() == "") {
-		// TODO: Started and stopped typing
-	} else {
-		BMessage msg(IM_MESSAGE);
-		msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-		msg.AddString("id", m.from().bare().c_str());
+	// We need a body
+	if (m.body() == "")
+		return;
+
+	// Notify that a chat message was received
+	BMessage msg(IM_MESSAGE);
+	msg.AddString("id", m.from().bare().c_str());
+	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+		if (m.subject() != "")
 		msg.AddString("subject", m.subject().c_str());
-		msg.AddString("body", m.body().c_str());
-		_SendMessage(&msg);
+	msg.AddString("body", m.body().c_str());
+	_SendMessage(&msg);
+}
+
+
+void
+JabberHandler::handleMessageEvent(const gloox::JID& from, gloox::MessageEventType event)
+{
+}
+
+
+void
+JabberHandler::handleChatState(const gloox::JID& from, gloox::ChatStateType state)
+{
+printf("------ %d\n", state);
+	// We're interested only in some states
+	if (state == gloox::ChatStateActive || state == gloox::ChatStateInvalid)
+		return;
+
+	BMessage msg(IM_MESSAGE);
+	msg.AddString("id", from.bare().c_str());
+
+	switch (state) {
+		case gloox::ChatStateComposing:
+			msg.AddInt32("im_what", IM_CONTACT_STARTED_TYPING);
+			break;
+		case gloox::ChatStatePaused:
+			msg.AddInt32("im_what", IM_CONTACT_STOPPED_TYPING);
+			break;
+		case gloox::ChatStateGone:
+			// TODO
+			break;
+		default:
+			break;
 	}
+
+	_SendMessage(&msg);
 }
 
 
