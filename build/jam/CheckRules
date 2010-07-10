@@ -48,3 +48,30 @@ rule CheckOpenSSL
 		HAVE_OPENSSL = $(haveLibs) ;
 	}
 }
+
+rule CheckCurl
+{
+	# CheckCurl ;
+	# Check for Curl and defined HAVE_CURL according, it also defines
+	# CURL_INCLUDE_DIR and CURL_LIBRARY_DIR with location of respectively
+	# include and library files.
+
+	HAVE_CURL = ;
+	CURL_INCLUDE_DIR = ;
+	CURL_LIBRARY_DIR = ;
+
+	local haveHeaders = [ Glob $(COMMON_INCLUDE_DIRECTORY)/curl : curl.h ] ;
+	if $(haveHeaders) {
+		CURL_INCLUDE_DIR = $(COMMON_INCLUDE_DIRECTORY)/curl ;
+
+		local haveLibs = [ Glob $(COMMON_LIB_DIRECTORY) : libcurl.so ] ;
+		if $(haveLibs) {
+			CURL_LIBRARY_DIR = $(COMMON_LIB_DIRECTORY) ;
+
+			Echo Curl Headers: $(CURL_INCLUDE_DIR) ;
+			Echo Curl Libs: $(CURL_LIBRARY_DIR) ;
+		}
+
+		HAVE_CURL = $(haveLibs) ;
+	}
+}

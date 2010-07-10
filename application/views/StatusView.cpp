@@ -83,6 +83,7 @@ StatusView::StatusView(const char* name)
 void
 StatusView::AttachedToWindow()
 {
+	fNickname->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 	fNickname->SetTarget(this);
 	fStatusMenu->SetTargetForItems(this);
 }

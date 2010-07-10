@@ -1,6 +1,7 @@
 SubDir TOP libs ;
 
 # Include all the components.
+SubInclude TOP libs libdownload ;
 SubInclude TOP libs librunview ;
 SubInclude TOP libs libsupport ;
 SubInclude TOP libs libinterface ;
