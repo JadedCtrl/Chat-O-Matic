@@ -1,0 +1,60 @@
+libmsn 4.0
+===========
+
+:Author: Mark Rowe
+:Contact: bdash@users.sourceforge.net
+
+:Author: Tiago Salem Herrmann
+:Contact: tiagosalem@users.sourceforge.net
+
+libmsn is a C++ library for Microsoft's MSN Messenger service. It provides a high-level 
+interface that allows an application to access instant messaging features with ease.
+
+libmsn is licensed under the terms of the GPL.  Please see the file `COPYING' included
+with the distribution for more information.
+
+Whats New?
+----------
+In 4.0:    libmsn 4.0 was refactored to support MSNP15 protocol.
+           Many features were added to this version, like offline messaging, file transfer with
+           preview, nugdes, custom emoticons, ink and winks sending and receiving, avatar support,
+           address book management with soap actions, and so on.
+
+In 3.2:    With the release of libmsn 3.2 comes support for multiple simultaneous connections.  The
+           callback mechanism has been refactored so that it is easy to distinguish between each
+           connection's callbacks.  A large number of bug fixes have also been rolled in to this
+           release.
+In 3.1.1:  libmsn 3.1.1 is primarily a bug fix release.  Changes include fixing up the #include's
+           so that it compiles cleanly on a wider range of platforms, working file transfer
+           support and improved error handling.
+In 3.1:    libmsn 3.1 brings support for server-side groups for managing buddies.  It also
+           features rewritten network code that should help reduce CPU usage, and the amount
+           of time spent waiting for network data.
+In 3.0b2:  3.0b2 tidies up the external API to be more consistent with the rest of libmsn.
+           The build system has also been adjusted so that the same program, msntest, is
+           built.
+
+Installation
+------------
+You need to use cmake to build libmsn. (http://www.cmake.org/)
+The basic installation procedure is similar to::
+
+  $ cd libmsn; mkdir build; cd build
+  $ cmake ..
+  # make install
+
+See `INSTALL' for more information.
+
+Documentation
+-------------
+Documentation for libmsn is available in the `doc/html' subdirectory.  A brief overview of
+the library can be found in the `doc/OVERVIEW' file.
+
+A sample program that uses libmsn can be found in `msntest/msntest.cpp'.
+
+Support
+-------
+For questions about usage of libmsn, please use the libmsn-discuss mailing list.  A web
+interface for subscribing to this mailing list is available at 
+http://lists.sourceforge.net/lists/listinfo/libmsn-discuss/.  If you prefer real-time
+discussion, please look to the #libmsn channel on irc.freenode.net.

@@ -1,0 +1,21 @@
+libmsn THANKS File
+==================
+libmsn was originally written by Meredydd Luff, was rewritten by
+Mark Rowe and now is been ported to MSNP15 by Tiago Salem Herrmann
+Several other people have contributed code, submitted bugs or suggested features.  
+This file contains a list of those who are known to have contributed
+to the libmsn project.
+
+Mark Rowe <bdash@users.sourceforge.net>
+Meredydd Luff <meredydd@everybuddy.com>
+Tiago Salem Herrmann <tiagosh@gmail.com>
+Edmund Horner <ejrh@paradise.net.nz>
+Adam Palmer <adam@npn.org.uk>
+
+Thanks to msnpiki (msnpiki.msnfanatic.com),
+ZoRoNaX (http://zoronax.spaces.live.com/)
+people from pymsn (http://telepathy.freedesktop.org/wiki/Pymsn).
+Gustavo Pichorim Boiko
+Sascha Wittkowski
+Christian Ehrlicher
+Youness Alaoui (KaKaRoTo) (libsiren)

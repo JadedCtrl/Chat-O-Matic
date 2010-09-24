@@ -1,0 +1,42 @@
+
+TODO
+- improve msnobject support
+
+Switchboard:
+- p2p
+  - voice chat
+  - webcam
+  - ink support (in progress, missing p2p sending support)
+
+done:
+Notification:
+	- SSO login ( MSNP15 )
+	- retrieve lists (Allow, Block, Pending, Reverse)
+	- retrieve Address Book (Forward List)
+	- retrieve Groups and assign contacts
+	- Set user friendlyname
+	- get contacts personal info (media and friendlyname)
+	- get contacts status changes (Online, busy, etc)
+	- set personal info
+	- retrieve, send and delete OIMs (offline messages)
+	- Block/Unblock user
+	- move user to group (del user from group and add to another)
+	- add group
+	- remove group
+	- Add user
+	- del user
+	- get contact capabilities
+
+Switchboard:
+	- multipacket receiving support
+	- send and receive emoticons
+	- send and receive msgs
+	- send and receive nudges
+	- send and receive actions
+	- send msgs while in hidden status
+	- send and receive avatars 
+	- send and receive files through Switchboard
+	- send and receive voice clips
+	- send and receive winks
+	- send and receive ink (multipacket support)
+
