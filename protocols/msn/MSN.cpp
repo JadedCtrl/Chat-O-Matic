@@ -524,9 +524,8 @@ void MSNP::registerSocket(void *s, int reading, int writing, bool isSSL)
 			Error("Memory Error!!\n", NULL);
 			return;
 		}
-		x=kSocketsCount;
 		kSocketsAvailable += 10;	
-		for (x; x < kSocketsAvailable; x++) {
+		for (x=kSocketsCount; x < kSocketsAvailable; x++) {
 			kPollSockets[x].fd = -1;
 			kPollSockets[x].events = 0;
 			kPollSockets[x].revents = 0;
@@ -586,21 +585,21 @@ void MSNP::closeSocket(void *s)
 {
 //printf("MSNP::closeSocket\n");
 	int x;
+	int i;
 	for (x = 0; x < kSocketsCount; x++) {
 		if (getSocketFileDescriptor(s) == kPollSockets[x].fd) {
 			close(getSocketFileDescriptor(s));
-				if (kSocketsSsl[x].isSSL) {
-						if (kSocketsSsl[x].ssl) {
-							SSL_set_shutdown(kSocketsSsl[x].ssl,
-								SSL_SENT_SHUTDOWN|SSL_RECEIVED_SHUTDOWN);
-							SSL_free(kSocketsSsl[x].ssl);
+			if (kSocketsSsl[x].isSSL) {
+				if (kSocketsSsl[x].ssl) {
+					SSL_set_shutdown(kSocketsSsl[x].ssl,
+						SSL_SENT_SHUTDOWN|SSL_RECEIVED_SHUTDOWN);
+					SSL_free(kSocketsSsl[x].ssl);
 
-							if (kSocketsSsl[x].ctx)
-								SSL_CTX_free(kSocketsSsl[x].ctx);
-						}
+					if (kSocketsSsl[x].ctx)
+						SSL_CTX_free(kSocketsSsl[x].ctx);
 				}
-			int i = x;
-			for (i; i < kSocketsCount; i++) {
+			}
+			for (i = x; i < kSocketsCount; i++) {
 				kPollSockets[i] = kPollSockets[i+1];		
 				kSocketsSsl[i] = kSocketsSsl[i+1];
 			}
@@ -870,10 +869,6 @@ void MSNP::buddyJoinedConversation(MSN::SwitchboardServerConnection * conn, MSN:
 			MSN::SwitchboardServerConnection*>(username, conn));
 		delete ctx;
 		conn->auth.tag = NULL;
-		std::string message = "** Buddy ";
-		message.append(username);
-		message.append(" joined conversation");
-		MessageFromBuddy(message.c_str(), username.c_str());
 	}
 }
 
@@ -886,10 +881,7 @@ void MSNP::buddyLeftConversation(MSN::SwitchboardServerConnection * conn, MSN::P
 	count = fSwitchboardList.CountItems();
 	if (count != 0) {
 		for (x=0; x < count; x++) {
-			if (fSwitchboardList.ItemAt(x)->second == conn) {
-				//delete fSwitchboardList.ItemAt(x)->second;
-				//fSwitchboardList.RemoveItemAt(x);
-				MessageFromBuddy("** Buddy left conversation", username.c_str());
+			if (fSwitchboardList.ItemAt(x)->second == conn) {;
 				break;
 			}
 		}
