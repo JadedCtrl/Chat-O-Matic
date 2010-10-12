@@ -15,7 +15,23 @@
 #include "md5.h"
 #endif
 
+#if 0
 #define CLIENT_IDENT "AOL Instant Messenger, version 5.5.3595/WIN32"
+#define CLIENT_V1 0x0109
+#define CLIENT_V2 0x0005
+#define CLIENT_V3 0x0005
+#define CLIENT_V4 0x0000
+#define CLIENT_V5 0x0e0b
+#define CLIENT_V6 0x00000104
+#else
+#define CLIENT_IDENT "Apple iChat"
+#define CLIENT_V1 0x311a
+#define CLIENT_V2 0x0001
+#define CLIENT_V3 0x0000
+#define CLIENT_V4 0x0000
+#define CLIENT_V5 0x003c
+#define CLIENT_V6 0x00000c6
+#endif
 
 #ifdef MACINTOSH_CLASSIC
 
@@ -600,26 +616,26 @@ bos_md5snac(void *handle, uint8_t * data, uint16_t len)
 	         */
 		pkt_add16(packet, 0x0016);
 		pkt_add16(packet, 0x0002);
-		pkt_add16(packet, 0x0109);
+		pkt_add16(packet, CLIENT_V1);
 
 		/*
 	         * Add client versions (hardcoded)
 	         */
 		pkt_add16(packet, 0x0017);
 		pkt_add16(packet, 0x0002);
-		pkt_add16(packet, 0x0005);
+		pkt_add16(packet, CLIENT_V2);
 		pkt_add16(packet, 0x0018);
 		pkt_add16(packet, 0x0002);
-		pkt_add16(packet, 0x0005);
+		pkt_add16(packet, CLIENT_V3);
 		pkt_add16(packet, 0x0019);
 		pkt_add16(packet, 0x0002);
-		pkt_add16(packet, 0x0000);
+		pkt_add16(packet, CLIENT_V4);
 		pkt_add16(packet, 0x001A);
 		pkt_add16(packet, 0x0002);
-		pkt_add16(packet, 0x0e0b);
+		pkt_add16(packet, CLIENT_V5);
 		pkt_add16(packet, 0x0014);
 		pkt_add16(packet, 0x0004);
-		pkt_add32(packet, 0x00000104);
+		pkt_add32(packet, CLIENT_V6);
 		pkt_add16(packet, 0x000F);
 		pkt_add16(packet, 0x0002);
 		pkt_addraw(packet, (unsigned char *) "en", 2);
