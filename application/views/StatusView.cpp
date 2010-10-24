@@ -76,6 +76,7 @@ StatusView::StatusView(const char* name)
 			.AddGlue()
 		.End()
 		.Add(fAvatar)
+		.TopView()
 	);
 }
 

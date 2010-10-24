@@ -9,8 +9,7 @@
 #include <Alert.h>
 #include <Button.h>
 #include <ControlLook.h>
-#include <GroupLayout.h>
-#include <GroupLayoutBuilder.h>
+#include <LayoutBuilder.h>
 #include <TextControl.h>
 #include <String.h>
 
@@ -51,9 +50,7 @@ AccountDialog::AccountDialog(const char* title, ProtocolSettings* settings,
 	BButton* ok = new BButton("OK", new BMessage(kOK));
 
 	const float spacing = be_control_look->DefaultItemSpacing();
-
-	SetLayout(new BGroupLayout(B_VERTICAL, spacing));
-	AddChild(BGroupLayoutBuilder(B_VERTICAL, spacing)
+	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.Add(fAccountName)
 		.Add(divider)
 		.Add(fTop)
@@ -63,8 +60,7 @@ AccountDialog::AccountDialog(const char* title, ProtocolSettings* settings,
 			.Add(ok)
 		.End()
 		.AddGlue()
-		.SetInsets(spacing, spacing, spacing, 0)
-	);
+		.SetInsets(spacing, spacing, spacing, 0);
 
 	fAccountName->MakeFocus(true);
 

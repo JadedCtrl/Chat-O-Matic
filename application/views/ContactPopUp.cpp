@@ -49,6 +49,7 @@ ContactPopUp::ContactPopUp(ContactLinker* contact)
 		.End()
 		.Add(fAvatarView)
 		.SetInsets(10, 10, 10, 10)
+		.TopView()
 	);
 }
 

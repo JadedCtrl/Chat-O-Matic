@@ -70,6 +70,7 @@ PreferencesBehavior::PreferencesBehavior()
 		.Add(fIgnoreEmoticons)
 		.AddGlue()
 		.SetInsets(spacing, spacing, spacing, spacing)
+		.TopView()
 	);
 }
 

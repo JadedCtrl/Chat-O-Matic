@@ -8,8 +8,7 @@
 
 #include <Button.h>
 #include <ControlLook.h>
-#include <GroupLayout.h>
-#include <GroupLayoutBuilder.h>
+#include <LayoutBuilder.h>
 #include <TabView.h>
 
 #include "PreferencesDialog.h"
@@ -30,18 +29,14 @@ PreferencesDialog::PreferencesDialog()
 	BButton* ok = new BButton("OK", new BMessage(kApply));
 
 	const float spacing = be_control_look->DefaultItemSpacing();
-
-	SetLayout(new BGroupLayout(B_VERTICAL,
-		be_control_look->DefaultItemSpacing()));
-	AddChild(BGroupLayoutBuilder(B_VERTICAL)
+	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.Add(tabView)
 		.AddGroup(B_HORIZONTAL)
 			.AddGlue()
 			.Add(ok)
 			.SetInsets(spacing, spacing, 0, 0)
 		.End()
-		.SetInsets(spacing, spacing, spacing, spacing)
-	);
+		.SetInsets(spacing, spacing, spacing, spacing);
 
 	CenterOnScreen();
 }
