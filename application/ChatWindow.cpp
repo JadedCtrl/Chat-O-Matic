@@ -130,6 +130,11 @@ ChatWindow::ImMessage(BMessage* msg)
 		case IM_CONTACT_STOPPED_TYPING:
 			fStatus->SetText("");
 			break;
+		case IM_CONTACT_GONE:
+			fStatus->SetText("Contact closed the chat window!");
+			snooze(10000);
+			fStatus->SetText("");
+			break;
 		default:
 			break;
 	}

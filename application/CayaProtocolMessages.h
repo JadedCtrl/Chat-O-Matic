@@ -29,147 +29,150 @@ enum im_what_code {
 	 */
 
 	//! Request a server-side contact list from protocol
-	IM_GET_CONTACT_LIST				= 1,
+	IM_GET_CONTACT_LIST					= 1,
 
 	//! Server-side contact list received
-	IM_CONTACT_LIST					= 2,
+	IM_CONTACT_LIST						= 2,
 
 	//! Contact(s) was added to the server-side list
-	IM_CONTACT_LIST_ADD_CONTACT		= 3,
+	IM_CONTACT_LIST_ADD_CONTACT			= 3,
 
 	//! Contact(s) removed from the server-side list
-	IM_CONTACT_LIST_REMOVED_CONTACT	= 4,
+	IM_CONTACT_LIST_REMOVED_CONTACT		= 4,
 
 	/*
 	 * Messages related to text chat.
 	 */
 
 	//! Send a chat message to a contact
-	IM_SEND_MESSAGE					= 20,
+	IM_SEND_MESSAGE						= 20,
 
 	//! Chat message has been sent to contact
-	IM_MESSAGE_SENT					= 21,
+	IM_MESSAGE_SENT						= 21,
 
 	//! Chat message received from contact
-	IM_MESSAGE_RECEIVED				= 22,
+	IM_MESSAGE_RECEIVED					= 22,
 
 	//! Contact started typing
-	IM_CONTACT_STARTED_TYPING		= 23,
+	IM_CONTACT_STARTED_TYPING			= 23,
 
 	//! Contact stopped typing
-	IM_CONTACT_STOPPED_TYPING		= 24,
+	IM_CONTACT_STOPPED_TYPING			= 24,
+
+	//! Contact gone
+	IM_CONTACT_GONE						= 25,
 
 	//! User started typing
-	IM_USER_STARTED_TYPING			= 25,
+	IM_USER_STARTED_TYPING				= 26,
 
 	//! User stopped typing
-	IM_USER_STOPPED_TYPING			= 26,
+	IM_USER_STOPPED_TYPING				= 27,
 
 	/*
 	 * Messages related to contact changes.
 	 */
 
 	//! Change contact's status
-	IM_SET_NICKNAME					= 40,
+	IM_SET_NICKNAME						= 40,
 
 	//! Contact's status has changed
-	IM_NICKNAME_SET					= 41,
+	IM_NICKNAME_SET						= 41,
 
 	/*
 	 * Messages related to contact's information received from protocols.
 	 */
 
 	//! Received contact new status
-	IM_STATUS_SET					= 60,
+	IM_STATUS_SET						= 60,
 
 	//! Contact's avatar icon was changed
-	IM_AVATAR_SET					= 61,
+	IM_AVATAR_SET						= 61,
 
 	//! Get contact information
-	IM_GET_CONTACT_INFO				= 62,
+	IM_GET_CONTACT_INFO					= 62,
 
 	//! Received contact information
-	IM_CONTACT_INFO					= 63,
+	IM_CONTACT_INFO						= 63,
 
 	//! Get extended contact information
-	IM_GET_EXTENDED_CONTACT_INFO	= 64,
+	IM_GET_EXTENDED_CONTACT_INFO		= 64,
 
 	//! Received extended contact information
-	IM_EXTENDED_CONTACT_INFO		= 65,
+	IM_EXTENDED_CONTACT_INFO			= 65,
 
 	/*
 	 * Messages that involve changing own information.
 	 */
 
 	//! Change own nickname
-	IM_SET_OWN_NICKNAME				= 80,
+	IM_SET_OWN_NICKNAME					= 80,
 
 	//! Own nickname was changed
-	IM_OWN_NICKNAME_SET				= 81,
+	IM_OWN_NICKNAME_SET					= 81,
 
 	//! Change own status
-	IM_SET_OWN_STATUS				= 82,
+	IM_SET_OWN_STATUS					= 82,
 
 	// Own status was chagned
-	IM_OWN_STATUS_SET				= 83,
+	IM_OWN_STATUS_SET					= 83,
 
 	//! Get own contact information
-	IM_OWN_CONTACT_INFO				= 84,
+	IM_OWN_CONTACT_INFO					= 84,
 
 	//! Change own avatar icon
-	IM_SET_OWN_AVATAR				= 85,
+	IM_SET_OWN_AVATAR					= 85,
 
 	//! Own avatar icon was changed
-	IM_OWN_AVATAR_SET				= 86,
+	IM_OWN_AVATAR_SET					= 86,
 
 	/*
 	 * Contacts registration.
 	 */
 
 	//! Start listening to changes in these contact's statuses
-	IM_REGISTER_CONTACTS			= 100,
+	IM_REGISTER_CONTACTS				= 100,
 
 	//! Stop listening to status changes from these contacts
-	IM_UNREGISTER_CONTACTS			= 101,
+	IM_UNREGISTER_CONTACTS				= 101,
 
 	/*
 	 * Authorization.
 	 */
 
 	//! Ask authorization to contact
-	IM_ASK_AUTHORIZATION			= 120,
+	IM_ASK_AUTHORIZATION				= 120,
 
 	//! Authorization response received from contact
-	IM_AUTHORIZATION_RECEIVED		= 121,
+	IM_AUTHORIZATION_RECEIVED			= 121,
 
 	//! Authorization request received from contact
-	IM_AUTHORIZATION_REQUEST		= 122,
+	IM_AUTHORIZATION_REQUEST			= 122,
 
 	//! Authorization response given to contact
-	IM_AUTHORIZATION_RESPONSE		= 123,
+	IM_AUTHORIZATION_RESPONSE			= 123,
 
 	//! Contact has been authorized
-	IM_CONTACT_AUTHORIZED			= 124,
+	IM_CONTACT_AUTHORIZED				= 124,
 
 	/*
 	 * Miscellaneous.
 	 */
 
 	//! Progress message received, could be login sequence, file transfer etc...
-	IM_PROGRESS						= 140,
+	IM_PROGRESS							= 140,
 
 	//! Notifications
-	IM_NOTIFICATION					= 141,
+	IM_NOTIFICATION						= 141,
 
 	/*
 	 * Special messages
 	 */
 
 	//! Special message forwarded to protocol
-	IM_SPECIAL_TO_PROTOCOL			= 1000,
+	IM_SPECIAL_TO_PROTOCOL				= 1000,
 
 	//! Special message forwarded from protocol
-	IM_SPECIAL_FROM_PROTOCOL		= 1001
+	IM_SPECIAL_FROM_PROTOCOL			= 1001
 };
 
 #endif	// _CAYA_PROTOCOL_MESSAGES_H
