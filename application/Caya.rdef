@@ -13,7 +13,7 @@ resource app_version {
 	internal = 0,
 
 	short_info = "Caya",
-	long_info = "©2009-2010 Andrea Anzani, Pier Luigi Fiorini"
+	long_info = "©2009-2011 Andrea Anzani, Pier Luigi Fiorini"
 };
 
 resource app_flags B_SINGLE_LAUNCH;
