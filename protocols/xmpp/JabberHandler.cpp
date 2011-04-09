@@ -25,6 +25,7 @@
 static status_t
 connect_thread(void* data)
 {
+
 	JabberHandler* handler = (JabberHandler*)data;
 	if (!handler)
 		return B_BAD_VALUE;
@@ -34,7 +35,7 @@ connect_thread(void* data)
 		return B_BAD_VALUE;
 
 	gloox::ConnectionError e;
-	while ((e = client->recv(1000)) == gloox::ConnNoError);
+	while ((e = client->recv(10000000)) == gloox::ConnNoError);
 
 	if (e != gloox::ConnUserDisconnected)
 		handler->HandleError(e);

@@ -191,7 +191,7 @@ status_t
 MSNP::Process(BMessage* msg)
 {
 //	printf("Process()\n");
-	msg->PrintToStream();
+//	msg->PrintToStream();
 
 	switch (msg->what) {
 		case IM_MESSAGE:
@@ -314,6 +314,7 @@ MSNP::Process(BMessage* msg)
 									y = x;
 								} else {
 									delete fSwitchboardList.ItemAt(x)->second;
+									//delete fSwitchboardList.ItemAt(x)->first;
 									fSwitchboardList.RemoveItemAt(x);
 								}
 								break;
@@ -1066,7 +1067,7 @@ int MSNP::listenOnPort(int port)
 
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
+	addr.sin_port = htons((uint16)port);
 
 	if (bind(s, (sockaddr *)(&addr), sizeof(addr)) < 0 || listen(s, 1) < 0)	{
 		close(s);
