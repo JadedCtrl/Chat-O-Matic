@@ -3,3 +3,4 @@ SubDir TOP protocols ;
 # Include all the components.
 SubInclude TOP protocols xmpp ;
 SubInclude TOP protocols msn ;
+SubInclude TOP protocols yahoo ;

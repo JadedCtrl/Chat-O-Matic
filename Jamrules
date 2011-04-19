@@ -54,10 +54,6 @@ CheckOpenSSL ;
 if ! $(HAVE_OPENSSL) {
 	Echo "** MSN, Jabber, GoogleTalk and Facebook protocols are disabled for lack of OpenSSL" ;
 }
-CheckLibYahoo2 ;
-if ! $(HAVE_LIBYAHOO2) {
-	Echo "** Yahoo protocol is disabled for lack of libyahoo2" ;
-}
 
 # Include jam scripts
 include [ FDirName $(JAM_DIR) HelperRules ] ;

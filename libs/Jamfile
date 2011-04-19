@@ -4,3 +4,4 @@ SubDir TOP libs ;
 SubInclude TOP libs libgloox ;
 SubInclude TOP libs libmsn ;
 SubInclude TOP libs libsupport ;
+SubInclude TOP libs libyahoo2 ;
