@@ -57,6 +57,7 @@ int32 StartPollThread(void* punt)
 	MSN::NotificationServerConnection* mainConnection = mainClass->GetConnection();
 	mainConnection->connect("messenger.hotmail.com", 1863);
 	while (1) {
+		fflush(stdout);
 		if (kPollSockets == NULL)
 			continue;
 
@@ -272,14 +273,14 @@ MSNP::Process(BMessage* msg)
 								fMainConnection->disconnect();
 								delete fMainConnection;
 								int end = fBuddyList.CountItems();
-								int x;
-								for (x=0; x != end; x++) {
-									MSN::Buddy contact = fBuddyList.ItemAt(x);
-									if (contact.lists & MSN::LST_AL ) {
+
+								for (int x=0; x != end; x++) {
+									MSN::Buddy* contact = fBuddyList.ItemAt(x);
+									if (contact->lists & MSN::LST_AL ) {
 										BMessage msg(IM_MESSAGE);
 										msg.AddInt32("im_what", IM_STATUS_SET);
 										msg.AddString("protocol", kProtocolSignature);
-										msg.AddString("id", contact.userName.c_str());
+										msg.AddString("id", contact->userName.c_str());
 										msg.AddInt32("status", CAYA_OFFLINE);
 										fServerMsgr->SendMessage(&msg);
 									}
@@ -314,7 +315,6 @@ MSNP::Process(BMessage* msg)
 									y = x;
 								} else {
 									delete fSwitchboardList.ItemAt(x)->second;
-									//delete fSwitchboardList.ItemAt(x)->first;
 									fSwitchboardList.RemoveItemAt(x);
 								}
 								break;
@@ -513,7 +513,7 @@ void MSNP::registerSocket(void *s, int reading, int writing, bool isSSL)
 //	printf("MSNP::registerSocket %d %d %d\n", reading, writing, isSSL);
 	int x = 0;
 	if (kSocketsCount == kSocketsAvailable) {
-
+		printf("allocating memory\n");
 		kPollSockets = (struct pollfd*) realloc(kPollSockets, (kSocketsAvailable + 10) * sizeof(struct pollfd));
 		if (kPollSockets == NULL) {
 			Error("Memory Error!!\n", NULL);
@@ -584,7 +584,7 @@ MSNP::getSocketFileDescriptor (void *sock)
 
 void MSNP::closeSocket(void *s)
 {
-//printf("MSNP::closeSocket\n");
+//	printf("MSNP::closeSocket\n");
 	int x;
 	int i;
 	for (x = 0; x < kSocketsCount; x++) {
@@ -646,26 +646,31 @@ void MSNP::gotBuddyListInfo(MSN::NotificationServerConnection* conn, MSN::ListSy
 	std::map<std::string, int> allContacts;
 	//Progress("MSN Protocol Login", "MSN Protocol: Logged in!", 0.90);
 	for (; i != info->contactList.end(); i++) {
-		MSN::Buddy *contact = (*i).second;
-		if (contact->lists & MSN::LST_AB ) {
-			allContacts[contact->userName.c_str()]=0;
-			allContacts[contact->userName.c_str()] |= MSN::LST_AB;
+		MSN::Buddy contact = *(*i).second;
+		if (contact.lists & MSN::LST_AB ) {
+			allContacts[contact.userName.c_str()]=0;
+			allContacts[contact.userName.c_str()] |= MSN::LST_AB;
 		}
-		if (contact->lists & MSN::LST_AL) {
-			allContacts[contact->userName.c_str()] |= MSN::LST_AL;
-			printf("-AL %s \n", contact->userName.c_str());
-			fBuddyList.AddItem(*contact);
-		}
-
-		if (contact->lists & MSN::LST_BL) {
-			allContacts[contact->userName.c_str()] |= MSN::LST_BL;
+		if (contact.lists & MSN::LST_AL) {
+			allContacts[contact.userName.c_str()] |= MSN::LST_AL;
+			//printf("-AL %s \n", contact.userName.c_str());
+			fBuddyList.AddItem(&contact);
 		}
 
-		if (contact->lists & MSN::LST_RL) {
-			printf("-RL %s \n", contact->userName.c_str());
+		if (contact.lists & MSN::LST_BL) {
+			allContacts[contact.userName.c_str()] |= MSN::LST_BL;
 		}
-		if (contact->lists & MSN::LST_PL) {
-			printf("-PL %s \n", contact->userName.c_str());
+
+		if (contact.lists & MSN::LST_RL) {
+			//printf("-RL %s \n", contact.userName.c_str());
+		}
+		if (contact.lists & MSN::LST_PL) {
+			//printf("-PL %s \n", contact.userName.c_str());
+		}
+		if (contact.lists & MSN::LST_AL) {
+			allContacts[contact.userName.c_str()] |= MSN::LST_AL;
+			//printf("-AL %s \n", contact.userName.c_str());
+			fBuddyList.AddItem(&contact);
 		}
 	}
 	conn->completeConnection(allContacts,info);
@@ -718,17 +723,17 @@ void MSNP::connectionReady(MSN::Connection * conn)
 	int end = fBuddyList.CountItems();
 	int x;
 	for (x=0; x != end; x++) {
-		MSN::Buddy contact = fBuddyList.ItemAt(x);
-		if (contact.lists & MSN::LST_AL ) {
-			serverBased.AddString("id", contact.userName.c_str());
+		MSN::Buddy* contact = fBuddyList.ItemAt(x);
+		if (contact->lists & MSN::LST_AL) {
+			serverBased.AddString("id", contact->userName.c_str());
 		}
 	}
 	fServerMsgr->SendMessage(&serverBased);
 
 	for (x=0; x != end; x++) {
-		MSN::Buddy contact = fBuddyList.ItemAt(x);
-		if (contact.lists & MSN::LST_AL ) {
-			SendContactInfo(&contact);
+		MSN::Buddy* contact = fBuddyList.ItemAt(x);
+		if (contact->lists & MSN::LST_AL) {
+			SendContactInfo(contact);
 		}
 	}
 
@@ -798,7 +803,7 @@ void MSNP::buddyChangedStatus(MSN::NotificationServerConnection * conn, MSN::Pas
 			msg.AddInt32("status", CAYA_AWAY);
 			break;
 		case MSN::STATUS_IDLE :
-			msg.AddInt32("status", CAYA_DO_NOT_DISTURB);
+			msg.AddInt32("status", CAYA_AWAY);
 			break;
 		case MSN::STATUS_BUSY :
 			msg.AddInt32("status", CAYA_DO_NOT_DISTURB);
@@ -877,16 +882,16 @@ void MSNP::buddyJoinedConversation(MSN::SwitchboardServerConnection * conn, MSN:
 void MSNP::buddyLeftConversation(MSN::SwitchboardServerConnection * conn, MSN::Passport username)
 {
 //	printf("MSNP::buddyLeftConversation\n");
-	int x;
+/*	int x;
 	int count = 0;
 	count = fSwitchboardList.CountItems();
 	if (count != 0) {
 		for (x=0; x < count; x++) {
-			if (fSwitchboardList.ItemAt(x)->second == conn) {;
+			if (fSwitchboardList.ItemAt(x)->second == conn) {
 				break;
 			}
 		}
-	}
+	}*/
 }
 
 

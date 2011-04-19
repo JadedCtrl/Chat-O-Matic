@@ -76,7 +76,7 @@ private:
 		bool		fSettings;
 
 		CayaProtocolMessengerInterface*	fServerMsgr;
-		List<MSN::Buddy> fBuddyList;
+		List<MSN::Buddy*> fBuddyList;
 		List<pair<string, MSN::SwitchboardServerConnection*>*> fSwitchboardList;
 		MSN::NotificationServerConnection* fMainConnection;
 // LibMSN Callbacks :
