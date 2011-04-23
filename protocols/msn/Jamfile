@@ -9,6 +9,7 @@ SubDirSysHdrs [ FDirName $(CAYA_INCLUDE_DIR) ] ;
 AddOn msn :
 	main.cpp
 	MSN.cpp
+	MSNContainer.cpp
 	: be root $(TARGET_LIBSTDC++) ssl crypto network bnetapi libmsn.a
 	: msn.rdef SettingsTemplate.rdef
 ;

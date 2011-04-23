@@ -61,8 +61,10 @@ public:
 		void 	Progress(const char* id, const char* message, float progress);
 		void 	SendContactInfo(MSN::Buddy*);
 		void	MessageFromBuddy(const char* mess, const char* id);
-
-;
+		void	RequestBuddyIcon(string msnobject, MSN::Passport buddy);
+		void	SendBuddyIcon(string filename, string passport);
+		bool	CheckAvatar(string passport);
+		string*	Object(string passport);
 private:
 
 		thread_id   fPollThread;
@@ -74,11 +76,17 @@ private:
 		string		fNickname;
 
 		bool		fSettings;
-
+unsigned int		fID;
 		CayaProtocolMessengerInterface*	fServerMsgr;
+		MSN::NotificationServerConnection* fMainConnection;
+
 		List<MSN::Buddy*> fBuddyList;
 		List<pair<string, MSN::SwitchboardServerConnection*>*> fSwitchboardList;
-		MSN::NotificationServerConnection* fMainConnection;
+
+		MSN::SwitchboardServerConnection* fAvatarSwitch;
+		List<pair<string, string>*> fAvatarQueue;
+		List<pair<string, string>*> fAvatarDone;
+
 // LibMSN Callbacks :
 		virtual void registerSocket(void* s, int read, int write, bool isSSL);
 
@@ -153,7 +161,7 @@ private:
 		virtual void buddyLeftConversation(MSN::SwitchboardServerConnection* conn,
 						MSN::Passport buddy);
 
-		virtual void gotInstantMessage(MSN::SwitchboardServerConnection * conn,
+		virtual void gotInstantMessage(MSN::SwitchboardServerConnection* conn,
 						MSN::Passport buddy, std::string friendlyname, MSN::Message* msg);
 
 		virtual void gotMessageSentACK(MSN::SwitchboardServerConnection * conn, int trID);

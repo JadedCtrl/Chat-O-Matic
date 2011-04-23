@@ -36,6 +36,7 @@
 #include <msn.h>
 
 #include "MSN.h"
+#include "MSNContainer.h"
 
 extern const char* kProtocolSignature = "msn";
 extern const char* kProtocolName = "MSN Protocol";
@@ -50,6 +51,9 @@ struct ssl {
 
 int kSocketsCount = 0;
 int kSocketsAvailable = 0;
+
+#define AVAT_PATH "/tmp/msnavatarbuddy"
+
 int32 StartPollThread(void* punt)
 {
 	MSNP* mainClass = (MSNP*) punt;
@@ -61,7 +65,7 @@ int32 StartPollThread(void* punt)
 		if (kPollSockets == NULL)
 			continue;
 
-		poll(kPollSockets, kSocketsCount, -1);
+		poll(kPollSockets, kSocketsCount, 3);
 
 		for (int i = 0; i < kSocketsCount; i++) {
 			if (kPollSockets[i].fd == -1) {
@@ -175,6 +179,8 @@ MSNP::Init(CayaProtocolMessengerInterface* msgr)
 	fClientID += MSN::SIPInvitations;
 	fClientID += MSN::SupportMultiPacketMessaging;
 
+	fID = 123456;
+
 	return B_OK;
 }
 
@@ -268,8 +274,9 @@ MSNP::Process(BMessage* msg)
 								Error("MSN Protocol: You are not logged!", NULL);
 							}
 							break;
+
 						case CAYA_OFFLINE:
-							if (fLogged) {
+							//if (fLogged) {
 								fMainConnection->disconnect();
 								delete fMainConnection;
 								int end = fBuddyList.CountItems();
@@ -288,32 +295,29 @@ MSNP::Process(BMessage* msg)
 								fLogged = false;
 								fSettings = true;
 								suspend_thread(fPollThread);
-							}
-							break;
-						default:
-//							Error("Invalid", NULL);
-//							Log("caya msn plugin :
+							//}
 							break;
 					}
 					break;
 				}
+
 				case IM_SEND_MESSAGE:
 				{
 					const char* buddy = msg->FindString("id");
 					const char* sms = msg->FindString("body");
-					const string rcpt_ = buddy;
-					const string msg_ = sms;
+
 					int x, y;
 					bool nouveau = true;
 					int count = 0;
 					count = fSwitchboardList.CountItems();
 					if (count != 0) {
 						for (x=0; x < count; x++) {
-							if (fSwitchboardList.ItemAt(x)->first == rcpt_) {
+							if (fSwitchboardList.ItemAt(x)->first == buddy) {
 								if (fSwitchboardList.ItemAt(x)->second->isConnected()) {
 									nouveau = false;
 									y = x;
 								} else {
+									
 									delete fSwitchboardList.ItemAt(x)->second;
 									fSwitchboardList.RemoveItemAt(x);
 								}
@@ -323,15 +327,17 @@ MSNP::Process(BMessage* msg)
 					}
 
 					if (nouveau) {
-						const pair<string, string> *ctx
+						/*const pair<string, string> *ctx
 							= new pair<string, string>(rcpt_, msg_);
 						// request a new switchboard connection
-						fMainConnection->requestSwitchboardConnection(ctx);
+						fMainConnection->requestSwitchboardConnection(ctx);*/
+						MSNContainer* container = new MSNContainer(string(sms), string(buddy));
+						fMainConnection->requestSwitchboardConnection(container);
 
 					} else {
 						MSN::SwitchboardServerConnection* conn = fSwitchboardList.ItemAt(y)->second;
 						conn->sendTypingNotification();
-						conn->sendMessage(msg_);
+						conn->sendMessage(string(sms));
 
 						BMessage msg(IM_MESSAGE);
 						msg.AddInt32("im_what", IM_MESSAGE_SENT);
@@ -503,6 +509,68 @@ MSNP::MessageFromBuddy(const char* mess, const char* id)
 	fServerMsgr->SendMessage(&msg);
 }
 
+
+void
+MSNP::RequestBuddyIcon(string msnobject, MSN::Passport buddy)
+{
+	if (fAvatarSwitch != NULL) {
+		fID = fID++;
+		std::string fileName = AVAT_PATH;
+		fileName.append(buddy).append(".img");
+		fAvatarSwitch->requestDisplayPicture(fID++, fileName, msnobject);
+	} else {
+		MSNContainer* container = new MSNContainer(buddy);
+		container->SetObject(msnobject);
+		if (fMainConnection->switchboardWithOnlyUser(buddy) == NULL) {
+			fMainConnection->requestSwitchboardConnection(container);
+		} /*else {
+			//fMainConnection->switchboardWithOnlyUser(buddy);
+		}*/	
+	}
+}
+
+
+void
+MSNP::SendBuddyIcon(string filename, string passport)
+{
+	entry_ref ref;
+	if (get_ref_for_path(filename.c_str(), &ref) != B_OK)
+		return;
+
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_AVATAR_SET);
+	msg.AddString("id", passport.c_str());
+	msg.AddRef("ref", &ref);
+	fServerMsgr->SendMessage(&msg);
+}
+
+
+bool
+MSNP::CheckAvatar(string passport) {
+	string filename = AVAT_PATH;
+	filename.append(passport).append(".img");
+	BEntry entry = BEntry(filename.c_str(), true);
+	if (entry.Exists()) {
+		SendBuddyIcon(filename, passport);
+		return true;
+	}
+	//file.Close();
+	return false;
+}
+
+
+string*
+MSNP::Object(string passport) {
+	for (int32 i = 0; i < fAvatarDone.CountItems(); i++) {
+		if (fAvatarDone.ItemAt(i)->first == passport)
+			return &fAvatarDone.ItemAt(i)->second;
+	}
+	for (int32 i = 0; i < fAvatarQueue.CountItems(); i++) {
+		if (fAvatarQueue.ItemAt(i)->first == passport)
+			return &fAvatarQueue.ItemAt(i)->second;
+	}
+	return NULL;
+}
 
 /********************/
 /* libmsn callbacks */
@@ -789,7 +857,7 @@ void MSNP::showError(MSN::Connection * conn, std::string msg)
 }
 
 
-void MSNP::buddyChangedStatus(MSN::NotificationServerConnection * conn, MSN::Passport buddy, std::string friendlyname, MSN::BuddyStatus status, unsigned int clientID, std::string msnobject)
+void MSNP::buddyChangedStatus(MSN::NotificationServerConnection* conn, MSN::Passport buddy, std::string friendlyname, MSN::BuddyStatus status, unsigned int clientID, std::string msnobject)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_SET);
@@ -824,12 +892,17 @@ void MSNP::buddyChangedStatus(MSN::NotificationServerConnection * conn, MSN::Pas
 	fServerMsgr->SendMessage(&msg);
 
 	// updating the user informations
-	BMessage mess(IM_MESSAGE);
+	/*BMessage mess(IM_MESSAGE);
 	mess.AddInt32("im_what", IM_CONTACT_INFO);
 	mess.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", buddy.c_str());
 	msg.AddString("name", friendlyname.c_str());
-	fServerMsgr->SendMessage(&msg);
+	fServerMsgr->SendMessage(&msg);*/
+
+	if (!CheckAvatar(buddy))
+		fAvatarQueue.AddItem(new pair<string, string>(buddy, msnobject));
+	else
+		fAvatarDone.AddItem(new pair<string, string>(buddy, msnobject));
 }
 
 
@@ -838,6 +911,7 @@ void MSNP::buddyOffline(MSN::NotificationServerConnection * conn, MSN::Passport 
 	int x;
 	int count = 0;
 	count = fSwitchboardList.CountItems();
+	// TODO use ns functions instead
 	if (count != 0) {
 		for (x = 0; x < count; x++) {
 			if (fSwitchboardList.ItemAt(x)->first == buddy) {
@@ -847,6 +921,7 @@ void MSNP::buddyOffline(MSN::NotificationServerConnection * conn, MSN::Passport 
 			}
 		}
 	}
+
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_SET);
 	msg.AddString("protocol", kProtocolSignature);
@@ -856,64 +931,80 @@ void MSNP::buddyOffline(MSN::NotificationServerConnection * conn, MSN::Passport 
 }
 
 
-void MSNP::gotSwitchboard(MSN::SwitchboardServerConnection * conn, const void * tag)
+void MSNP::gotSwitchboard(MSN::SwitchboardServerConnection* conn, const void* tag)
 {
-	if (tag) {
-		const pair<string, string> *ctx = static_cast<const pair<string, string> *>(tag);
-		conn->inviteUser(ctx->first);
+	if (!tag)
+		return;
+
+	MSNContainer* cont = (MSNContainer*) tag;
+
+	if (cont->IsMessage()) {
+		printf("%s\n", cont->Message().c_str());
+		conn->inviteUser(cont->Buddy());
+	}
+	if (cont->HasObject()) {
+		if (!fAvatarSwitch || !fAvatarSwitch->isConnected()) {
+			fAvatarSwitch = conn;
+			fID = fID++;
+			std::string fileName = AVAT_PATH;
+			fileName.append(cont->Buddy()).append(".img");
+			fAvatarSwitch->requestDisplayPicture(fID++, fileName, cont->Object());
+		} else {
+			delete conn;
+		}
 	}
 }
 
 
-void MSNP::buddyJoinedConversation(MSN::SwitchboardServerConnection * conn, MSN::Passport username, std::string friendlyname, int is_initial)
+void MSNP::buddyJoinedConversation(MSN::SwitchboardServerConnection* conn, MSN::Passport username, std::string friendlyname, int is_initial)
 {
-	if (conn->auth.tag) {
-		const pair<string, string> *ctx = static_cast<const pair<string, string> *>(conn->auth.tag);
+	if (!conn->auth.tag)
+		return;
+
+	MSNContainer* cont = (MSNContainer*) (conn->auth.tag);
+	if (cont->IsMessage()) {
 		conn->sendTypingNotification();
-		/*int trid = */conn->sendMessage(ctx->second);
 		fSwitchboardList.AddItem(new pair<string,
 			MSN::SwitchboardServerConnection*>(username, conn));
-		delete ctx;
-		conn->auth.tag = NULL;
-	}
-}
+		int trid = conn->sendMessage(cont->Message());
 
-
-void MSNP::buddyLeftConversation(MSN::SwitchboardServerConnection * conn, MSN::Passport username)
-{
-//	printf("MSNP::buddyLeftConversation\n");
-/*	int x;
-	int count = 0;
-	count = fSwitchboardList.CountItems();
-	if (count != 0) {
-		for (x=0; x < count; x++) {
-			if (fSwitchboardList.ItemAt(x)->second == conn) {
-				break;
-			}
+		string* obj = Object(username);
+		if (obj != NULL) {
+			std::string fileName = AVAT_PATH;
+			fileName.append(username).append(".img");
+			conn->requestDisplayPicture(fID++, fileName, *obj);
 		}
-	}*/
+	}
+	delete cont;
+	conn->auth.tag = NULL;
 }
 
 
-void MSNP::gotInstantMessage(MSN::SwitchboardServerConnection * conn, MSN::Passport username, std::string friendlyname, MSN::Message * msg)
+void MSNP::buddyLeftConversation(MSN::SwitchboardServerConnection* conn, MSN::Passport username)
+{
+	//printf("MSNP::buddyLeftConversation\n");
+}
+
+
+void MSNP::gotInstantMessage(MSN::SwitchboardServerConnection* conn, MSN::Passport username, std::string friendlyname, MSN::Message* msg)
 {
 	MessageFromBuddy(msg->getBody().c_str(), username.c_str());
 }
 
 
-void MSNP::gotEmoticonNotification(MSN::SwitchboardServerConnection * conn, MSN::Passport username, std::string alias, std::string msnobject)
+void MSNP::gotEmoticonNotification(MSN::SwitchboardServerConnection* conn, MSN::Passport username, std::string alias, std::string msnobject)
 {
-//	printf("MSNP::gotEmoticonNotification\n");
+	//printf("MSNP::gotEmoticonNotification\n");
 }
 
 
-void MSNP::failedSendingMessage(MSN::Connection * conn)
+void MSNP::failedSendingMessage(MSN::Connection* conn)
 {
-//TODO implement it
+	//TODO implement it
 }
 
 
-void MSNP::buddyTyping(MSN::SwitchboardServerConnection * conn, MSN::Passport username, std::string friendlyname)
+void MSNP::buddyTyping(MSN::SwitchboardServerConnection* conn, MSN::Passport username, std::string friendlyname)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_CONTACT_STARTED_TYPING);
@@ -923,13 +1014,13 @@ void MSNP::buddyTyping(MSN::SwitchboardServerConnection * conn, MSN::Passport us
 }
 
 
-void MSNP::gotNudge(MSN::SwitchboardServerConnection * conn, MSN::Passport username)
+void MSNP::gotNudge(MSN::SwitchboardServerConnection* conn, MSN::Passport username)
 {
 	MessageFromBuddy("** Nudge!!!", username.c_str());
 }
 
 
-void MSNP::gotVoiceClipNotification(MSN::SwitchboardServerConnection * conn, MSN::Passport username, std::string msnobject)
+void MSNP::gotVoiceClipNotification(MSN::SwitchboardServerConnection* conn, MSN::Passport username, std::string msnobject)
 {
 	MessageFromBuddy("** Sent you a Voice Clip, but Caya cannot yet display it", username.c_str());
 }
@@ -947,15 +1038,16 @@ void MSNP::gotInk(MSN::SwitchboardServerConnection * conn, MSN::Passport usernam
 }
 
 
-void MSNP::gotContactDisplayPicture(MSN::SwitchboardServerConnection * conn, MSN::Passport passport, std::string filename )
+void MSNP::gotContactDisplayPicture(MSN::SwitchboardServerConnection* conn, MSN::Passport passport, std::string filename )
 {
 	printf("MSNP::gotContactDisplayPicture %s\n", filename.c_str());
+	SendBuddyIcon(filename, passport);
 }
 
 
 void MSNP::gotActionMessage(MSN::SwitchboardServerConnection * conn, MSN::Passport username, std::string message)
 {
-//	printf("MSNP::gotActionMessage\n");
+	//printf("MSNP::gotActionMessage\n");
 }
 
 
@@ -995,7 +1087,7 @@ void MSNP::fileTransferSucceeded(MSN::SwitchboardServerConnection * conn, unsign
 }
 
 
-void MSNP::gotNewConnection(MSN::Connection * conn)
+void MSNP::gotNewConnection(MSN::Connection* conn)
 {
 	// this is at least what the method should do.
 	if (dynamic_cast<MSN::NotificationServerConnection *>(conn))
@@ -1005,18 +1097,24 @@ void MSNP::gotNewConnection(MSN::Connection * conn)
 }
 
 
-void MSNP::buddyChangedPersonalInfo(MSN::NotificationServerConnection * conn, MSN::Passport fromPassport, MSN::personalInfo pInfo)
-{
+void MSNP::buddyChangedPersonalInfo(MSN::NotificationServerConnection* conn, MSN::Passport fromPassport, MSN::personalInfo pInfo)
+{/*
+	int32 what = IM_CONTACT_INFO;
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", what);
+	msg.AddString("id", fromPassport.c_str());
+	msg.AddString("message", pInfo.PSM.c_str());
+	fServerMsgr->SendMessage(&msg);	*/
 }
 
 
-void MSNP::closingConnection(MSN::Connection * conn)
+void MSNP::closingConnection(MSN::Connection* conn)
 {
-//	printf ("MSNP::closingConnection : connection with socket %d\n", (int)conn->sock);
+	printf ("MSNP::closingConnection : connection with socket %d\n", (int)conn->sock);
 }
 
 
-void MSNP::changedStatus(MSN::NotificationServerConnection * conn, MSN::BuddyStatus state)
+void MSNP::changedStatus(MSN::NotificationServerConnection* conn, MSN::BuddyStatus state)
 {
 	MSN::personalInfo pInfo;
 //	pInfo.PSM="From Caya at Haiku OS - www.haiku-os.org";
@@ -1113,7 +1211,7 @@ void MSNP::gotMessageSentACK(MSN::SwitchboardServerConnection * conn, int trID)
 
 void MSNP::askFileTransfer(MSN::SwitchboardServerConnection * conn, MSN::fileTransferInvite ft)
 {
-
+	printf("file transfer\n");
 }
 
 
