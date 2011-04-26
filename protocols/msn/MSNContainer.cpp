@@ -13,7 +13,6 @@ MSNContainer::MSNContainer(string buddy)
 	fMSNObject(""),
 	fIfMsg(false)
 {
-
 }
 
 
@@ -29,6 +28,4 @@ MSNContainer::MSNContainer(string msg, string rcpt)
 
 MSNContainer::~MSNContainer()
 {
-	
-	
 }

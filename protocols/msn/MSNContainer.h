@@ -19,7 +19,7 @@ class MSNContainer {
 public:
 			MSNContainer(string buddy);
 			MSNContainer(string msg, string buddy);
-	virtual ~MSNContainer();
+	virtual	~MSNContainer();
 	// if it is also a message
 	bool	IsMessage() { return fIfMsg; }
 	// if it is used for advanced features like avatars
@@ -36,8 +36,7 @@ private:
 	string	fMessage;
 	string	fMSNObject;
 
-	bool	fIfMsg;
-	
+	bool 	fIfMsg;
 };
 
 #endif // MSNCONTAINER_H

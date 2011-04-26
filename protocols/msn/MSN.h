@@ -18,11 +18,11 @@
 #ifndef IMKIT_MSNP_H
 #define IMKIT_MSNP_H
 
-//#include <list>
 #include <sys/poll.h>
 
 #include <Messenger.h>
 #include <OS.h>
+#include <Path.h>
 #include <String.h>
 
 #include <libsupport/List.h>
@@ -34,39 +34,44 @@
 
 using namespace std;
 
+
 class MSNP : public MSN::Callbacks, public CayaProtocol {
 public:
 
-				 MSNP();
-		virtual ~MSNP();
+					MSNP();
+		virtual 	~MSNP();
 
-		virtual status_t Init(CayaProtocolMessengerInterface*);
+		virtual 	status_t Init(CayaProtocolMessengerInterface*);
 
-		virtual status_t Shutdown();
+		virtual 	status_t Shutdown();
 
-		virtual status_t Process(BMessage *);
+		virtual 	status_t Process(BMessage *);
 		
-		virtual const char * Signature() const;
-		virtual const char * FriendlySignature() const;
+		virtual 	const char * Signature() const;
+		virtual 	const char * FriendlySignature() const;
 
-		virtual status_t UpdateSettings(BMessage *);
+		virtual 	status_t UpdateSettings(BMessage *);
 
-		virtual uint32 GetEncoding();
+		virtual 	uint32 GetEncoding();
 
-		virtual CayaProtocolMessengerInterface* MessengerInterface() const { return fServerMsgr; }
-		virtual MSN::NotificationServerConnection* GetConnection() const { return fMainConnection; }
-		virtual	uint32	Version() const;
+		virtual 	CayaProtocolMessengerInterface* MessengerInterface() const { return fServerMsgr; }
+		virtual 	MSN::NotificationServerConnection* GetConnection() const { return fMainConnection; }
+		virtual		uint32	Version() const;
 
-		void 	Error(const char* message, const char* who);
-		void 	Progress(const char* id, const char* message, float progress);
-		void 	SendContactInfo(MSN::Buddy*);
-		void	MessageFromBuddy(const char* mess, const char* id);
-		void	RequestBuddyIcon(string msnobject, MSN::Passport buddy);
-		void	SendBuddyIcon(string filename, string passport);
-		bool	CheckAvatar(string passport);
-		string*	Object(string passport);
+		void 		Error(const char* message, const char* who);
+		void 		Progress(const char* id, const char* message, float progress);
+		void 		SendContactInfo(MSN::Buddy buddy);
+		void		MessageFromBuddy(const char* mess, const char* id);
+
+		void		RequestBuddyIcon(string msnobject, MSN::Passport buddy);
+		void		RequestBuddyIcon(MSN::SwitchboardServerConnection* conn, string msnobject, const char* buddy);
+		void		SendBuddyIcon(string filename, string passport);
+		bool		CheckAvatar(string msnobject, string passport);
+		string		GetObject(string passport);
+		string		GetFilename(string name);
+		const char*	FindSHA1D(string msnobject);
 private:
-
+		BPath		fCachePath;
 		thread_id   fPollThread;
 		bool		fLogged;
 		BString		fServer;
@@ -76,14 +81,14 @@ private:
 		string		fNickname;
 
 		bool		fSettings;
-unsigned int		fID;
+	unsigned int 	fID;
+
 		CayaProtocolMessengerInterface*	fServerMsgr;
 		MSN::NotificationServerConnection* fMainConnection;
 
-		List<MSN::Buddy*> fBuddyList;
+		List<MSN::Buddy> fBuddyList;
 		List<pair<string, MSN::SwitchboardServerConnection*>*> fSwitchboardList;
 
-		MSN::SwitchboardServerConnection* fAvatarSwitch;
 		List<pair<string, string>*> fAvatarQueue;
 		List<pair<string, string>*> fAvatarDone;
 
