@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:

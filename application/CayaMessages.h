@@ -1,5 +1,5 @@
 /*
- * Copyright 2010, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2010-2011, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _CAYA_MESSAGES_H
