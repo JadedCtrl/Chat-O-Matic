@@ -46,12 +46,14 @@ public:
 			ContactLinker*	GetOwnContact();
 
 private:
-	ProtocolLooper*			_LooperFromMessage(BMessage* message);
-	ContactLinker*			_EnsureContactLinker(BMessage* message);
+			ProtocolLooper*	_LooperFromMessage(BMessage* message);
+			ContactLinker*	_EnsureContactLinker(BMessage* message);
+			void			_ReplicantStatusNotify(CayaStatus status);
 
-	RosterMap				fRosterMap;
-	ProtocolLoopers			fLoopers;
-	ContactLinker*			fMySelf;
+			RosterMap		fRosterMap;
+			ProtocolLoopers	fLoopers;
+			ContactLinker*	fMySelf;
+			BMessenger*		fReplicantMessenger;
 };
 
 #endif	// _SERVER_H

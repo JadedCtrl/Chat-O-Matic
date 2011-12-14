@@ -53,6 +53,8 @@ Application Caya :
 	StatusMenuItem.cpp
 	StatusView.cpp
 	CayaRenderView.cpp
+	ReplicantStatusView.cpp
+	ReplicantMenuItem.cpp
 	: be $(TARGET_LIBSTDC++) translation expat
 	  libinterface.a librunview.a libsupport.a
 	: Caya.rdef

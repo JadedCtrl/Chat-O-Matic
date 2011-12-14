@@ -27,6 +27,10 @@ private:
 
 	BCheckBox*		fIgnoreEmoticons;
 
+	BCheckBox*		fDisableReplicant;
+	BCheckBox*		fPermanentReplicant;
+	BCheckBox*		fHideCayaTracker;
+
 };
 
 #endif	// _PREFERENCES_BEHAVIOR_H

@@ -16,15 +16,16 @@
 
 #include "AboutWindow.h"
 #include "Caya.h"
+#include "CayaMessages.h"
 #include "Emoticor.h"
 #include "FilePanel.h"
 #include "MainWindow.h"
 #include "ProtocolManager.h"
+#include "ReplicantStatusView.h"
 #include "Server.h"
 #include "TheApp.h"
 
 #include "svn_revision.h"
-
 
 TheApp::TheApp()
 	:
@@ -36,7 +37,7 @@ TheApp::TheApp()
 
 void	
 TheApp::ReadyToRun()
-{	
+{
 	app_info theInfo;
 
 	fMainWin = new MainWindow();
@@ -90,12 +91,14 @@ TheApp::AboutRequested()
 	const char* holders[] = {
 		"2009-2010 Andrea Anzani",
 		"2009-2010 Pier Luigi Fiorini",
+		"2011-2012 Casalinuovo Dario",
 		NULL
 	};
 
 	const char* authors[] = {
 		"Andrea Anzani",
 		"Pier Luigi Fiorini",
+		"Casalinuovo Dario",
 		NULL
 	};
 
@@ -114,4 +117,26 @@ MainWindow*
 TheApp::GetMainWindow() const
 {
 	return fMainWin;
+}
+
+
+void
+TheApp::MessageReceived(BMessage* message)
+{
+	//message->PrintToStream();
+	switch (message->what) {
+		case CAYA_REPLICANT_STATUS_SET:
+		case CAYA_REPLICANT_SHOW_WINDOW:
+		case CAYA_SHOW_SETTINGS:
+		case CAYA_REPLICANT_MESSENGER:
+			DetachCurrentMessage();
+			fMainWin->PostMessage(message);
+			break;
+		case CAYA_REPLICANT_EXIT:
+			// TODO BAlert here
+			PostMessage(B_QUIT_REQUESTED);
+			break;
+		default:
+			BLooper::MessageReceived(message);
+	}
 }

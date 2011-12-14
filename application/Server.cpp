@@ -6,6 +6,9 @@
  * Authors:
  *		Andrea Anzani, andrea.anzani@gmail.com
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
+ *
+ * Contributors:
+ *		Dario Casalinuovo
  */
 
 #include <Application.h>
@@ -30,7 +33,8 @@
 
 Server::Server()
 	:
-	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
+	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE),
+	fReplicantMessenger(NULL)
 {
 }
 
@@ -38,6 +42,8 @@ Server::Server()
 void
 Server::Quit()
 {
+	delete fReplicantMessenger;
+
 	ContactLinker* linker = NULL;
 
 	while ((linker = fRosterMap.ValueAt(0))) {
@@ -132,7 +138,7 @@ Server::Filter(BMessage* message, BHandler **target)
 			result = B_SKIP_MESSAGE;
 			break;
 		}
-		case CAYA_CLOSE_WINDOW:
+		case CAYA_CLOSE_CHAT_WINDOW:
 		{
 			BString id = message->FindString("id");
 			if (id.Length() > 0) {
@@ -148,6 +154,21 @@ Server::Filter(BMessage* message, BHandler **target)
 		case IM_MESSAGE:
 			result = ImMessage(message);
 			break;
+
+		case CAYA_REPLICANT_MESSENGER:
+		{
+			fReplicantMessenger = new BMessenger();
+
+			status_t ret = message->FindMessenger(
+				"messenger", fReplicantMessenger);
+
+			if (ret != B_OK || !fReplicantMessenger->IsValid()) {
+				message->PrintToStream();
+				printf("err %s\n", strerror(ret));
+			}
+			break;
+		}
+
 		default:
 			// Dispatch not handled messages to main window
 			break;
@@ -200,9 +221,9 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_OWN_STATUS_SET:
 		{
+			//msg->PrintToStream();
 			int32 status;
 			const char* protocol;
-
 			if (msg->FindInt32("status", &status) != B_OK)
 				return B_SKIP_MESSAGE;
 			if (msg->FindString("protocol", &protocol) != B_OK)
@@ -210,6 +231,8 @@ Server::ImMessage(BMessage* msg)
 
 			AccountManager* accountManager = AccountManager::Get();
 			accountManager->SetStatus((CayaStatus)status);
+
+			_ReplicantStatusNotify((CayaStatus)status);
 			break;
 		}
 		case IM_STATUS_SET:
@@ -219,12 +242,15 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindInt32("status", &status) != B_OK)
 				return B_SKIP_MESSAGE;
 
+			_ReplicantStatusNotify((CayaStatus)status);
+
 			ContactLinker* linker = _EnsureContactLinker(msg);
 			if (!linker)
 				break;
 
 			linker->SetNotifyStatus((CayaStatus)status);
 			linker->SetNotifyPersonalStatus(msg->FindString("message"));
+
 			break;
 		}
 		case IM_CONTACT_INFO:
@@ -310,11 +336,11 @@ Server::ImMessage(BMessage* msg)
 				return result;
 			if (msg->FindFloat("progress", &progress) != B_OK)
 				return result;
+#if 0
 
 			CayaProtocolAddOn* addOn
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
 
-#if 0
 			BNotification notification(B_PROGRESS_NOTIFICATION);
 			notification.SetGroup(BString("Caya"));
 			notification.SetTitle(title);
@@ -341,10 +367,10 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindString("message", &message) != B_OK)
 				return result;
 
+#if 0
 			CayaProtocolAddOn* addOn
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
 
-#if 0
 			BNotification notification((notification_type)type);
 			notification.SetGroup(BString("Caya"));
 			notification.SetTitle(title);
@@ -354,6 +380,7 @@ Server::ImMessage(BMessage* msg)
 #endif
 			break;
 		}
+
 		default:
 			break;
 	}
@@ -410,4 +437,15 @@ Server::_EnsureContactLinker(BMessage* message)
 	}
 
 	return item;
+}
+
+void
+Server::_ReplicantStatusNotify(CayaStatus status)
+{
+	if(fReplicantMessenger != NULL && fReplicantMessenger->IsValid()) {
+		BMessage mess(IM_OWN_STATUS_SET);
+		mess.AddInt32("status", status);
+		//mess.PrintToStream();
+		fReplicantMessenger->SendMessage(&mess);
+	}	
 }

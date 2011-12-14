@@ -71,7 +71,7 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 bool
 ChatWindow::QuitRequested()
 {
-	BMessage msg(CAYA_CLOSE_WINDOW);
+	BMessage msg(CAYA_CLOSE_CHAT_WINDOW);
 	msg.AddString("id", fContactLinker->GetId());
 	fContactLinker->Messenger().SendMessage(&msg);
 	return false;

@@ -45,10 +45,10 @@ LOCATE on $(HCACHEFILE) $(JCACHEFILE) = $(GENERATED_DIR) ;
 # Perform configuration checks
 include [ FDirName $(JAM_DIR) CheckRules ] ;
 CheckGccPlatform ;
-CheckCurl ;
-if ! $(HAVE_CURL) {
-	Echo "** Caya needs Curl" ;
-}
+#CheckCurl ;
+#if ! $(HAVE_CURL) {
+#	Echo "** Caya needs Curl" ;
+#}
 
 # Include jam scripts
 include [ FDirName $(JAM_DIR) HelperRules ] ;

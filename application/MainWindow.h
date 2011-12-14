@@ -29,6 +29,9 @@ public:
 			void		ImError(BMessage* msg);
 	virtual	bool		QuitRequested();
 
+	virtual void		WorkspaceActivated(int32 workspace,
+							bool active);
+
 			void		ObserveInteger(int32 what, int32 val);
 
 			Server*		GetServer() const { return fServer; }
@@ -40,11 +43,15 @@ public:
 			void		AddItem(RosterItem*);
 			bool		HasItem(RosterItem*);
 			void		RemoveItem(RosterItem*);
-		
+
 private:
+			status_t	_InstallReplicant();
+			status_t	_RemoveReplicant();
+
 	StatusView*			fStatusView;
 	RosterListView*		fListView;
 	Server*				fServer;
+	bool				fWorkspaceChanged;
 };
 
 #endif	// _MAIN_WINDOW_H

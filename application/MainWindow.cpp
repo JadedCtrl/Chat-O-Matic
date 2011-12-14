@@ -12,6 +12,7 @@
 #include <Alert.h>
 #include <Button.h>
 #include <CardLayout.h>
+#include <Deskbar.h>
 #include <ListView.h>
 #include <Box.h>
 #include <CheckBox.h>
@@ -32,6 +33,7 @@
 #include <libinterface/BitmapUtils.h>
 #include <libinterface/ToolButton.h>
 
+#include "AccountManager.h"
 #include "CayaConstants.h"
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
@@ -41,6 +43,7 @@
 #include "NotifyMessage.h"
 #include "MainWindow.h"
 #include "PreferencesDialog.h"
+#include "ReplicantStatusView.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
 #include "Server.h"
@@ -49,12 +52,11 @@
 const uint32 kLogin			= 'LOGI';
 const uint32 kSearchContact = 'SRCH';
 
-const uint32 kPreferences	= 'WPRF';
-
 
 MainWindow::MainWindow()
 	:
-	BWindow(BRect(0, 0, 300, 400), "Caya", B_DOCUMENT_WINDOW, 0)
+	BWindow(BRect(0, 0, 300, 400), "Caya", B_DOCUMENT_WINDOW, 0),
+	fWorkspaceChanged(false)
 {
 	fStatusView = new StatusView("statusView");
 
@@ -62,7 +64,7 @@ MainWindow::MainWindow()
 		new BMessage(kSearchContact));
 
 	fListView = new RosterListView("buddyView");
-	fListView->SetInvocationMessage(new BMessage(CAYA_OPEN_WINDOW));
+	fListView->SetInvocationMessage(new BMessage(CAYA_OPEN_CHAT_WINDOW));
 	BScrollView* scrollView = new BScrollView("scrollview", fListView,
 		B_WILL_DRAW, false, true);
 
@@ -72,7 +74,7 @@ MainWindow::MainWindow()
 		new BMessage(B_ABOUT_REQUESTED)));
 	(void)wrenchMenu->AddItem(new BSeparatorItem());
 	(void)wrenchMenu->AddItem(new BMenuItem("Preferences" B_UTF8_ELLIPSIS,
-		new BMessage(kPreferences)));
+		new BMessage(CAYA_SHOW_SETTINGS)));
 	(void)wrenchMenu->AddItem(new BSeparatorItem());
 	(void)wrenchMenu->AddItem(new BMenuItem("Quit",
 		new BMessage(B_QUIT_REQUESTED)));
@@ -105,6 +107,9 @@ MainWindow::MainWindow()
 	AddFilter(fServer);
 
 	CenterOnScreen();
+
+	//TODO check for errors here
+	_InstallReplicant();
 }
 
 
@@ -122,6 +127,7 @@ MainWindow::QuitRequested()
 	fListView->MakeEmpty();
 	fServer->Quit();
 	CayaPreferences::Get()->Save();
+	_RemoveReplicant();
 	be_app->PostMessage(B_QUIT_REQUESTED);
 	return true;
 }
@@ -158,18 +164,47 @@ MainWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case kPreferences: {
+		case CAYA_SHOW_SETTINGS: {
 			PreferencesDialog* dialog = new PreferencesDialog();
 			dialog->Show();
 			break;
 		}
-		case CAYA_OPEN_WINDOW: {
+		case CAYA_OPEN_CHAT_WINDOW: {
 			int index = message->FindInt32("index");
 			RosterItem* ritem = ItemAt(index);
 			if (ritem != NULL)
 				ritem->GetContactLinker()->ShowWindow();
 			break;
 		}
+
+		case CAYA_REPLICANT_STATUS_SET:
+		{
+			int32 status;
+			message->FindInt32("status", &status);
+			AccountManager* accountManager = AccountManager::Get();
+			accountManager->SetStatus((CayaStatus)status);
+			break;
+		}
+
+		case CAYA_REPLICANT_SHOW_WINDOW:
+		{
+			if (LockLooper()) {
+				SetWorkspaces(B_CURRENT_WORKSPACE);
+				
+				if ((IsMinimized() || IsHidden()) 
+					|| fWorkspaceChanged) {
+					Minimize(false);
+					Show();
+					fWorkspaceChanged = false;
+				} else if ((!IsMinimized() || !IsHidden())
+					|| (!fWorkspaceChanged)) {
+					Minimize(true);
+				}
+				UnlockLooper();
+			}
+			break;
+		}
+
 		case IM_MESSAGE:
 			ImMessage(message);
 			break;
@@ -179,6 +214,7 @@ MainWindow::MessageReceived(BMessage* message)
 		case B_ABOUT_REQUESTED:
 			be_app->PostMessage(message);
 			break;
+
 		default:
 			BWindow::MessageReceived(message);
 	}
@@ -356,4 +392,37 @@ MainWindow::RemoveItem(RosterItem* item)
 	// Remove item and sort
 	fListView->RemoveItem(item);
 	fListView->Sort();
+}
+
+
+void
+MainWindow::WorkspaceActivated(int32 workspace, bool active)
+{
+	if (active)
+		fWorkspaceChanged = false;
+	else
+		fWorkspaceChanged = true;
+}
+
+
+// The following methods install
+// and remove the Caya's replicant
+// from Deskbar.
+status_t
+MainWindow::_InstallReplicant()
+{
+	BDeskbar deskbar;
+	if (deskbar.HasItem("ReplicantStatusView")) {
+		_RemoveReplicant();
+	}
+	ReplicantStatusView* view = new ReplicantStatusView();
+	return deskbar.AddItem(view);
+}
+
+
+status_t
+MainWindow::_RemoveReplicant()
+{
+	BDeskbar deskbar;
+	return deskbar.RemoveItem("ReplicantStatusView");
 }

@@ -17,6 +17,8 @@ public:
 	virtual	void		ReadyToRun();
 	virtual	void		AboutRequested();
 
+	virtual	void		MessageReceived(BMessage* message);
+
 			MainWindow*	GetMainWindow() const;
 
 private:

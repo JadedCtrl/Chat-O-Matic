@@ -55,6 +55,18 @@ PreferencesBehavior::PreferencesBehavior()
 	fMarkUnreadWindow->SetEnabled(false);
 			// not implemented
 
+	fDisableReplicant = new BCheckBox("DisableReplicant",
+		"Disable Deskbar replicant", NULL);
+	fDisableReplicant->SetEnabled(true);
+
+	fPermanentReplicant = new BCheckBox("PermanentReplicant",
+		"Permanent Deskbar Replicant", NULL);
+	fPermanentReplicant->SetEnabled(true);
+
+	fHideCayaTracker = new BCheckBox("HideCayaTracker",
+		"Hide Caya in Tracker", NULL);
+	fHideCayaTracker->SetEnabled(false);
+
 	const float spacing = be_control_look->DefaultItemSpacing();
 
 	SetLayout(new BGroupLayout(B_HORIZONTAL, spacing));
@@ -65,6 +77,9 @@ PreferencesBehavior::PreferencesBehavior()
 			.Add(fActivateChatWindow)
 			.Add(fMarkUnreadWindow)
 			.Add(fPlaySoundOnMessageReceived)
+			.Add(fDisableReplicant)
+			.Add(fPermanentReplicant)
+			.Add(fHideCayaTracker)
 		.SetInsets(spacing * 2, spacing, spacing, spacing)
 		.End()
 		.Add(fIgnoreEmoticons)

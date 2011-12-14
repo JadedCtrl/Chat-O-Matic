@@ -1,5 +1,6 @@
 /*
  * Copyright 2009, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2011, Dario Casalinuovo. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _STATUS_MENU_ITEM_H
@@ -15,11 +16,10 @@ class BBitmap;
 
 const int32 kSetStatus = 'SEST';
 
-class StatusMenuItem : public BitmapMenuItem {
+class ReplicantMenuItem : public BitmapMenuItem {
 public:
-				StatusMenuItem(const char* label, CayaStatus status, 
-					bool custom = false, char shortcut = 0,
-					uint32 modifiers = 0);
+				ReplicantMenuItem(const char* label, CayaStatus status,
+					bool custom = false, char shortcut = 0, uint32 modifiers = 0);
 
 	CayaStatus	Status() const;
 	bool		IsCustom() const;

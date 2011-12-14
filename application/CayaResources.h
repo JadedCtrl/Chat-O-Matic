@@ -14,7 +14,14 @@ enum {
 	kToolIcon					= 20,
 	kSearchIcon					= 21,
 
-	kProtocolSettingsTemplate	= 1000
+	kProtocolSettingsTemplate	= 1000,
+
+	kConnectingReplicant		= 1200,
+	kCayaIconReplicant			= 1220,
+	kOfflineReplicant			= 1300,
+	kBusyReplicant				= 1333,
+	kAwayReplicant				= 1400,
+	kExitMenuReplicant			= 1401
 };
 
 #endif	// _CAYA_RESOURCES_H
