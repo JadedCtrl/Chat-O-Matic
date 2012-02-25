@@ -20,6 +20,7 @@
 #include <MenuItem.h>
 #include <MenuField.h>
 #include <Message.h>
+#include <ObjectList.h>
 #include <Path.h>
 #include <PopUpMenu.h>
 #include <Resources.h>
@@ -36,8 +37,6 @@
 #include "CayaUtils.h"
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
-
-#define _T(str) (str)
 
 const float kDividerWidth = 1.0f;
 
@@ -71,10 +70,10 @@ ProtocolSettings::AddOn() const
 }
 
 
-List<BString>
+BObjectList<BString>
 ProtocolSettings::Accounts() const
 {
-	List<BString> list;
+	BObjectList<BString> list(true);
 
 	BPath path(CayaAccountPath(fAddOn->Signature()));
 	if (path.InitCheck() != B_OK)
@@ -89,7 +88,7 @@ ProtocolSettings::Accounts() const
 		if (msg.Unflatten(&file) == B_OK) {
 			char buffer[B_PATH_NAME_LENGTH];
 			if (entry.GetName(buffer) == B_OK)
-				list.AddItem(BString(buffer));
+				list.AddItem(new BString(buffer));
 		}
 	}
 
@@ -230,7 +229,7 @@ ProtocolSettings::Load(const char* account, BView* parent)
 						active = false;
 				}
 
-				control = new BCheckBox(name, _T(desc), NULL);
+				control = new BCheckBox(name, desc, NULL);
 				if (active)
 					dynamic_cast<BCheckBox*>(control)->SetValue(B_CONTROL_ON);
 				break;
@@ -245,26 +244,25 @@ ProtocolSettings::Load(const char* account, BView* parent)
 		if (!control) {
 			if (freeText) {
 				if (!multiLine) {
-					control = new BTextControl(name, _T(desc), value, NULL);
+					control = new BTextControl(name, desc, value, NULL);
 					if (secret) {
 						dynamic_cast<BTextControl*>(control)->TextView()->HideTyping(true);
-						dynamic_cast<BTextControl*>(control)->SetText(
-							_T(value));
+						dynamic_cast<BTextControl*>(control)->SetText(value);
 					}
 					dynamic_cast<BTextControl*>(control)->SetDivider(
 						kDividerWidth);
 				} else {
-					BStringView* label = new BStringView("NA", _T(desc),
+					BStringView* label = new BStringView("NA", desc,
 						B_WILL_DRAW);
 					layout.Add(label);
 
 					NotifyingTextView* textView
 						= new NotifyingTextView(name);
 					control = new BScrollView("NA", textView, 0, false, true);
-					textView->SetText(_T(value));			
+					textView->SetText(value);			
 				}
 			} else {
-				control = new BMenuField(name, _T(desc), menu);
+				control = new BMenuField(name, desc, menu);
 				dynamic_cast<BMenuField*>(control)->SetDivider(kDividerWidth);
 			}
 		}

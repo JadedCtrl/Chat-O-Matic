@@ -227,13 +227,13 @@ PreferencesAccounts::_LoadListView(ProtocolSettings* settings)
 	if (!settings)
 		return;
 
-	List<BString> accounts = settings->Accounts();
+	BObjectList<BString> accounts = settings->Accounts();
 
 	// Add accounts to list view
-	for (uint32 i = 0; i < accounts.CountItems(); i++) {
-		BString account = accounts.ItemAt(i);
+	for (int32 i = 0; i < accounts.CountItems(); i++) {
+		BString* account = accounts.ItemAt(i);
 		AccountListItem* listItem
-			= new AccountListItem(settings, account.String());
+			= new AccountListItem(settings, account->String());
 		fListView->AddItem(listItem);
 	}
 }

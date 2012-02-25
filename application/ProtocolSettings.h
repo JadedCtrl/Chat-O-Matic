@@ -6,7 +6,7 @@
 #ifndef _PROTOCOL_SETTINGS_H
 #define _PROTOCOL_SETTINGS_H
 
-#include <libsupport/List.h>
+#include <ObjectList.h>
 
 class BMessage;
 class CayaProtocolAddOn;
@@ -19,7 +19,7 @@ public:
 	status_t			InitCheck() const;
 
 	CayaProtocolAddOn*	AddOn() const;
-	List<BString>		Accounts() const;
+	BObjectList<BString> Accounts() const;
 
 	status_t			LoadTemplate(BView* parent);
 	status_t			Load(const char* account, BView* parent);
