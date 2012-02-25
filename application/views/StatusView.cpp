@@ -60,7 +60,7 @@ StatusView::StatusView(const char* name)
 
 	// Menu field
 	BMenuField* statusField = new BMenuField("StatusField", NULL,
-		fStatusMenu, NULL);
+		fStatusMenu);
 
 	// Icon
 	fAvatar = new BitmapView("AvatarIcon");

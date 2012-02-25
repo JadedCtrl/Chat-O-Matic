@@ -26,7 +26,7 @@ const float kCircle	= 12;
 
 
 ReplicantMenuItem::ReplicantMenuItem(const char* label, CayaStatus status,
-	bool custom = false, char shortcut, uint32 modifiers)
+	bool custom, char shortcut, uint32 modifiers)
 	:
 	BitmapMenuItem(label, NULL, NULL, shortcut, modifiers),
 	fStatus(status),
