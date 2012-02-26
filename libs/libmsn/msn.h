@@ -25,14 +25,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "authdata.h"
-#include "connection.h"
-#include "errorcodes.h"
-#include "externals.h"
-#include "message.h"
-#include "notificationserver.h"
-#include "switchboardserver.h"
-#include "util.h"
-#include "soap.h"
+#include <authdata.h>
+#include <connection.h>
+#include <errorcodes.h>
+#include <externals.h>
+#include <message.h>
+#include <notificationserver.h>
+#include <switchboardserver.h>
+#include <util.h>
+#include <soap.h>
 
 #endif

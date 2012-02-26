@@ -23,12 +23,12 @@
  */
 
 
-#include "connection.h"
-#include "authdata.h"
-#include "errorcodes.h"
-#include "buddy.h"
-#include "passport.h"
-#include "util.h"
+#include <connection.h>
+#include <authdata.h>
+#include <errorcodes.h>
+#include <buddy.h>
+#include <passport.h>
+#include <util.h>
 #include <stdexcept>
 
 #include <vector>

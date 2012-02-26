@@ -22,13 +22,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-#include "notificationserver.h"
-#include "errorcodes.h"
-#include "externals.h"
-#include "md5.h"
-#include "util.h"
-#include "soap.h"
+#include <config.h>
+#include <notificationserver.h>
+#include <errorcodes.h>
+#include <externals.h>
+#include <md5.h>
+#include <util.h>
+#include <soap.h>
 #include <algorithm>
 #include <cctype>
 #include <cassert>

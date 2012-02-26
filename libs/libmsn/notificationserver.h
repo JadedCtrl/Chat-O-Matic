@@ -25,15 +25,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "connection.h"
-#include "authdata.h"
-#include "errorcodes.h"
-#include "buddy.h"
-#include "passport.h"
+#include <connection.h>
+#include <authdata.h>
+#include <errorcodes.h>
+#include <buddy.h>
+#include <passport.h>
 #include <stdexcept>
-#include "externals.h"
-#include "msnobject.h"
-#include "soap.h"
+#include <externals.h>
+#include <msnobject.h>
+#include <soap.h>
 #include <cassert>
 #include <sys/types.h>
 

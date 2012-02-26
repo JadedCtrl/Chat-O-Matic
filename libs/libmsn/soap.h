@@ -23,17 +23,19 @@
  */
 
 
-#include "connection.h"
-#include "authdata.h"
-#include "errorcodes.h"
-#include "buddy.h"
-#include "passport.h"
+#include <connection.h>
+#include <authdata.h>
+#include <errorcodes.h>
+#include <buddy.h>
+#include <passport.h>
 #include <stdexcept>
-#include "externals.h"
+#include <externals.h>
 
 #include <iostream>
 #include <vector>
 #include <map>
+
+#include "xmlParser.h"
 
 #include "libmsn_export.h"
 
@@ -205,6 +207,8 @@ public:
 
         void changeDisplayName(std::string newDisplayName);
         void parseChangeDisplayNameResponse(std::string);
+    
+        Soap* manageSoapRedirect(XMLNode response1, soapAction action);
 
         virtual void dispatchCommand(std::vector<std::string> &) {};
         virtual void connect(const std::string &, unsigned int) {};

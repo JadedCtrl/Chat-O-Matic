@@ -25,11 +25,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "message.h"
-#include "authdata.h"
-#include "connection.h"
-#include "passport.h"
-#include "p2p.h"
+#include <message.h>
+#include <authdata.h>
+#include <connection.h>
+#include <passport.h>
+#include <p2p.h>
 #include <string>
 #include <cassert>
 

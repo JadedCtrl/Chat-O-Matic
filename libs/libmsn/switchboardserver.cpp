@@ -22,11 +22,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "switchboardserver.h"
-#include "notificationserver.h"
-#include "errorcodes.h"
-#include "externals.h"
-#include "util.h"
+#include <switchboardserver.h>
+#include <notificationserver.h>
+#include <errorcodes.h>
+#include <externals.h>
+#include <util.h>
 
 #include <stdio.h>
 #include <string.h>

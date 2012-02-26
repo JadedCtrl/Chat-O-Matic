@@ -27,7 +27,7 @@
 
 #include <string>
 #include <list>
-#include "switchboardserver.h"
+#include <switchboardserver.h>
 
 #include "libmsn_export.h"
 

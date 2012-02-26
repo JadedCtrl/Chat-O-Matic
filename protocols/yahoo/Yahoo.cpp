@@ -33,10 +33,12 @@
 const char *  kProtocolSignature = "yahoo";
 const char *  kProtocolName = "Yahoo";
 
-extern "C" __declspec(dllexport) CayaProtocol* protocol();
-extern "C" __declspec(dllexport) const char* signature();
-extern "C" __declspec(dllexport) const char* friendly_signature();
-extern "C" void register_callbacks();
+extern "C" {
+	CayaProtocol* protocol();
+	const char* signature();
+	const char* friendly_signature();
+	void register_callbacks();
+}
 
 CayaProtocol*
 protocol()

@@ -22,7 +22,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "passport.h"
+#include <passport.h>
 #include <stdio.h>
 
 namespace MSN 

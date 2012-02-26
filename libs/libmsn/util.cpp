@@ -22,7 +22,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <iostream>
-#include "util.h"
+#include <util.h>
+#include <unistd.h>
 #include <sstream>
 #include <errno.h>
 #include <cctype>
@@ -30,9 +31,8 @@
 #include <openssl/rand.h>
 #include <cstring>
 #include <sys/timeb.h>
-#include <posix/unistd.h>
-#include "md5.h"
-#include "libsiren/siren7.h"
+#include <md5.h>
+#include <libsiren/siren7.h>
 
 #ifdef _WIN32
 #define random rand

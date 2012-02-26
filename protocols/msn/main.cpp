@@ -1,8 +1,10 @@
 #include "MSN.h"
 
-extern "C" __declspec(dllexport) CayaProtocol* protocol();
-extern "C" __declspec(dllexport) const char* signature();
-extern "C" __declspec(dllexport) const char* friendly_signature();
+extern "C" {
+	CayaProtocol* protocol();
+	const char* signature();
+	const char* friendly_signature();
+}
 
 CayaProtocol*
 protocol()

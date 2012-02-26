@@ -22,12 +22,12 @@
 
 
 
-#include "notificationserver.h"
-#include "errorcodes.h"
-#include "externals.h"
-#include "md5.h"
-#include "util.h"
-#include "soap.h"
+#include <notificationserver.h>
+#include <errorcodes.h>
+#include <externals.h>
+#include <md5.h>
+#include <util.h>
+#include <soap.h>
 
 #include <cctype>
 #include <iostream>
@@ -314,25 +314,17 @@ namespace MSN {
 
     void Soap::parseGetTicketsResponse(std::string response)
     {
-          XMLNode domTree = XMLNode::parseString( response.c_str() );
-        if(http_response_code == "301" )
+        XMLNode response1 = XMLNode::parseString( response.c_str() );
+        if(http_response_code == "301")
         {
-            const char *preferredHostName = domTree.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[AUTH] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->getTickets(this->passport, this->password, this->policy);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, AUTH);
+            soapConnection->getTickets(this->passport, this->password, this->policy);
             return;
         }
 
           // get the header information from the DOM
-          XMLNode tokens = domTree.getChildNode("S:Envelope").getChildNode("S:Body").getChildNode("wst:RequestSecurityTokenResponseCollection");
-          const char *reason = domTree.getChildNode("S:Envelope").getChildNode("S:Fault").getChildNode("faultcode").getText();
+          XMLNode tokens = response1.getChildNode("S:Envelope").getChildNode("S:Body").getChildNode("wst:RequestSecurityTokenResponseCollection");
+          const char *reason = response1.getChildNode("S:Envelope").getChildNode("S:Fault").getChildNode("faultcode").getText();
           if(reason)
           {
             std::string reason1(reason);
@@ -345,7 +337,7 @@ namespace MSN {
             }
             if(reason1 == "psf:Redirect")
             {
-                const char *newurl = domTree.getChildNode("S:Envelope").getChildNode("S:Fault").getChildNode("psf:redirectUrl").getText();
+                const char *newurl = response1.getChildNode("S:Envelope").getChildNode("S:Fault").getChildNode("psf:redirectUrl").getText();
                 Soap *soapConnection = new Soap(notificationServer);
 
                 std::string newurl1(newurl);
@@ -480,21 +472,13 @@ namespace MSN {
     void Soap::parseEnableContactOnAddressBookResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
+
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[ENABLE_CONTACT_ON_ADDRESSBOOK] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->enableContactOnAddressBook(this->contactId, this->tempPassport, this->myDisplayName);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, ENABLE_CONTACT_ON_ADDRESSBOOK);
+            soapConnection->enableContactOnAddressBook(this->contactId, this->tempPassport, this->myDisplayName);
             return;
         }
-
 
         XMLNode version = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("Version");
         const char *ver = version.getText();
@@ -576,21 +560,13 @@ namespace MSN {
     void Soap::parseDelContactFromAddressBookResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
+
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[DEL_CONTACT_FROM_ADDRESSBOOK] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->delContactFromAddressBook(this->contactId, this->tempPassport);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, DEL_CONTACT_FROM_ADDRESSBOOK);
+            soapConnection->delContactFromAddressBook(this->contactId, this->tempPassport);
             return;
         }
-
 
         XMLNode version = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("Version");
         const char *ver = version.getText();
@@ -683,21 +659,13 @@ namespace MSN {
     void Soap::parseDisableContactFromAddressBookResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
+
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[DISABLE_CONTACT_ON_ADDRESSBOOK] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->disableContactFromAddressBook(this->contactId, this->tempPassport);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, DISABLE_CONTACT_ON_ADDRESSBOOK);
+            soapConnection->disableContactFromAddressBook(this->contactId, this->tempPassport);
             return;
         }
-
 
         XMLNode version = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("Version");
         const char *ver = version.getText();
@@ -797,18 +765,11 @@ namespace MSN {
     void Soap::parseAddContactToAddressBookResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
+
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[ADD_CONTACT_TO_ADDRESSBOOK] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->addContactToAddressBook(this->tempPassport, this->tempDisplayName);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, ADD_CONTACT_TO_ADDRESSBOOK);
+            soapConnection->addContactToAddressBook(this->tempPassport, this->tempDisplayName);
             return;
         }
 
@@ -902,21 +863,13 @@ namespace MSN {
     void Soap::parseAddContactToGroupResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
+
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[ADD_CONTACT_TO_GROUP] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->addContactToGroup(this->groupId, this->contactId);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, ADD_CONTACT_TO_GROUP);
+            soapConnection->addContactToGroup(this->groupId, this->contactId);
             return;
         }
-
 
         XMLNode version = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("Version");
         const char *ver = version.getText();
@@ -1017,21 +970,13 @@ namespace MSN {
     void Soap::parseAddGroupResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
+
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[ADD_GROUP] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->addGroup(this->groupName);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, ADD_GROUP);
+            soapConnection->addGroup(this->groupName);
             return;
         }
-
 
         XMLNode version = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("Version");
         const char *ver = version.getText();
@@ -1116,21 +1061,13 @@ namespace MSN {
     void Soap::parseDelGroupResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
+
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[DEL_GROUP] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->delGroup(this->groupId);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, DEL_GROUP);
+            soapConnection->delGroup(this->groupId);
             return;
         }
-
 
         XMLNode version = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("Version");
         const char *ver = version.getText();
@@ -1220,21 +1157,13 @@ namespace MSN {
     void Soap::parseRenameGroupResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
+
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[RENAME_GROUP] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->renameGroup(this->groupId, this->groupName);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, RENAME_GROUP);
+            soapConnection->renameGroup(this->groupId, this->groupName);
             return;
         }
-
 
         XMLNode version = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("Version");
         const char *ver = version.getText();
@@ -1323,21 +1252,13 @@ namespace MSN {
     void Soap::parseDelContactFromGroupResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
+
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[DEL_CONTACT_FROM_GROUP] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->delContactFromGroup(this->groupId, this->contactId);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, DEL_CONTACT_FROM_GROUP);
+            soapConnection->delContactFromGroup(this->groupId, this->contactId);
             return;
         }
-
 
         XMLNode version = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("Version");
         const char *ver = version.getText();
@@ -1454,18 +1375,11 @@ namespace MSN {
     void Soap::parseAddContactToListResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
-        if(http_response_code == "301" )
-        {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
 
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[ADD_CONTACT_TO_LIST] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->addContactToList(this->tempPassport, this->tempList);
-            }
+        if(http_response_code == "301")
+        {
+            Soap *soapConnection = manageSoapRedirect(response1, ADD_CONTACT_TO_LIST);
+            soapConnection->addContactToList(this->tempPassport, this->tempList);
             return;
         }
 
@@ -1585,21 +1499,13 @@ namespace MSN {
     void Soap::parseRemoveContactFromListResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
-        if(http_response_code == "301" )
-        {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
 
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[DEL_CONTACT_FROM_LIST] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->removeContactFromList(this->tempPassport, this->tempList);
-            }
+        if(http_response_code == "301")
+        {
+            Soap *soapConnection = manageSoapRedirect(response1, DEL_CONTACT_FROM_LIST);
+            soapConnection->removeContactFromList(this->tempPassport, this->tempList);
             return;
         }
-
 
         XMLNode version = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("Version");
         const char *ver = version.getText();
@@ -1709,19 +1615,10 @@ namespace MSN {
         XMLNode response1 = XMLNode::parseString(response.c_str());
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[GET_LISTS] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->getLists(this->listInfo);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, GET_LISTS);
+            soapConnection->getLists(this->listInfo);
             return;
         }
-
 
         XMLNode Services = response1.getChildNode("soap:Envelope").getChildNode("soap:Body").getChildNode("FindMembershipResponse").getChildNode("FindMembershipResult").getChildNode("Services");
 
@@ -1869,16 +1766,8 @@ namespace MSN {
         XMLNode response1 = XMLNode::parseString(response.c_str());
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[GET_ADDRESS_BOOK] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->getAddressBook(this->listInfo);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, GET_ADDRESS_BOOK);
+            soapConnection->getAddressBook(this->listInfo);
             return;
         }
 
@@ -2075,19 +1964,10 @@ namespace MSN {
         XMLNode response1 = XMLNode::parseString(response.c_str());
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[RETRIEVE_OIM] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->getOIM(this->oim_id, this->markAsRead);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, RETRIEVE_OIM);
+            soapConnection->getOIM(this->oim_id, this->markAsRead);
             return;
         }
-
 
         const char* msg = response1.getChildNode("soap:Envelope").getChildNode("soap:Body").getChildNode("GetMessageResponse").getChildNode("GetMessageResult").getText();
         if(msg)
@@ -2160,18 +2040,11 @@ namespace MSN {
     void Soap::parseDeleteOIMResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
+
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[DELETE_OIM] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->deleteOIM(this->oim_id);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, DELETE_OIM);
+            soapConnection->deleteOIM(this->oim_id);
             return;
         }
 
@@ -2225,23 +2098,15 @@ namespace MSN {
     void Soap::parseGetMailDataResponse(std::string response)
     {
         XMLNode response1 = XMLNode::parseString(response.c_str());
-        if(http_response_code == "301" )
-        {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
 
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[RETRIEVE_OIM_MAIL_DATA] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->getMailData();
-            }
+        if(http_response_code == "301")
+        {
+            Soap *soapConnection = manageSoapRedirect(response1, RETRIEVE_OIM_MAIL_DATA);
+            soapConnection->getMailData();
             return;
         }
 
-
-            // oh my god! xml text as a field of a xml node! I cant believe it!
+        // oh my god! xml text as a field of a xml node! I cant believe it!
         std::string maildata = response1.getChildNode("soap:Envelope").getChildNode("soap:Body").getChildNode("GetMetadataResponse").getChildNode("MD").createXMLString(false);
         if(maildata.empty())
             return; // TODO - raise an error
@@ -2349,18 +2214,11 @@ namespace MSN {
         OIM oim = this->oim;
         // probably we need to generate a new lockkey
         XMLNode response1 = XMLNode::parseString(response.c_str());
-        if(http_response_code == "301" )
-        {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
 
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[GENERATE_LOCKKEY] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->generateLockkey(this->oim);
-            }
+        if(http_response_code == "301")
+        {
+            Soap *soapConnection = manageSoapRedirect(response1, GENERATE_LOCKKEY);
+            soapConnection->generateLockkey(this->oim);
             return;
         }
 
@@ -2478,18 +2336,11 @@ namespace MSN {
     {
         OIM oim = this->oim;
         XMLNode response1 = XMLNode::parseString(response.c_str());
-        if(http_response_code == "301" )
-        {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
 
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[SEND_OIM] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->sendOIM(this->oim, this->lockkey);
-            }
+        if(http_response_code == "301")
+        {
+            Soap *soapConnection = manageSoapRedirect(response1, SEND_OIM);
+            soapConnection->sendOIM(this->oim, this->lockkey);
             return;
         }
 
@@ -2576,16 +2427,8 @@ namespace MSN {
         XMLNode response1 = XMLNode::parseString(response.c_str());
         if(http_response_code == "301" )
         {
-            const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
-            if(preferredHostName)
-            {
-                Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
-
-                std::string newdomain(preferredHostName);
-                soapConnection->actionDomains[CHANGE_DISPLAYNAME] = newdomain;
-                soapConnection->setMBI(mbi);
-                soapConnection->changeDisplayName(this->tempDisplayName);
-            }
+            Soap *soapConnection = manageSoapRedirect(response1, CHANGE_DISPLAYNAME);
+            soapConnection->changeDisplayName(this->tempDisplayName);
             return;
         }
 
@@ -2613,7 +2456,7 @@ namespace MSN {
                 return;
 
             http_header_response = this->readBuffer.substr(0,this->readBuffer.find("\r\n\r\n") + 4);
-                Message::Headers headers = Message::Headers(http_header_response);
+            Message::Headers headers = Message::Headers(http_header_response);
             this->response_length = decimalFromString(headers["Content-Length"]);
 
             this->http_response_code = splitString(http_header_response.substr(0,http_header_response.find("\r\n"))," ")[1];
@@ -2696,6 +2539,34 @@ namespace MSN {
 
         }
         delete this;
+    }
+
+    Soap* Soap::manageSoapRedirect(XMLNode response1, soapAction action)
+    {
+        Soap *soapConnection = new Soap(notificationServer, sitesToAuthList);
+        Message::Headers headers = Message::Headers(http_header_response);
+        std::string newdomain;
+        std::string location = headers["Location"];
+
+        const char *preferredHostName = response1.getChildNode("soap:Envelope").getChildNode("soap:Header").getChildNode("ServiceHeader").getChildNode("PreferredHostName").getText();
+        if(preferredHostName)
+        {
+            std::string newdomain(preferredHostName);
+            soapConnection->actionDomains[action] = newdomain;
+        }
+
+        if (location.size())
+        {
+            std::string newurl1(location);
+            std::vector<std::string> a = splitString(newurl1, "/");
+            std::string newdomain = splitString(a[1], "/")[0];
+            soapConnection->actionDomains[action] = newdomain;
+            std::vector<std::string> postpath = splitString(newurl1, newdomain);
+            soapConnection->actionPOSTURLs[action] = postpath[1];
+        }
+        soapConnection->setMBI(mbi);
+
+        return soapConnection;
     }
 
     void Soap::disconnect()
