@@ -53,7 +53,6 @@ private:
 			RosterMap		fRosterMap;
 			ProtocolLoopers	fLoopers;
 			ContactLinker*	fMySelf;
-			BMessenger*		fReplicantMessenger;
 };
 
 #endif	// _SERVER_H

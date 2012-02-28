@@ -5,8 +5,11 @@
 #ifndef _ACCOUNT_MANAGER_H
 #define _ACCOUNT_MANAGER_H
 
+#include <Messenger.h>
+
 #include "CayaConstants.h"
 #include "Notifier.h"
+
 
 class AccountManager : public Notifier {
 public:
@@ -18,11 +21,16 @@ public:
 			void			SetStatus(CayaStatus status,
 								const char* str = NULL);
 
+			void			SetReplicantMessenger(BMessenger* messenger);
 private:
 							AccountManager();
 							~AccountManager();
 
+			void			_ReplicantStatusNotify(CayaStatus status);
+
 	CayaStatus				fStatus;
+	BMessenger*				fReplicantMessenger;
+
 };
 
 #endif	// _ACCOUNT_MANAGER_H

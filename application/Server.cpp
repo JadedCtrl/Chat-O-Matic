@@ -33,8 +33,7 @@
 
 Server::Server()
 	:
-	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE),
-	fReplicantMessenger(NULL)
+	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
 {
 }
 
@@ -42,8 +41,6 @@ Server::Server()
 void
 Server::Quit()
 {
-	delete fReplicantMessenger;
-
 	ContactLinker* linker = NULL;
 
 	while ((linker = fRosterMap.ValueAt(0))) {
@@ -157,15 +154,18 @@ Server::Filter(BMessage* message, BHandler **target)
 
 		case CAYA_REPLICANT_MESSENGER:
 		{
-			fReplicantMessenger = new BMessenger();
+			BMessenger* messenger = new BMessenger();
 
 			status_t ret = message->FindMessenger(
-				"messenger", fReplicantMessenger);
+				"messenger", messenger);
 
-			if (ret != B_OK || !fReplicantMessenger->IsValid()) {
+			if (ret != B_OK || !messenger->IsValid()) {
 				message->PrintToStream();
 				printf("err %s\n", strerror(ret));
+				break;
 			}
+			AccountManager* accountManager = AccountManager::Get();
+			accountManager->SetReplicantMessenger(messenger);
 			break;
 		}
 
@@ -232,7 +232,6 @@ Server::ImMessage(BMessage* msg)
 			AccountManager* accountManager = AccountManager::Get();
 			accountManager->SetStatus((CayaStatus)status);
 
-			_ReplicantStatusNotify((CayaStatus)status);
 			break;
 		}
 		case IM_STATUS_SET:
@@ -241,8 +240,6 @@ Server::ImMessage(BMessage* msg)
 
 			if (msg->FindInt32("status", &status) != B_OK)
 				return B_SKIP_MESSAGE;
-
-			_ReplicantStatusNotify((CayaStatus)status);
 
 			ContactLinker* linker = _EnsureContactLinker(msg);
 			if (!linker)
@@ -437,15 +434,4 @@ Server::_EnsureContactLinker(BMessage* message)
 	}
 
 	return item;
-}
-
-void
-Server::_ReplicantStatusNotify(CayaStatus status)
-{
-	if(fReplicantMessenger != NULL && fReplicantMessenger->IsValid()) {
-		BMessage mess(IM_OWN_STATUS_SET);
-		mess.AddInt32("status", status);
-		//mess.PrintToStream();
-		fReplicantMessenger->SendMessage(&mess);
-	}	
 }

@@ -13,12 +13,15 @@
 #include "Server.h"
 #include "TheApp.h"
 
+#include <stdio.h>
+
 static AccountManager* fInstance = NULL;
 
 
 AccountManager::AccountManager()
 	:
-	fStatus(CAYA_OFFLINE)
+	fStatus(CAYA_OFFLINE),
+	fReplicantMessenger(NULL)
 {
 	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
 	RegisterObserver(theApp->GetMainWindow());
@@ -29,6 +32,7 @@ AccountManager::~AccountManager()
 {
 	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
 	UnregisterObserver(theApp->GetMainWindow());
+	delete fReplicantMessenger;
 }
 
 
@@ -53,6 +57,13 @@ AccountManager::SetNickname(BString nick)
 	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
 	MainWindow* win = theApp->GetMainWindow();
 	win->GetServer()->SendAllProtocolMessage(msg);
+}
+
+
+void
+AccountManager::SetReplicantMessenger(BMessenger* messenger)
+{
+	fReplicantMessenger = messenger;
 }
 
 
@@ -82,5 +93,18 @@ AccountManager::SetStatus(CayaStatus status, const char* str)
 		// Notify status change
 		fStatus = status;
 		NotifyInteger(INT_ACCOUNT_STATUS, (int32)fStatus);
+		_ReplicantStatusNotify((CayaStatus)status);
 	}
+}
+
+
+void
+AccountManager::_ReplicantStatusNotify(CayaStatus status)
+{
+	if(fReplicantMessenger != NULL && fReplicantMessenger->IsValid()) {
+		printf("notification sent\n");
+		BMessage mess(IM_OWN_STATUS_SET);
+		mess.AddInt32("status", status);
+		fReplicantMessenger->SendMessage(&mess);
+	}	
 }

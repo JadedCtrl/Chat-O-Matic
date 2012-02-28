@@ -92,10 +92,10 @@ MainWindow::MainWindow()
 
 	SetLayout(new BGridLayout(5, 5));
 	AddChild(BGridLayoutBuilder(5, 5)
-		.Add(fStatusView, 0, 0)
+		.Add(searchBox, 0, 0)
 		.Add(wrench, 1, 0)
-		.Add(searchBox, 0, 1)
-		.Add(scrollView, 0, 2, 2)
+		.Add(scrollView, 0, 1, 2)
+		.Add(fStatusView, 0, 2, 2)
 		.SetInsets(5, 5, 5, 10)
 	);
 
