@@ -1,5 +1,6 @@
 /*
  * Copyright 2010, Oliver Ruiz Dorantes. All rights reserved.
+ * Copyright 2012, Dario Casalinuovo. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _PREFERENCES_BEHAVIOR_H
@@ -25,11 +26,10 @@ private:
 	BCheckBox*		fPlaySoundOnMessageReceived;
 	BCheckBox*		fMarkUnreadWindow;
 
-	BCheckBox*		fIgnoreEmoticons;
-
+	BStringView*	fReplicantString;
 	BCheckBox*		fDisableReplicant;
 	BCheckBox*		fPermanentReplicant;
-	BCheckBox*		fHideCayaTracker;
+	BCheckBox*		fHideCayaDeskbar;
 
 };
 

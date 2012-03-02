@@ -1,5 +1,6 @@
 /*
  * Copyright 2010, Oliver Ruiz Dorantes. All rights reserved.
+ * Copyright 2012, Dario Casalinuovo. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 
@@ -21,7 +22,9 @@
 
 const uint32 kToCurrentWorkspace = 'CBcw';
 const uint32 kActivateChatWindow = 'CBac';
-const uint32 kIgnoreEmoticons = 'CBhe';
+const uint32 kDisableReplicant = 'DSrp';
+const uint32 kPermanentReplicant ='PRpt';
+const uint32 kHideCayaTracker = 'HCtk';
 
 
 
@@ -45,15 +48,14 @@ PreferencesBehavior::PreferencesBehavior()
 		"Play sound event", NULL);
 	fPlaySoundOnMessageReceived->SetEnabled(false);  // not implemented
 
-	fIgnoreEmoticons = new BCheckBox("IgnoreEmoticons",
-		"Ignore Emoticons",
-		new BMessage(kIgnoreEmoticons));
-	fIgnoreEmoticons->SetEnabled(true);
-
 	fMarkUnreadWindow = new BCheckBox("MarkUnreadWindow",
 		"Mark unread window chat", NULL);
 	fMarkUnreadWindow->SetEnabled(false);
 			// not implemented
+
+	fReplicantString = new BStringView("ReplicantString", "Replicant");
+	fReplicantString->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+	fReplicantString->SetFont(be_bold_font);
 
 	fDisableReplicant = new BCheckBox("DisableReplicant",
 		"Disable Deskbar replicant", NULL);
@@ -61,11 +63,11 @@ PreferencesBehavior::PreferencesBehavior()
 
 	fPermanentReplicant = new BCheckBox("PermanentReplicant",
 		"Permanent Deskbar Replicant", NULL);
-	fPermanentReplicant->SetEnabled(true);
+	fPermanentReplicant->SetEnabled(false);
 
-	fHideCayaTracker = new BCheckBox("HideCayaTracker",
-		"Hide Caya in Tracker", NULL);
-	fHideCayaTracker->SetEnabled(false);
+	fHideCayaDeskbar = new BCheckBox("HideCayaDeskbar",
+		"Hide Caya field in Deskbar", NULL);
+	fHideCayaDeskbar->SetEnabled(true);
 
 	const float spacing = be_control_look->DefaultItemSpacing();
 
@@ -77,12 +79,15 @@ PreferencesBehavior::PreferencesBehavior()
 			.Add(fActivateChatWindow)
 			.Add(fMarkUnreadWindow)
 			.Add(fPlaySoundOnMessageReceived)
-			.Add(fDisableReplicant)
-			.Add(fPermanentReplicant)
-			.Add(fHideCayaTracker)
 		.SetInsets(spacing * 2, spacing, spacing, spacing)
 		.End()
-		.Add(fIgnoreEmoticons)
+		.Add(fReplicantString)
+		.AddGroup(B_VERTICAL, spacing)
+			.Add(fDisableReplicant)
+			.Add(fPermanentReplicant)
+			.Add(fHideCayaDeskbar)
+			.SetInsets(spacing * 2, spacing, spacing, spacing)
+		.End()
 		.AddGlue()
 		.SetInsets(spacing, spacing, spacing, spacing)
 		.TopView()
@@ -95,15 +100,11 @@ PreferencesBehavior::AttachedToWindow()
 {
 	fToCurrentWorkspace->SetTarget(this);
 	fActivateChatWindow->SetTarget(this);
-	fIgnoreEmoticons->SetTarget(this);
 
 	fToCurrentWorkspace->SetValue(
 		CayaPreferences::Item()->MoveToCurrentWorkspace);
 	fActivateChatWindow->SetValue(
 		CayaPreferences::Item()->ActivateWindow);
-	fIgnoreEmoticons->SetValue(
-		CayaPreferences::Item()->IgnoreEmoticons);
-
 }
 
 
@@ -118,10 +119,6 @@ PreferencesBehavior::MessageReceived(BMessage* message)
 		case kActivateChatWindow:
 			CayaPreferences::Item()->ActivateWindow
 				= fActivateChatWindow->Value();
-			break;
-		case kIgnoreEmoticons:
-			CayaPreferences::Item()->IgnoreEmoticons
-				= fIgnoreEmoticons->Value();
 			break;
 		default:
 			BView::MessageReceived(message);
