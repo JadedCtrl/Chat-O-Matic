@@ -54,8 +54,8 @@ public:
 
 		virtual 	uint32 GetEncoding();
 
-		virtual 	CayaProtocolMessengerInterface* MessengerInterface() const { return fServerMsgr; }
-		virtual 	MSN::NotificationServerConnection* GetConnection() const { return fMainConnection; }
+		virtual 	CayaProtocolMessengerInterface* MessengerInterface() const;
+		virtual 	MSN::NotificationServerConnection* GetConnection() const;
 		virtual		uint32	Version() const;
 
 		void 		Error(const char* message, const char* who);
@@ -64,12 +64,16 @@ public:
 		void		MessageFromBuddy(const char* mess, const char* id);
 
 		void		RequestBuddyIcon(string msnobject, MSN::Passport buddy);
-		void		RequestBuddyIcon(MSN::SwitchboardServerConnection* conn, string msnobject, const char* buddy);
+		void		RequestBuddyIcon(MSN::SwitchboardServerConnection* conn,
+						string msnobject, const char* buddy);
 		void		SendBuddyIcon(string filename, string passport);
+
+		void 		AvatarQueueCheck(); 
 		bool		CheckAvatar(string msnobject, string passport);
 		string		GetObject(string passport);
-		string		GetFilename(string name);
-		const char*	FindSHA1D(string msnobject);
+		BPath		GetFilename(string name);
+
+		BString		FindSHA1D(string msnobject);
 private:
 		BPath		fCachePath;
 		thread_id   fPollThread;

@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *	Partially based on the msntest program inclused in libmsn.
+ *
  */
 
 #include <stdio.h>
@@ -42,8 +45,8 @@
 #include "MSN.h"
 #include "MSNContainer.h"
 
-extern const char* kProtocolSignature = "msn";
-extern const char* kProtocolName = "MSN Protocol";
+const char* kProtocolSignature = "msn";
+const char* kProtocolName = "MSN Protocol";
 
 struct pollfd* kPollSockets = NULL;
 struct ssl {
@@ -55,6 +58,7 @@ struct ssl {
 
 int kSocketsCount = 0;
 int kSocketsAvailable = 0;
+
 
 int32 StartPollThread(void* punt)
 {
@@ -141,8 +145,10 @@ int32 StartPollThread(void* punt)
 			kPollSockets[0].revents = 0;
 		}
 	}
+	return 0;
 }
 
+/* MSNP Class implementing libmsn callbacks and the Caya internal protocol */
 
 MSNP::MSNP()
 	:
@@ -206,6 +212,21 @@ MSNP::Shutdown()
 //	LogOut();
 
 	return B_OK;
+}
+
+
+CayaProtocolMessengerInterface*
+MSNP::MessengerInterface() const
+{
+	return fServerMsgr;
+}
+
+
+
+MSN::NotificationServerConnection*
+MSNP::GetConnection() const
+{
+	return fMainConnection;
 }
 
 
@@ -347,13 +368,8 @@ MSNP::Process(BMessage* msg)
 					}
 
 					if (nouveau) {
-						/*const pair<string, string> *ctx
-							= new pair<string, string>(rcpt_, msg_);
-						// request a new switchboard connection
-						fMainConnection->requestSwitchboardConnection(ctx);*/
 						MSNContainer* container = new MSNContainer(string(sms), string(buddy));
 						fMainConnection->requestSwitchboardConnection(container);
-
 					} else {
 						MSN::SwitchboardServerConnection* conn = fSwitchboardList.ItemAt(y)->second;
 						conn->sendTypingNotification();
@@ -534,24 +550,23 @@ void
 MSNP::RequestBuddyIcon(string msnobject, MSN::Passport buddy)
 {
 	printf("requestbuddyicon %s\n", buddy.c_str());
-	if (fMainConnection->switchboardWithOnlyUser(buddy) == NULL) {
-		MSNContainer* container = new MSNContainer(buddy);
-		container->SetObject(msnobject);
-		fMainConnection->requestSwitchboardConnection(container);
-	} else {
-		RequestBuddyIcon(fMainConnection->switchboardWithOnlyUser(buddy),
-			msnobject, buddy.c_str());
-	}
+	MSNContainer* container = new MSNContainer(buddy);
+	container->SetObject(msnobject);
+	fMainConnection->requestSwitchboardConnection(container);
 }
 
 
 void
 MSNP::RequestBuddyIcon(MSN::SwitchboardServerConnection* conn, string msnobject, const char* buddy)
 {
-	printf("requestbuddyicon %s\n", buddy);
+	printf("requestbuddyicon 2 %s\n", buddy);
 	fID = fID+1;
-	string fileName = GetFilename(msnobject);
-	conn->requestDisplayPicture(fID++, fileName, msnobject);
+	BString path = GetFilename(msnobject).Path();
+	if (path == "") {
+		conn->disconnect();
+		return;
+	}
+	conn->requestDisplayPicture(fID, path.String(), msnobject);
 }
 
 
@@ -574,55 +589,67 @@ MSNP::SendBuddyIcon(string filename, string passport)
 bool
 MSNP::CheckAvatar(string msnobject, string passport) {
 	printf("checkav\n");
-	string filename = GetFilename(msnobject);
+	BPath filepath = GetFilename(msnobject);
 
-	BEntry entry = BEntry(filename.c_str(), true);
+	BEntry entry = BEntry(filepath.Path(), true);
 	if (entry.Exists()) {
-		if (passport != "")
-			SendBuddyIcon(filename, passport);
+		if (passport != "" && filepath != "")
+			SendBuddyIcon(filepath.Path(), passport);
 		return true;
 	}
+	printf("false\n");
 	return false;
+}
+
+
+void
+MSNP::AvatarQueueCheck() {
+	if (fAvatarQueue.CountItems() > 0) {
+		fAvatarQueue.ItemAt(0);
+	}
 }
 
 
 string
 MSNP::GetObject(string passport) {
-	for (int i = 0; i < fAvatarDone.CountItems(); i++) {
+	for (uint32 i = 0; i < fAvatarDone.CountItems(); i++) {
 		if (fAvatarDone.ItemAt(i)->first == passport)
 			return fAvatarDone.ItemAt(i)->second;
 	}
-	for (int i = 0; i < fAvatarQueue.CountItems(); i++) {
+	for (uint32 i = 0; i < fAvatarQueue.CountItems(); i++) {
 		if (fAvatarQueue.ItemAt(i)->first == passport)
 			return fAvatarQueue.ItemAt(i)->second;
 	}
-	printf("null\n");
 	return "";
 }
 
 
-string
+BPath
 MSNP::GetFilename(string msnobject) {
-	const char* str = FindSHA1D(msnobject);
-	BString filename = fCachePath.Path();
+	BString str = FindSHA1D(msnobject);
+	if (str.Length() < 25)
+		return "";
 
-	filename << "/" << str;
-	printf(" filename %s \n", filename.String());
-	return filename.String();
+	BPath path = fCachePath;
+	printf(" filename %s \n", path.Path());
+	path.Append(str);
+	return path;
 }
 
 
-const char*
-MSNP::FindSHA1D(string msnobject) {
-
+BString
+MSNP::FindSHA1D(string msnobject)
+{
 	BString str = BString(msnobject.c_str());
 	BString ret;
 	int32 index = str.FindFirst("SHA1D=");
 	index += 7;
-	str.CopyInto(ret, index, (int32) 28);
+	str.CopyInto(ret, index, (int32) 27);
 	printf(ret.String());
+	ret.RemoveAll("/");
 	return ret.String();
 }
+
 /********************/
 /* libmsn callbacks */
 /********************/
@@ -952,10 +979,9 @@ void MSNP::buddyChangedStatus(MSN::NotificationServerConnection* conn, MSN::Pass
 
 	fServerMsgr->SendMessage(&msg);
 
-	if (!CheckAvatar(msnobject, buddy))
-		fAvatarQueue.AddItem(new pair<string, string>(buddy, msnobject));
-	else
-		fAvatarDone.AddItem(new pair<string, string>(buddy, msnobject));
+	if(!CheckAvatar(msnobject, buddy)) {
+		
+	}
 }
 
 
@@ -989,22 +1015,20 @@ void MSNP::buddyJoinedConversation(MSN::SwitchboardServerConnection* conn, MSN::
 {
 	if (!conn->auth.tag)
 		return;
+
 	printf("joiconv\n");
 	MSNContainer* cont = (MSNContainer*) (conn->auth.tag);
 	if (cont->IsMessage()) {
 		conn->sendTypingNotification();
 
-		int trid = conn->sendMessage(cont->Message());
+		/*int trid = */conn->sendMessage(cont->Message());
+	}
 
-		string obj = GetObject(username);
-		if (obj != "") {
-			printf("req %s\n", obj.c_str());
-			RequestBuddyIcon(conn, obj, username.c_str());
-		}
-	}
 	if (cont->HasObject() && !cont->IsMessage()) {
-		RequestBuddyIcon(conn, cont->Object(), cont->Buddy().c_str());
+		if (!CheckAvatar(cont->Object(), cont->Buddy().c_str()))
+			RequestBuddyIcon(conn, cont->Object(), cont->Buddy().c_str());
 	}
+
 	delete cont;
 	conn->auth.tag = NULL;
 }
@@ -1071,7 +1095,8 @@ void MSNP::gotInk(MSN::SwitchboardServerConnection * conn, MSN::Passport usernam
 void MSNP::gotContactDisplayPicture(MSN::SwitchboardServerConnection* conn, MSN::Passport passport, std::string filename )
 {
 	printf("MSNP::gotContactDisplayPicture %s\n", filename.c_str());
-	SendBuddyIcon(filename, passport);
+	SendBuddyIcon(filename, passport); 
+	conn->disconnect();
 }
 
 
@@ -1107,7 +1132,7 @@ void MSNP::fileTransferProgress(MSN::SwitchboardServerConnection * conn, unsigne
 
 void MSNP::fileTransferFailed(MSN::SwitchboardServerConnection * conn, unsigned int sessionID, MSN::fileTransferError error)
 {
-
+	printf("file transfer failed\n");
 }
 
 
@@ -1141,19 +1166,18 @@ void MSNP::buddyChangedPersonalInfo(MSN::NotificationServerConnection* conn, MSN
 void MSNP::closingConnection(MSN::Connection* conn)
 {
 	printf ("MSNP::closingConnection : connection with socket %d\n", (int)conn->sock);
-		int x;
+	int x;
 	int count = 0;
 	count = fSwitchboardList.CountItems();
-	// TODO use ns functions instead
-	/*if (count != 0) {
+	// TODO use libmsn methods to retrieve the switchboard
+	if (count != 0) {
 		for (x = 0; x < count; x++) {
 			if (fSwitchboardList.ItemAt(x)->second->sock == conn->sock) {
-				//delete fSwitchboardList.ItemAt(x)->second;
 				fSwitchboardList.RemoveItemAt(x);
 				break;
 			}
 		}
-	}*/
+	}
 }
 
 
@@ -1179,7 +1203,7 @@ void * MSNP::connectToServer(std::string hostname, int port, bool *connected, bo
 
 	memset(&sa,0,sizeof(sa));
 	memcpy((char *)&sa.sin_addr,hp->h_addr,hp->h_length);     /* set address */
-	sa.sin_family = hp->h_addrtype;
+	sa.sin_family = (uint8_t)hp->h_addrtype;
 	sa.sin_port = htons((u_short)port);
 
 	if ((s = socket(hp->h_addrtype,SOCK_STREAM,0)) < 0)     /* get socket */
