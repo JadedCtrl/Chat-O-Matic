@@ -9,16 +9,5 @@ resource(1000) message('IMst') {
 		"description" = "Password",
 		int32 "type" = 'CSTR',
 		"is_secret" = true
-	},
-	"setting" = message {
-		"name" = "server",
-		"description" = "Server",
-		int32 "type" = 'CSTR'
-	},
-	"setting" = message {
-		"name" = "resource",
-		"description" = "Resource",
-		int32 "type" = 'CSTR',
-		"default" = "Caya"
 	}
 };
