@@ -93,18 +93,18 @@ AccountManager::SetStatus(CayaStatus status, const char* str)
 		// Notify status change
 		fStatus = status;
 		NotifyInteger(INT_ACCOUNT_STATUS, (int32)fStatus);
-		_ReplicantStatusNotify((CayaStatus)status);
+		ReplicantStatusNotify((CayaStatus)status);
 	}
 }
 
 
 void
-AccountManager::_ReplicantStatusNotify(CayaStatus status)
+AccountManager::ReplicantStatusNotify(CayaStatus status, bool wait)
 {
 	if(fReplicantMessenger != NULL && fReplicantMessenger->IsValid()) {
 		printf("notification sent\n");
 		BMessage mess(IM_OWN_STATUS_SET);
 		mess.AddInt32("status", status);
 		fReplicantMessenger->SendMessage(&mess);
-	}	
+	}
 }

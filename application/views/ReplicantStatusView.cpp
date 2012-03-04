@@ -9,6 +9,7 @@
 #include <Application.h>
 #include <AppFileInfo.h>
 #include <Bitmap.h>
+#include <Deskbar.h>
 #include <IconUtils.h>
 #include <Message.h>
 #include <MenuField.h>
@@ -24,6 +25,7 @@
 #include "BitmapView.h"
 #include "Caya.h"
 #include "CayaMessages.h"
+#include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
 #include "CayaUtils.h"
 #include "NicknameTextControl.h"
@@ -352,4 +354,30 @@ extern "C" _EXPORT BView *
 instantiate_deskbar_item(void)
 {
 	return new ReplicantStatusView();
+}
+
+
+// The following methods install
+// and remove the Caya's replicant
+// from Deskbar.
+status_t
+ReplicantStatusView::InstallReplicant()
+{
+	if (CayaPreferences::Item()->DisableReplicant == true)
+		return B_OK;
+	
+	BDeskbar deskbar;
+	if (deskbar.HasItem("ReplicantStatusView")) {
+		ReplicantStatusView::RemoveReplicant();
+	}
+	ReplicantStatusView* view = new ReplicantStatusView();
+	return deskbar.AddItem(view);
+}
+
+
+status_t
+ReplicantStatusView::RemoveReplicant()
+{
+	BDeskbar deskbar;
+	return deskbar.RemoveItem("ReplicantStatusView");
 }

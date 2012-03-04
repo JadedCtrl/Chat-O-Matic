@@ -43,6 +43,10 @@ public:
 	static	ReplicantStatusView* Instantiate(BMessage* archive);
 
 			void			MouseDown(BPoint point);
+
+
+	static status_t			InstallReplicant();
+	static status_t			RemoveReplicant();
 private:
 			void			_Init();
 			void			_BuildMenu();

@@ -22,11 +22,11 @@ public:
 								const char* str = NULL);
 
 			void			SetReplicantMessenger(BMessenger* messenger);
+			void			ReplicantStatusNotify(CayaStatus status,
+								bool wait = false);
 private:
 							AccountManager();
 							~AccountManager();
-
-			void			_ReplicantStatusNotify(CayaStatus status);
 
 	CayaStatus				fStatus;
 	BMessenger*				fReplicantMessenger;

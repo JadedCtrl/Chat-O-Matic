@@ -166,6 +166,7 @@ Server::Filter(BMessage* message, BHandler **target)
 			}
 			AccountManager* accountManager = AccountManager::Get();
 			accountManager->SetReplicantMessenger(messenger);
+			accountManager->ReplicantStatusNotify(accountManager->Status());
 			break;
 		}
 

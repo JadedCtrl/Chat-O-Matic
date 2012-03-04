@@ -12,12 +12,16 @@ typedef struct _CayaPreferencesData
 	bool MoveToCurrentWorkspace;
 	bool ActivateWindow;
 	bool IgnoreEmoticons;
+	bool HideCayaDeskbar;
+	bool DisableReplicant;
 
 	_CayaPreferencesData()
 		:
 		MoveToCurrentWorkspace(true),
 		ActivateWindow(true),
-		IgnoreEmoticons(false)
+		IgnoreEmoticons(false),
+		HideCayaDeskbar(false),
+		DisableReplicant(false)
 	{
 	}
 } CayaPreferencesData;

@@ -45,9 +45,6 @@ public:
 			void		RemoveItem(RosterItem*);
 
 private:
-			status_t	_InstallReplicant();
-			status_t	_RemoveReplicant();
-
 	StatusView*			fStatusView;
 	RosterListView*		fListView;
 	Server*				fServer;

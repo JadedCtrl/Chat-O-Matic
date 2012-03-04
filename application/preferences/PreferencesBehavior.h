@@ -25,6 +25,7 @@ private:
 	BCheckBox*		fActivateChatWindow;
 	BCheckBox*		fPlaySoundOnMessageReceived;
 	BCheckBox*		fMarkUnreadWindow;
+	BCheckBox*		fMarkUnreadReplicant;
 
 	BStringView*	fReplicantString;
 	BCheckBox*		fDisableReplicant;

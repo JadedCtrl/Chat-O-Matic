@@ -12,7 +12,6 @@
 #include <Alert.h>
 #include <Button.h>
 #include <CardLayout.h>
-#include <Deskbar.h>
 #include <ListView.h>
 #include <Box.h>
 #include <CheckBox.h>
@@ -109,7 +108,7 @@ MainWindow::MainWindow()
 	CenterOnScreen();
 
 	//TODO check for errors here
-	_InstallReplicant();
+	ReplicantStatusView::InstallReplicant();
 }
 
 
@@ -127,7 +126,7 @@ MainWindow::QuitRequested()
 	fListView->MakeEmpty();
 	fServer->Quit();
 	CayaPreferences::Get()->Save();
-	_RemoveReplicant();
+	ReplicantStatusView::RemoveReplicant();
 	be_app->PostMessage(B_QUIT_REQUESTED);
 	return true;
 }
@@ -402,27 +401,4 @@ MainWindow::WorkspaceActivated(int32 workspace, bool active)
 		fWorkspaceChanged = false;
 	else
 		fWorkspaceChanged = true;
-}
-
-
-// The following methods install
-// and remove the Caya's replicant
-// from Deskbar.
-status_t
-MainWindow::_InstallReplicant()
-{
-	BDeskbar deskbar;
-	if (deskbar.HasItem("ReplicantStatusView")) {
-		_RemoveReplicant();
-	}
-	ReplicantStatusView* view = new ReplicantStatusView();
-	return deskbar.AddItem(view);
-}
-
-
-status_t
-MainWindow::_RemoveReplicant()
-{
-	BDeskbar deskbar;
-	return deskbar.RemoveItem("ReplicantStatusView");
 }
