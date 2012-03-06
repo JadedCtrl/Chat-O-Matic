@@ -21,6 +21,7 @@
 #include <sys/poll.h>
 
 #include <Messenger.h>
+#include <MessageRunner.h>
 #include <OS.h>
 #include <Path.h>
 #include <String.h>
@@ -86,6 +87,9 @@ private:
 
 		bool		fSettings;
 	unsigned int 	fID;
+
+		BMessageRunner* fAvatarRunner;
+		bigtime_t 	fRunnerTime;
 
 		CayaProtocolMessengerInterface*	fServerMsgr;
 		MSN::NotificationServerConnection* fMainConnection;

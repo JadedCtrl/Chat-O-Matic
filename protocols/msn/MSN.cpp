@@ -37,6 +37,7 @@
 #include <Directory.h>
 #include <Entry.h>
 #include <FindDirectory.h>
+#include <Looper.h>
 #include <Path.h>
 #include <SupportDefs.h>
 
@@ -48,6 +49,8 @@
 const char* kProtocolSignature = "msn";
 const char* kProtocolName = "MSN Protocol";
 
+const uint32 kAvatarCheckMessage = 'AVMs';
+
 struct pollfd* kPollSockets = NULL;
 struct ssl {
 	bool isSSL;
@@ -58,6 +61,29 @@ struct ssl {
 
 int kSocketsCount = 0;
 int kSocketsAvailable = 0;
+
+
+class AvatarLooper : public BLooper {
+public:
+								AvatarLooper(MSNP* owner)
+									: fOwner(owner) {};
+		virtual                 ~AvatarLooper() {};
+
+		virtual void MessageReceived(BMessage* message)
+		{
+				switch (message->what) {
+					case kAvatarCheckMessage: {
+						printf("msg\n");
+						fOwner->AvatarQueueCheck();
+						break;
+					}
+					//default:
+					//	BLooper::MessageReceived(message);
+				}
+		}
+private:
+		MSNP* fOwner;
+};
 
 
 int32 StartPollThread(void* punt)
@@ -157,9 +183,19 @@ MSNP::MSNP()
 	fPassword(""),
 	fMainConnection(NULL),
 	fSettings(false),
-	fCachePath("")
+	fCachePath(""),
+	fRunnerTime(40000000)
 {
-
+	AvatarLooper* looper = new AvatarLooper(this);
+	BMessenger* mess = new BMessenger(NULL, looper);
+	if (!mess->IsValid()) {
+		printf("Avatar BMessenger error\n");
+	}
+	looper->Run();
+	fAvatarRunner = new BMessageRunner(*mess, new BMessage(kAvatarCheckMessage), fRunnerTime);
+	if (fAvatarRunner->InitCheck() != B_OK) {
+		printf("Avatar MessageRunner error %s\n", fAvatarRunner->InitCheck());
+	}
 }
 
 
@@ -455,11 +491,9 @@ MSNP::UpdateSettings(BMessage* msg)
 	printf("updatesettings\n");
 	const char* usernm = NULL;
 	const char* password = NULL;
-//	const char* res = NULL;
 
 	msg->FindString("username", &usernm);
 	msg->FindString("password", &password);
-//	msg->FindString("resource", &res);
 
 	if ((usernm == NULL) || (password == NULL)) {
 		Error("Error: Username or Password Empty",NULL);
@@ -549,7 +583,6 @@ MSNP::MessageFromBuddy(const char* mess, const char* id)
 void
 MSNP::RequestBuddyIcon(string msnobject, MSN::Passport buddy)
 {
-	printf("requestbuddyicon %s\n", buddy.c_str());
 	MSNContainer* container = new MSNContainer(buddy);
 	container->SetObject(msnobject);
 	fMainConnection->requestSwitchboardConnection(container);
@@ -559,7 +592,6 @@ MSNP::RequestBuddyIcon(string msnobject, MSN::Passport buddy)
 void
 MSNP::RequestBuddyIcon(MSN::SwitchboardServerConnection* conn, string msnobject, const char* buddy)
 {
-	printf("requestbuddyicon 2 %s\n", buddy);
 	fID = fID+1;
 	BString path = GetFilename(msnobject).Path();
 	if (path == "") {
@@ -573,7 +605,6 @@ MSNP::RequestBuddyIcon(MSN::SwitchboardServerConnection* conn, string msnobject,
 void
 MSNP::SendBuddyIcon(string filename, string passport)
 {
-	printf("sendbddic %s\n", passport.c_str());
 	entry_ref ref;
 	if (get_ref_for_path(filename.c_str(), &ref) != B_OK)
 		return;
@@ -588,37 +619,41 @@ MSNP::SendBuddyIcon(string filename, string passport)
 
 bool
 MSNP::CheckAvatar(string msnobject, string passport) {
-	printf("checkav\n");
 	BPath filepath = GetFilename(msnobject);
-
 	BEntry entry = BEntry(filepath.Path(), true);
 	if (entry.Exists()) {
 		if (passport != "" && filepath != "")
 			SendBuddyIcon(filepath.Path(), passport);
 		return true;
 	}
-	printf("false\n");
 	return false;
 }
 
 
 void
-MSNP::AvatarQueueCheck() {
+MSNP::AvatarQueueCheck() { 
 	if (fAvatarQueue.CountItems() > 0) {
-		fAvatarQueue.ItemAt(0);
+		pair<string, string>* item = fAvatarQueue.ItemAt(0);
+		fAvatarQueue.RemoveItemAt(0);
+		printf("avatar check %s\n", item->first.c_str());
+		RequestBuddyIcon(item->second, item->first);
+		fAvatarDone.AddItem(item);
+	} else {
+		fRunnerTime += 100000000;
+		fAvatarRunner->SetInterval(fRunnerTime);
 	}
 }
 
 
 string
 MSNP::GetObject(string passport) {
-	for (uint32 i = 0; i < fAvatarDone.CountItems(); i++) {
-		if (fAvatarDone.ItemAt(i)->first == passport)
-			return fAvatarDone.ItemAt(i)->second;
-	}
 	for (uint32 i = 0; i < fAvatarQueue.CountItems(); i++) {
 		if (fAvatarQueue.ItemAt(i)->first == passport)
 			return fAvatarQueue.ItemAt(i)->second;
+	}
+	for (uint32 i = 0; i < fAvatarDone.CountItems(); i++) {
+		if (fAvatarDone.ItemAt(i)->first == passport)
+			return fAvatarDone.ItemAt(i)->second;
 	}
 	return "";
 }
@@ -629,9 +664,7 @@ MSNP::GetFilename(string msnobject) {
 	BString str = FindSHA1D(msnobject);
 	if (str.Length() < 25)
 		return "";
-
 	BPath path = fCachePath;
-	printf(" filename %s \n", path.Path());
 	path.Append(str);
 	return path;
 }
@@ -645,7 +678,6 @@ MSNP::FindSHA1D(string msnobject)
 	int32 index = str.FindFirst("SHA1D=");
 	index += 7;
 	str.CopyInto(ret, index, (int32) 27);
-	printf(ret.String());
 	ret.RemoveAll("/");
 	return ret.String();
 }
@@ -980,7 +1012,27 @@ void MSNP::buddyChangedStatus(MSN::NotificationServerConnection* conn, MSN::Pass
 	fServerMsgr->SendMessage(&msg);
 
 	if(!CheckAvatar(msnobject, buddy)) {
-		
+		for (uint32 i = 0; i < fAvatarQueue.CountItems(); i++) {
+			if (fAvatarQueue.ItemAt(i)->first == buddy) {
+				delete fAvatarQueue.ItemAt(i);
+				fAvatarQueue.RemoveItemAt(i);
+			}
+		}
+		for (uint32 i = 0; i < fAvatarDone.CountItems(); i++) {
+			if (fAvatarDone.ItemAt(i)->first == buddy)
+				delete fAvatarDone.ItemAt(i);
+				fAvatarDone.RemoveItemAt(i);
+		}
+		fAvatarQueue.AddItem(new pair<string, string>(buddy, msnobject));
+		fRunnerTime = 40000000;
+		fAvatarRunner->SetInterval(fRunnerTime);
+	} else {
+		for (uint32 i = 0; i < fAvatarDone.CountItems(); i++) {
+			if (fAvatarDone.ItemAt(i)->first == buddy)
+				fAvatarDone.ItemAt(i)->second = msnobject;
+				return;
+		}
+		fAvatarDone.AddItem(new pair<string, string>(buddy, msnobject));
 	}
 }
 
@@ -1005,7 +1057,6 @@ void MSNP::gotSwitchboard(MSN::SwitchboardServerConnection* conn, const void* ta
 	if (!tag)
 		return;
 
-	printf("gswitch\n");
 	MSNContainer* cont = (MSNContainer*) tag;
 	conn->inviteUser(cont->Buddy());
 }
@@ -1016,7 +1067,6 @@ void MSNP::buddyJoinedConversation(MSN::SwitchboardServerConnection* conn, MSN::
 	if (!conn->auth.tag)
 		return;
 
-	printf("joiconv\n");
 	MSNContainer* cont = (MSNContainer*) (conn->auth.tag);
 	if (cont->IsMessage()) {
 		conn->sendTypingNotification();
@@ -1094,7 +1144,7 @@ void MSNP::gotInk(MSN::SwitchboardServerConnection * conn, MSN::Passport usernam
 
 void MSNP::gotContactDisplayPicture(MSN::SwitchboardServerConnection* conn, MSN::Passport passport, std::string filename )
 {
-	printf("MSNP::gotContactDisplayPicture %s\n", filename.c_str());
+	//printf("MSNP::gotContactDisplayPicture %s\n", filename.c_str());
 	SendBuddyIcon(filename, passport); 
 	conn->disconnect();
 }
@@ -1132,7 +1182,7 @@ void MSNP::fileTransferProgress(MSN::SwitchboardServerConnection * conn, unsigne
 
 void MSNP::fileTransferFailed(MSN::SwitchboardServerConnection * conn, unsigned int sessionID, MSN::fileTransferError error)
 {
-	printf("file transfer failed\n");
+	//printf("file transfer failed\n");
 }
 
 
@@ -1278,7 +1328,7 @@ void MSNP::gotMessageSentACK(MSN::SwitchboardServerConnection * conn, int trID)
 
 void MSNP::askFileTransfer(MSN::SwitchboardServerConnection * conn, MSN::fileTransferInvite ft)
 {
-	printf("file transfer\n");
+	//printf("file transfer\n");
 }
 
 
