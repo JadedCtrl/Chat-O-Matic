@@ -262,6 +262,11 @@ Server::ImMessage(BMessage* msg)
 			if ((msg->FindString("name", &name) == B_OK)
 				&& (strcmp(name, "") != 0))
 				linker->SetNotifyName(name);
+
+			BString status;
+			if (msg->FindString("message", &status) == B_OK)
+				linker->SetNotifyPersonalStatus(status);
+
 			break;
 		}
 		case IM_EXTENDED_CONTACT_INFO:

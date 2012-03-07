@@ -33,9 +33,9 @@ public:
 	void			DeletePopUp();
 	void			HidePopUp();
 
-	RosterItem*		GetRosterItem() { return fRosterItem; }
+	RosterItem*		GetRosterItem() const;
 
-	BString			GetId() { return fID; }
+	BString			GetId() const;
 
 	BMessenger		Messenger() const;
 	void			SetMessenger(BMessenger messenger);
@@ -43,8 +43,10 @@ public:
 	ProtocolLooper*	GetProtocolLooper() const;
 	void			SetProtocolLooper(ProtocolLooper* looper);
 
-	BString			GetName() { return fName; }
-	BBitmap*		AvatarBitmap() { return fAvatarBitmap; }
+	BString			GetName() const;
+	BBitmap*		AvatarBitmap() const;
+	CayaStatus		GetNotifyStatus() const;
+	BString			GetNotifyPersonalStatus() const;
 
 	void			SetNotifyName(BString name);
 	void			SetNotifyAvatarBitmap(BBitmap* bitmap);

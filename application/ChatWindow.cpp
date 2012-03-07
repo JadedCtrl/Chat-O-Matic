@@ -22,6 +22,7 @@
 #include <ScrollView.h>
 #include <String.h>
 
+#include "BitmapView.h"
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
 #include "ChatWindow.h"
@@ -36,7 +37,7 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 	:
 	BWindow(BRect(200, 200, 500, 500),
 		cl->GetName().String(), B_DOCUMENT_WINDOW, 0),
-	fContactLinker(cl)
+		fContactLinker(cl)
 {
 	fReceiveView = new CayaRenderView("fReceiveView");
 	fReceiveView->SetOtherNick(cl->GetName());
@@ -50,15 +51,30 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 	AddCommonFilter(new EditingFilter(fSendView));
 	fSendView->MakeFocus(true);
 
+/*
+	BStringView* personalMessage = new BStringView("personalMessage", "");
+	personalMessage->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+	personalMessage->SetText(fContactLinker->GetNotifyPersonalStatus());
+	personalMessage->SetExplicitMaxSize(BSize(200, 200));
+*/
+
 	fStatus = new BStringView("status", "");
 	fStatus->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 
 	SetLayout(new BGroupLayout(B_HORIZONTAL));
 
+	fAvatar = new BitmapView("ContactIcon");
+	fAvatar->SetExplicitMaxSize(BSize(50, 50));
+	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
+	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
+	fAvatar->SetBitmap(fContactLinker->AvatarBitmap());
+
 	AddChild(BGroupLayoutBuilder(B_VERTICAL, 10)
+//		.Add(personalMessage)
+		.Add(fAvatar, 1)
 		.Add(scrollViewReceive, 2)
 		.Add(scrollViewSend)
-		.Add(fStatus)
+		.Add(fStatus, 3)
 		.SetInsets(5, 5, 5, 5)
 	);
 
@@ -75,6 +91,13 @@ ChatWindow::QuitRequested()
 	msg.AddString("id", fContactLinker->GetId());
 	fContactLinker->Messenger().SendMessage(&msg);
 	return false;
+}
+
+
+void
+ChatWindow::UpdateAvatar()
+{
+	fAvatar->SetBitmap(fContactLinker->AvatarBitmap());
 }
 
 

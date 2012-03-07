@@ -12,6 +12,7 @@
 
 #include "CayaConstants.h"
 
+class BitmapView;
 class ContactLinker;
 class CayaRenderView;
 
@@ -22,6 +23,7 @@ public:
 	virtual	void		MessageReceived(BMessage* message);
 	virtual	bool		QuitRequested();
 
+			void		UpdateAvatar();
 			void		ImMessage(BMessage* msg);
 
 			void		ObserveString(int32 what, BString str);
@@ -34,6 +36,7 @@ private:
 		ContactLinker*	fContactLinker;
 		CayaRenderView*	fReceiveView;
 		BStringView*	fStatus;
+		BitmapView*		fAvatar;
 
 };
 

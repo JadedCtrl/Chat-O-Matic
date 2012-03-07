@@ -119,6 +119,20 @@ ContactLinker::DeletePopUp()
 }
 
 
+RosterItem*
+ContactLinker::GetRosterItem() const
+{
+	return fRosterItem;
+}
+
+
+BString
+ContactLinker::GetId() const
+{
+	return fID;
+}
+
+
 BMessenger
 ContactLinker::Messenger() const
 {
@@ -137,6 +151,34 @@ ProtocolLooper*
 ContactLinker::GetProtocolLooper() const
 {
 	return fLooper;
+}
+
+
+BString
+ContactLinker::GetName() const
+{
+	return fName;
+}
+
+
+BBitmap*
+ContactLinker::AvatarBitmap() const
+{
+	return fAvatarBitmap;
+}
+
+
+CayaStatus
+ContactLinker::GetNotifyStatus() const
+{
+	return fStatus;
+}
+
+
+BString
+ContactLinker::GetNotifyPersonalStatus() const
+{
+	return fPersonalStatus;
 }
 
 
@@ -171,6 +213,8 @@ ContactLinker::SetNotifyAvatarBitmap(BBitmap* bitmap)
 	if ((fAvatarBitmap != bitmap) && (bitmap != NULL)) {
 		fAvatarBitmap = bitmap;
 		NotifyPointer(PTR_AVATAR_BITMAP, (void*)bitmap);
+		if (fChatWindow != NULL)
+			fChatWindow->UpdateAvatar();
 	}
 }
 
