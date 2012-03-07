@@ -77,8 +77,8 @@ public:
 						fOwner->AvatarQueueCheck();
 						break;
 					}
-					//default:
-					//	BLooper::MessageReceived(message);
+					default:
+						BLooper::MessageReceived(message);
 				}
 		}
 private:
@@ -1058,6 +1058,10 @@ void MSNP::gotSwitchboard(MSN::SwitchboardServerConnection* conn, const void* ta
 		return;
 
 	MSNContainer* cont = (MSNContainer*) tag;
+	if (cont->IsMessage()) {
+		fSwitchboardList.AddItem(
+			new pair<string, MSN::SwitchboardServerConnection*>(cont->Buddy(), conn));
+	}
 	conn->inviteUser(cont->Buddy());
 }
 
