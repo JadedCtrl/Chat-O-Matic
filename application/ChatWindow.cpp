@@ -102,8 +102,11 @@ ChatWindow::QuitRequested()
 void
 ChatWindow::UpdateAvatar()
 {
-	if (fContactLinker->AvatarBitmap() != NULL)
+	if (fContactLinker->AvatarBitmap() != NULL) {
+		LockLooper();
 		fAvatar->SetBitmap(fContactLinker->AvatarBitmap());
+		UnlockLooper();
+	}
 }
 
 
