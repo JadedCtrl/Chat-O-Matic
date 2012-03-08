@@ -25,10 +25,8 @@
 
 const uint32 kToCurrentWorkspace = 'CBcw';
 const uint32 kActivateChatWindow = 'CBac';
-const uint32 kDisableReplicant = 'DSrp';
-const uint32 kPermanentReplicant ='PRpt';
-const uint32 kHideCayaDeskbar = 'HCtk';
-
+const uint32 kNotifyProtocolsLogin = 'NTpl';
+const uint32 kNotifyContactStatus = 'NTcl';
 
 
 PreferencesBehavior::PreferencesBehavior()
@@ -60,19 +58,15 @@ PreferencesBehavior::PreferencesBehavior()
 	fMarkUnreadReplicant->SetEnabled(false);
 			// not implemented
 
-	fReplicantString = new BStringView("ReplicantString", "Deskbar Replicant");
-	fReplicantString->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
-	fReplicantString->SetFont(be_bold_font);
+	fNotifications = new BStringView("notifications", "Deskbar Notifications");
+	fNotifications->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+	fNotifications->SetFont(be_bold_font);
 
-	fDisableReplicant = new BCheckBox("DisableReplicant",
-		"Disable Deskbar replicant", new BMessage(kDisableReplicant));
+	fNotifyProtocols = new BCheckBox("EnableProtocolNotify",
+		"Enable protocol status notifications",new BMessage(kNotifyProtocolsLogin));
 
-	fPermanentReplicant = new BCheckBox("PermanentReplicant",
-		"Permanent Deskbar Replicant", NULL);
-	fPermanentReplicant->SetEnabled(false);
-
-	fHideCayaDeskbar = new BCheckBox("HideCayaDeskbar",
-		"Hide Caya field in Deskbar", new BMessage(kHideCayaDeskbar));
+	fNotifyContactStatus = new BCheckBox("EnableContactNotify",
+		"Enable contact status notifications",new BMessage(kNotifyContactStatus));
 
 	const float spacing = be_control_look->DefaultItemSpacing();
 
@@ -85,14 +79,13 @@ PreferencesBehavior::PreferencesBehavior()
 			.Add(fMarkUnreadWindow)
 			.Add(fMarkUnreadReplicant)
 			.Add(fPlaySoundOnMessageReceived)
-		.SetInsets(spacing * 2, spacing, spacing, spacing)
+		.	SetInsets(spacing * 2, spacing, spacing, spacing)
 		.End()
-		.Add(fReplicantString)
+		.Add(fNotifications)
 		.AddGroup(B_VERTICAL, spacing)
-			.Add(fDisableReplicant)
-			.Add(fPermanentReplicant)
-			.Add(fHideCayaDeskbar)
-			.SetInsets(spacing * 2, spacing, spacing, spacing)
+			.Add(fNotifyProtocols)
+			.Add(fNotifyContactStatus)
+		.	SetInsets(spacing * 2, spacing, spacing, spacing)
 		.End()
 		.AddGlue()
 		.SetInsets(spacing, spacing, spacing, spacing)
@@ -106,17 +99,17 @@ PreferencesBehavior::AttachedToWindow()
 {
 	fToCurrentWorkspace->SetTarget(this);
 	fActivateChatWindow->SetTarget(this);
-	fHideCayaDeskbar->SetTarget(this);
-	fDisableReplicant->SetTarget(this);
+	fNotifyProtocols->SetTarget(this);
+	fNotifyContactStatus->SetTarget(this);
 
 	fToCurrentWorkspace->SetValue(
 		CayaPreferences::Item()->MoveToCurrentWorkspace);
 	fActivateChatWindow->SetValue(
 		CayaPreferences::Item()->ActivateWindow);
-	fHideCayaDeskbar->SetValue(
-		CayaPreferences::Item()->HideCayaDeskbar);
-	fDisableReplicant->SetValue(
-		CayaPreferences::Item()->DisableReplicant);
+	fNotifyProtocols->SetValue(
+		CayaPreferences::Item()->NotifyProtocolStatus);
+	fNotifyContactStatus->SetValue(
+		CayaPreferences::Item()->NotifyContactStatus);
 }
 
 
@@ -132,19 +125,13 @@ PreferencesBehavior::MessageReceived(BMessage* message)
 			CayaPreferences::Item()->ActivateWindow
 				= fActivateChatWindow->Value();
 			break;
-		case kHideCayaDeskbar:
-			CayaPreferences::Item()->HideCayaDeskbar
-				= fHideCayaDeskbar->Value();
+		case kNotifyProtocolsLogin:
+			CayaPreferences::Item()->NotifyProtocolStatus
+				= fNotifyProtocols->Value();
 			break;
-		case kDisableReplicant:
-			CayaPreferences::Item()->DisableReplicant
-				= fDisableReplicant->Value();
-
-			if (fDisableReplicant->Value() == true)
-				ReplicantStatusView::RemoveReplicant();
-			else
-				ReplicantStatusView::InstallReplicant();
-
+		case kNotifyContactStatus:
+			CayaPreferences::Item()->NotifyContactStatus
+				= fNotifyContactStatus->Value();
 			break;
 		default:
 			BView::MessageReceived(message);

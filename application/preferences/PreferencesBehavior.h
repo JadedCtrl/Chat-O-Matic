@@ -27,10 +27,9 @@ private:
 	BCheckBox*		fMarkUnreadWindow;
 	BCheckBox*		fMarkUnreadReplicant;
 
-	BStringView*	fReplicantString;
-	BCheckBox*		fDisableReplicant;
-	BCheckBox*		fPermanentReplicant;
-	BCheckBox*		fHideCayaDeskbar;
+	BStringView*	fNotifications;
+	BCheckBox*		fNotifyProtocols;
+	BCheckBox*		fNotifyContactStatus;	
 
 };
 

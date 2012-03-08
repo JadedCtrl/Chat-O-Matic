@@ -11,17 +11,24 @@ typedef struct _CayaPreferencesData
 {
 	bool MoveToCurrentWorkspace;
 	bool ActivateWindow;
-	bool IgnoreEmoticons;
+
 	bool HideCayaDeskbar;
 	bool DisableReplicant;
+
+	bool IgnoreEmoticons;
+
+	bool NotifyProtocolStatus;
+	bool NotifyContactStatus;
 
 	_CayaPreferencesData()
 		:
 		MoveToCurrentWorkspace(true),
 		ActivateWindow(true),
-		IgnoreEmoticons(false),
 		HideCayaDeskbar(false),
-		DisableReplicant(false)
+		DisableReplicant(true),
+		IgnoreEmoticons(false),
+		NotifyProtocolStatus(true),
+		NotifyContactStatus(false)
 	{
 	}
 } CayaPreferencesData;

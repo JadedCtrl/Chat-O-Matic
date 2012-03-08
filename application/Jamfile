@@ -44,6 +44,7 @@ Application Caya :
 	PreferencesDialog.cpp
 	PreferencesAccounts.cpp
 	PreferencesBehavior.cpp
+	PreferencesReplicant.cpp
 	PreferencesChatWindow.cpp
 
 	# views

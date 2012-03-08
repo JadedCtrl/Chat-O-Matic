@@ -23,6 +23,7 @@
 #include "ProtocolLooper.h"
 #include "CayaMessages.h"
 #include "CayaProtocol.h"
+#include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
 #include "ChatWindow.h"
 #include "ImageCache.h"
@@ -97,7 +98,7 @@ Server::SendProtocolMessage(BMessage* msg)
 			looper->PostMessage(msg);
 	}
 }
-
+ 
 
 void
 Server::SendAllProtocolMessage(BMessage* msg)
@@ -343,7 +344,9 @@ Server::ImMessage(BMessage* msg)
 				return result;
 			if (msg->FindFloat("progress", &progress) != B_OK)
 				return result;
-#if 0
+
+			if (!CayaPreferences::Item()->NotifyProtocolStatus)
+				break;
 
 			CayaProtocolAddOn* addOn
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
@@ -355,7 +358,7 @@ Server::ImMessage(BMessage* msg)
 			notification.SetContent(message);
 			notification.SetProgress(progress);
 			notification.Send();
-#endif
+
 			break;
 		}
 		case IM_NOTIFICATION:
@@ -374,9 +377,12 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindString("message", &message) != B_OK)
 				return result;
 
-#if 0
+			if (!CayaPreferences::Item()->NotifyProtocolStatus)
+				break;
+
 			CayaProtocolAddOn* addOn
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
+
 
 			BNotification notification((notification_type)type);
 			notification.SetGroup(BString("Caya"));
@@ -384,7 +390,7 @@ Server::ImMessage(BMessage* msg)
 			notification.SetIcon(addOn->Icon());
 			notification.SetContent(message);
 			notification.Send();
-#endif
+
 			break;
 		}
 

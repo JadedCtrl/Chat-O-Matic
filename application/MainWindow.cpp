@@ -289,7 +289,9 @@ MainWindow::ImMessage(BMessage* msg)
 				// Sort list view again
 				fListView->Sort();
 
-#if 0
+				if (!CayaPreferences::Item()->NotifyContactStatus)
+					break;
+
 				switch (status) {
 					case CAYA_ONLINE:
 					case CAYA_OFFLINE:
@@ -314,7 +316,6 @@ MainWindow::ImMessage(BMessage* msg)
 					default:
 						break;
 				}
-#endif
 			}
 			break;
 		}
