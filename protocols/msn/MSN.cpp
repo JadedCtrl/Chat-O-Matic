@@ -313,7 +313,8 @@ MSNP::Process(BMessage* msg)
 									Error("Empty Username!", NULL);
 								if (fPassword == "")
 									Error("Empty Password!",NULL);
-								Progress("MSN Protocol: Login", "MSNP: Connecting...", 0.0f);
+								
+								//Progress("MSN Protocol: Login", "MSNP: Connecting...", 0.0f);
 								MSN::Passport username;
 								try {
 									username = MSN::Passport(fUsername.c_str());
@@ -533,23 +534,45 @@ MSNP::Error(const char* message, const char* who)
 		msg.AddString("id", who);
 	msg.AddString("error", message);
 
-	fServerMsgr->SendMessage( &msg );
+	_SendMessage(&msg);
 }
 
 
 void
-MSNP::Progress(const char* id, const char* message, float progress)
+MSNP::_NotifyProgress(const char* title, const char* message, float progress)
 {
 	BMessage msg(IM_MESSAGE);
-	msg.AddInt32("im_what", IM_PROGRESS );
-	msg.AddString("protocol", kProtocolSignature);
-	msg.AddString("progressID", id);
+	msg.AddInt32("im_what", IM_PROGRESS);
+	msg.AddString("title", title);
 	msg.AddString("message", message);
 	msg.AddFloat("progress", progress);
-	msg.AddInt32("state", 11); //IM_impsConnecting );
-
-	fServerMsgr->SendMessage(&msg);
+	_SendMessage(&msg);
 }
+
+
+void
+MSNP::_Notify(notification_type type, const char* title, const char* message)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_NOTIFICATION);
+	msg.AddInt32("type", (int32)type);
+	msg.AddString("title", title);
+	msg.AddString("message", message);
+	_SendMessage(&msg);
+}
+
+
+void
+MSNP::_SendMessage(BMessage* msg)
+{
+	// Skip invalid messages
+	if (!msg)
+		return;
+
+	msg->AddString("protocol", kProtocolSignature);
+	fServerMsgr->SendMessage(msg);
+}
+
 
 uint32
 MSNP::Version() const
@@ -643,8 +666,7 @@ MSNP::AvatarQueueCheck() {
 		RequestBuddyIcon(item->second, item->first);
 		fAvatarDone.AddItem(item);
 	} else {
-		fRunnerTime += 100000000;
-		fAvatarRunner->SetInterval(fRunnerTime);
+		fAvatarRunner->SetCount(0);
 	}
 }
 
@@ -924,7 +946,12 @@ void MSNP::connectionReady(MSN::Connection * conn)
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddInt32("status", CAYA_ONLINE);
 	fServerMsgr->SendMessage(&msg);
-	Progress("MSN Protocol Login", "MSN Protocol: Logged in!", 1.00);
+
+	BString content(fUsername.c_str());
+	content << " has logged in!";
+	_Notify(B_INFORMATION_NOTIFICATION, "Connected",
+		content.String());
+
 	fMainConnection->setState(MSN::STATUS_AVAILABLE, fClientID);
 }
 
@@ -1028,8 +1055,12 @@ void MSNP::buddyChangedStatus(MSN::NotificationServerConnection* conn, MSN::Pass
 				fAvatarDone.RemoveItemAt(i);
 		}
 		fAvatarQueue.AddItem(new pair<string, string>(buddy, msnobject));
-		fRunnerTime = 40000000;
-		fAvatarRunner->SetInterval(fRunnerTime);
+
+		bigtime_t time;
+		int32 count;
+		fAvatarRunner->GetInfo(&time, &count);
+		if (count == 0)
+			fAvatarRunner->SetCount(-1);
 	} else {
 		for (uint32 i = 0; i < fAvatarDone.CountItems(); i++) {
 			if (fAvatarDone.ItemAt(i)->first == buddy)
@@ -1223,6 +1254,15 @@ void MSNP::buddyChangedPersonalInfo(MSN::NotificationServerConnection* conn, MSN
 
 void MSNP::closingConnection(MSN::Connection* conn)
 {
+	// TODO there should be a class that provide those
+	// strings, also in prevision of the localization support
+	if (conn->sock == fMainConnection->sock) {
+		BString content(fUsername.c_str());
+		content << " has logged out!";
+		_Notify(B_INFORMATION_NOTIFICATION, "Disconnected",
+			content.String());
+	}
+
 	printf ("MSNP::closingConnection : connection with socket %d\n", (int)conn->sock);
 	int x;
 	int count = 0;

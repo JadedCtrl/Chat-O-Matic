@@ -22,6 +22,7 @@
 
 #include <Messenger.h>
 #include <MessageRunner.h>
+#include <Notification.h>
 #include <OS.h>
 #include <Path.h>
 #include <String.h>
@@ -60,7 +61,6 @@ public:
 		virtual		uint32	Version() const;
 
 		void 		Error(const char* message, const char* who);
-		void 		Progress(const char* id, const char* message, float progress);
 		void 		SendContactInfo(MSN::Buddy buddy);
 		void		MessageFromBuddy(const char* mess, const char* id);
 
@@ -76,6 +76,12 @@ public:
 
 		BString		FindSHA1D(string msnobject);
 private:
+		void		_NotifyProgress(const char* title,
+						const char* message, float progress);
+		void		_Notify(notification_type type, 
+						const char* title, const char* message);
+		void		_SendMessage(BMessage* msg);
+
 		BPath		fCachePath;
 		thread_id   fPollThread;
 		bool		fLogged;
