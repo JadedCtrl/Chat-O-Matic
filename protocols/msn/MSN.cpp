@@ -194,7 +194,8 @@ MSNP::MSNP()
 	looper->Run();
 	fAvatarRunner = new BMessageRunner(*mess, new BMessage(kAvatarCheckMessage), fRunnerTime);
 	if (fAvatarRunner->InitCheck() != B_OK) {
-		printf("Avatar MessageRunner error %s\n", fAvatarRunner->InitCheck());
+		printf("Avatar MessageRunner error %s\n",
+			strerror(fAvatarRunner->InitCheck()));
 	}
 }
 
@@ -408,8 +409,10 @@ MSNP::Process(BMessage* msg)
 						fMainConnection->requestSwitchboardConnection(container);
 					} else {
 						MSN::SwitchboardServerConnection* conn = fSwitchboardList.ItemAt(y)->second;
-						conn->sendTypingNotification();
-						conn->sendMessage(string(sms));
+						if (conn != NULL && conn->isConnected()) {
+							conn->sendTypingNotification();
+							conn->sendMessage(string(sms));
+						}
 
 						BMessage msg(IM_MESSAGE);
 						msg.AddInt32("im_what", IM_MESSAGE_SENT);
@@ -440,7 +443,8 @@ MSNP::Process(BMessage* msg)
 					if (count != 0) {
 						for (x=0; x < count; x++) {
 							if (fSwitchboardList.ItemAt(x)->first == id) {
-								fSwitchboardList.ItemAt(x)->second->sendTypingNotification();
+								if (fSwitchboardList.ItemAt(x)->second != NULL)
+									fSwitchboardList.ItemAt(x)->second->sendTypingNotification();
 								break;
 							}
 						}
