@@ -247,8 +247,11 @@ Server::ImMessage(BMessage* msg)
 				break;
 
 			linker->SetNotifyStatus((CayaStatus)status);
-			linker->SetNotifyPersonalStatus(msg->FindString("message"));
-
+			BString statusMsg;
+			if (msg->FindString("message", &statusMsg) == B_OK) {
+				linker->SetNotifyPersonalStatus(statusMsg);
+				linker->GetChatWindow()->UpdatePersonalMessage();
+			}
 			break;
 		}
 		case IM_CONTACT_INFO:
@@ -264,9 +267,10 @@ Server::ImMessage(BMessage* msg)
 				linker->SetNotifyName(name);
 
 			BString status;
-			if (msg->FindString("message", &status) == B_OK)
+			if (msg->FindString("message", &status) == B_OK) {
 				linker->SetNotifyPersonalStatus(status);
-
+				linker->GetChatWindow()->UpdatePersonalMessage();
+			}
 			break;
 		}
 		case IM_EXTENDED_CONTACT_INFO:

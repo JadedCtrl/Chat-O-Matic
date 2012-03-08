@@ -51,12 +51,14 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 	AddCommonFilter(new EditingFilter(fSendView));
 	fSendView->MakeFocus(true);
 
-/*
-	BStringView* personalMessage = new BStringView("personalMessage", "");
-	personalMessage->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
-	personalMessage->SetText(fContactLinker->GetNotifyPersonalStatus());
-	personalMessage->SetExplicitMaxSize(BSize(200, 200));
-*/
+
+	fPersonalMessage = new BTextView("personalMessage", B_WILL_DRAW);
+	fPersonalMessage->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+	fPersonalMessage->SetText(fContactLinker->GetNotifyPersonalStatus());
+	fPersonalMessage->SetExplicitMaxSize(BSize(400, 200));
+	fPersonalMessage->MakeEditable(false);
+	fPersonalMessage->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
+
 
 	fStatus = new BStringView("status", "");
 	fStatus->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
@@ -65,13 +67,16 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 
 	fAvatar = new BitmapView("ContactIcon");
 	fAvatar->SetExplicitMaxSize(BSize(50, 50));
+	fAvatar->SetExplicitMinSize(BSize(50, 50));
 	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
 	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
 	fAvatar->SetBitmap(fContactLinker->AvatarBitmap());
 
 	AddChild(BGroupLayoutBuilder(B_VERTICAL, 10)
-//		.Add(personalMessage)
-		.Add(fAvatar, 1)
+		.AddGroup(B_HORIZONTAL)
+			.Add(fPersonalMessage)
+			.Add(fAvatar)
+		.End()
 		.Add(scrollViewReceive, 2)
 		.Add(scrollViewSend)
 		.Add(fStatus, 3)
@@ -97,7 +102,20 @@ ChatWindow::QuitRequested()
 void
 ChatWindow::UpdateAvatar()
 {
-	fAvatar->SetBitmap(fContactLinker->AvatarBitmap());
+	if (fContactLinker->AvatarBitmap() != NULL)
+		fAvatar->SetBitmap(fContactLinker->AvatarBitmap());
+}
+
+
+void
+ChatWindow::UpdatePersonalMessage()
+{
+
+	if (fContactLinker->GetNotifyPersonalStatus() != NULL) {
+		LockLooper();
+		fPersonalMessage->SetText(fContactLinker->GetNotifyPersonalStatus());
+		UnlockLooper();
+	}
 }
 
 

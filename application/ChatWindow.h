@@ -24,6 +24,7 @@ public:
 	virtual	bool		QuitRequested();
 
 			void		UpdateAvatar();
+			void		UpdatePersonalMessage();
 			void		ImMessage(BMessage* msg);
 
 			void		ObserveString(int32 what, BString str);
@@ -36,6 +37,7 @@ private:
 		ContactLinker*	fContactLinker;
 		CayaRenderView*	fReceiveView;
 		BStringView*	fStatus;
+		BTextView*		fPersonalMessage;
 		BitmapView*		fAvatar;
 
 };
