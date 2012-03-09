@@ -10,7 +10,8 @@
 typedef struct _CayaPreferencesData
 {
 	bool MoveToCurrentWorkspace;
-	bool ActivateWindow;
+	bool FocusOnMessageReceived;
+	bool FocusUserIsTyping;
 
 	bool HideCayaDeskbar;
 	bool DisableReplicant;
@@ -23,7 +24,8 @@ typedef struct _CayaPreferencesData
 	_CayaPreferencesData()
 		:
 		MoveToCurrentWorkspace(true),
-		ActivateWindow(true),
+		FocusOnMessageReceived(false),
+		FocusUserIsTyping(false),
 		HideCayaDeskbar(false),
 		DisableReplicant(true),
 		IgnoreEmoticons(false),

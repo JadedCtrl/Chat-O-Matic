@@ -24,7 +24,8 @@
 #include "TheApp.h"
 
 const uint32 kToCurrentWorkspace = 'CBcw';
-const uint32 kActivateChatWindow = 'CBac';
+const uint32 kFocusOnMessageReceived= 'FCmr';
+const uint32 kFocusUserIsTyping = 'FCit';
 const uint32 kNotifyProtocolsLogin = 'NTpl';
 const uint32 kNotifyContactStatus = 'NTcl';
 
@@ -41,9 +42,13 @@ PreferencesBehavior::PreferencesBehavior()
 		"Move window to current workspace",
 		new BMessage(kToCurrentWorkspace));
 
-	fActivateChatWindow = new BCheckBox("ActivateChatWindow",
-		"Get focus ",
-		new BMessage(kActivateChatWindow));
+	fFocusOnMessageReceived = new BCheckBox("FocusOnMessageReceived",
+		"Get focus when a message is received",
+		new BMessage(kFocusOnMessageReceived));
+
+	fFocusUserIsTyping = new BCheckBox("FocusUserIsTyping",
+		"Get focus when user is typing",
+		new BMessage(kFocusUserIsTyping));
 
 	fPlaySoundOnMessageReceived = new BCheckBox("PlaySoundOnMessageReceived",
 		"Play sound event", NULL);
@@ -75,7 +80,8 @@ PreferencesBehavior::PreferencesBehavior()
 		.Add(fOnIncoming)
 		.AddGroup(B_VERTICAL, spacing)
 			.Add(fToCurrentWorkspace)
-			.Add(fActivateChatWindow)
+			.Add(fFocusOnMessageReceived)
+			.Add(fFocusUserIsTyping)
 			.Add(fMarkUnreadWindow)
 			.Add(fMarkUnreadReplicant)
 			.Add(fPlaySoundOnMessageReceived)
@@ -98,14 +104,17 @@ void
 PreferencesBehavior::AttachedToWindow()
 {
 	fToCurrentWorkspace->SetTarget(this);
-	fActivateChatWindow->SetTarget(this);
+	fFocusUserIsTyping->SetTarget(this);
+	fFocusOnMessageReceived->SetTarget(this);
 	fNotifyProtocols->SetTarget(this);
 	fNotifyContactStatus->SetTarget(this);
 
 	fToCurrentWorkspace->SetValue(
 		CayaPreferences::Item()->MoveToCurrentWorkspace);
-	fActivateChatWindow->SetValue(
-		CayaPreferences::Item()->ActivateWindow);
+	fFocusUserIsTyping->SetValue(
+		CayaPreferences::Item()->FocusUserIsTyping);
+	fFocusOnMessageReceived->SetValue(
+		CayaPreferences::Item()->FocusOnMessageReceived);
 	fNotifyProtocols->SetValue(
 		CayaPreferences::Item()->NotifyProtocolStatus);
 	fNotifyContactStatus->SetValue(
@@ -121,9 +130,13 @@ PreferencesBehavior::MessageReceived(BMessage* message)
 			CayaPreferences::Item()->MoveToCurrentWorkspace
 				= fToCurrentWorkspace->Value();
 			break;
-		case kActivateChatWindow:
-			CayaPreferences::Item()->ActivateWindow
-				= fActivateChatWindow->Value();
+		case kFocusOnMessageReceived:
+			CayaPreferences::Item()->FocusOnMessageReceived
+				= fFocusOnMessageReceived->Value();
+			break;
+		case kFocusUserIsTyping:
+			CayaPreferences::Item()->FocusUserIsTyping
+				= fFocusUserIsTyping->Value();
 			break;
 		case kNotifyProtocolsLogin:
 			CayaPreferences::Item()->NotifyProtocolStatus

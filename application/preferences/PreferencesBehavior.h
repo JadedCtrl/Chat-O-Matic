@@ -22,7 +22,8 @@ private:
 
 	BStringView*	fOnIncoming;
 	BCheckBox*		fToCurrentWorkspace;
-	BCheckBox*		fActivateChatWindow;
+	BCheckBox*		fFocusOnMessageReceived;
+	BCheckBox*		fFocusUserIsTyping;
 	BCheckBox*		fPlaySoundOnMessageReceived;
 	BCheckBox*		fMarkUnreadWindow;
 	BCheckBox*		fMarkUnreadReplicant;

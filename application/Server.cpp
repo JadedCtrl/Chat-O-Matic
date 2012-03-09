@@ -313,6 +313,21 @@ Server::ImMessage(BMessage* msg)
 			break;
 		}
 		case IM_MESSAGE_RECEIVED:
+		{
+			BString id = msg->FindString("id");
+			if (id.Length() > 0) {
+				bool found = false;
+				ContactLinker* item = fRosterMap.ValueFor(id, &found);
+				if (found) {
+					ChatWindow* win = item->GetChatWindow();
+					if (CayaPreferences::Item()->FocusOnMessageReceived) 
+						item->ShowWindow();
+					win->PostMessage(msg);
+				}
+			}
+			result = B_SKIP_MESSAGE;
+			break;
+		}
 		case IM_CONTACT_STARTED_TYPING:
 		case IM_CONTACT_STOPPED_TYPING:
 		{
@@ -322,7 +337,8 @@ Server::ImMessage(BMessage* msg)
 				ContactLinker* item = fRosterMap.ValueFor(id, &found);
 				if (found) {
 					ChatWindow* win = item->GetChatWindow();
-					item->ShowWindow();
+					if (CayaPreferences::Item()->FocusUserIsTyping) 
+						item->ShowWindow();
 					win->PostMessage(msg);
 				}
 			}
