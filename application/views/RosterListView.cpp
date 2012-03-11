@@ -14,6 +14,7 @@
 #include <PopUpMenu.h>
 #include <SeparatorItem.h>
 
+#include "ContactInfoWindow.h"
 #include "ContactLinker.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
@@ -54,8 +55,8 @@ RosterListView::RosterListView(const char* name)
 	fPrevItem(NULL)
 {
 	// Context menu
-	fPopUp = new BPopUpMenu("contextMenu", false);
-	fPopUp->AddItem(new BMenuItem("Get Information", new BMessage(kGetInfo)));
+	fPopUp = new BPopUpMenu("contextMenu", false, false);
+	fPopUp->AddItem(new BMenuItem("Get Informations", new BMessage(kGetInfo)));
 	fPopUp->AddItem(new BMenuItem("Show Logs", new BMessage(kShowLogs)));
 	fPopUp->AddItem(new BSeparatorItem());
 	fPopUp->AddItem(new BMenuItem("Add to Address Book",
@@ -68,11 +69,31 @@ RosterListView::RosterListView(const char* name)
 
 
 void
+RosterListView::AttachedToWindow()
+{
+	fPopUp->SetTargetForItems(this);
+	SetTarget(this);
+}
+
+
+void
 RosterListView::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
 		case kGetInfo:
+		{
+			BPoint where;
+			uint32 buttons;
+			GetMouse(&where, &buttons);
+			BListItem* item = ItemAt(IndexOf(where));
+			RosterItem* ritem = reinterpret_cast<RosterItem*>(item);
+
+			if (ritem == NULL)
+				return;
+
+			_InfoWindow(ritem->GetContactLinker());
 			break;
+		}
 		default:
 			BListView::MessageReceived(msg);
 	}
@@ -131,11 +152,12 @@ RosterListView::MouseDown(BPoint where)
 			Select(index);
 
 			// Show context menu if right button is clicked
-			(void)fPopUp->Go(ConvertToScreen(where), false, true, false);
+			(void)fPopUp->Go(ConvertToScreen(where), true, true, false);
 		}
-	} else
+	} else {
 		// Call original MouseDown()
 		BListView::MouseDown(where);
+	}
 }
 
 
@@ -168,4 +190,12 @@ void
 RosterListView::Sort()
 {
 	SortItems(compare_by_name);
+}
+
+
+void
+RosterListView::_InfoWindow(ContactLinker* linker)
+{
+	ContactInfoWindow* win = new ContactInfoWindow(linker);
+	win->Show();
 }

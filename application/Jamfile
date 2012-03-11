@@ -52,6 +52,7 @@ Application Caya :
 	NicknameTextControl.cpp
 	RosterItem.cpp
 	RosterListView.cpp
+	ContactInfoWindow.cpp
 	StatusMenuItem.cpp
 	StatusView.cpp
 	CayaRenderView.cpp

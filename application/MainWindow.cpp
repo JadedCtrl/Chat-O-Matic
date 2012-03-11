@@ -289,6 +289,7 @@ MainWindow::ImMessage(BMessage* msg)
 				// Sort list view again
 				fListView->Sort();
 
+				// Check if the user want the notification
 				if (!CayaPreferences::Item()->NotifyContactStatus)
 					break;
 

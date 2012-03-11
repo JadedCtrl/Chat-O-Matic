@@ -305,7 +305,8 @@ Server::ImMessage(BMessage* msg)
 				linker->SetNotifyAvatarBitmap(NULL);
 			break;
 		}
-		case IM_SEND_MESSAGE: {
+		case IM_SEND_MESSAGE:
+		{
 			// Route this message through the appropriate ProtocolLooper
 			ContactLinker* linker = _EnsureContactLinker(msg);
 			if (linker->GetProtocolLooper())

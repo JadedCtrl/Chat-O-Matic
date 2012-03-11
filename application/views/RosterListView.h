@@ -9,6 +9,7 @@
 
 class BPopUpMenu;
 
+class ContactLinker;
 class RosterItem;
 
 class RosterListView : public BListView
@@ -20,10 +21,13 @@ public:
 	virtual	void	MouseMoved(BPoint where, uint32 code, const BMessage*);
 	virtual	void	MouseDown(BPoint where);
 	virtual	void	Draw(BRect updateRect);
-
+	virtual void	AttachedToWindow();
 			void	Sort();
 
 private:
+
+			void	_InfoWindow(ContactLinker* linker);
+
 	BPopUpMenu*		fPopUp;
 	RosterItem*		fPrevItem;
 };
