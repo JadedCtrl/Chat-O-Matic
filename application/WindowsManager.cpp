@@ -13,7 +13,7 @@ WindowsManager*	WindowsManager::fInstance = NULL;
 
 WindowsManager::WindowsManager()
 {
-	fCurrentPoint.Set(40.0f, 40.0f);
+	fCurrentPoint.Set(50.0f, 50.0f);
 }
 
 
@@ -32,5 +32,5 @@ WindowsManager::RelocateWindow(BWindow*	window)
 {
 	window->SetWorkspaces(B_CURRENT_WORKSPACE);
 	window->MoveTo(fCurrentPoint);
-	fCurrentPoint += BPoint(40.0f, 40.0f);
+	fCurrentPoint += BPoint(50.0f, 50.0f);
 }

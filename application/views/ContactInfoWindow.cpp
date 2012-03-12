@@ -31,11 +31,14 @@
 ContactInfoWindow::ContactInfoWindow(ContactLinker* linker)
 	:
 	BWindow(BRect(200, 200, 500, 400),
-		"Contact Informations", B_FLOATING_WINDOW, B_NOT_ZOOMABLE | B_NOT_RESIZABLE),
+		"Contact Informations", B_FLOATING_WINDOW,
+		B_NOT_ZOOMABLE | B_NOT_RESIZABLE),
 		fContactLinker(linker)
 {
 	fPersonalMessage = new BTextView("personalMessage", B_WILL_DRAW);
-	fPersonalMessage->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+	fPersonalMessage->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT,
+						 B_ALIGN_MIDDLE));
+
 	fPersonalMessage->SetText(fContactLinker->GetNotifyPersonalStatus());
 	fPersonalMessage->SetExplicitMaxSize(BSize(200, 200));
 	fPersonalMessage->MakeEditable(false);

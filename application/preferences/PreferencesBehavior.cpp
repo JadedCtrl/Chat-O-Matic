@@ -63,7 +63,9 @@ PreferencesBehavior::PreferencesBehavior()
 	fMarkUnreadReplicant->SetEnabled(false);
 			// not implemented
 
-	fNotifications = new BStringView("notifications", "Deskbar Notifications");
+	fNotifications = new BStringView("notifications",
+						"Deskbar Notifications (experimental)");
+
 	fNotifications->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 	fNotifications->SetFont(be_bold_font);
 
