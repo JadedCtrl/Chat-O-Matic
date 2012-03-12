@@ -280,6 +280,7 @@ ReplicantStatusView::_Init()
 	fBusyIcon = _GetIcon(kBusyReplicant);
 	fAwayIcon = _GetIcon(kAwayReplicant);
 	fExitMenuIcon = _GetIcon(kExitMenuReplicant);
+	fPreferencesIcon = _GetIcon(kToolIcon);
 
 	// Build the replicant menu
 	_BuildMenu();
@@ -331,7 +332,7 @@ ReplicantStatusView::_BuildMenu()
 	fReplicantMenu->AddItem(new BSeparatorItem());
 
 	fReplicantMenu->AddItem(new BitmapMenuItem("Preferences ",
-		new BMessage(CAYA_SHOW_SETTINGS), fCayaIcon));
+		new BMessage(CAYA_SHOW_SETTINGS), fPreferencesIcon));
 
 	fReplicantMenu->AddItem(new BitmapMenuItem("Exit",
 		new BMessage(CAYA_REPLICANT_EXIT), fExitMenuIcon));

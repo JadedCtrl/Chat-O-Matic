@@ -61,6 +61,7 @@ private:
 			BBitmap*		fBusyIcon;
 			BBitmap*		fAwayIcon;
 			BBitmap*		fExitMenuIcon;
+			BBitmap*		fPreferencesIcon;
 
 			BResources*		fResources;
 
