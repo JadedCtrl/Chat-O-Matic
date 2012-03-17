@@ -37,7 +37,7 @@ public:
 
 	static	int32			WaitForData(void*);
 
-	static	void			GotMessage(void*, char*, char*);
+	static	void			GotMessage(void*, char*, int, char*);
 	static	void			BuddyOnline(void*, char*);
 	static	void			BuddyOffline(void*, char*);
 	static	void			BuddyAway(void*, char*);

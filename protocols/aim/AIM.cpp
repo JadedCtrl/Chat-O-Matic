@@ -298,7 +298,7 @@ AIMProtocol::WaitForData(void* aimProtocol)
 
 
 void
-AIMProtocol::GotMessage(void* imcomm, char* who, char* recvmsg)
+AIMProtocol::GotMessage(void* imcomm, char* who, int aut, char* recvmsg)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
