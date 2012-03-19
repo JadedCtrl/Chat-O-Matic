@@ -86,6 +86,42 @@ Yahoo::Init( CayaProtocolMessengerInterface* msgr )
 	return B_OK;
 }
 
+void
+Yahoo::_NotifyProgress(const char* title, const char* message, float progress)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_PROGRESS);
+	msg.AddString("title", title);
+	msg.AddString("message", message);
+	msg.AddFloat("progress", progress);
+	_SendMessage(&msg);
+}
+
+
+void
+Yahoo::_Notify(notification_type type, const char* title, const char* message)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_NOTIFICATION);
+	msg.AddInt32("type", (int32)type);
+	msg.AddString("title", title);
+	msg.AddString("message", message);
+	_SendMessage(&msg);
+}
+
+
+void
+Yahoo::_SendMessage(BMessage* msg)
+{
+	// Skip invalid messages
+	if (!msg)
+		return;
+
+	msg->AddString("protocol", kProtocolSignature);
+	fServerMsgr->SendMessage(msg);
+}
+
+
 
 status_t
 Yahoo::Shutdown()
@@ -347,6 +383,11 @@ Yahoo::LoggedIn()
 	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddInt32("status", CAYA_ONLINE);
+	BString content(fYahooID);
+	content << " has logged in!";
+	_Notify(B_INFORMATION_NOTIFICATION, "Connected",
+		content.String());
+
 
 	fServerMsgr->SendMessage( &msg );
 }
@@ -386,6 +427,11 @@ Yahoo::LoggedOut()
 		fYahoo = NULL;
 		delete oldYahoo;
 	}
+	BString content(fYahooID);
+	content << " has logged out!";
+	_Notify(B_INFORMATION_NOTIFICATION, "Disconnected",
+			content.String());
+
 }
 
 

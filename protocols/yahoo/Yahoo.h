@@ -3,6 +3,7 @@
 
 #include <String.h>
 #include <Messenger.h>
+#include <Notification.h>
 
 #include <CayaProtocol.h>
 #include <CayaConstants.h>
@@ -67,6 +68,12 @@ class Yahoo : public CayaProtocol, public YahooManager
 		BString		fPassword;
 
 		YahooConnection *	fYahoo;
+		void		_NotifyProgress(const char* title,
+						const char* message, float progress);
+		void		_Notify(notification_type type, 
+						const char* title, const char* message);
+		void		_SendMessage(BMessage* msg);
+
 };
 
 #endif
