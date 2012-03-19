@@ -71,6 +71,9 @@ ContactLinker::ShowWindow()
 	if (fChatWindow->IsHidden())
 		fChatWindow->Show();
 
+	if (fChatWindow->IsMinimized())
+		fChatWindow->Minimize(false);
+
 	if (CayaPreferences::Item()->FocusOnMessageReceived == true
 		|| CayaPreferences::Item()->FocusUserIsTyping == true)
 		fChatWindow->Activate(true);
