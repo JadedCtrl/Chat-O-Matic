@@ -8,6 +8,7 @@
 #include <List.h>
 #include <Messenger.h>
 #include <String.h>
+#include <Notification.h>
 
 #include "CayaProtocol.h"
 #include "CayaConstants.h"
@@ -59,6 +60,12 @@ private:
 			bool			fOnline;
 			thread_id		fIMCommThread;
 			void*			fIMCommHandle;
+			void			_NotifyProgress(const char* title,
+								const char* message, float progress);
+			void			_Notify(notification_type type, 
+								const char* title, const char* message);
+			void			_SendMessage(BMessage* msg);
+
 };
 
 extern const char* kProtocolSignature;

@@ -61,6 +61,42 @@ AIMProtocol::Shutdown()
 }
 
 
+void
+AIMProtocol::_NotifyProgress(const char* title, const char* message, float progress)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_PROGRESS);
+	msg.AddString("title", title);
+	msg.AddString("message", message);
+	msg.AddFloat("progress", progress);
+	_SendMessage(&msg);
+}
+
+
+void
+AIMProtocol::_Notify(notification_type type, const char* title, const char* message)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_NOTIFICATION);
+	msg.AddInt32("type", (int32)type);
+	msg.AddString("title", title);
+	msg.AddString("message", message);
+	_SendMessage(&msg);
+}
+
+
+void
+AIMProtocol::_SendMessage(BMessage* msg)
+{
+	// Skip invalid messages
+	if (!msg)
+		return;
+
+	msg->AddString("protocol", kProtocolSignature);
+	gServerMsgr->SendMessage(msg);
+}
+
+
 status_t
 AIMProtocol::Process(BMessage* msg)
 {
@@ -257,6 +293,11 @@ AIMProtocol::A_LogOn()
 			B_LOW_PRIORITY, this);
 		resume_thread(fIMCommThread);
 
+		BString content(fUsername);
+		content << " has logged in!";
+		_Notify(B_INFORMATION_NOTIFICATION, "Connected",
+		content.String());
+
 		fOnline = true;
 
 		return B_OK;
@@ -271,6 +312,10 @@ AIMProtocol::LogOff()
 {
 	fOnline = false;
 	imcomm_delete_handle_now(fIMCommHandle);
+	BString content(fUsername);
+	content << " has logged out!";
+	_Notify(B_INFORMATION_NOTIFICATION, "Disconnected",
+			content.String());
 
 	return B_OK;
 }
