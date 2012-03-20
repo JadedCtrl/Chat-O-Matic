@@ -415,18 +415,23 @@ Yahoo::LoggedOut()
 {
 	LOG("Yahoo::LoggedOut()\n");
 
+	/*
+	That portion was causing conflicts with other protocols
+	don't enable unless you know what you are doing.
+
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddInt32("status", CAYA_OFFLINE);
 
-	fServerMsgr->SendMessage(&msg);
+	fServerMsgr->SendMessage(&msg);*/
 
 	if (fYahoo) {
 		YahooConnection * oldYahoo = fYahoo;
 		fYahoo = NULL;
 		delete oldYahoo;
 	}
+
 	BString content(fYahooID);
 	content << " has logged out!";
 	_Notify(B_INFORMATION_NOTIFICATION, "Disconnected",

@@ -71,7 +71,7 @@ void
 YahooConnection::SetAway(enum yahoo_status state, const char *msg)
 {
 	if (fStatus == YAHOO_STATUS_OFFLINE) {
-		fManager->Error("Calling SetAway() when offline", NULL);
+//		fManager->Error("Calling SetAway() when offline", NULL);
 		return;
 	}
 		yahoo_set_away(fID, state, msg, 1);
@@ -100,7 +100,7 @@ void
 YahooConnection::Message(const char* who, const char* msg)
 {
 	if (fStatus == YAHOO_STATUS_OFFLINE) {
-		fManager->Error( "Can't send message, not connected", who );
+		fManager->Error("Can't send message, not connected", who );
 		return;
 	}
 

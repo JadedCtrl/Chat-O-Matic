@@ -307,9 +307,9 @@ MSNP::Process(BMessage* msg)
 							if (fLogged) {
 								fMainConnection->setState(MSN::STATUS_AVAILABLE, fClientID);
 							} else if (fSettings) {
-								if (fMainConnection != NULL) {
+								if (fMainConnection != NULL)
 									break;
-								}
+
 								if (fUsername == "")
 									Error("Empty Username!", NULL);
 								if (fPassword == "")
@@ -333,21 +333,15 @@ MSNP::Process(BMessage* msg)
 							}
 							break;
 						case CAYA_AWAY:
-							if (fLogged) {
+							if (fLogged)
 								fMainConnection->setState(MSN::STATUS_AWAY, fClientID);
-							} else {
-								Error("MSN Protocol: You are not logged!", NULL);
-							}
 							break;
 						case CAYA_EXTENDED_AWAY:
 
 							break;
 						case CAYA_DO_NOT_DISTURB:
-							if (fLogged) {
+							if (fLogged)
 								fMainConnection->setState(MSN::STATUS_IDLE, fClientID);
-							} else {
-								Error("MSN Protocol: You are not logged!", NULL);
-							}
 							break;
 
 						case CAYA_OFFLINE:
@@ -397,7 +391,6 @@ MSNP::Process(BMessage* msg)
 									nouveau = false;
 									y = x;
 								} else {
-									
 									delete fSwitchboardList.ItemAt(x)->second;
 									fSwitchboardList.RemoveItemAt(x);
 								}
