@@ -186,12 +186,12 @@ MSNP::MSNP()
 	fCachePath(""),
 	fRunnerTime(40000000)
 {
-	AvatarLooper* looper = new AvatarLooper(this);
-	BMessenger* mess = new BMessenger(NULL, looper);
+	AvatarLooper* fAvatarLooper = new AvatarLooper(this);
+	BMessenger* mess = new BMessenger(NULL, fAvatarLooper);
 	if (!mess->IsValid()) {
 		printf("Avatar BMessenger error\n");
 	}
-	looper->Run();
+	fAvatarLooper->Run();
 	fAvatarRunner = new BMessageRunner(*mess, new BMessage(kAvatarCheckMessage), fRunnerTime);
 	if (fAvatarRunner->InitCheck() != B_OK) {
 		printf("Avatar MessageRunner error %s\n",
@@ -247,7 +247,8 @@ status_t
 MSNP::Shutdown()
 {
 //	LogOut();
-
+	delete fAvatarRunner;
+	delete fAvatarLooper;
 	return B_OK;
 }
 
@@ -920,6 +921,13 @@ void MSNP::gotOIMList(MSN::NotificationServerConnection * conn, std::vector<MSN:
 void MSNP::connectionReady(MSN::Connection * conn)
 {
 	fLogged = true;
+
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
+	msg.AddString("protocol", kProtocolSignature);
+	msg.AddInt32("status", CAYA_ONLINE);
+	fServerMsgr->SendMessage(&msg);
+
 	BMessage serverBased(IM_MESSAGE);
 	serverBased.AddInt32("im_what", IM_CONTACT_LIST);
 	serverBased.AddString("protocol", kProtocolSignature);
@@ -940,12 +948,6 @@ void MSNP::connectionReady(MSN::Connection * conn)
 			SendContactInfo(contact);
 		}
 	}
-
-	BMessage msg(IM_MESSAGE);
-	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
-	msg.AddString("protocol", kProtocolSignature);
-	msg.AddInt32("status", CAYA_ONLINE);
-	fServerMsgr->SendMessage(&msg);
 
 	BString content(fUsername.c_str());
 	content << " has logged in!";

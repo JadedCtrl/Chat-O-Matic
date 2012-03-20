@@ -95,6 +95,7 @@ private:
 	unsigned int 	fID;
 
 		BMessageRunner* fAvatarRunner;
+		BMessageRunner* fAvatarLooper;
 		bigtime_t 	fRunnerTime;
 
 		CayaProtocolMessengerInterface*	fServerMsgr;
