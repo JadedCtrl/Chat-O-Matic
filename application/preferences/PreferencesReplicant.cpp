@@ -4,13 +4,11 @@
  * Distributed under the terms of the MIT License.
  */
 
-#include <Button.h>
 #include <CheckBox.h>
 #include <ControlLook.h>
 #include <Deskbar.h>
 #include <GroupLayout.h>
 #include <GroupLayoutBuilder.h>
-#include <ScrollView.h>
 #include <StringView.h>
 
 #include "AccountManager.h"
@@ -31,8 +29,12 @@ const uint32 kHideCayaDeskbar = 'HCtk';
 PreferencesReplicant::PreferencesReplicant()
 	: BView("Replicant", B_WILL_DRAW)
 {
-	fReplicantString = new BStringView("ReplicantString", "Deskbar Replicant");
-	fReplicantString->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+	fReplicantString = new BStringView("ReplicantString",
+		"Deskbar Replicant (only with gcc4hybrid)");
+
+	fReplicantString->SetExplicitAlignment(
+		BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+
 	fReplicantString->SetFont(be_bold_font);
 
 	fDisableReplicant = new BCheckBox("DisableReplicant",
