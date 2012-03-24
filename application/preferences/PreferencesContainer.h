@@ -1,5 +1,6 @@
 /*
  * Copyright 2010, Oliver Ruiz Dorantes. All rights reserved.
+ * Copyright 2012, Casalinuovo Dario. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _PREFERENCES_CONTAINER_H
@@ -12,19 +13,25 @@
 #include <FindDirectory.h>
 #include <Path.h>
 
+enum {
+	CAYA_PREFERENCES_TYPE = 'CPTY'
+};
+
 // TODO: added to main singleton class?
 template<typename T> T* Singleton<T>::fInstance = 0;
 
 
-template<class SettingsType>
-class PreferencesContainer : public Singleton<PreferencesContainer<SettingsType> > {
+template<class CayaPreferencesData>
+class PreferencesContainer
+	: public Singleton<PreferencesContainer<CayaPreferencesData> > {
 
 public:
 
-	static SettingsType*
+	static CayaPreferencesData*
 	Item()
 	{
-		return &(Singleton<PreferencesContainer<SettingsType> >::Get()->fSettings);
+		return &(Singleton<PreferencesContainer<CayaPreferencesData> >
+			::Get()->fSettings);
 	}
 
 
@@ -33,13 +40,9 @@ public:
 		if (fPreferencesFile.SetTo(&fDirectory, fFilename,
 			B_READ_WRITE | B_FAIL_IF_EXISTS) == B_OK) {
 
-			// reset the file pointer
-			fPreferencesFile.Seek(0, SEEK_SET);
-
-			if (fPreferencesFile.Read(&fSettings, sizeof(SettingsType)) > 0)
-				return B_OK;
+			return fSettings.Unflatten(CAYA_PREFERENCES_TYPE,
+				&fPreferencesFile);
 		}
-
 		return B_ERROR;
 	}
 
@@ -49,16 +52,14 @@ public:
 		if (fPreferencesFile.SetTo(&fDirectory, fFilename,
 			B_READ_WRITE | B_CREATE_FILE | B_ERASE_FILE) == B_OK) {
 
-			if (fPreferencesFile.Write(&fSettings, sizeof(SettingsType)) > 0)
-				return B_OK;
+			return fSettings.Flatten(&fPreferencesFile);
 		}
-
 		return B_ERROR;
 	}
 
 private:
-	PreferencesContainer<SettingsType>()
-		: Singleton<PreferencesContainer<SettingsType> >()
+	PreferencesContainer<CayaPreferencesData>()
+		: Singleton<PreferencesContainer<CayaPreferencesData> >()
 	{
 		BPath path;
 
@@ -69,14 +70,14 @@ private:
    		Load();
 	}
 
-	friend class Singleton<PreferencesContainer<SettingsType> >;
+	CayaPreferencesData		fSettings;
+	BFile					fPreferencesFile;
+	BDirectory				fDirectory;
 
-	SettingsType		fSettings;
-	BFile				fPreferencesFile;
-	BDirectory			fDirectory;
+	static const char*		fFilename;
+	static const char*		fFolder;
 
-	static const char*	fFilename;
-	static const char*	fFolder;
+	friend class Singleton<PreferencesContainer<CayaPreferencesData> >;
 };
 
 
