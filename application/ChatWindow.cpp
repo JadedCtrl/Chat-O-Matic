@@ -72,8 +72,13 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
 	fAvatar->SetBitmap(fContactLinker->AvatarBitmap());
 
+	BBitmap* protocolBitmap = fContactLinker->ProtocolBitmap();
+	BitmapView* protocolView = new BitmapView("protocolView");
+	protocolView->SetBitmap(protocolBitmap);
+
 	AddChild(BGroupLayoutBuilder(B_VERTICAL, 10)
 		.AddGroup(B_HORIZONTAL)
+			.Add(protocolView)
 			.Add(fPersonalMessage)
 			.Add(fAvatar)
 		.End()
