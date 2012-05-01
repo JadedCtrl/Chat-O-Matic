@@ -1,12 +1,14 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
+ * Copyright 2012, Dario Casalinuovo. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  *		Andrea Anzani, andrea.anzani@gmail.com
+ *		Dario Casalinuovo
  */
 
-#include <stdio.h>
+#include <libinterface/BitmapUtils.h>
 
 #include "CayaProtocolAddOn.h"
 #include "ChatWindow.h"
@@ -18,7 +20,11 @@
 #include "RosterItem.h"
 #include "WindowsManager.h"
 
+#include "CayaUtils.h"
+#include "CayaResources.h"
 #include "CayaPreferences.h"
+
+#include <stdio.h>
 
 
 ContactLinker::ContactLinker(BString id, BMessenger msgn)
@@ -203,11 +209,12 @@ ContactLinker::SetProtocolLooper(ProtocolLooper* looper)
 	if (looper) {
 		fLooper = looper;
 
-		// By default we use protocol icon as avatar icon
-		CayaProtocol* protocol = fLooper->Protocol();
-		CayaProtocolAddOn* addOn
-			= ProtocolManager::Get()->ProtocolAddOn(protocol->Signature());
-		SetNotifyAvatarBitmap(addOn->Icon());
+		// By default we use the Person icon as avatar icon
+		BResources* res = CayaResources();
+		BBitmap* bitmap = IconFromResources(res,
+			kPersonIcon, B_LARGE_ICON);
+
+		SetNotifyAvatarBitmap(bitmap);
 	}
 }
 

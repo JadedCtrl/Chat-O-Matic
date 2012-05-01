@@ -1,5 +1,6 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
+ * Copyright 2012, Dario Casalinuovo. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _CONTACT_LINKER_H_

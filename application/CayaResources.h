@@ -21,7 +21,9 @@ enum {
 	kOfflineReplicant			= 1300,
 	kBusyReplicant				= 1333,
 	kAwayReplicant				= 1400,
-	kExitMenuReplicant			= 1401
+	kExitMenuReplicant			= 1401,
+
+	kPersonIcon					= 1500
 };
 
 #endif	// _CAYA_RESOURCES_H
