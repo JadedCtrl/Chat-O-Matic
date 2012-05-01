@@ -42,6 +42,7 @@ public:
 
 	ProtocolLooper*	GetProtocolLooper() const;
 	void			SetProtocolLooper(ProtocolLooper* looper);
+	BBitmap*		ProtocolBitmap() const;
 
 	BString			GetName() const;
 	BBitmap*		AvatarBitmap() const;

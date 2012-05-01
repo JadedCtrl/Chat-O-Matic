@@ -195,6 +195,15 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 			rect, B_FILTER_BITMAP_BILINEAR);
 	}
 
+	BBitmap* protocolBitmap = contactLinker->ProtocolBitmap();
+	float h = frame.Height();
+	BRect rect(frame.right - h - 20, frame.top + 2,
+			frame.right - 40, frame.top + h - 20);
+	owner->SetDrawingMode(B_OP_ALPHA);
+	owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
+	owner->DrawBitmap(protocolBitmap, protocolBitmap->Bounds(),
+		rect, B_FILTER_BITMAP_BILINEAR);
+
 	owner->SetHighColor(highColor);
 	owner->SetLowColor(lowColor);
 }

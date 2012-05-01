@@ -172,6 +172,17 @@ ContactLinker::AvatarBitmap() const
 }
 
 
+BBitmap*
+ContactLinker::ProtocolBitmap() const
+{
+	CayaProtocol* protocol = fLooper->Protocol();
+	CayaProtocolAddOn* addOn
+		= ProtocolManager::Get()->ProtocolAddOn(protocol->Signature());
+
+	return addOn->Icon();
+}
+
+
 CayaStatus
 ContactLinker::GetNotifyStatus() const
 {
