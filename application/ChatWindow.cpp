@@ -242,12 +242,17 @@ ChatWindow::AppendStatus(CayaStatus status)
 		case CAYA_ONLINE:
 			message << " is available";
 			break;
-		case CAYA_EXTENDED_AWAY:
 		case CAYA_AWAY:
 			message << " is away";
 			break;
 		case CAYA_DO_NOT_DISTURB:
 			message << " is busy, please do not disturb!";
+			break;
+		case CAYA_CUSTOM_STATUS:
+			message << " has set a custom status.";
+			break;
+		case CAYA_INVISIBLE:
+			message << " is invisible.";
 			break;
 		case CAYA_OFFLINE:
 			message << " is offline";

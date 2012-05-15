@@ -67,15 +67,16 @@ ReplicantMenuItem::SetIcon()
 		case CAYA_ONLINE:
 			num = kOnlineReplicant;
 			break;
-		case CAYA_EXTENDED_AWAY:
-			num = kCayaIconReplicant;
-			break;
 		case CAYA_AWAY:
 			num = kAwayReplicant;
 			break;
 		case CAYA_DO_NOT_DISTURB:
 			num = kBusyReplicant;
 			break;
+		case CAYA_CUSTOM_STATUS:
+			num = kCayaIconReplicant;
+			break;
+		case CAYA_INVISIBLE:
 		case CAYA_OFFLINE:
 			num = kOfflineReplicant;
 			break;

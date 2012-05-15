@@ -24,14 +24,16 @@ CayaStatusToString(CayaStatus status)
 	switch (status) {
 		case CAYA_ONLINE:
 			return "Available";
-		case CAYA_OFFLINE:
-			return "Offline";
 		case CAYA_AWAY:
 			return "Away";
-		case CAYA_EXTENDED_AWAY:
-			return "Custom Status";
 		case CAYA_DO_NOT_DISTURB:
 			return "Busy";
+		case CAYA_CUSTOM_STATUS:
+			return "Custom Status";
+		case CAYA_INVISIBLE:
+			return "Invisible";
+		case CAYA_OFFLINE:
+			return "Offline";
 		default:
 			return NULL;
 	}

@@ -153,12 +153,13 @@ ReplicantStatusView::SetStatus(CayaStatus status)
 		case CAYA_AWAY:
 			fIcon = fAwayIcon;
 		break;
-		case CAYA_EXTENDED_AWAY:
-			fIcon = fCayaIcon;
-		break;
 		case CAYA_DO_NOT_DISTURB:
 			fIcon = fBusyIcon;
 		break;
+		case CAYA_CUSTOM_STATUS:
+			fIcon = fCayaIcon;
+		break;
+		case CAYA_INVISIBLE:
 		case CAYA_OFFLINE:
 			fIcon = fOfflineIcon;
 		break;

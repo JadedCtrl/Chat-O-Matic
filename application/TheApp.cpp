@@ -109,7 +109,7 @@ TheApp::AboutRequested()
 	AboutWindow* about = new AboutWindow("Caya", holders,
 		authors, extraInfo.String());
 	about->Show();
-	//delete about;
+	delete about;
 }
 
 
@@ -123,7 +123,6 @@ TheApp::GetMainWindow() const
 void
 TheApp::MessageReceived(BMessage* message)
 {
-	//message->PrintToStream();
 	switch (message->what) {
 		case CAYA_REPLICANT_STATUS_SET:
 		case CAYA_REPLICANT_SHOW_WINDOW:

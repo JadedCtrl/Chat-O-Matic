@@ -24,6 +24,7 @@
 #include "ContactLinker.h"
 #include "CayaConstants.h"
 #include "CayaRenderView.h"
+#include "CayaUtils.h"
 #include "NotifyMessage.h"
 
 #include "ContactInfoWindow.h"
@@ -45,24 +46,7 @@ ContactInfoWindow::ContactInfoWindow(ContactLinker* linker)
 	fPersonalMessage->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 
 	BString status(fContactLinker->GetName());
-
-	switch (fContactLinker->GetNotifyStatus()) {
-		case CAYA_ONLINE:
-			status << " is available";
-			break;
-		case CAYA_EXTENDED_AWAY:
-		case CAYA_AWAY:
-			status << " is away";
-			break;
-		case CAYA_DO_NOT_DISTURB:
-			status << " is busy, please do not disturb!";
-			break;
-		case CAYA_OFFLINE:
-			status << " is offline";
-			break;
-		default:
-			break;
-	}
+	status << CayaStatusToString(fContactLinker->GetNotifyStatus());
 
 	status << "\n\n ID : ";
 	status << fContactLinker->GetId();

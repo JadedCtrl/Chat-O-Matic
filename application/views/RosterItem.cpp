@@ -112,64 +112,29 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 		owner->FillRect(frame);
 	}
 
-	/*BResources* res = CayaResources();
-	if (res) {
-		int32 num = 0;
-
-		switch (fStatus) {
-			case CAYA_ONLINE:
-				num = kOnlineReplicant;
-				break;
-			case CAYA_EXTENDED_AWAY:
-				num = kCayaIconReplicant;
-				break;
-			case CAYA_AWAY:
-				num = kAwayReplicant;
-				break;
-			case CAYA_DO_NOT_DISTURB:
-				num = kBusyReplicant;
-				break;
-			case CAYA_OFFLINE:
-				num = kOfflineReplicant;
-				break;
-			default:
+	// Draw contact status
+	switch (fStatus) {
+		case CAYA_ONLINE:
+			owner->SetHighColor(CAYA_GREEN_COLOR);
 			break;
+		case CAYA_CUSTOM_STATUS:
+		case CAYA_AWAY:
+			owner->SetHighColor(CAYA_ORANGE_COLOR);
+			break;
+		case CAYA_DO_NOT_DISTURB:
+			owner->SetHighColor(CAYA_RED_COLOR);
+			break;
+		case CAYA_INVISIBLE:
+		case CAYA_OFFLINE:
+			break;
+		default:
+	   		break;
 	}
 
-		BBitmap* bitmap = IconFromResources(res, num, B_MINI_ICON);
-		BRect bitmapRect(frame.left + 40, frame.top + fBaselineOffset - 10,
-			frame.left + 55, frame.top + 18);
-
-		owner->SetDrawingMode(B_OP_ALPHA);
-		owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
-		owner->DrawBitmap(bitmap, bitmap->Bounds(),
-			bitmapRect, B_FILTER_BITMAP_BILINEAR);
-
-		delete res;
-	} else {*/
-		// Draw contact status
-		switch (fStatus) {
-			case CAYA_ONLINE:
-				owner->SetHighColor(CAYA_GREEN_COLOR);
-				break;
-			case CAYA_EXTENDED_AWAY:
-			case CAYA_AWAY:
-				owner->SetHighColor(CAYA_ORANGE_COLOR);
-				break;
-			case CAYA_DO_NOT_DISTURB:
-				owner->SetHighColor(CAYA_RED_COLOR);
-				break;
-			case CAYA_OFFLINE:
-				break;
-			default:
-		   		break;
-		}
-
-		owner->FillRect(BRect(frame.left,
-			frame.top,
-				frame.left + 5, frame.top + h - 1
-				));
-	//}
+	owner->FillRect(BRect(frame.left,
+		frame.top,
+			frame.left + 5, frame.top + h - 1
+			));
 
 	// Draw avatar icon
 	if (fBitmap != NULL) {
