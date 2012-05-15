@@ -124,8 +124,8 @@ AIMProtocol::Process(BMessage* msg)
 						case CAYA_AWAY:
 							imcomm_set_away(fIMCommHandle, smsg);
 							break;
-						case CAYA_EXTENDED_AWAY:
-							imcomm_set_away(fIMCommHandle, smsg);
+						case CAYA_CUSTOM_STATUS:
+							//imcomm_set_away(fIMCommHandle, smsg);
 							//UnsupportedOperation(); ?
 							break;
 						case CAYA_DO_NOT_DISTURB:
@@ -408,7 +408,7 @@ AIMProtocol::BuddyAwayMsg(void* imcomm, char* who, char* awaymsg)
 	msg.AddInt32("im_what", IM_STATUS_SET);
 	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("id", who);
-	msg.AddInt32("status", CAYA_EXTENDED_AWAY);
+	msg.AddInt32("status", CAYA_AWAY);
 	msg.AddString("message", strip_html(awaymsg));
 
 	gServerMsgr->SendMessage(&msg);

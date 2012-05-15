@@ -16,12 +16,12 @@
 #include "CayaConstants.h"
 #include "CayaResources.h"
 
+
 class BPopUpMenu;
 class BMenuField;
 
 class BitmapView;
 class NicknameTextControl;
-
 class ReplicantHandler;
 
 class ReplicantStatusView : public BView {
