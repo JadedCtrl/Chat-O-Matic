@@ -92,8 +92,7 @@ ReplicantStatusView::~ReplicantStatusView()
 	delete fResources;
 	delete fCayaMsg;
 	delete fReplicantHandler;
-//	delete fStatusMenu;
-//	delete fReplicantMenu;
+	delete fReplicantMenu;
 
 	// TODO: Use a list for that
 	// maybe our List wrapper to std::list
