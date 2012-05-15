@@ -336,7 +336,7 @@ MSNP::Process(BMessage* msg)
 							if (fLogged)
 								fMainConnection->setState(MSN::STATUS_AWAY, fClientID);
 							break;
-						case CAYA_EXTENDED_AWAY:
+						case CAYA_CUSTOM_STATUS:
 
 							break;
 						case CAYA_DO_NOT_DISTURB:
@@ -1242,6 +1242,7 @@ void MSNP::buddyChangedPersonalInfo(MSN::NotificationServerConnection* conn, MSN
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", what);
 	msg.AddString("id", fromPassport.c_str());
+	msg.AddString("protocol", kProtocolSignature);
 	msg.AddString("message", pInfo.PSM.c_str());
 	fServerMsgr->SendMessage(&msg);
 }

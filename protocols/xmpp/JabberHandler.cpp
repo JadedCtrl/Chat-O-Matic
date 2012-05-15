@@ -686,7 +686,7 @@ JabberHandler::_GlooxStatusToCaya(gloox::Presence::PresenceType type)
 		case gloox::Presence::Away:
 			return CAYA_AWAY;
 		case gloox::Presence::XA:
-			return CAYA_EXTENDED_AWAY;
+			return CAYA_CUSTOM_STATUS;
 		case gloox::Presence::DND:
 			return CAYA_DO_NOT_DISTURB;
 		case gloox::Presence::Unavailable:

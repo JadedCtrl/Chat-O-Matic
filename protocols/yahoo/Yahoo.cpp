@@ -188,7 +188,7 @@ Yahoo::Process(BMessage * msg)
 								fYahoo->SetAway(YAHOO_STATUS_NOTATDESK, NULL);
 							}
 							break;
-						case CAYA_EXTENDED_AWAY:
+						case CAYA_CUSTOM_STATUS:
 
 							break;
 						case CAYA_DO_NOT_DISTURB:
