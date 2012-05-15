@@ -13,6 +13,7 @@
 #include <MenuField.h>
 #include <MenuItem.h>
 #include <PopUpMenu.h>
+#include <StringView.h>
 
 #include <libinterface/BitmapMenuItem.h>
 #include <libinterface/BitmapUtils.h>
@@ -32,8 +33,10 @@ StatusView::StatusView(const char* name)
 	BView(name, B_WILL_DRAW)
 {
 	// Nick name
-	fNickname = new NicknameTextControl("Nickname", new BMessage(kSetNickname));
+	fPersonalMessage = new NicknameTextControl("Nickname",
+		new BMessage(kSetNickname));
 
+	BStringView* personalMessageLabel = new BStringView("Nickname","Nickname:", B_WILL_DRAW);
 	// Status menu
 	fStatusMenu = new BPopUpMenu("-");
 
@@ -44,12 +47,12 @@ StatusView::StatusView(const char* name)
 			(CayaStatus)s), (CayaStatus)s);
 		fStatusMenu->AddItem(item);
 
-		// Add items for custom messages
+		/*// Add items for custom messages
 		if (s == CAYA_ONLINE || s == CAYA_DO_NOT_DISTURB) {
 			item = new StatusMenuItem("Custom...", (CayaStatus)s, true);
 			fStatusMenu->AddItem(item);
 			fStatusMenu->AddItem(new BSeparatorItem());
-		}
+		}*/
 
 		// Mark offline status by default
 		if (s == CAYA_OFFLINE)
@@ -71,12 +74,14 @@ StatusView::StatusView(const char* name)
 	SetLayout(new BGroupLayout(B_VERTICAL));
 	AddChild(BGroupLayoutBuilder(B_HORIZONTAL, 5)
 		.AddGroup(B_VERTICAL)
-			.Add(fNickname)
 			.Add(statusField)
-			.AddGlue()
+			.AddGroup(B_HORIZONTAL)
+				.Add(personalMessageLabel)
+				.Add(fPersonalMessage)
+			.End()
 		.End()
 		.Add(fAvatar)
-		.TopView()
+//		.TopView()
 	);
 }
 
@@ -84,8 +89,7 @@ StatusView::StatusView(const char* name)
 void
 StatusView::AttachedToWindow()
 {
-	fNickname->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
-	fNickname->SetTarget(this);
+	//fNickname->SetTarget(this);
 	fStatusMenu->SetTargetForItems(this);
 }
 
@@ -94,12 +98,12 @@ void
 StatusView::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
-		case kSetNickname:
+		/*case kSetNickname:
 		{
 			AccountManager* accountManager = AccountManager::Get();
 			accountManager->SetNickname(fNickname->Text());
 			break;
-		}
+		}*/
 		case kSetStatus:
 		{
 			int32 status;
@@ -120,7 +124,7 @@ StatusView::MessageReceived(BMessage* msg)
 void	
 StatusView::SetName(BString name)
 {
-	fNickname->SetText(name.String());	
+	fPersonalMessage->SetText(name.String());	
 }
 
 

@@ -151,8 +151,10 @@ ReplicantStatusView::SetStatus(CayaStatus status)
 
 	switch (status) {
 		case CAYA_AWAY:
-		case CAYA_EXTENDED_AWAY:
 			fIcon = fAwayIcon;
+		break;
+		case CAYA_EXTENDED_AWAY:
+			fIcon = fCayaIcon;
 		break;
 		case CAYA_DO_NOT_DISTURB:
 			fIcon = fBusyIcon;
@@ -273,7 +275,7 @@ ReplicantStatusView::_Init()
 	fResources = CayaResources();
 
 	//Get icons from resources
-	fConnectingIcon = _GetIcon(kConnectingReplicant);
+	fConnectingIcon = _GetIcon(kOnlineReplicant);
 	fCayaIcon = _GetIcon(kCayaIconReplicant);
 	fOfflineIcon = _GetIcon(kOfflineReplicant);
 	fIcon = fOfflineIcon;
@@ -299,15 +301,11 @@ void
 ReplicantStatusView::_BuildMenu()
 {
 	// Status menu
-	//fStatusMenu = new BPopUpMenu("Status", false, false);
+
 	fReplicantMenu = new BPopUpMenu(" -  ", false, false);
 	// Add status menu items
 	int32 s = CAYA_ONLINE;
 	while (s >= CAYA_ONLINE && s < CAYA_STATUSES) {
-		if (s == CAYA_EXTENDED_AWAY) {
-			s++;
-			continue;
-		}
 		BMessage* msg = new BMessage(CAYA_REPLICANT_STATUS_SET);
 		msg->AddInt32("status", s);
 
@@ -315,20 +313,12 @@ ReplicantStatusView::_BuildMenu()
 			CayaStatusToString((CayaStatus)s), (CayaStatus)s);
 		fReplicantMenu->AddItem(item);
 
-		// Add items for custom messages
-		if (s == CAYA_ONLINE/* || s == CAYA_DO_NOT_DISTURB*/) {
-			item = new ReplicantMenuItem("Custom...", (CayaStatus) s, true);
-			fReplicantMenu->AddItem(item);
-			fReplicantMenu->AddItem(new BSeparatorItem());
-		}
-
 		// Mark offline status by default
 		if (s == CAYA_OFFLINE)
 			item->SetMarked(true);
 		s++;
 	}
 
-	//fReplicantMenu->AddItem(fStatusMenu);
 	fReplicantMenu->AddItem(new BSeparatorItem());
 
 	fReplicantMenu->AddItem(new BitmapMenuItem("Preferences ",
@@ -337,7 +327,6 @@ ReplicantStatusView::_BuildMenu()
 	fReplicantMenu->AddItem(new BitmapMenuItem("Exit",
 		new BMessage(CAYA_REPLICANT_EXIT), fExitMenuIcon));
 
-	//fStatusMenu->SetTargetForItems(fReplicantMenu);
 	fReplicantMenu->SetTargetForItems(this);
 }
 

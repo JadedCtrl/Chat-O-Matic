@@ -16,12 +16,13 @@ enum {
 
 	kProtocolSettingsTemplate	= 1000,
 
-	kConnectingReplicant		= 1200,
+	kOnlineReplicant			= 1200,
 	kCayaIconReplicant			= 1220,
 	kOfflineReplicant			= 1300,
 	kBusyReplicant				= 1333,
 	kAwayReplicant				= 1400,
 	kExitMenuReplicant			= 1401,
+	kReplicantMessageReceived	= 1402,
 
 	kPersonIcon					= 1500
 };

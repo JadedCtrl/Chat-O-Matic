@@ -30,9 +30,9 @@ const rgb_color CAYA_SELEND_COLOR = {230, 113, 9};
 enum CayaStatus {
 	CAYA_ONLINE				= 1,
 	CAYA_AWAY				= 2,
-	CAYA_EXTENDED_AWAY		= 3,
-	CAYA_DO_NOT_DISTURB		= 4,
-	CAYA_OFFLINE			= 5,
+	CAYA_DO_NOT_DISTURB		= 3,
+	CAYA_OFFLINE			= 4,
+	CAYA_EXTENDED_AWAY		= 5,
 	CAYA_STATUSES			= 6
 };
 

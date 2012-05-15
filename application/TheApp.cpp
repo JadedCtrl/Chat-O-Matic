@@ -91,7 +91,7 @@ TheApp::AboutRequested()
 	const char* holders[] = {
 		"2009-2010 Andrea Anzani",
 		"2009-2010 Pier Luigi Fiorini",
-		"2011-2012 Casalinuovo Dario",
+		"2010-2012 Casalinuovo Dario",
 		NULL
 	};
 
@@ -109,7 +109,7 @@ TheApp::AboutRequested()
 	AboutWindow* about = new AboutWindow("Caya", holders,
 		authors, extraInfo.String());
 	about->Show();
-	delete about;
+	//delete about;
 }
 
 

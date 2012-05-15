@@ -27,7 +27,7 @@ public:
 
 private:
 	BPopUpMenu*				fStatusMenu;
-	NicknameTextControl* 	fNickname;
+	NicknameTextControl* 	fPersonalMessage;
 	BitmapView*				fAvatar;
 };
 

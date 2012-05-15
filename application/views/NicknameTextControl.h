@@ -5,13 +5,13 @@
 #ifndef _NICKNAME_TEXT_CONTROL_H
 #define _NICKNAME_TEXT_CONTROL_H
 
-#include <TextControl.h>
+#include <TextView.h>
 
-class NicknameTextControl : public BTextControl {
+class NicknameTextControl : public BTextView {
 public:
 					NicknameTextControl(const char* name, BMessage* message);
 
-	virtual	void	Draw(BRect updateRect);
+//	virtual	void	Draw(BRect updateRect);
 };
 
 #endif	// _NICKNAME_TEXT_CONTROL_H

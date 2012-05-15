@@ -50,7 +50,8 @@ compare_by_status(const void* _item1, const void* _item2)
 
 
 RosterListView::RosterListView(const char* name)
-	: BListView(name, B_SINGLE_SELECTION_LIST, B_WILL_DRAW | B_FRAME_EVENTS |
+	: BOutlineListView(name, B_SINGLE_SELECTION_LIST,
+		B_WILL_DRAW | B_FRAME_EVENTS |
 		B_NAVIGABLE | B_FULL_UPDATE_ON_RESIZE),
 	fPrevItem(NULL)
 {

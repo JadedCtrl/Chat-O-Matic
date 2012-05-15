@@ -16,7 +16,7 @@ class BitmapView;
 class ContactLinker;
 class CayaRenderView;
 
-class ChatWindow: public BWindow, public Observer {
+class ChatWindow : public BWindow, public Observer {
 public:
 						ChatWindow(ContactLinker* cl);
 

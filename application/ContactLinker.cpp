@@ -7,22 +7,21 @@
  *		Andrea Anzani, andrea.anzani@gmail.com
  *		Dario Casalinuovo
  */
+#include "ContactLinker.h"
 
 #include <libinterface/BitmapUtils.h>
 
+#include "CayaUtils.h"
+#include "CayaPreferences.h"
 #include "CayaProtocolAddOn.h"
+#include "CayaResources.h"
 #include "ChatWindow.h"
-#include "ContactLinker.h"
 #include "ContactPopUp.h"
 #include "NotifyMessage.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
 #include "RosterItem.h"
 #include "WindowsManager.h"
-
-#include "CayaUtils.h"
-#include "CayaResources.h"
-#include "CayaPreferences.h"
 
 #include <stdio.h>
 

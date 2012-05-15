@@ -36,7 +36,7 @@
 ChatWindow::ChatWindow(ContactLinker* cl)
 	:
 	BWindow(BRect(200, 200, 500, 500),
-		cl->GetName().String(), B_DOCUMENT_WINDOW, 0),
+		cl->GetName().String(), B_TITLED_WINDOW, 0),
 		fContactLinker(cl)
 {
 	fReceiveView = new CayaRenderView("fReceiveView");
@@ -53,7 +53,9 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 
 
 	fPersonalMessage = new BTextView("personalMessage", B_WILL_DRAW);
-	fPersonalMessage->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+	fPersonalMessage->SetExplicitAlignment(
+		BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+
 	fPersonalMessage->SetText(fContactLinker->GetNotifyPersonalStatus());
 	fPersonalMessage->SetExplicitMaxSize(BSize(400, 200));
 	fPersonalMessage->MakeEditable(false);
@@ -83,8 +85,8 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 			.Add(fAvatar)
 		.End()
 		.Add(scrollViewReceive, 2)
-		.Add(scrollViewSend)
-		.Add(fStatus, 3)
+		.Add(scrollViewSend, 3)
+		.Add(fStatus, 4)
 		.SetInsets(5, 5, 5, 5)
 	);
 

@@ -99,6 +99,7 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 	rgb_color highlightColor = ui_color(B_CONTROL_HIGHLIGHT_COLOR);
 	rgb_color highColor = owner->HighColor();
 	rgb_color lowColor = owner->LowColor();
+	float h = frame.Height();
 
 	// Draw selection
 	if (IsSelected()) {
@@ -111,31 +112,33 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 		owner->FillRect(frame);
 	}
 
-	BResources* res = CayaResources();
+	/*BResources* res = CayaResources();
 	if (res) {
 		int32 num = 0;
 
 		switch (fStatus) {
 			case CAYA_ONLINE:
-				num = kOnlineIcon;
+				num = kOnlineReplicant;
 				break;
 			case CAYA_EXTENDED_AWAY:
+				num = kCayaIconReplicant;
+				break;
 			case CAYA_AWAY:
-				num = kAwayIcon;
+				num = kAwayReplicant;
 				break;
 			case CAYA_DO_NOT_DISTURB:
-				num = kBusyIcon;
+				num = kBusyReplicant;
 				break;
 			case CAYA_OFFLINE:
-				num = kOfflineIcon;
+				num = kOfflineReplicant;
 				break;
 			default:
-				break;
-		}
+			break;
+	}
 
 		BBitmap* bitmap = IconFromResources(res, num, B_MINI_ICON);
-		BRect bitmapRect(frame.left + 2, frame.top + 2,
-			frame.left + 2 + 14, frame.top + 2 + 14);
+		BRect bitmapRect(frame.left + 40, frame.top + fBaselineOffset - 10,
+			frame.left + 55, frame.top + 18);
 
 		owner->SetDrawingMode(B_OP_ALPHA);
 		owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
@@ -143,7 +146,7 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 			bitmapRect, B_FILTER_BITMAP_BILINEAR);
 
 		delete res;
-	} else {
+	} else {*/
 		// Draw contact status
 		switch (fStatus) {
 			case CAYA_ONLINE:
@@ -162,19 +165,31 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 		   		break;
 		}
 
-		owner->FillEllipse(BRect(frame.left + 4, frame.top + 4,
-			frame.left + 4 + 10 , frame.top + 4 + 10));
+		owner->FillRect(BRect(frame.left,
+			frame.top,
+				frame.left + 5, frame.top + h - 1
+				));
+	//}
+
+	// Draw avatar icon
+	if (fBitmap != NULL) {
+		BRect rect(frame.left + 6, frame.top,
+			frame.left + 42, frame.top + h);
+		owner->SetDrawingMode(B_OP_ALPHA);
+		owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
+		owner->DrawBitmap(fBitmap, fBitmap->Bounds(),
+			rect, B_FILTER_BITMAP_BILINEAR);
 	}
 
 	// Draw contact name
-	owner->MovePenTo(frame.left + 20, frame.top + fBaselineOffset);
+	owner->MovePenTo(frame.left + 48, frame.top + fBaselineOffset);
 	owner->SetHighColor(ui_color(B_CONTROL_TEXT_COLOR));
 	owner->DrawString(Text());
 
 	// Draw contact status string
-	owner->MovePenTo(frame.left + 20, frame.top + fBaselineOffset +
-		fBaselineOffset + 2);
-	owner->SetHighColor(tint_color(lowColor, B_DARKEN_1_TINT));
+	owner->MovePenTo(frame.left + 48, frame.top + fBaselineOffset +
+		fBaselineOffset + 3);
+	owner->SetHighColor(tint_color(lowColor, B_DARKEN_2_TINT));
 	if (fPersonalStatus.Length() == 0)
 		owner->DrawString(CayaStatusToString(fStatus));
 	else
@@ -184,21 +199,11 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 	owner->StrokeLine(BPoint(frame.left, frame.bottom),
 		BPoint(frame.right, frame.bottom));
 
-	// Draw avatar icon
-	if (fBitmap != NULL) {
-		float h = frame.Height() - 4;
-		BRect rect(frame.right - h - 2, frame.top + 2,
-			frame.right - 2, frame.top + h );
-		owner->SetDrawingMode(B_OP_ALPHA);
-		owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
-		owner->DrawBitmap(fBitmap, fBitmap->Bounds(),
-			rect, B_FILTER_BITMAP_BILINEAR);
-	}
-
+	// Draw protocol bitmpap
 	BBitmap* protocolBitmap = contactLinker->ProtocolBitmap();
-	float h = frame.Height();
-	BRect rect(frame.right - h - 20, frame.top + 2,
-			frame.right - 40, frame.top + h - 20);
+
+	BRect rect(frame.right - 19, frame.top + 2,
+		frame.right - 2, frame.top + 19 );;
 	owner->SetDrawingMode(B_OP_ALPHA);
 	owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
 	owner->DrawBitmap(protocolBitmap, protocolBitmap->Bounds(),

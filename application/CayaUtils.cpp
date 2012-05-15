@@ -29,7 +29,7 @@ CayaStatusToString(CayaStatus status)
 		case CAYA_AWAY:
 			return "Away";
 		case CAYA_EXTENDED_AWAY:
-			return "Extended Away";
+			return "Custom Status";
 		case CAYA_DO_NOT_DISTURB:
 			return "Busy";
 		default:

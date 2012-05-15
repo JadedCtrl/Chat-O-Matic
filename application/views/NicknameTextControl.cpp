@@ -6,20 +6,24 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
+#include "CayaConstants.h"
 #include "NicknameTextControl.h"
+
+#include <Font.h>
 
 
 NicknameTextControl::NicknameTextControl(const char* name, BMessage* message)
-	: BTextControl(name, NULL, NULL, message)
+	: BTextView(name, B_WILL_DRAW)
 {
+	SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 }
 
-
+/*
 void
 NicknameTextControl::Draw(BRect updateRect)
 {
-	BRect rect(Bounds());
+//	BRect rect(Bounds());
 
-	SetHighColor(ui_color(B_PANEL_BACKGROUND_COLOR));
-	FillRect(rect);
+//	FillRect(rect);
 }
+*/

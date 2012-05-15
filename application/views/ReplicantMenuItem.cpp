@@ -65,9 +65,11 @@ ReplicantMenuItem::SetIcon()
 
 	switch (fStatus) {
 		case CAYA_ONLINE:
-			num = kConnectingReplicant;
+			num = kOnlineReplicant;
 			break;
 		case CAYA_EXTENDED_AWAY:
+			num = kCayaIconReplicant;
+			break;
 		case CAYA_AWAY:
 			num = kAwayReplicant;
 			break;

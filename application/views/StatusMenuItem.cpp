@@ -62,17 +62,19 @@ StatusMenuItem::SetIcon()
 
 	switch (fStatus) {
 		case CAYA_ONLINE:
-			num = kOnlineIcon;
+			num = kOnlineReplicant;
 			break;
 		case CAYA_EXTENDED_AWAY:
+			num = kCayaIconReplicant;
+			break;
 		case CAYA_AWAY:
-			num = kAwayIcon;
+			num = kAwayReplicant;
 			break;
 		case CAYA_DO_NOT_DISTURB:
-			num = kBusyIcon;
+			num = kBusyReplicant;
 			break;
 		case CAYA_OFFLINE:
-			num = kOfflineIcon;
+			num = kOfflineReplicant;
 			break;
 		default:
 			break;

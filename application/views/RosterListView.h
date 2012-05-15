@@ -5,14 +5,14 @@
 #ifndef _ROSTER_LIST_VIEW_H
 #define _ROSTER_LIST_VIEW_H
 
-#include <ListView.h>
+#include <OutlineListView.h>
 
 class BPopUpMenu;
 
 class ContactLinker;
 class RosterItem;
 
-class RosterListView : public BListView
+class RosterListView : public BOutlineListView
 {
 public:
 					RosterListView(const char* name);

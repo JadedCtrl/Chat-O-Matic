@@ -45,6 +45,7 @@
 #include "ReplicantStatusView.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
+#include "SearchBarTextControl.h"
 #include "Server.h"
 #include "StatusView.h"
 
@@ -54,12 +55,12 @@ const uint32 kSearchContact = 'SRCH';
 
 MainWindow::MainWindow()
 	:
-	BWindow(BRect(0, 0, 300, 400), "Caya", B_DOCUMENT_WINDOW, 0),
+	BWindow(BRect(0, 0, 300, 400), "Caya", B_TITLED_WINDOW, 0),
 	fWorkspaceChanged(false)
 {
 	fStatusView = new StatusView("statusView");
 
-	BTextControl* searchBox = new BTextControl("searchBox", NULL, NULL,
+	SearchBarTextControl* searchBox = new SearchBarTextControl(
 		new BMessage(kSearchContact));
 
 	fListView = new RosterListView("buddyView");
@@ -89,8 +90,8 @@ MainWindow::MainWindow()
 	wrench->SetBitmap(toolIcon);
 	wrench->SetMenu(wrenchMenu);
 
-	SetLayout(new BGridLayout(5, 5));
-	AddChild(BGridLayoutBuilder(5, 5)
+	SetLayout(new BGridLayout(1, 2));
+	AddChild(BGridLayoutBuilder(1, 2)
 		.Add(searchBox, 0, 0)
 		.Add(wrench, 1, 0)
 		.Add(scrollView, 0, 1, 2)
@@ -141,7 +142,8 @@ MainWindow::MessageReceived(BMessage* message)
 			if (message->FindPointer("source", &control) != B_OK)
 				return;
 
-			BTextControl* searchBox = static_cast<BTextControl*>(control);
+			SearchBarTextControl* searchBox 
+				= static_cast<SearchBarTextControl*>(control);
 			if (searchBox == NULL)
 				return;
 

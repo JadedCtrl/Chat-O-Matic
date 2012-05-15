@@ -49,6 +49,7 @@ Application Caya :
 
 	# views
 	ContactPopUp.cpp
+	SearchBarTextControl.cpp
 	NicknameTextControl.cpp
 	RosterItem.cpp
 	RosterListView.cpp
