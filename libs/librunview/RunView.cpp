@@ -332,7 +332,7 @@ RunView::Draw (BRect frame)
 		FillRect (remains, B_SOLID_LOW);
 	}
 
-	for (int16 i = fLine_count - 1; i >= 0; --i) {
+	for (int i = fLine_count - 1; i >= 0; --i) {
 		Line* line (fLines[i]);
 		if (line->fBottom < frame.top)
 			break;
