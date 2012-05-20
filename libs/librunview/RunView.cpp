@@ -323,7 +323,7 @@ RunView::Draw (BRect frame)
 	else if (frame.bottom >= fLines[fLine_count - 1]->fBottom + 1.0)
 		remains.Set (
 		    frame.left,
-		    fLines[fLine_count - 1]->fBottom + 1.0,
+		    fLines[fLine_count - 1]->fBottom + 1,
 		    frame.right,
 		    frame.bottom);
 
@@ -352,7 +352,7 @@ RunView::Draw (BRect frame)
 		height = line->fTop;
 
 		for (int16 sit = 0; sit < line->fSoftie_used; /*++sit*/sit++) {
-			int16 last_len (UTF8_CHAR_LEN (line->fText[line->fSofties[sit].fOffset]));
+			int last_len (UTF8_CHAR_LEN (line->fText[line->fSofties[sit].fOffset]));
 			float left (indent);
 			float start (0.0);
 
@@ -360,7 +360,7 @@ RunView::Draw (BRect frame)
 			SetLowColor (view_color);
 
 			SetDrawingMode (B_OP_COPY);
-			r.Set (0.0, height, indent - 1.0, height + line->fSofties[sit].fHeight - 1.0);
+			r.Set (0.0, height, indent - 1, height + line->fSofties[sit].fHeight - 1);
 			FillRect (r, B_SOLID_LOW);
 
 			if (sit) {
@@ -411,7 +411,7 @@ RunView::Draw (BRect frame)
 					++font;
 				}
 
-				int16 fLength (line->fSofties[sit].fOffset - place + last_len);
+				int fLength (line->fSofties[sit].fOffset - place + last_len);
 
 				if (fore < line->fFc_count
 				        &&  line->fFcs[fore].fOffset - place < fLength)
@@ -468,7 +468,7 @@ RunView::Draw (BRect frame)
 				if (place + fLength == line->fLength)
 					--fLength;
 
-				int16 k (place + fLength - 1);
+				int k (place + fLength - 1);
 				while (line->fEdges[k] == 0)
 					--k;
 
