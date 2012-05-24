@@ -1232,7 +1232,7 @@ RunView::RecalcScrollBar (bool constrain)
 	if (fLine_count
 	        && (bounds.Contains (BPoint (0.0, 0.0)) == false
 	            ||  bounds.Contains (BPoint (0.0, fLines[fLine_count - 1]->fBottom)) == false)) {
-		bottom = fLines[fLine_count - 1]->fBottom + 5.0;
+		bottom = fLines[fLine_count - 1]->fBottom + 5;
 		bar->SetProportion (bounds.Height() / bottom);
 		bar->SetSteps (10.0, bounds.Height());
 
@@ -1516,7 +1516,7 @@ RunView::SetTimeStampFormat (const char* format)
 		fLines[i]->FigureSpaces();
 		fLines[i]->FigureEdges(fTheme, width);
 
-		top = fLines[i]->fBottom + 1.0;
+		top = fLines[i]->fBottom + 1;
 	}
 	fTheme->ReadUnlock();
 
@@ -1604,7 +1604,7 @@ RunView::PositionAt (BPoint point) const
 BPoint
 RunView::PointAt (SelectPos s) const
 {
-	return BPoint(fLines[s.fLine]->fTop + fLines[s.fLine]->fBottom / 2.0, fLines[s.fLine]->fEdges[s.fOffset]);
+	return BPoint(fLines[s.fLine]->fTop + fLines[s.fLine]->fBottom / 2, fLines[s.fLine]->fEdges[s.fOffset]);
 }
 
 void
@@ -2221,7 +2221,7 @@ Line::SoftBreaks (Theme* theme, float start_width)
 		}
 	}
 
-	fBottom -= 1.0;
+	fBottom -= 1;
 }
 
 int16
