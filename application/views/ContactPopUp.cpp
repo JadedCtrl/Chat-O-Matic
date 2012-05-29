@@ -16,7 +16,7 @@
 #include "ContactPopUp.h"
 #include "NotifyMessage.h"
 
-const window_feel kMenuWindowFeel = window_feel(1025);
+const window_feel kMenuWindowFeel = window_feel(B_NORMAL_WINDOW_FEEL);
 
 const int32 kNickChanged = 'NICH';
 

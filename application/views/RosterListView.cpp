@@ -6,18 +6,19 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
-#include <string.h>
-#include <stdio.h>
+#include "RosterListView.h"
 
 #include <Looper.h>
 #include <MenuItem.h>
 #include <PopUpMenu.h>
 #include <SeparatorItem.h>
 
+#include <string.h>
+#include <stdio.h>
+
 #include "ContactInfoWindow.h"
 #include "ContactLinker.h"
 #include "RosterItem.h"
-#include "RosterListView.h"
 
 const int32 kGetInfo	= 'GINF';
 const int32 kShowLogs	= 'SHLG';
