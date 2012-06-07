@@ -137,7 +137,8 @@ void
 MainWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case kSearchContact: {
+		case kSearchContact:
+		{
 			void* control = NULL;
 			if (message->FindPointer("source", &control) != B_OK)
 				return;
@@ -165,16 +166,18 @@ MainWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case CAYA_SHOW_SETTINGS: {
+		case CAYA_SHOW_SETTINGS:
+		{
 			PreferencesDialog* dialog = new PreferencesDialog();
 			dialog->Show();
 			break;
 		}
-		case CAYA_OPEN_CHAT_WINDOW: {
+		case CAYA_OPEN_CHAT_WINDOW:
+		{
 			int index = message->FindInt32("index");
 			RosterItem* ritem = ItemAt(index);
 			if (ritem != NULL)
-				ritem->GetContactLinker()->ShowWindow();
+				ritem->GetContactLinker()->ShowWindow(false, true);
 			break;
 		}
 

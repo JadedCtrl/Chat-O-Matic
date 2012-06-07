@@ -22,8 +22,8 @@ private:
 
 	BStringView*	fOnIncoming;
 	BCheckBox*		fToCurrentWorkspace;
-	BCheckBox*		fFocusOnMessageReceived;
-	BCheckBox*		fFocusUserIsTyping;
+	BCheckBox*		fRaiseOnMessageReceived;
+	BCheckBox*		fRaiseUserIsTyping;
 	BCheckBox*		fPlaySoundOnMessageReceived;
 	BCheckBox*		fMarkUnreadWindow;
 	BCheckBox*		fMarkUnreadReplicant;

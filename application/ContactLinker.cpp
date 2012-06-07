@@ -34,7 +34,8 @@ ContactLinker::ContactLinker(BString id, BMessenger msgn)
 	fMessenger(msgn),
 	fLooper(NULL),
 	fStatus(CAYA_OFFLINE),
-	fPopUp(NULL)
+	fPopUp(NULL),
+	fNewWindow(true)
 {
 	// Create the roster item and register it as observer
 	fRosterItem = new RosterItem(id.String(), this);
@@ -59,29 +60,38 @@ ContactLinker::DeleteWindow()
 			UnregisterObserver(fChatWindow);
 			fChatWindow->Quit();
 			fChatWindow = NULL;
+			fNewWindow = true;
 		}
 	}
 }
 
 
 void
-ContactLinker::ShowWindow()
+ContactLinker::ShowWindow(bool typing, bool userAction)
 {
 	if (fChatWindow == NULL)
 		CreateChatWindow();
 
+	fChatWindow->AvoidFocus(true);
+
 	if (CayaPreferences::Item()->MoveToCurrentWorkspace)
 		fChatWindow->SetWorkspaces(B_CURRENT_WORKSPACE);
 
-	if (fChatWindow->IsHidden())
-		fChatWindow->Show();
-
-	if (fChatWindow->IsMinimized())
-		fChatWindow->Minimize(false);
-
-	if (CayaPreferences::Item()->FocusOnMessageReceived == true
-		|| CayaPreferences::Item()->FocusUserIsTyping == true)
-		fChatWindow->Activate(true);
+	if (fNewWindow || userAction) {
+		fChatWindow->AvoidFocus(false);
+		fChatWindow->ShowWindow();
+		fNewWindow = false;
+	} else {
+		if (typing) {
+			if (CayaPreferences::Item()->RaiseUserIsTyping)
+				fChatWindow->ShowWindow();
+		} else {
+			if (CayaPreferences::Item()->RaiseOnMessageReceived
+			|| fChatWindow->IsHidden())
+				fChatWindow->ShowWindow();
+		}
+	}
+	fChatWindow->AvoidFocus(false);
 }
 
 

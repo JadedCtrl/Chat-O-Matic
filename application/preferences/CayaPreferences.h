@@ -26,8 +26,8 @@ public:
 			status_t		Unflatten(type_code code, BPositionIO* flatData);
 
 			bool 			MoveToCurrentWorkspace;
-			bool 			FocusOnMessageReceived;
-			bool 			FocusUserIsTyping;
+			bool 			RaiseOnMessageReceived;
+			bool 			RaiseUserIsTyping;
 			bool 			NotifyProtocolStatus;
 			bool 			NotifyContactStatus;
 

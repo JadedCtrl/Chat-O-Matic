@@ -96,6 +96,20 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 }
 
 
+void
+ChatWindow::ShowWindow()
+{
+	if (IsHidden())
+		Show();
+
+	if (IsMinimized())
+		Minimize(false);
+
+	if (!IsActive())
+		Activate(true);
+}
+
+
 bool
 ChatWindow::QuitRequested()
 {
@@ -153,6 +167,7 @@ ChatWindow::MessageReceived(BMessage* message)
 		case IM_MESSAGE:
 			ImMessage(message);
 			break;
+
 		default:
 			BWindow::MessageReceived(message);
 			break;
@@ -264,4 +279,17 @@ ChatWindow::AppendStatus(CayaStatus status)
 	fReceiveView->Append(message.String(), COL_TEXT, COL_TEXT, R_TEXT);
  	fReceiveView->Append("\n", COL_TEXT, COL_TEXT, R_TEXT);
 	fReceiveView->ScrollToSelection();
+}
+
+
+void
+ChatWindow::AvoidFocus(bool avoid)
+{
+	// This is needed to avoid the window focus when
+	// a new message is received, since it could be a lot annoying
+	// for the user
+	if (avoid)
+		SetFlags(B_AVOID_FOCUS);
+	else
+		SetFlags(Flags() &~ B_AVOID_FOCUS);
 }

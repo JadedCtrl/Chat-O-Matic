@@ -321,8 +321,7 @@ Server::ImMessage(BMessage* msg)
 				ContactLinker* item = fRosterMap.ValueFor(id, &found);
 				if (found) {
 					ChatWindow* win = item->GetChatWindow();
-					if (CayaPreferences::Item()->FocusOnMessageReceived) 
-						item->ShowWindow();
+					item->ShowWindow();
 					win->PostMessage(msg);
 				}
 			}
@@ -338,8 +337,7 @@ Server::ImMessage(BMessage* msg)
 				ContactLinker* item = fRosterMap.ValueFor(id, &found);
 				if (found) {
 					ChatWindow* win = item->GetChatWindow();
-					if (CayaPreferences::Item()->FocusUserIsTyping) 
-						item->ShowWindow();
+					item->ShowWindow(true);
 					win->PostMessage(msg);
 				}
 			}

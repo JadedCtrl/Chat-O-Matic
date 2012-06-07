@@ -14,8 +14,8 @@ template<> const char* CayaPreferences::fFilename = "preferences";
 CayaPreferencesData::CayaPreferencesData()
 	:
 	MoveToCurrentWorkspace(true),
-	FocusOnMessageReceived(false),
-	FocusUserIsTyping(false),
+	RaiseOnMessageReceived(false),
+	RaiseUserIsTyping(false),
 	HideCayaDeskbar(false),
 	DisableReplicant(true),
 	IgnoreEmoticons(false),
@@ -78,8 +78,8 @@ CayaPreferencesData::Flatten(BPositionIO* flatData) const
 
 	// Behaviour
 	_AddBool(flatData, MoveToCurrentWorkspace);
-	_AddBool(flatData, FocusOnMessageReceived);
-	_AddBool(flatData, FocusUserIsTyping);
+	_AddBool(flatData, RaiseOnMessageReceived);
+	_AddBool(flatData, RaiseUserIsTyping);
 
 	_AddBool(flatData, NotifyProtocolStatus);
 	_AddBool(flatData, NotifyContactStatus);
@@ -142,8 +142,8 @@ CayaPreferencesData::Unflatten(type_code code, BPositionIO* flatData)
 
 	// Behaviour
 	MoveToCurrentWorkspace = _ReadBool(flatData);
-	FocusOnMessageReceived = _ReadBool(flatData);
-	FocusUserIsTyping = _ReadBool(flatData);
+	RaiseOnMessageReceived = _ReadBool(flatData);
+	RaiseUserIsTyping = _ReadBool(flatData);
 
 	NotifyProtocolStatus = _ReadBool(flatData);
 	NotifyContactStatus = _ReadBool(flatData);

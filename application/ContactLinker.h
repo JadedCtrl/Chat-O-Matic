@@ -27,7 +27,7 @@ public:
 	ChatWindow*		GetChatWindow();
 	void 			DeleteWindow();
 
-	void			ShowWindow();		
+	void			ShowWindow(bool typing = false, bool userAction = false);
 	void			HideWindow();
 
 	void			ShowPopUp(BPoint where);
@@ -70,6 +70,8 @@ private:
 	BBitmap*		fAvatarBitmap;
 	CayaStatus		fStatus;
 	ContactPopUp*	fPopUp;
+
+	bool			fNewWindow;
 };
 
 #endif	// _CONTACT_LINKER_H_

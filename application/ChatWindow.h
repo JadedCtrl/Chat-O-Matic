@@ -20,6 +20,8 @@ class ChatWindow : public BWindow, public Observer {
 public:
 						ChatWindow(ContactLinker* cl);
 
+	virtual void		ShowWindow();
+
 	virtual	void		MessageReceived(BMessage* message);
 	virtual	bool		QuitRequested();
 
@@ -32,6 +34,7 @@ public:
 			void		ObserveInteger(int32 what, int32 val);
 			void		AppendStatus(CayaStatus status);
 
+			void		AvoidFocus(bool avoid);
 private:
 		BTextView*		fSendView;
 		ContactLinker*	fContactLinker;
