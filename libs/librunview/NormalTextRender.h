@@ -16,7 +16,7 @@ public:
 	}
 	virtual ~NormalTextRender() {};
 
-	virtual void     Render(BView* target, const char* txt, int16 num, BPoint pos)  {
+	virtual void     Render(BView* target, const char* txt, int num, BPoint pos)  {
 
 		target->SetFont(&font);
 		target->DrawString(txt, num, pos);

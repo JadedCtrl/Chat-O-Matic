@@ -74,7 +74,7 @@ static unsigned char URLCursorData[] = {16, 1, 2, 2,
                                        };
 
 struct SoftBreak {
-	int16          fOffset;
+	int          fOffset;
 	float          fHeight;
 	float          fAscent;
 };
@@ -94,7 +94,7 @@ struct URL {
 typedef BObjectList<URL> urllist;
 
 struct SoftBreakEnd {
-	int16       fOffset;
+	int       fOffset;
 
 	SoftBreakEnd (int16 offset)
 		:  fOffset (offset)
@@ -102,7 +102,7 @@ struct SoftBreakEnd {
 };
 
 struct FontColor {
-	int16          fOffset;
+	int          fOffset;
 	// G++ is stupid.  We only need 2 bits
 	// for fWhich, but the compiler has a bug
 	// and warns us against fWhich == 2
@@ -121,42 +121,42 @@ struct Line {
 	float          fTop;
 	float          fBottom;
 
-	int16          fLength;
-	int16          fSpace_count;
-	int16          fEdge_count;
-	int16          fFc_count;
-	int16          fSoftie_size;
-	int16          fSoftie_used;
+	int          fLength;
+	int          fSpace_count;
+	int          fEdge_count;
+	int          fFc_count;
+	int          fSoftie_size;
+	int          fSoftie_used;
 
 	Line (
 	    const char* buffer,
-	    int16 fLength,
+	    int fLength,
 	    float top,
 	    float width,
 	    Theme* fTheme,
 	    const char* fStamp_format,
-	    int16 fore,
-	    int16 back,
-	    int16 font);
+	    int fore,
+	    int back,
+	    int font);
 
 	~Line (void);
 
 	void          Append (
 	    const char* buffer,
-	    int16 len,
+	    int len,
 	    float width,
 	    Theme* fTheme,
-	    int16 fore,
-	    int16 back,
-	    int16 font);
+	    int fore,
+	    int back,
+	    int font);
 
 	void          FigureSpaces (void);
 
 	void          FigureFontColors (
-	    int16 pos,
-	    int16 fore,
-	    int16 back,
-	    int16 font);
+	    int pos,
+	    int fore,
+	    int back,
+	    int font);
 
 	void          FigureEdges (
 	    Theme* fTheme,
@@ -172,7 +172,7 @@ struct Line {
 	int16         CountChars (int16 pos, int16 len);
 	size_t        SetStamp (const char*, bool);
 
-	void          SelectWord (int16*, int16*);
+	void          SelectWord (int*, int*);
 };
 
 inline int32
@@ -343,7 +343,7 @@ RunView::Draw (BRect frame)
 			continue;
 
 		float indent (fTheme->TextMargin());
-		int16 place (0);
+		int place (0);
 
 		int16 fore (0);
 		int16 back (0);
@@ -351,7 +351,7 @@ RunView::Draw (BRect frame)
 
 		height = line->fTop;
 
-		for (int16 sit = 0; sit < line->fSoftie_used; /*++sit*/sit++) {
+		for (int sit = 0; sit < line->fSoftie_used; /*++sit*/sit++) {
 			int last_len (UTF8_CHAR_LEN (line->fText[line->fSofties[sit].fOffset]));
 			float left (indent);
 			float start (0.0);
@@ -364,7 +364,7 @@ RunView::Draw (BRect frame)
 			FillRect (r, B_SOLID_LOW);
 
 			if (sit) {
-				int16 j (place);
+				int j (place);
 
 				while (--j >= 0)
 					if ((start = line->fEdges[j]) != 0)
@@ -476,7 +476,7 @@ RunView::Draw (BRect frame)
 				    left,
 				    height,
 				    line->fEdges[k] + indent - start,
-				    height + line->fSofties[sit].fHeight - 1.0);
+				    height + line->fSofties[sit].fHeight - 1);
 
 				SetDrawingMode (B_OP_COPY);
 				if (drawSelection)
@@ -513,10 +513,10 @@ RunView::Draw (BRect frame)
 			SetLowColor (view_color);
 			FillRect (
 			    BRect (
-			        left + 1.0,
+			        left + 1,
 			        height,
 			        bounds.right,
-			        height + line->fSofties[sit].fHeight - 1.0),
+			        height + line->fSofties[sit].fHeight - 1),
 			    B_SOLID_LOW);
 
 			height += line->fSofties[sit].fHeight;
@@ -849,8 +849,8 @@ RunView::MouseMoved (BPoint point, uint32 transit, const BMessage* msg)
 					if (!end_found)
 						for (int16 sit = 1; sit < line->fSoftie_used; ++sit) {
 							if (!start_found && fSp_start.fOffset < line->fSofties[sit].fOffset) {
-								left = line->fEdges[fSp_start.fOffset] -
-								       line->fEdges[line->fSofties[sit-1].fOffset];
+								left = (float)(line->fEdges[fSp_start.fOffset] -
+								       line->fEdges[line->fSofties[sit-1].fOffset]);
 
 								top += (sit) * line->fSofties[sit].fHeight;
 								top_softie = sit;
@@ -1265,9 +1265,9 @@ RunView::RecalcScrollBar (bool constrain)
 void
 RunView::Append (
     const char* buffer,
-    int16 fore,
-    int16 back,
-    int16 font)
+    int fore,
+    int back,
+    int font)
 {
 	Append (buffer, strlen (buffer), fore, back, font);
 }
@@ -1276,9 +1276,9 @@ void
 RunView::Append (
     const char* buffer,
     int32 len,
-    int16 fore,
-    int16 back,
-    int16 font)
+    int fore,
+    int back,
+    int font)
 {
 	if (buffer == NULL)
 		return;
@@ -1739,14 +1739,14 @@ RunView::SetClippingName (const char* name)
 
 Line::Line (
     const char* buffer,
-    int16 len,
+    int len,
     float top,
     float width,
     Theme* theme,
     const char* stamp_format,
-    int16 fore,
-    int16 back,
-    int16 font)
+    int fore,
+    int back,
+    int font)
 	:  fText (NULL),
 	   fStamp (time(NULL)),
 	   fUrls (NULL),
@@ -1787,12 +1787,12 @@ Line::~Line (void)
 void
 Line::Append (
     const char* buffer,
-    int16 len,
+    int len,
     float width,
     Theme* theme,
-    int16 fore,
-    int16 back,
-    int16 font)
+    int fore,
+    int back,
+    int font)
 {
 	int16 save (fLength);
 	char* new_fText;
@@ -1859,10 +1859,10 @@ Line::FigureSpaces (void)
 
 void
 Line::FigureFontColors (
-    int16 pos,
-    int16 fore,
-    int16 back,
-    int16 font)
+    int pos,
+    int fore,
+    int back,
+    int font)
 {
 	if (fFc_count) {
 		int16 last_fore = -1;
@@ -2335,7 +2335,7 @@ Line::SetStamp (const char* format, bool was_on)
 }
 
 void
-Line::SelectWord (int16* start, int16* end)
+Line::SelectWord (int* start, int* end)
 {
 	int16 start_tmp (*start), end_tmp (*end);
 

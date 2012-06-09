@@ -52,12 +52,12 @@ class SelectPos
 {
 public:
 
-	int16					fLine;
-	int16					fOffset;
+	int					fLine;
+	int					fOffset;
 
 	SelectPos (
-	    int16 selLine = 0,
-	    int16 selOffset = 0)
+	    int selLine = 0,
+	    int selOffset = 0)
 		:	fLine (selLine),
 		    fOffset (selOffset)
 	{ }
@@ -157,8 +157,8 @@ public:
 	virtual void		MouseUp (BPoint);
 
 
-	void					Append (const char*, int32, int16, int16, int16);
-	void					Append (const char*, int16, int16, int16);
+	void					Append (const char*, int32, int, int, int);
+	void					Append (const char*, int, int, int);
 
 	void					Clear (void);
 

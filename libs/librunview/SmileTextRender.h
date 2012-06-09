@@ -20,7 +20,7 @@ public:
 
 	virtual ~SmileTextRender() {};
 
-	virtual void Render(BView* target, const char* txt, int16 num, BPoint pos)  {
+	virtual void Render(BView* target, const char* txt, int num, BPoint pos)  {
 
 		BBitmap* pointer = NULL;
 		BString f(txt, num);
