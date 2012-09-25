@@ -10,7 +10,6 @@
 class SearchBarTextControl : public BTextControl {
 public:
 					SearchBarTextControl(BMessage* message);
-	virtual	void	MouseDown(BPoint position);
 	virtual void	KeyDown(const char* bytes, int32 numBytes);
 };
 

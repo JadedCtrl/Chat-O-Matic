@@ -1,6 +1,6 @@
 /*
- * Copyright 2009, Pier Luigi Fiorini. All rights reserved.
- * Copyright 2011, Dario Casalinuovo. All rights reserved.
+ * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2011-2012, Dario Casalinuovo. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _STATUS_MENU_ITEM_H

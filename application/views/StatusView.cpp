@@ -33,10 +33,12 @@ StatusView::StatusView(const char* name)
 	BView(name, B_WILL_DRAW)
 {
 	// Nick name
-	fPersonalMessage = new NicknameTextControl("Nickname",
+	fNickname = new NicknameTextControl("Nickname",
 		new BMessage(kSetNickname));
 
-	BStringView* personalMessageLabel = new BStringView("Nickname","Nickname:", B_WILL_DRAW);
+	BStringView* nicknameLabel = new BStringView("Nickname",
+		"Nickname:", B_WILL_DRAW);
+
 	// Status menu
 	fStatusMenu = new BPopUpMenu("-");
 
@@ -76,8 +78,8 @@ StatusView::StatusView(const char* name)
 		.AddGroup(B_VERTICAL)
 			.Add(statusField)
 			.AddGroup(B_HORIZONTAL)
-				.Add(personalMessageLabel)
-				.Add(fPersonalMessage)
+				.Add(nicknameLabel)
+				.Add(fNickname)
 			.End()
 		.End()
 		.Add(fAvatar)
@@ -98,12 +100,12 @@ void
 StatusView::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
-		/*case kSetNickname:
+		case kSetNickname:
 		{
 			AccountManager* accountManager = AccountManager::Get();
 			accountManager->SetNickname(fNickname->Text());
 			break;
-		}*/
+		}
 		case kSetStatus:
 		{
 			int32 status;
@@ -124,7 +126,7 @@ StatusView::MessageReceived(BMessage* msg)
 void	
 StatusView::SetName(BString name)
 {
-	fPersonalMessage->SetText(name.String());	
+	fNickname->SetText(name.String());	
 }
 
 

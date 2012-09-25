@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Dario Casalinuovo. All rights reserved.
+ * Copyright 2011-2012, Dario Casalinuovo. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:

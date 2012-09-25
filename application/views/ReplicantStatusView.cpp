@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Dario Casalinuovo. All rights reserved.
+ * Copyright 2011-2012, Dario Casalinuovo. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
@@ -42,7 +42,8 @@ extern "C" _EXPORT BView *instantiate_deskbar_item(void);
 class ReplicantHandler : public BHandler {
 public:
 				 ReplicantHandler(const char* name, ReplicantStatusView* target)
-				 	: BHandler(name)
+				 	:
+				 	BHandler(name)
 				 	{
 				 		fTarget = target;
 				 	}

@@ -49,6 +49,7 @@
 #include "Server.h"
 #include "StatusView.h"
 
+
 const uint32 kLogin			= 'LOGI';
 const uint32 kSearchContact = 'SRCH';
 
@@ -60,8 +61,8 @@ MainWindow::MainWindow()
 {
 	fStatusView = new StatusView("statusView");
 
-	SearchBarTextControl* searchBox = new SearchBarTextControl(
-		new BMessage(kSearchContact));
+	SearchBarTextControl* searchBox = 
+		new SearchBarTextControl(new BMessage(kSearchContact));
 
 	fListView = new RosterListView("buddyView");
 	fListView->SetInvocationMessage(new BMessage(CAYA_OPEN_CHAT_WINDOW));
