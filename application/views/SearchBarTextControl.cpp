@@ -24,7 +24,7 @@ SearchBarTextControl::SearchBarTextControl(BMessage* message)
 	rgb_color color = tint_color(ViewColor(), B_DARKEN_3_TINT);
 	TextView()->SetFontAndColor(NULL, B_FONT_ALL, &color);
 	TextView()->MakeSelectable(false);
-	SetModificationMessage(message);
+	SetModificationMessage(new BMessage(*message));
 }
 
 
