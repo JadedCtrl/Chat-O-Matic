@@ -20,9 +20,11 @@
 #include "ContactLinker.h"
 #include "RosterItem.h"
 
-const int32 kGetInfo	= 'GINF';
-const int32 kShowLogs	= 'SHLG';
 const int32 kAddPeople	= 'ADPL';
+const int32 kSendFile	= 'SDFL';
+const int32 kShowLogs	= 'SHLG';
+const int32	kStartConv	= 'SRCV';
+const int32 kGetInfo	= 'GINF';
 
 
 static int
@@ -58,11 +60,27 @@ RosterListView::RosterListView(const char* name)
 {
 	// Context menu
 	fPopUp = new BPopUpMenu("contextMenu", false, false);
-	fPopUp->AddItem(new BMenuItem("Get Informations", new BMessage(kGetInfo)));
-	fPopUp->AddItem(new BMenuItem("Show Logs", new BMessage(kShowLogs)));
+	BMenuItem* item = NULL;
+
+	fPopUp->AddItem(new BMenuItem("Start a Conversation", new BMessage(kStartConv)));
+	item = new BMenuItem("Send a File", new BMessage(kSendFile));
+	item->SetEnabled(false);
+	fPopUp->AddItem(item);
+
 	fPopUp->AddItem(new BSeparatorItem());
-	fPopUp->AddItem(new BMenuItem("Add to Address Book",
-		new BMessage(kAddPeople)));
+
+	fPopUp->AddItem(new BMenuItem("Get Informations", new BMessage(kGetInfo)));
+
+	item = new BMenuItem("Show Logs", new BMessage(kShowLogs));
+	item->SetEnabled(false);
+	fPopUp->AddItem(item);
+
+	fPopUp->AddItem(new BSeparatorItem());
+
+	item = new BMenuItem("Add to Address Book", new BMessage(kAddPeople));
+	item->SetEnabled(false);
+	fPopUp->AddItem(item);
+
 	fPopUp->SetTargetForItems(this);
 }
 
@@ -81,21 +99,31 @@ RosterListView::AttachedToWindow()
 void
 RosterListView::MessageReceived(BMessage* msg)
 {
+	BPoint where;
+	uint32 buttons;
+	GetMouse(&where, &buttons);
+	BListItem* item = ItemAt(IndexOf(where));
+	RosterItem* ritem = reinterpret_cast<RosterItem*>(item);
+
 	switch (msg->what) {
 		case kGetInfo:
 		{
-			BPoint where;
-			uint32 buttons;
-			GetMouse(&where, &buttons);
-			BListItem* item = ItemAt(IndexOf(where));
-			RosterItem* ritem = reinterpret_cast<RosterItem*>(item);
-
 			if (ritem == NULL)
 				return;
 
 			_InfoWindow(ritem->GetContactLinker());
 			break;
 		}
+
+		case kStartConv:
+		{
+			if (ritem == NULL)
+				return;
+			ContactLinker* link = ritem->GetContactLinker();
+			link->ShowWindow(false, true);
+			break;
+		}
+
 		default:
 			BListView::MessageReceived(msg);
 	}
