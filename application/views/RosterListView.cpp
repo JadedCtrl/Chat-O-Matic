@@ -99,10 +99,7 @@ RosterListView::AttachedToWindow()
 void
 RosterListView::MessageReceived(BMessage* msg)
 {
-	BPoint where;
-	uint32 buttons;
-	GetMouse(&where, &buttons);
-	BListItem* item = ItemAt(IndexOf(where));
+	BListItem* item = ItemAt(CurrentSelection());
 	RosterItem* ritem = reinterpret_cast<RosterItem*>(item);
 
 	switch (msg->what) {
