@@ -858,10 +858,10 @@ RunView::MouseMoved (BPoint point, uint32 transit, const BMessage* msg)
 							}
 
 							if (fSp_end.fOffset < line->fSofties[sit].fOffset) {
-								right = line->fEdges[fSp_end.fOffset] -
-								        line->fEdges[line->fSofties[sit-1].fOffset];
+								right = (float) line->fEdges[fSp_end.fOffset] -
+								        (float) line->fEdges[line->fSofties[sit-1].fOffset];
 
-								bottom = top + (sit - top_softie + 1) * line->fSofties[sit].fHeight;
+								bottom = top + (sit - (float) top_softie + 1) * line->fSofties[sit].fHeight;
 								bottom_softie = sit;
 								end_found = true;
 								break;
@@ -870,8 +870,8 @@ RunView::MouseMoved (BPoint point, uint32 transit, const BMessage* msg)
 					if (!end_found) {
 						int32 soft_count = (line->fSoftie_used >= 2) ?
 						                   line->fSoftie_used - 2 : 0;
-						right = line->fEdges[line->fLength - 1] -
-						        line->fEdges[line->fSofties[soft_count].fOffset];
+						right = (float) line->fEdges[line->fLength - 1] -
+						        (float) line->fEdges[line->fSofties[soft_count].fOffset];
 						bottom_softie = soft_count - 2;
 
 					}
@@ -977,8 +977,8 @@ RunView::ShiftTrackingSelect (BPoint point, bool move, bigtime_t timer)
 			}
 
 			if (move || timer == 0) {
-				delta = max_c (ABS (ceil (delta / 2.0)), 10.0);
-				delta = min_c (delta, Bounds().Height());
+				delta = (float) max_c (ABS (ceil (delta / 2.0)), 10.0);
+				delta = (float) min_c (delta, Bounds().Height());
 
 				if (bounds.top - delta < 0.0)
 					delta = bounds.top;
@@ -1014,8 +1014,8 @@ RunView::ShiftTrackingSelect (BPoint point, bool move, bigtime_t timer)
 			}
 
 			if (move || timer == 0) {
-				delta = max_c (ABS (ceil (delta / 2.0)), 10.0);
-				delta = min_c (delta, Bounds().Height());
+				delta = (float) max_c (ABS (ceil (delta / 2.0)), 10.0);
+				delta = (float) min_c (delta, Bounds().Height());
 
 				if (bounds.bottom + delta > line->fBottom)
 					delta = line->fBottom - bounds.bottom;
@@ -1131,7 +1131,7 @@ void
 RunView::ResizeRecalc (void)
 {
 	float width (Bounds().Width() - (fTheme->TextMargin() * 2));
-	int16 fSoftie_size (0), fSoftie_used (0);
+	int fSoftie_size (0), fSoftie_used (0);
 	SoftBreak* fSofties (NULL);
 	BRect bounds (Bounds());
 	BRegion region;
@@ -1150,7 +1150,7 @@ RunView::ResizeRecalc (void)
 
 		fLines[i]->fTop = top;
 		fLines[i]->SoftBreaks (fTheme, width);
-		top = fLines[i]->fBottom + 1.0;
+		top = fLines[i]->fBottom + (float) 1.0;
 
 		BRect r (0.0, fLines[i]->fTop, bounds.right, fLines[i]->fBottom);
 
@@ -1200,7 +1200,7 @@ RunView::FontChangeRecalc (void)
 		fLines[i]->FigureSpaces();
 		fLines[i]->FigureEdges (fTheme, width);
 
-		top = fLines[i]->fBottom + 1.0;
+		top = fLines[i]->fBottom + (float) 1.0;
 	}
 
 	if (fWorking)
@@ -1345,7 +1345,7 @@ RunView::Append (
 			float top (0.0);
 
 			if (fLine_count > 0)
-				top = fLines[fLine_count - 1]->fBottom + 1.0;
+				top = fLines[fLine_count - 1]->fBottom + (float) 1.0;
 
 			//HERE
 			fWorking = new Line (
@@ -1584,7 +1584,7 @@ RunView::PositionAt (BPoint point) const
 	int16 start (0);
 
 	if (sfIndex) {
-		int16 offset (fLines[lfIndex]->fSofties[sfIndex - 1].fOffset);
+		int offset (fLines[lfIndex]->fSofties[sfIndex - 1].fOffset);
 
 		width = fLines[lfIndex]->fEdges[offset];
 		start = offset + UTF8_CHAR_LEN (fLines[lfIndex]->fText[offset]);
