@@ -163,7 +163,7 @@ public:
 	void					Clear (void);
 
 	int16					LineCount (void) const;
-	const char*				LineAt (int16) const;
+	const char*				LineAt (int) const;
 
 	void					SetTimeStampFormat (const char*);
 	void					SetTheme (Theme*);

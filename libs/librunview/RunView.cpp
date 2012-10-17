@@ -169,7 +169,7 @@ struct Line {
 	void          AddSoftBreak (SoftBreakEnd , float&,
 	                            uint16&, int16&, float&, float&, Theme*);
 
-	int16         CountChars (int16 pos, int16 len);
+	int16         CountChars (int pos, int len);
 	size_t        SetStamp (const char*, bool);
 
 	void          SelectWord (int*, int*);
@@ -1476,7 +1476,7 @@ RunView::LineCount (void) const
 }
 
 const char *
-RunView::LineAt (int16 which) const
+RunView::LineAt (int which) const
 {
 	if (which < 0 || which >= fLine_count)
 		return NULL;
@@ -1548,7 +1548,7 @@ RunView::SetTheme (Theme* t)
 SelectPos
 RunView::PositionAt (BPoint point) const
 {
-	int16 i, lfIndex (0);
+	int i, lfIndex (0);
 	SelectPos pos (-1, 0);
 
 	if (fLine_count == 0)
@@ -1569,7 +1569,7 @@ RunView::PositionAt (BPoint point) const
 	}
 
 	float height (fLines[lfIndex]->fTop);
-	int16 sfIndex (0);
+	int sfIndex (0);
 
 	for (i = 0; i < fLines[lfIndex]->fSoftie_used; ++i) {
 		if (height > point.y)
@@ -1581,7 +1581,7 @@ RunView::PositionAt (BPoint point) const
 
 	float margin (fTheme->TextMargin());
 	float width (0);
-	int16 start (0);
+	int start (0);
 
 	if (sfIndex) {
 		int offset (fLines[lfIndex]->fSofties[sfIndex - 1].fOffset);
@@ -1794,7 +1794,7 @@ Line::Append (
     int back,
     int font)
 {
-	int16 save (fLength);
+	int save (fLength);
 	char* new_fText;
 
 	new_fText = new char [fLength + len + 1];
@@ -1852,7 +1852,7 @@ Line::FigureSpaces (void)
 
 	offset = 0;
 	while ((n = strcspn (buffer + offset, spacers)) < fLength - offset) {
-		fSpaces[fSpace_count++] = n + offset;
+		fSpaces[fSpace_count++] = (int16)(n + offset);
 		offset += n + 1;
 	}
 }
@@ -1865,10 +1865,10 @@ Line::FigureFontColors (
     int font)
 {
 	if (fFc_count) {
-		int16 last_fore = -1;
-		int16 last_back = -1;
-		int16 last_font = -1;
-		int16 i;
+		int last_fore = -1;
+		int last_back = -1;
+		int last_font = -1;
+		int i;
 
 		// we have fFcs, so we backtrack for last of each fWhich
 		for (i = fFc_count - 1; i >= 0; --i) {
@@ -1947,7 +1947,7 @@ Line::FigureEdges (
 	delete [] fEdges;
 	fEdges = new int16 [fLength];
 
-	int16 cur_fFcs (0), next_fFcs (0), cur_font (0);
+	int cur_fFcs (0), next_fFcs (0), cur_font (0);
 
 	fEdge_count = 0;
 	while (cur_fFcs < fFc_count) {
@@ -1960,7 +1960,7 @@ Line::FigureEdges (
 	}
 
 	while (cur_fFcs < fFc_count) {
-		int16 last_offset (fFcs[cur_fFcs].fOffset);
+		int last_offset (fFcs[cur_fFcs].fOffset);
 		next_fFcs = cur_fFcs + 1;
 
 		while (next_fFcs < fFc_count) {
@@ -1981,8 +1981,8 @@ Line::FigureEdges (
 		if (fFcs[cur_fFcs].fWhich == FONT_WHICH)
 			cur_font = cur_fFcs;
 
-		int16 ccount;
-		int16 seglen;
+		int ccount;
+		int seglen;
 
 		if (next_fFcs == fFc_count) {
 			ccount = CountChars (fFcs[cur_fFcs].fOffset, fLength - fFcs[cur_fFcs].fOffset);
@@ -2225,7 +2225,7 @@ Line::SoftBreaks (Theme* theme, float start_width)
 }
 
 int16
-Line::CountChars (int16 pos, int16 len)
+Line::CountChars (int pos, int len)
 {
 	int16 ccount (0);
 
