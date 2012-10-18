@@ -42,9 +42,9 @@ class Theme
 	rgb_color*			backs;
 	TextRender**          text_renders; //FIX!!
 
-	int16				fore_count;
-	int16				back_count;
-	int16				render_count;
+	int					fore_count;
+	int					back_count;
+	int					render_count;
 
 	BList				list;
 	sem_id				sid;
@@ -55,22 +55,18 @@ class Theme
 
 public:
 
-	static int16		TimestampFore;
-	static int16		TimestampBack;
-	static int16		TimestampFont;
-	static int16		TimespaceFore;
-	static int16		TimespaceBack;
-	static int16		TimespaceFont;
-	static int16		NormalFore;
-	static int16		NormalBack;
-	static int16		NormalFont;
-	static int16		SelectionBack;
+	static int		TimestampFore;
+	static int		TimestampBack;
+	static int		TimestampFont;
+	static int		TimespaceFore;
+	static int		TimespaceBack;
+	static int		TimespaceFont;
+	static int		NormalFore;
+	static int		NormalBack;
+	static int		NormalFont;
+	static int		SelectionBack;
 
-	Theme (
-	    const char*,
-	    int16,
-	    int16,
-	    int16);
+						Theme(const char*, int, int, int);
 	virtual				~Theme (void);
 
 	const char*			Name (void) const {
@@ -82,31 +78,31 @@ public:
 	void					WriteLock (void);
 	void					WriteUnlock (void);
 
-	int16					CountForegrounds (void) const;
-	int16					CountBackgrounds (void) const;
+	int						CountForegrounds (void) const;
+	int						CountBackgrounds (void) const;
 	//	int16					CountFonts (void) const;
-	int16					CountTextRenders (void) const;
+	int						CountTextRenders (void) const;
 
-	const rgb_color	ForegroundAt (int16) const;
-	const rgb_color	BackgroundAt (int16) const;
+	const rgb_color	ForegroundAt (int) const;
+	const rgb_color	BackgroundAt (int) const;
 
 	//const BFont			&FontAt (int16) const;
 
-	TextRender*             TextRenderAt(int16);
+	TextRender*             TextRenderAt(int);
 
-	bool					SetForeground (int16, const rgb_color);
-	bool					SetForeground (int16 w, uchar r, uchar g, uchar b, uchar a = 255) {
+	bool					SetForeground (int, const rgb_color);
+	bool					SetForeground (int w, uchar r, uchar g, uchar b, uchar a = 255) {
 		rgb_color color = {r, g, b, a};
 		return SetForeground (w, color);
 	}
-	bool					SetBackground (int16, const rgb_color);
-	bool					SetBackground (int16 w, uchar r, uchar g, uchar b, uchar a = 255) {
+	bool					SetBackground (int, const rgb_color);
+	bool					SetBackground (int w, uchar r, uchar g, uchar b, uchar a = 255) {
 		rgb_color color = {r, g, b, a};
 		return SetBackground (w, color);
 	}
 
 	//bool					SetFont (int16, const BFont &);
-	bool                    SetTextRender(int16, TextRender*);
+	bool                    SetTextRender(int, TextRender*);
 
 	void					SetSoftLineIndent(float indent);
 	void					SetTextMargin(float margin);

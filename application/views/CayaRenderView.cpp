@@ -4,8 +4,9 @@
 #include "RunView.h"
 
 
-CayaRenderView::CayaRenderView(const char *name,  const char* smileyConfig) :
-	RunView( BRect(0, 0, 1, 1), name, fTheme = new Theme(name, COL_MAX_COLORS + 1, COL_MAX_COLORS + 1, MAX_RENDERS + 1), B_FOLLOW_ALL, B_WILL_DRAW )
+CayaRenderView::CayaRenderView(const char *name,  const char* smileyConfig)
+	:
+	RunView(BRect(0, 0, 1, 1), name, fTheme = new Theme(name, COL_MAX_COLORS + 1, COL_MAX_COLORS + 1, MAX_RENDERS + 1), B_FOLLOW_ALL, B_WILL_DRAW )
 {
 	if (smileyConfig)
 		Emoticor::Get()->LoadConfig(smileyConfig);

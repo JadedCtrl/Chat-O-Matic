@@ -33,32 +33,29 @@
 #include "Theme.h"
 #include "NormalTextRender.h"
 
-int16 Theme::TimestampFore      = 0;
-int16 Theme::TimestampBack      = 0;
-int16 Theme::TimestampFont      = 0;
-int16 Theme::TimespaceFore      = 1;
-int16 Theme::TimespaceBack      = 1;
-int16 Theme::TimespaceFont      = 1;
-int16 Theme::NormalFore         = 2;
-int16 Theme::NormalBack         = 2;
-int16 Theme::NormalFont         = 2;
-int16 Theme::SelectionBack      = 3;
+int Theme::TimestampFore      = 0;
+int Theme::TimestampBack      = 0;
+int Theme::TimestampFont      = 0;
+int Theme::TimespaceFore      = 1;
+int Theme::TimespaceBack      = 1;
+int Theme::TimespaceFont      = 1;
+int Theme::NormalFore         = 2;
+int Theme::NormalBack         = 2;
+int Theme::NormalFont         = 2;
+int Theme::SelectionBack      = 3;
 
 //at least we use a 'normal' text render
 
 
-Theme::Theme (
-    const char* n,
-    int16 foreCount,
-    int16 backCount,
-    int16 renderCount)
-	:  name (NULL),
-	   fores (NULL),
-	   backs (NULL),
-	   text_renders (NULL),
-	   fore_count (max_c (foreCount, 4)),
-	   back_count (max_c (backCount, 4)),
-	   render_count (max_c (renderCount, 4))
+Theme::Theme(const char* n, int foreCount, int backCount, int renderCount)
+	:
+	name (NULL),
+	fores (NULL),
+	backs (NULL),
+	text_renders (NULL),
+	fore_count (max_c (foreCount, 4)),
+	back_count (max_c (backCount, 4)),
+	render_count (max_c (renderCount, 4))
 {
 
 	fSoftLineIndent = (float)(MARGIN_WIDTH / 2.0);
@@ -86,7 +83,7 @@ Theme::Theme (
 
 	fores[0] = def_timestamp_fore;
 
-	int16 i;
+	int i;
 	for (i = 1; i < fore_count; ++i)
 		fores[i] = def_fore;
 
@@ -94,6 +91,7 @@ Theme::Theme (
 	for (i = 1; i < back_count; ++i)
 		backs[i] = def_back;
 }
+
 
 Theme::~Theme (void)
 {
@@ -111,13 +109,15 @@ Theme::~Theme (void)
 	delete [] name;
 }
 
-int16
+
+int
 Theme::CountForegrounds (void) const
 {
 	return fore_count;
 }
 
-int16
+
+int
 Theme::CountBackgrounds (void) const
 {
 	return back_count;
@@ -130,11 +130,13 @@ Theme::CountFonts (void) const
 }
 */
 
-int16
+
+int
 Theme::CountTextRenders (void) const
 {
 	return render_count;
 }
+
 
 void
 Theme::ReadLock (void)
@@ -142,11 +144,13 @@ Theme::ReadLock (void)
 	acquire_sem (sid);
 }
 
+
 void
 Theme::ReadUnlock (void)
 {
 	release_sem (sid);
 }
+
 
 void
 Theme::WriteLock (void)
@@ -154,14 +158,16 @@ Theme::WriteLock (void)
 	acquire_sem_etc (sid, NUMBER_THEME_READERS, 0, 0);
 }
 
+
 void
 Theme::WriteUnlock (void)
 {
 	release_sem_etc (sid, NUMBER_THEME_READERS, 0);
 }
 
+
 const rgb_color
-Theme::ForegroundAt (int16 which) const
+Theme::ForegroundAt (int which) const
 {
 	rgb_color color = {0, 0, 0, 255};
 
@@ -171,8 +177,9 @@ Theme::ForegroundAt (int16 which) const
 	return fores[which];
 }
 
+
 const rgb_color
-Theme::BackgroundAt (int16 which) const
+Theme::BackgroundAt (int which) const
 {
 	rgb_color color = {255, 255, 255, 255};
 
@@ -192,8 +199,9 @@ Theme::FontAt (int16 which) const
 }
 */
 
+
 TextRender*
-Theme::TextRenderAt (int16 which)
+Theme::TextRenderAt (int which)
 {
 	if ( which < 0 ) {
 		//printf("Theme::TextRenderAt(): which < 0 (%d)\n", which);
@@ -207,8 +215,9 @@ Theme::TextRenderAt (int16 which)
 	return text_renders[which];
 }
 
+
 bool
-Theme::SetForeground (int16 which, const rgb_color color)
+Theme::SetForeground (int which, const rgb_color color)
 {
 	if (which >= fore_count || which < 0)
 		return false;
@@ -217,8 +226,9 @@ Theme::SetForeground (int16 which, const rgb_color color)
 	return true;
 }
 
+
 bool
-Theme::SetBackground (int16 which, const rgb_color color)
+Theme::SetBackground (int which, const rgb_color color)
 {
 	if (which >= back_count || which < 0)
 		return false;
@@ -229,7 +239,7 @@ Theme::SetBackground (int16 which, const rgb_color color)
 
 
 bool
-Theme::SetTextRender(int16 which, TextRender* trender)
+Theme::SetTextRender(int which, TextRender* trender)
 {
 
 
@@ -240,11 +250,13 @@ Theme::SetTextRender(int16 which, TextRender* trender)
 	return true;
 }
 
+
 void
 Theme::AddView (BView* view)
 {
 	list.AddItem (view);
 }
+
 
 void
 Theme::RemoveView (BView* view)
@@ -252,11 +264,13 @@ Theme::RemoveView (BView* view)
 	list.RemoveItem (view);
 }
 
+
 void
 Theme::SetTextMargin(float margin)
 {
 	fTextMargin = margin;
 }
+
 
 void
 Theme::SetSoftLineIndent(float indent)

@@ -97,23 +97,23 @@ class RunView : public BView
 	Line*					fWorking;
 	Line*					fLines[LINE_COUNT];
 	int16					fLine_count,
-	                  fClickCount;
+	                  		fClickCount;
 
 	char*					fStamp_format;
 	char*					fClipping_name;
 
-	SelectPos			fSp_start, fSp_end;
+	SelectPos				fSp_start, fSp_end;
 
-	int32							fTracking;
-	SelectPos							fTrack_offset;
-	BMessageRunner*				fOff_view_runner;
-	bigtime_t					fOff_view_time;
+	int32					fTracking;
+	SelectPos				fTrack_offset;
+	BMessageRunner*			fOff_view_runner;
+	bigtime_t				fOff_view_time;
 
-	bool 				fResizedirty;
-	bool				fFontsdirty;
-	BPopUpMenu*			fMyPopUp;
-	BPoint				fLastClick;
-	bigtime_t			fLastClickTime;
+	bool 					fResizedirty;
+	bool					fFontsdirty;
+	BPopUpMenu*				fMyPopUp;
+	BPoint					fLastClick;
+	bigtime_t				fLastClickTime;
 
 
 	bool					RecalcScrollBar (bool constrain);
@@ -124,8 +124,9 @@ class RunView : public BView
 	void					CheckURLCursor (BPoint);
 	void					BuildPopUp (void);
 
-	bool				CheckClickBounds (const SelectPos&, const BPoint&) const;
-	void				LoadURL(const char* url);
+	bool					CheckClickBounds (const SelectPos&,
+								const BPoint&) const;
+	void					LoadURL(const char* url);
 
 public:
 
@@ -137,24 +138,24 @@ public:
 	    uint32 = 0UL);
 	virtual				~RunView (void);
 
-	virtual void		AttachedToWindow (void);
-	virtual void		DetachedFromWindow (void);
-	virtual void		FrameResized (float, float);
-	virtual void		TargetedByScrollView (BScrollView*);
-	virtual void		Show ();
-	virtual void		Draw (BRect);
-	virtual void		MessageReceived (BMessage*);
+	virtual void			AttachedToWindow (void);
+	virtual void			DetachedFromWindow (void);
+	virtual void			FrameResized (float, float);
+	virtual void			TargetedByScrollView (BScrollView*);
+	virtual void			Show ();
+	virtual void			Draw (BRect);
+	virtual void			MessageReceived (BMessage*);
 
-	virtual void		SetViewColor (rgb_color);
+	virtual void			SetViewColor (rgb_color);
 	void					SetViewColor (uchar red, uchar green, uchar blue, uchar alpha = 255) {
 		rgb_color color = {red, green, blue, alpha};
 		SetViewColor (color);
 	}
 
 
-	virtual void		MouseDown (BPoint);
-	virtual void		MouseMoved (BPoint, uint32, const BMessage*);
-	virtual void		MouseUp (BPoint);
+	virtual void			MouseDown (BPoint);
+	virtual void			MouseMoved (BPoint, uint32, const BMessage*);
+	virtual void			MouseUp (BPoint);
 
 
 	void					Append (const char*, int32, int, int, int);

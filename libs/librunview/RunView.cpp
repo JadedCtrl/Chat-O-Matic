@@ -106,8 +106,8 @@ struct FontColor {
 	// G++ is stupid.  We only need 2 bits
 	// for fWhich, but the compiler has a bug
 	// and warns us against fWhich == 2
-	int16          fWhich      : 3;
-	int16          fIndex      : 13;
+	int         fWhich;
+	int          fIndex;
 };
 
 struct Line {
@@ -343,11 +343,11 @@ RunView::Draw (BRect frame)
 			continue;
 
 		float indent (fTheme->TextMargin());
-		int place (0);
+		int place = 0;
 
-		int16 fore (0);
-		int16 back (0);
-		int16 font (0);
+		int fore = 0;
+		int back = 0;
+		int font = 0;
 
 		height = line->fTop;
 
@@ -378,7 +378,7 @@ RunView::Draw (BRect frame)
 						if (line->fFcs[fore].fOffset > place)
 							break;
 
-						hi_color = fTheme->ForegroundAt (line->fFcs[fore].fIndex);
+						hi_color = fTheme->ForegroundAt(line->fFcs[fore].fIndex);
 					}
 
 					++fore;
@@ -390,8 +390,8 @@ RunView::Draw (BRect frame)
 						if (line->fFcs[back].fOffset > place)
 							break;
 
-
-						low_color = fTheme->BackgroundAt (line->fFcs[back].fIndex);
+						low_color = fTheme->BackgroundAt(
+							 line->fFcs[back].fIndex);
 					}
 
 					++back;
@@ -2018,13 +2018,13 @@ Line::FigureEdges (
 		// but BFont::GetEdges doesn't seem to work as we'd like
 
 		int16 i;
-		float size = 0;
+		int size = 0;
 
 		//    if(tr)
 		size = tr->Size();
 
 
-		float incrementor = (fEdge_count > 0) ? fEdges[fEdge_count - 1] : 0;
+		int incrementor = (fEdge_count > 0) ? fEdges[fEdge_count - 1] : 0;
 
 		for (i = 0; i < ccount; ++i) {
 			incrementor += eshift[i] * size;
