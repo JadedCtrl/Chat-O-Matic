@@ -181,17 +181,10 @@ UTF8_CHAR_LEN (uchar c)
 	return (((0xE5000000 >> (((c) >> 3) & 0x1E)) & 3) + 1);
 }
 
-RunView::RunView (
-    BRect frame,
-    const char* name,
-    Theme* theme,
-    uint32 resizingMode,
-    uint32 flags)
-	:  BView (
-	    frame,
-	    name,
-	    resizingMode,
-	    flags | B_WILL_DRAW | B_FRAME_EVENTS),
+RunView::RunView(BRect frame, const char* name, Theme* theme,
+	uint32 resizingMode, uint32 flags)
+	:
+	BView(frame, name, resizingMode, flags | B_WILL_DRAW | B_FRAME_EVENTS),
 	fScroller (NULL),
 	fTheme (theme),
 	fWorking (NULL),
