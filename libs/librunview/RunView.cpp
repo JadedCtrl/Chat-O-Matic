@@ -67,11 +67,11 @@
 // cursor data for hovering over URLs
 
 static unsigned char URLCursorData[] = {16, 1, 2, 2,
-                                        0, 0, 0, 0, 56, 0, 36, 0, 36, 0, 19, 224, 18, 92, 9, 42,
-                                        8, 1, 60, 33, 76, 49, 66, 121, 48, 125, 12, 253, 2, 0, 1, 0,
-                                        0, 0, 0, 0, 56, 0, 60, 0, 60, 0, 31, 224, 31, 252, 15, 254,
-                                        15, 255, 63, 255, 127, 255, 127, 255, 63, 255, 15, 255, 3, 254, 1, 248
-                                       };
+										0, 0, 0, 0, 56, 0, 36, 0, 36, 0, 19, 224, 18, 92, 9, 42,
+										8, 1, 60, 33, 76, 49, 66, 121, 48, 125, 12, 253, 2, 0, 1, 0,
+										0, 0, 0, 0, 56, 0, 60, 0, 60, 0, 31, 224, 31, 252, 15, 254,
+										15, 255, 63, 255, 127, 255, 127, 255, 63, 255, 15, 255, 3, 254, 1, 248
+									   };
 
 struct SoftBreak {
 	int          fOffset;
@@ -102,72 +102,69 @@ struct SoftBreakEnd {
 };
 
 struct FontColor {
-	int          fOffset;
-	// G++ is stupid.  We only need 2 bits
-	// for fWhich, but the compiler has a bug
-	// and warns us against fWhich == 2
-	int         fWhich;
-	int          fIndex;
+	int				fOffset;
+	int				fWhich;
+	int				fIndex;
 };
 
 struct Line {
 	char*           fText;
-	time_t         fStamp;
-	urllist*        fUrls;
-	int16*          fSpaces;
-	int16*          fEdges;
-	FontColor*      fFcs;
-	SoftBreak*      fSofties;
-	float          fTop;
-	float          fBottom;
+	time_t			fStamp;
+	urllist*		fUrls;
+	float*			fSpaces;
+	float*			fEdges;
+	FontColor*		fFcs;
+	SoftBreak*		fSofties;
+	float           fTop;
+	float           fBottom;
 
-	int          fLength;
-	int          fSpace_count;
-	int          fEdge_count;
-	int          fFc_count;
-	int          fSoftie_size;
-	int          fSoftie_used;
+	int				fLength;
+	int				fSpace_count;
+	int				fEdge_count;
+	int				fFc_count;
+	int				fSoftie_size;
+	int				fSoftie_used;
 
 	Line (
-	    const char* buffer,
-	    int fLength,
-	    float top,
-	    float width,
-	    Theme* fTheme,
-	    const char* fStamp_format,
-	    int fore,
-	    int back,
-	    int font);
+		const char* buffer,
+		int fLength,
+		float top,
+		float width,
+		Theme* fTheme,
+		const char* fStamp_format,
+		int fore,
+		int back,
+		int font);
 
 	~Line (void);
 
 	void          Append (
-	    const char* buffer,
-	    int len,
-	    float width,
-	    Theme* fTheme,
-	    int fore,
-	    int back,
-	    int font);
+		const char* buffer,
+		int len,
+		float width,
+		Theme* fTheme,
+		int fore,
+		int back,
+		int font);
 
 	void          FigureSpaces (void);
 
 	void          FigureFontColors (
-	    int pos,
-	    int fore,
-	    int back,
-	    int font);
+		int pos,
+		int fore,
+		int back,
+		int font);
 
 	void          FigureEdges (
-	    Theme* fTheme,
-	    float width);
+		Theme* fTheme,
+		float width);
 
 	void          SoftBreaks (
-	    Theme* fTheme,
-	    float width);
+		Theme* fTheme,
+		float width);
 
 	void          AddSoftBreak (SoftBreakEnd , float&,
-	                            uint16&, int16&, float&, float&, Theme*);
+								int&, int16&, float&, float&, Theme*);
 
 	int16         CountChars (int pos, int len);
 	size_t        SetStamp (const char*, bool);
@@ -315,10 +312,10 @@ RunView::Draw (BRect frame)
 		remains = frame;
 	else if (frame.bottom >= fLines[fLine_count - 1]->fBottom + 1.0)
 		remains.Set (
-		    frame.left,
-		    fLines[fLine_count - 1]->fBottom + 1,
-		    frame.right,
-		    frame.bottom);
+			frame.left,
+			fLines[fLine_count - 1]->fBottom + 1,
+			frame.right,
+			frame.bottom);
 
 	if (remains.IsValid()) {
 		SetLowColor (view_color);
@@ -407,15 +404,15 @@ RunView::Draw (BRect frame)
 				int fLength (line->fSofties[sit].fOffset - place + last_len);
 
 				if (fore < line->fFc_count
-				        &&  line->fFcs[fore].fOffset - place < fLength)
+						&&  line->fFcs[fore].fOffset - place < fLength)
 					fLength = line->fFcs[fore].fOffset - place;
 
 				if (back < line->fFc_count
-				        &&  line->fFcs[back].fOffset - place < fLength)
+						&&  line->fFcs[back].fOffset - place < fLength)
 					fLength = line->fFcs[back].fOffset - place;
 
 				if (font < line->fFc_count
-				        &&  line->fFcs[font].fOffset - place < fLength)
+						&&  line->fFcs[font].fOffset - place < fLength)
 					fLength = line->fFcs[font].fOffset - place;
 
 				if (checkSelection) {
@@ -466,10 +463,10 @@ RunView::Draw (BRect frame)
 					--k;
 
 				r.Set (
-				    left,
-				    height,
-				    line->fEdges[k] + indent - start,
-				    height + line->fSofties[sit].fHeight - 1);
+					left,
+					height,
+					line->fEdges[k] + indent - start,
+					height + line->fSofties[sit].fHeight - 1);
 
 				SetDrawingMode (B_OP_COPY);
 				if (drawSelection)
@@ -489,9 +486,9 @@ RunView::Draw (BRect frame)
 				} else {
 
 					tr->Render(this,
-					           line->fText + place,
-					           min_c (fLength, line->fLength - place - 1),
-					           BPoint (left, height + line->fSofties[sit].fAscent));
+							   line->fText + place,
+							   min_c (fLength, line->fLength - place - 1),
+							   BPoint (left, height + line->fSofties[sit].fAscent));
 				}
 
 				left = line->fEdges[k] + indent - start;
@@ -505,12 +502,12 @@ RunView::Draw (BRect frame)
 			SetDrawingMode (B_OP_COPY);
 			SetLowColor (view_color);
 			FillRect (
-			    BRect (
-			        left + 1,
-			        height,
-			        bounds.right,
-			        height + line->fSofties[sit].fHeight - 1),
-			    B_SOLID_LOW);
+				BRect (
+					left + 1,
+					height,
+					bounds.right,
+					height + line->fSofties[sit].fHeight - 1),
+				B_SOLID_LOW);
 
 			height += line->fSofties[sit].fHeight;
 
@@ -540,8 +537,8 @@ RunView::BuildPopUp (void)
 	// to enable and disable
 
 	bool enablecopy (true),
-	     enableselectall (true),
-	     enablelookup (false);
+		 enableselectall (true),
+		 enablelookup (false);
 	BString querystring ("");
 
 	if (fSp_start == fSp_end)
@@ -606,7 +603,7 @@ bool
 RunView::CheckClickBounds (const SelectPos& s, const BPoint& point) const
 {
 	return ((point.x <= fLines[s.fLine]->fEdges[fLines[s.fLine]->fLength - 1])
-	        && (point.y <= fLines[s.fLine]->fBottom));
+			&& (point.y <= fLines[s.fLine]->fBottom));
 }
 
 void
@@ -628,13 +625,13 @@ RunView::MouseDown (BPoint point)
 	bool inBounds (CheckClickBounds (s, point));
 
 	if (buttons == B_SECONDARY_MOUSE_BUTTON
-	        &&    (mouseModifiers & B_SHIFT_KEY) == 0
-	        &&    (mouseModifiers & B_COMMAND_KEY) == 0
-	        &&    (mouseModifiers & B_CONTROL_KEY) == 0
-	        &&    (mouseModifiers & B_OPTION_KEY) == 0
-	        &&      (mouseModifiers & B_MENU_KEY) == 0) {
+			&&    (mouseModifiers & B_SHIFT_KEY) == 0
+			&&    (mouseModifiers & B_COMMAND_KEY) == 0
+			&&    (mouseModifiers & B_CONTROL_KEY) == 0
+			&&    (mouseModifiers & B_OPTION_KEY) == 0
+			&&      (mouseModifiers & B_MENU_KEY) == 0) {
 		SelectPos start (s),
-		          end (s);
+				  end (s);
 
 		// select word
 		if (inBounds && !IntersectSelection (s, s)) {
@@ -645,9 +642,9 @@ RunView::MouseDown (BPoint point)
 
 		BuildPopUp();
 		fMyPopUp->Go (
-		    ConvertToScreen (point),
-		    true,
-		    false);
+			ConvertToScreen (point),
+			true,
+			false);
 
 		delete fMyPopUp;
 		fMyPopUp = 0;
@@ -655,13 +652,13 @@ RunView::MouseDown (BPoint point)
 	}
 
 	if (buttons == B_PRIMARY_MOUSE_BUTTON
-	        &&      (mouseModifiers & B_SHIFT_KEY)   == 0
-	        &&      (mouseModifiers & B_COMMAND_KEY) == 0
-	        &&      (mouseModifiers & B_CONTROL_KEY) == 0
-	        &&      (mouseModifiers & B_OPTION_KEY)  == 0
-	        &&      (mouseModifiers & B_MENU_KEY)    == 0) {
+			&&      (mouseModifiers & B_SHIFT_KEY)   == 0
+			&&      (mouseModifiers & B_COMMAND_KEY) == 0
+			&&      (mouseModifiers & B_CONTROL_KEY) == 0
+			&&      (mouseModifiers & B_OPTION_KEY)  == 0
+			&&      (mouseModifiers & B_MENU_KEY)    == 0) {
 		SelectPos start (s),
-		          end (s);
+				  end (s);
 
 		switch (clicks) {
 			case 2: {
@@ -695,11 +692,11 @@ RunView::MouseDown (BPoint point)
 			}
 		}
 	} else if (buttons          == B_PRIMARY_MOUSE_BUTTON
-	           &&      (mouseModifiers & B_SHIFT_KEY)   != 0
-	           &&      (mouseModifiers & B_COMMAND_KEY) == 0
-	           &&      (mouseModifiers & B_CONTROL_KEY) == 0
-	           &&      (mouseModifiers & B_OPTION_KEY)  == 0
-	           &&      (mouseModifiers & B_MENU_KEY)    == 0) {
+			   &&      (mouseModifiers & B_SHIFT_KEY)   != 0
+			   &&      (mouseModifiers & B_COMMAND_KEY) == 0
+			   &&      (mouseModifiers & B_CONTROL_KEY) == 0
+			   &&      (mouseModifiers & B_OPTION_KEY)  == 0
+			   &&      (mouseModifiers & B_MENU_KEY)    == 0) {
 		if (s.fLine < fSp_start.fLine || s.fOffset < fSp_start.fOffset) {
 			Select (s, fSp_end);
 			fTrack_offset = SelectPos (fSp_end.fLine, (fSp_end.fOffset > 0) ? fSp_end.fOffset - 1 : fSp_end.fOffset);
@@ -731,7 +728,7 @@ RunView::CheckURLCursor (BPoint point)
 	for (int32 i = 0; i < curline->fUrls->CountItems(); i++) {
 		URL* current = curline->fUrls->ItemAt(i);
 		if ((s.fOffset >= current->fOffset)
-		        && (s.fOffset <= current->fOffset + current->fLength)) {
+				&& (s.fOffset <= current->fOffset + current->fLength)) {
 			SetViewCursor (fURLCursor);
 			return;
 		}
@@ -745,9 +742,9 @@ void
 RunView::MouseMoved (BPoint point, uint32 transit, const BMessage* msg)
 {
 	if (fTracking == 0
-	        &&  fLine_count
-	        && (transit == B_ENTERED_VIEW
-	            ||  transit == B_INSIDE_VIEW))
+			&&  fLine_count
+			&& (transit == B_ENTERED_VIEW
+				||  transit == B_INSIDE_VIEW))
 		CheckURLCursor (point);
 
 
@@ -779,9 +776,9 @@ RunView::MouseMoved (BPoint point, uint32 transit, const BMessage* msg)
 				bigtime_t now (system_time());
 
 				ShiftTrackingSelect (
-				    point,
-				    false,
-				    max_c (0LL, min_c (OFFVIEW_TIMER, OFFVIEW_TIMER - (now - fOff_view_time))));
+					point,
+					false,
+					max_c (0LL, min_c (OFFVIEW_TIMER, OFFVIEW_TIMER - (now - fOff_view_time))));
 			}
 			break;
 
@@ -793,10 +790,10 @@ RunView::MouseMoved (BPoint point, uint32 transit, const BMessage* msg)
 
 				GetSelectionText (fText);
 				msg.AddData (
-				    "text/plain",
-				    B_MIME_TYPE,
-				    fText.String(),
-				    fText.Length() + 1);
+					"text/plain",
+					B_MIME_TYPE,
+					fText.String(),
+					fText.Length() + 1);
 
 				BString clip_name (" Clipping");
 
@@ -809,10 +806,10 @@ RunView::MouseMoved (BPoint point, uint32 transit, const BMessage* msg)
 				msg.AddInt32 ("be:actions", B_COPY_TARGET);
 
 				BRect frame (
-				    fLines[fSp_start.fLine]->fEdges[fSp_start.fOffset],
-				    fLines[fSp_start.fLine]->fTop,
-				    fLines[fSp_end.fLine]->fEdges[fSp_end.fOffset],
-				    fLines[fSp_end.fLine]->fBottom);
+					fLines[fSp_start.fLine]->fEdges[fSp_start.fOffset],
+					fLines[fSp_start.fLine]->fTop,
+					fLines[fSp_end.fLine]->fEdges[fSp_end.fOffset],
+					fLines[fSp_end.fLine]->fBottom);
 
 				if (fSp_start.fLine != fSp_end.fLine) {
 					frame.left = 0.0;
@@ -824,9 +821,9 @@ RunView::MouseMoved (BPoint point, uint32 transit, const BMessage* msg)
 				else {
 					Line* line (fLines[fSp_start.fLine]);
 					float left (line->fEdges[fSp_start.fOffset]),
-					      top (line->fTop),
-					      right (line->fEdges[fSp_end.fOffset]),
-					      bottom (line->fBottom);
+						  top (line->fTop),
+						  right (line->fEdges[fSp_end.fOffset]),
+						  bottom (line->fBottom);
 					int top_softie (0), bottom_softie (0);
 					bool start_found (false);
 					bool end_found (false);
@@ -843,7 +840,7 @@ RunView::MouseMoved (BPoint point, uint32 transit, const BMessage* msg)
 						for (int16 sit = 1; sit < line->fSoftie_used; ++sit) {
 							if (!start_found && fSp_start.fOffset < line->fSofties[sit].fOffset) {
 								left = (float)(line->fEdges[fSp_start.fOffset] -
-								       line->fEdges[line->fSofties[sit-1].fOffset]);
+									   line->fEdges[line->fSofties[sit-1].fOffset]);
 
 								top += (sit) * line->fSofties[sit].fHeight;
 								top_softie = sit;
@@ -852,7 +849,7 @@ RunView::MouseMoved (BPoint point, uint32 transit, const BMessage* msg)
 
 							if (fSp_end.fOffset < line->fSofties[sit].fOffset) {
 								right = (float) line->fEdges[fSp_end.fOffset] -
-								        (float) line->fEdges[line->fSofties[sit-1].fOffset];
+										(float) line->fEdges[line->fSofties[sit-1].fOffset];
 
 								bottom = top + (sit - (float) top_softie + 1) * line->fSofties[sit].fHeight;
 								bottom_softie = sit;
@@ -862,9 +859,9 @@ RunView::MouseMoved (BPoint point, uint32 transit, const BMessage* msg)
 						}
 					if (!end_found) {
 						int32 soft_count = (line->fSoftie_used >= 2) ?
-						                   line->fSoftie_used - 2 : 0;
+										   line->fSoftie_used - 2 : 0;
 						right = (float) line->fEdges[line->fLength - 1] -
-						        (float) line->fEdges[line->fSofties[soft_count].fOffset];
+								(float) line->fEdges[line->fSofties[soft_count].fOffset];
 						bottom_softie = soft_count - 2;
 
 					}
@@ -906,7 +903,7 @@ RunView::MouseUp (BPoint point)
 			for (int32 i = 0; i < curline->fUrls->CountItems(); i++) {
 				URL* current = curline->fUrls->ItemAt(i);
 				if ((s.fOffset >= current->fOffset)
-				        && (s.fOffset <= current->fOffset + current->fLength)) {
+						&& (s.fOffset <= current->fOffset + current->fLength)) {
 
 					LoadURL (current->fUrl.String());
 					url_handle = true;
@@ -963,9 +960,9 @@ RunView::ShiftTrackingSelect (BPoint point, bool move, bigtime_t timer)
 				msg->AddPoint ("point", point);
 
 				fOff_view_runner = new BMessageRunner (
-				    BMessenger (this),
-				    msg,
-				    timer == 0LL ? OFFVIEW_TIMER : timer);
+					BMessenger (this),
+					msg,
+					timer == 0LL ? OFFVIEW_TIMER : timer);
 
 			}
 
@@ -989,7 +986,7 @@ RunView::ShiftTrackingSelect (BPoint point, bool move, bigtime_t timer)
 	if (point.y > bounds.bottom) {
 		Line* line (fLines[fLine_count-1]);
 		if (line
-		        &&  line->fBottom > bounds.bottom) {
+				&&  line->fBottom > bounds.bottom) {
 			float delta (point.y - bounds.bottom);
 
 			if (fOff_view_runner == 0) {
@@ -1000,9 +997,9 @@ RunView::ShiftTrackingSelect (BPoint point, bool move, bigtime_t timer)
 				msg->AddPoint ("point", point);
 
 				fOff_view_runner = new BMessageRunner (
-				    BMessenger (this),
-				    msg,
-				    timer == 0LL ? OFFVIEW_TIMER : timer);
+					BMessenger (this),
+					msg,
+					timer == 0LL ? OFFVIEW_TIMER : timer);
 
 			}
 
@@ -1050,7 +1047,7 @@ RunView::MessageReceived (BMessage* msg)
 
 		case B_COPY:
 			if (fSp_start != fSp_end
-			        &&  be_clipboard->Lock()) {
+					&&  be_clipboard->Lock()) {
 				BString fText;
 				GetSelectionText (fText);
 
@@ -1148,10 +1145,10 @@ RunView::ResizeRecalc (void)
 		BRect r (0.0, fLines[i]->fTop, bounds.right, fLines[i]->fBottom);
 
 		if (bounds.Intersects (r)
-		        && (old_top != fLines[i]->fTop
-		            ||  old_bottom != fLines[i]->fBottom
-		            ||  fSoftie_used != fLines[i]->fSoftie_used
-		            ||  memcmp (fSofties, fLines[i]->fSofties, fSoftie_used * sizeof (SoftBreak))))
+				&& (old_top != fLines[i]->fTop
+					||  old_bottom != fLines[i]->fBottom
+					||  fSoftie_used != fLines[i]->fSoftie_used
+					||  memcmp (fSofties, fLines[i]->fSofties, fSoftie_used * sizeof (SoftBreak))))
 			region.Include (r);
 	}
 
@@ -1211,7 +1208,7 @@ RunView::RecalcScrollBar (bool constrain)
 	BScrollBar* bar;
 
 	if (fScroller == NULL
-	        || (bar = fScroller->ScrollBar (B_VERTICAL)) == NULL)
+			|| (bar = fScroller->ScrollBar (B_VERTICAL)) == NULL)
 		return false;
 
 	float value (bar->Value());
@@ -1223,8 +1220,8 @@ RunView::RecalcScrollBar (bool constrain)
 	bar->GetRange (&scrollMin, &scrollMax);
 
 	if (fLine_count
-	        && (bounds.Contains (BPoint (0.0, 0.0)) == false
-	            ||  bounds.Contains (BPoint (0.0, fLines[fLine_count - 1]->fBottom)) == false)) {
+			&& (bounds.Contains (BPoint (0.0, 0.0)) == false
+				||  bounds.Contains (BPoint (0.0, fLines[fLine_count - 1]->fBottom)) == false)) {
 		bottom = fLines[fLine_count - 1]->fBottom + 5;
 		bar->SetProportion (bounds.Height() / bottom);
 		bar->SetSteps (10.0, bounds.Height());
@@ -1257,21 +1254,21 @@ RunView::RecalcScrollBar (bool constrain)
 
 void
 RunView::Append (
-    const char* buffer,
-    int fore,
-    int back,
-    int font)
+	const char* buffer,
+	int fore,
+	int back,
+	int font)
 {
 	Append (buffer, strlen (buffer), fore, back, font);
 }
 
 void
 RunView::Append (
-    const char* buffer,
-    int32 len,
-    int fore,
-    int back,
-    int font)
+	const char* buffer,
+	int32 len,
+	int fore,
+	int back,
+	int font)
 {
 	if (buffer == NULL)
 		return;
@@ -1301,25 +1298,25 @@ RunView::Append (
 			URLCrunch crunch (buffer + place, end - place);
 			BString temp;
 			int32 url_offset (0),
-			      last_offset (0);
+				  last_offset (0);
 
 
 			while ((url_offset = crunch.Crunch (&temp)) != B_ERROR) {
 				fWorking->Append  (buffer + place,
-				                   (url_offset - last_offset),
-				                   width,
-				                   fTheme,
-				                   fore,
-				                   back,
-				                   font);
+								   (url_offset - last_offset),
+								   width,
+								   fTheme,
+								   fore,
+								   back,
+								   font);
 
 				fWorking->Append  (temp.String(),
-				                   temp.Length(),
-				                   width,
-				                   fTheme,
-				                   C_URL,
-				                   back,
-				                   F_URL);
+								   temp.Length(),
+								   width,
+								   fTheme,
+								   C_URL,
+								   back,
+								   F_URL);
 
 				place += (url_offset - last_offset) + temp.Length();
 				last_offset = url_offset + temp.Length();
@@ -1327,13 +1324,13 @@ RunView::Append (
 
 			if (place < end)
 				fWorking->Append (
-				    buffer + place,
-				    end - place,
-				    width,
-				    fTheme,
-				    fore,
-				    back,
-				    font);
+					buffer + place,
+					end - place,
+					width,
+					fTheme,
+					fore,
+					back,
+					font);
 		} else {
 			float top (0.0);
 
@@ -1342,36 +1339,36 @@ RunView::Append (
 
 			//HERE
 			fWorking = new Line (
-			    buffer + place,
-			    0,
-			    top,
-			    width,
-			    fTheme,
-			    fStamp_format,
-			    fore,
-			    back,
-			    font);
+				buffer + place,
+				0,
+				top,
+				width,
+				fTheme,
+				fStamp_format,
+				fore,
+				back,
+				font);
 
 			URLCrunch crunch (buffer + place, end - place);
 			BString temp;
 			int32 url_offset (0),
-			      last_offset (0);
+				  last_offset (0);
 
 			while ((url_offset = crunch.Crunch (&temp)) != B_ERROR) {
 				fWorking->Append  (buffer + place,
-				                   (url_offset - last_offset),
-				                   width,
-				                   fTheme,
-				                   fore,
-				                   back,
-				                   font);
+								   (url_offset - last_offset),
+								   width,
+								   fTheme,
+								   fore,
+								   back,
+								   font);
 				fWorking->Append  (temp.String(),
-				                   temp.Length(),
-				                   width,
-				                   fTheme,
-				                   C_URL,
-				                   back,
-				                   F_URL);
+								   temp.Length(),
+								   width,
+								   fTheme,
+								   C_URL,
+								   back,
+								   F_URL);
 
 				place += (url_offset - last_offset) + temp.Length();
 				last_offset = url_offset + temp.Length();
@@ -1379,16 +1376,16 @@ RunView::Append (
 
 			if (place < end)
 				fWorking->Append (buffer + place,
-				                  end - place,
-				                  width,
-				                  fTheme,
-				                  fore,
-				                  back,
-				                  font);
+								  end - place,
+								  width,
+								  fTheme,
+								  fore,
+								  back,
+								  font);
 		}
 
 		if (fWorking->fLength
-		        &&  fWorking->fText[fWorking->fLength - 1] == '\n') {
+				&&  fWorking->fText[fWorking->fLength - 1] == '\n') {
 			bool chopped;
 
 			if (Window()) Window()->DisableUpdates();
@@ -1481,10 +1478,10 @@ void
 RunView::SetTimeStampFormat (const char* format)
 {
 	if ((format == NULL
-	        &&   fStamp_format == NULL)
-	        ||  (format != NULL
-	             &&   fStamp_format != NULL
-	             &&   strcmp (format, fStamp_format) == 0))
+			&&   fStamp_format == NULL)
+			||  (format != NULL
+				 &&   fStamp_format != NULL
+				 &&   strcmp (format, fStamp_format) == 0))
 		return;
 
 	bool was_on (false);
@@ -1655,7 +1652,7 @@ BRect
 RunView::GetTextFrame(const SelectPos& start, const SelectPos& end) const
 {
 	return BRect (0.0, fLines[(start.fLine > 0) ? (start.fLine - 1) : 0]->fTop,
-	              Bounds().Width(), fLines[end.fLine]->fBottom);
+				  Bounds().Width(), fLines[end.fLine]->fBottom);
 }
 
 void
@@ -1731,15 +1728,15 @@ RunView::SetClippingName (const char* name)
 }
 
 Line::Line (
-    const char* buffer,
-    int len,
-    float top,
-    float width,
-    Theme* theme,
-    const char* stamp_format,
-    int fore,
-    int back,
-    int font)
+	const char* buffer,
+	int len,
+	float top,
+	float width,
+	Theme* theme,
+	const char* stamp_format,
+	int fore,
+	int back,
+	int font)
 	:  fText (NULL),
 	   fStamp (time(NULL)),
 	   fUrls (NULL),
@@ -1779,13 +1776,13 @@ Line::~Line (void)
 
 void
 Line::Append (
-    const char* buffer,
-    int len,
-    float width,
-    Theme* theme,
-    int fore,
-    int back,
-    int font)
+	const char* buffer,
+	int len,
+	float width,
+	Theme* theme,
+	int fore,
+	int back,
+	int font)
 {
 	int save (fLength);
 	char* new_fText;
@@ -1841,7 +1838,7 @@ Line::FigureSpaces (void)
 		offset += n + 1;
 	}
 
-	fSpaces = new int16 [count];
+	fSpaces = new float [count];
 
 	offset = 0;
 	while ((n = strcspn (buffer + offset, spacers)) < fLength - offset) {
@@ -1852,10 +1849,10 @@ Line::FigureSpaces (void)
 
 void
 Line::FigureFontColors (
-    int pos,
-    int fore,
-    int back,
-    int font)
+	int pos,
+	int fore,
+	int back,
+	int font)
 {
 	if (fFc_count) {
 		int last_fore = -1;
@@ -1866,18 +1863,18 @@ Line::FigureFontColors (
 		// we have fFcs, so we backtrack for last of each fWhich
 		for (i = fFc_count - 1; i >= 0; --i) {
 			if (last_fore < 0
-			        &&  fFcs[i].fWhich == FORE_WHICH)
+					&&  fFcs[i].fWhich == FORE_WHICH)
 				last_fore = i;
 			else if (last_back < 0
-			         &&       fFcs[i].fWhich == BACK_WHICH)
+					 &&       fFcs[i].fWhich == BACK_WHICH)
 				last_back = i;
 			else if (last_font < 0
-			         &&       fFcs[i].fWhich == FONT_WHICH)
+					 &&       fFcs[i].fWhich == FONT_WHICH)
 				last_font = i;
 
 			if (last_fore >= 0
-			        &&  last_back >= 0
-			        &&  last_font >= 0)
+					&&  last_back >= 0
+					&&  last_font >= 0)
 				break;
 		}
 
@@ -1934,11 +1931,11 @@ Line::FigureFontColors (
 
 void
 Line::FigureEdges (
-    Theme* theme,
-    float width)
+	Theme* theme,
+	float width)
 {
 	delete [] fEdges;
-	fEdges = new int16 [fLength];
+	fEdges = new float [fLength];
 
 	int cur_fFcs (0), next_fFcs (0), cur_font (0);
 
@@ -1961,9 +1958,9 @@ Line::FigureEdges (
 			// but, we want to break on a font if available
 			if (fFcs[next_fFcs].fOffset > last_offset) {
 				while (next_fFcs < fFc_count
-				        &&     fFcs[next_fFcs].fWhich != FONT_WHICH
-				        &&     next_fFcs + 1 < fFc_count
-				        &&     fFcs[next_fFcs + 1].fOffset == fFcs[next_fFcs].fOffset)
+						&&     fFcs[next_fFcs].fWhich != FONT_WHICH
+						&&     next_fFcs + 1 < fFc_count
+						&&     fFcs[next_fFcs + 1].fOffset == fFcs[next_fFcs].fOffset)
 					++next_fFcs;
 
 				break;
@@ -1982,8 +1979,8 @@ Line::FigureEdges (
 			seglen = fLength - fFcs[cur_fFcs].fOffset;
 		} else {
 			ccount = CountChars (
-			             fFcs[cur_fFcs].fOffset,
-			             fFcs[next_fFcs].fOffset - fFcs[cur_fFcs].fOffset);
+						 fFcs[cur_fFcs].fOffset,
+						 fFcs[next_fFcs].fOffset - fFcs[cur_fFcs].fOffset);
 			seglen = fFcs[next_fFcs].fOffset - fFcs[cur_fFcs].fOffset;
 		}
 
@@ -2003,26 +2000,26 @@ Line::FigureEdges (
 
 		//	if(tr)
 		tr->GetEscapements (
-		    fText + fFcs[cur_fFcs].fOffset,
-		    ccount,
-		    eshift);
+			fText + fFcs[cur_fFcs].fOffset,
+			ccount,
+			eshift);
 
 		// This is not perfect, because we are including the left edge,
 		// but BFont::GetEdges doesn't seem to work as we'd like
 
-		int16 i;
-		int size = 0;
+		int i;
+		float size = 0;
 
 		//    if(tr)
 		size = tr->Size();
 
 
-		int incrementor = (fEdge_count > 0) ? fEdges[fEdge_count - 1] : 0;
+		float incrementor = (fEdge_count > 0) ? fEdges[fEdge_count - 1] : 0;
 
 		for (i = 0; i < ccount; ++i) {
-			incrementor += eshift[i] * size;
+			incrementor += (float)eshift[i] * size;
 
-			fEdges[fEdge_count+i] = (int16) incrementor;
+			fEdges[fEdge_count+i] = incrementor;
 
 			// this little backfTracking routine is necessary in the case where an fFcs change
 			// comes immediately after a UTF8-char, since all but the first edge will be 0
@@ -2036,10 +2033,10 @@ Line::FigureEdges (
 		}
 
 		for (i = fFcs[cur_fFcs].fOffset; i < fFcs[cur_fFcs].fOffset + seglen;) {
-			int32 len (UTF8_CHAR_LEN (fText[i]) - 1);
+			int len (UTF8_CHAR_LEN (fText[i]) - 1);
 
 			if (len) {
-				int16 k;
+				int k;
 				for (k = fEdge_count + ccount - 1; k > i; --k)
 					fEdges[k + len] = fEdges[k];
 
@@ -2064,8 +2061,8 @@ Line::FigureEdges (
 
 
 void
-Line::AddSoftBreak (SoftBreakEnd sbe, float& start, uint16& fText_place,
-                    int16& font, float& width, float& start_width, Theme* theme)
+Line::AddSoftBreak (SoftBreakEnd sbe, float& start, int& fText_place,
+					int16& font, float& width, float& start_width, Theme* theme)
 {
 	fText_place = sbe.fOffset;
 
@@ -2084,7 +2081,7 @@ Line::AddSoftBreak (SoftBreakEnd sbe, float& start, uint16& fText_place,
 
 	// consume whitespace
 	while (fText_place + 1 < fLength
-	        &&     isspace (fText[fText_place + 1]))
+			&&     isspace (fText[fText_place + 1]))
 		++fText_place;
 
 	fSofties[fSoftie_used].fOffset = fText_place;
@@ -2100,7 +2097,7 @@ Line::AddSoftBreak (SoftBreakEnd sbe, float& start, uint16& fText_place,
 
 		tr->GetHeight (&fh);
 
-		height = ceil (fh.ascent + fh.descent + fh.leading);
+		height = (float)ceil (fh.ascent + fh.descent + fh.leading);
 		if (fSofties[fSoftie_used].fHeight < height)
 			fSofties[fSoftie_used].fHeight = height;
 		if (fSofties[fSoftie_used].fAscent < fh.ascent)
@@ -2112,7 +2109,7 @@ Line::AddSoftBreak (SoftBreakEnd sbe, float& start, uint16& fText_place,
 				break;
 
 		if (font == fFc_count
-		        ||  fFcs[font].fOffset > fText_place) {
+				||  fFcs[font].fOffset > fText_place) {
 			font = last;
 			break;
 		}
@@ -2131,11 +2128,11 @@ Line::AddSoftBreak (SoftBreakEnd sbe, float& start, uint16& fText_place,
 void
 Line::SoftBreaks (Theme* theme, float start_width)
 {
-	float margin (theme->TextMargin());
-	float width (start_width);
-	float start (0.0);
-	uint16 fText_place (0);
-	int16 space_place (0);
+	float margin = theme->TextMargin();
+	float width = start_width;
+	float start = 0.0;
+	int fText_place = 0;
+	int space_place = 0;
 	int16 font (0);
 
 	fSoftie_used = 0;
@@ -2147,7 +2144,7 @@ Line::SoftBreaks (Theme* theme, float start_width)
 
 	while (fText_place < fLength) {
 		while (space_place < fSpace_count) {
-			if (fEdges[fSpaces[space_place]] - start > width)
+			if (fEdges[(int)fSpaces[space_place]] - start > width)
 				break;
 
 			++space_place;
@@ -2156,8 +2153,8 @@ Line::SoftBreaks (Theme* theme, float start_width)
 		// we've reached the end of the line (but it might not all fit)
 		// or we only have one space, so we check if we need to split the word
 		if (space_place == fSpace_count
-		        ||  space_place == 0
-		        ||  fSpaces[space_place - 1] < fText_place) {
+				||  space_place == 0
+				||  fSpaces[space_place - 1] < fText_place) {
 			// everything fits.. how wonderful (but we want at least one softbreak)
 			if (fEdge_count == 0) {
 				AddSoftBreak (SoftBreakEnd(fLength - 1), start, fText_place, font, width, start_width, theme);
@@ -2183,7 +2180,8 @@ Line::SoftBreaks (Theme* theme, float start_width)
 
 				fText_place += UTF8_CHAR_LEN (fText[fText_place]);
 			}
-			AddSoftBreak (SoftBreakEnd(fText_place), start, fText_place, font, width, start_width, theme);
+			AddSoftBreak (SoftBreakEnd(fText_place), start, 
+				fText_place, font, width, start_width, theme);
 			continue;
 		}
 
@@ -2200,7 +2198,8 @@ Line::SoftBreaks (Theme* theme, float start_width)
 			--i;
 
 		if (fEdges[ccount1 + ccount2] - fEdges[i] < width - margin) {
-			AddSoftBreak (SoftBreakEnd(fSpaces[space_place]), start, fText_place, font, width, start_width, theme);
+			AddSoftBreak (SoftBreakEnd(fSpaces[space_place]), start,
+				fText_place, font, width, start_width, theme);
 			continue;
 		}
 
@@ -2292,9 +2291,9 @@ Line::SetStamp (const char* format, bool was_on)
 
 		if (fFcs) {
 			memcpy (
-			    new_fFcs + 6,
-			    fFcs,
-			    fFc_count * sizeof (FontColor));
+				new_fFcs + 6,
+				fFcs,
+				fFc_count * sizeof (FontColor));
 			delete [] fFcs;
 		}
 		fFcs = new_fFcs;
@@ -2354,7 +2353,7 @@ RunView::FindText(const char* text)
 			char* offset (NULL);
 			if ((offset = strstr((const char*)fLines[i], text)) != NULL) {
 				SelectPos start (i, offset - text),
-				          end (i, (offset - text) + strlen(text));
+						  end (i, (offset - text) + strlen(text));
 				Select(start, end);
 				ScrollTo(0.0, fLines[i]->fTop);
 				result = true;
