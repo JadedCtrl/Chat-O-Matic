@@ -93,7 +93,7 @@ BBitmap* IconFromResources(BResources* res, int32 num, icon_size size)
 
 
 BBitmap*
-RescaleBitmap(const BBitmap* src, int32 width, int32 height)
+RescaleBitmap(const BBitmap* src, float width, float height)
 {
 	width--; height--;
 
@@ -104,18 +104,18 @@ RescaleBitmap(const BBitmap* src, int32 width, int32 height)
 
 	if (height < 0) {
 		float srcProp = srcSize.Height() / srcSize.Width();
-		height = (int32)(width * ceil(srcProp));
+		height = width * (float)ceil(srcProp);
 	}
 
 	BBitmap* res = new BBitmap(BRect(0, 0, (float)width, (float)height),
 		src->ColorSpace());
 
-	float dx = (srcSize.Width() + 1) / (float)(width + 1);
-	float dy = (srcSize.Height() + 1) / (float)(height + 1);
+	int32 dx = (int32)((srcSize.Width() + 1) / (float)(width + 1));
+	int32 dy = (int32)((srcSize.Height() + 1) / (float)(height + 1));
 	uint8 bpp = (uint8)(src->BytesPerRow() / ceil(srcSize.Width()));
 
-	int srcYOff = src->BytesPerRow();
-	int dstYOff = res->BytesPerRow();
+	int32 srcYOff = src->BytesPerRow();
+	int32 dstYOff = res->BytesPerRow();
 
 	void* dstData = res->Bits();
 	void* srcData = src->Bits();
