@@ -10,10 +10,10 @@
 #include <Resources.h>
 
 BBitmap*	ReadNodeIcon(const char* name, icon_size size,
-						 bool followSymlink);
+				bool followSymlink);
 BBitmap*	IconFromResources(BResources* res, int32 num,
-							  icon_size size = B_LARGE_ICON);
-BBitmap*	RescaleBitmap(const BBitmap* src, int32 width,
-						  int32 height);
+				icon_size size = B_LARGE_ICON);
+BBitmap*	RescaleBitmap(const BBitmap* src, float width,
+				float height);
 
 #endif	// _BITMAP_UTILS_H
