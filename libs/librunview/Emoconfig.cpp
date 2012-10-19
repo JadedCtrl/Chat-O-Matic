@@ -40,9 +40,9 @@ Emoconfig::Emoconfig(const char* xmlfile): BMessage()
 	off_t size;
 	settings->GetSize(&size);
 	if (size) {
-		void* buffer = malloc(size);
-		size = settings->Read(buffer, size);
-		XML_Parse(fParser, (const char*)buffer, size, true);
+		void* buffer = malloc((size_t)size);
+		size = settings->Read(buffer, (size_t)size);
+		XML_Parse(fParser, (const char*)buffer, (int)size, true);
 		free(buffer);
 	}
 	delete settings;

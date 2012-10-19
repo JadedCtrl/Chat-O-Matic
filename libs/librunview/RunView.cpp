@@ -80,25 +80,25 @@ struct SoftBreak {
 };
 
 struct URL {
-	int32          fOffset;
-	int32          fLength;
-	BString          fUrl;
+	int				fOffset;
+	int				fLength;
+	BString			fUrl;
 
-	URL (const char* address, int32 off, int32 len) :
+	URL(const char* address, int off, int len)
+		:
 		fOffset (off),
 		fLength (len),
-		fUrl (address)
-	{ }
+		fUrl (address) {}
 };
 
 typedef BObjectList<URL> urllist;
 
 struct SoftBreakEnd {
-	int       fOffset;
+	float	fOffset;
 
-	SoftBreakEnd (int16 offset)
-		:  fOffset (offset)
-	{ }
+	SoftBreakEnd(float offset)
+		:
+		fOffset(offset) {}
 };
 
 struct FontColor {
@@ -138,38 +138,20 @@ struct Line {
 
 	~Line (void);
 
-	void          Append (
-		const char* buffer,
-		int len,
-		float width,
-		Theme* fTheme,
-		int fore,
-		int back,
-		int font);
+	void          Append(const char* buffer, int len,
+					float width, Theme* fTheme,
+					int fore, int back, int font);
 
 	void          FigureSpaces (void);
 
-	void          FigureFontColors (
-		int pos,
-		int fore,
-		int back,
-		int font);
-
-	void          FigureEdges (
-		Theme* fTheme,
-		float width);
-
-	void          SoftBreaks (
-		Theme* fTheme,
-		float width);
-
-	void          AddSoftBreak (SoftBreakEnd , float&,
-								int&, int16&, float&, float&, Theme*);
-
-	int16         CountChars (int pos, int len);
-	size_t        SetStamp (const char*, bool);
-
-	void          SelectWord (int*, int*);
+	void          FigureFontColors(int pos, int fore, int back, int font);
+	void          FigureEdges(Theme* fTheme, float width);
+	void          SoftBreaks(Theme* fTheme, float width);
+	void          AddSoftBreak(SoftBreakEnd , float&,
+					int&, int16&, float&, float&, Theme*);
+	int         CountChars(int pos, int len);
+	size_t        SetStamp(const char*, bool);
+	void          SelectWord(int*, int*);
 };
 
 inline int32
@@ -2064,7 +2046,7 @@ void
 Line::AddSoftBreak (SoftBreakEnd sbe, float& start, int& fText_place,
 					int16& font, float& width, float& start_width, Theme* theme)
 {
-	fText_place = sbe.fOffset;
+	fText_place = (int)sbe.fOffset;
 
 	if (fSoftie_size < fSoftie_used + 1) {
 		SoftBreak* new_softies;
@@ -2157,11 +2139,11 @@ Line::SoftBreaks (Theme* theme, float start_width)
 				||  fSpaces[space_place - 1] < fText_place) {
 			// everything fits.. how wonderful (but we want at least one softbreak)
 			if (fEdge_count == 0) {
-				AddSoftBreak (SoftBreakEnd(fLength - 1), start, fText_place, font, width, start_width, theme);
+				AddSoftBreak((SoftBreakEnd(fLength - 1)), start, fText_place, font, width, start_width, theme);
 				break;
 			}
 
-			int16 i (fEdge_count - 1);
+			int i (fEdge_count - 1);
 
 			while (fEdges[i] == 0)
 				--i;
@@ -2187,18 +2169,18 @@ Line::SoftBreaks (Theme* theme, float start_width)
 
 		// we encountered more than one space, so we rule out having to
 		// split the word, if the current word will fit within the bounds
-		int16 ccount1, ccount2;
+		int ccount1, ccount2;
 		--space_place;
 
-		ccount1 = fSpaces[space_place];
-		ccount2 = fSpaces[space_place+1] - ccount1;
+		ccount1 = (int)fSpaces[space_place];
+		ccount2 = (int)fSpaces[space_place+1] - ccount1;
 
-		int16 i (ccount1 - 1);
+		int i  = ccount1 - 1;
 		while (fEdges[i] == 0)
 			--i;
 
 		if (fEdges[ccount1 + ccount2] - fEdges[i] < width - margin) {
-			AddSoftBreak (SoftBreakEnd(fSpaces[space_place]), start,
+			AddSoftBreak(SoftBreakEnd(fSpaces[space_place]), start,
 				fText_place, font, width, start_width, theme);
 			continue;
 		}
@@ -2216,10 +2198,10 @@ Line::SoftBreaks (Theme* theme, float start_width)
 	fBottom -= 1;
 }
 
-int16
+int
 Line::CountChars (int pos, int len)
 {
-	int16 ccount (0);
+	int ccount (0);
 
 	if (pos >= fLength)
 		return ccount;
@@ -2227,7 +2209,7 @@ Line::CountChars (int pos, int len)
 	if (pos + len > fLength)
 		len = fLength - pos;
 
-	register int16 i = pos;
+	register int i = pos;
 	while (i < pos + len) {
 		i += UTF8_CHAR_LEN(fText[i]);
 		++ccount;
@@ -2243,7 +2225,7 @@ Line::SetStamp (const char* format, bool was_on)
 	int32 i (0);
 
 	if (was_on) {
-		int16 offset (fFcs[4].fOffset + 1);
+		int offset (fFcs[4].fOffset + 1);
 
 		if (fUrls) {
 			for (i = 0; i < fUrls->CountItems(); i++)
@@ -2329,7 +2311,7 @@ Line::SetStamp (const char* format, bool was_on)
 void
 Line::SelectWord (int* start, int* end)
 {
-	int16 start_tmp (*start), end_tmp (*end);
+	int start_tmp (*start), end_tmp (*end);
 
 	while (start_tmp > 0 && fText[start_tmp-1] != ' ')
 		start_tmp--;

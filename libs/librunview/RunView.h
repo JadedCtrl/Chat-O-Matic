@@ -182,9 +182,6 @@ public:
 
 	void					ScrollToBottom(void);
 	void					ScrollToSelection(void);
-
-
-
 };
 
 #endif
