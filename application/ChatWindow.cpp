@@ -16,6 +16,7 @@
 #include <GroupLayout.h>
 #include <GroupLayoutBuilder.h>
 #include <Layout.h>
+#include <LayoutBuilder.h>
 #include <ListView.h>
 #include <Message.h>
 #include <SpaceLayoutItem.h>
@@ -65,8 +66,6 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 	fStatus = new BStringView("status", "");
 	fStatus->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 
-	SetLayout(new BGroupLayout(B_HORIZONTAL));
-
 	fAvatar = new BitmapView("ContactIcon");
 	fAvatar->SetExplicitMaxSize(BSize(50, 50));
 	fAvatar->SetExplicitMinSize(BSize(50, 50));
@@ -78,17 +77,18 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 	BitmapView* protocolView = new BitmapView("protocolView");
 	protocolView->SetBitmap(protocolBitmap);
 
-	AddChild(BGroupLayoutBuilder(B_VERTICAL, 10)
+	BLayoutBuilder::Group<>(this, B_VERTICAL, 10)
 		.AddGroup(B_HORIZONTAL)
 			.Add(protocolView)
 			.Add(fPersonalMessage)
 			.Add(fAvatar)
 		.End()
-		.Add(scrollViewReceive, 2)
-		.Add(scrollViewSend, 3)
+		.AddSplit(B_VERTICAL)
+			.Add(scrollViewReceive, 2)
+			.Add(scrollViewSend, 3)
+		.End()
 		.Add(fStatus, 4)
-		.SetInsets(5, 5, 5, 5)
-	);
+		.SetInsets(5, 5, 5, 5);
 
 	MoveTo(BAlert::AlertPosition(Bounds().Width(), Bounds().Height() / 2));
 

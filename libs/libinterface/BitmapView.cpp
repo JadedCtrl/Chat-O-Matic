@@ -39,7 +39,10 @@ void
 BitmapView::AttachedToWindow()
 {
 	// Set view color to parent's view color
-	SetViewColor(Parent()->ViewColor());
+	if (Parent() != NULL)
+		SetViewColor(Parent()->ViewColor());
+	else
+		SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 }
 
 
