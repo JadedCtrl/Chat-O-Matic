@@ -69,12 +69,14 @@ QueueMultiActions::Lock()
 	return (value == B_NO_ERROR);
 }
 
+
 void
 QueueMultiActions::Unlock()
 {
 	fLocked = false;
 	release_sem(fLock);
 }
+
 
 void
 QueueMultiActions::SetDownloadCount(int fProposedCount)
@@ -138,12 +140,14 @@ QueueMultiActions::AddAction(Action* a)
 	}
 }
 
+
 Action*
 QueueMultiActions::CurrentAction(int index)
 {
 	CHKLOCK;
 	return fCurrentAction[index];
 }
+
 
 void
 QueueMultiActions::SetCurrentAction(Action* action, int index)
@@ -152,12 +156,14 @@ QueueMultiActions::SetCurrentAction(Action* action, int index)
 	fCurrentAction[index] = action;
 }
 
+
 int32
 QueueMultiActions::CountActions()
 {
 	CHKLOCK;
 	return fList.CountItems();
 }
+
 
 Action*
 QueueMultiActions::ActionAt(int32 pos)
@@ -166,6 +172,7 @@ QueueMultiActions::ActionAt(int32 pos)
 	return fList.ItemAt(pos);
 }
 
+
 void
 QueueMultiActions::RemoveActionAt(int32 pos)
 {
@@ -173,17 +180,20 @@ QueueMultiActions::RemoveActionAt(int32 pos)
 	fList.RemoveItemAt(pos);
 }
 
+
 bool
 QueueMultiActions::IsLocked()
 {
 	return fLocked;
 }
 
+
 void
 QueueMultiActions::KIllThread(int id)
 {
 	fID[id] = 0;
 }
+
 
 int32
 QueueMultiActions::ManageTheQueue(void* data)

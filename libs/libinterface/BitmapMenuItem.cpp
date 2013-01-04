@@ -7,16 +7,18 @@
 #include <Bitmap.h>
 
 BitmapMenuItem::BitmapMenuItem(const char *label, BMessage *msg,
-								BBitmap *bitmap, char shortcut,
-								uint32 modifiers)
- :	BMenuItem(label,msg,shortcut,modifiers),
- 	fBitmap(bitmap)
+									BBitmap *bitmap, char shortcut,
+									uint32 modifiers)
+	: 
+	BMenuItem(label,msg,shortcut,modifiers), 
+	fBitmap(bitmap)
 {
 }
 
 
 BitmapMenuItem::BitmapMenuItem(BMessage *data)
- :	BMenuItem(data)
+	:	
+	BMenuItem(data)
 {
 	fBitmap = (BBitmap*) BBitmap::Instantiate(data);
 }
@@ -73,12 +75,13 @@ BitmapMenuItem::DrawContent(void)
 	drawrect.bottom--;
 	drawrect.top++;
 	drawrect.left = ContentLocation().x;
+	
 	if (fBitmap) {
 		// Scale the fBitmap down to completely fit within the field's height
 		if (fBitmap->Bounds().Height() > drawrect.Height()) {
 			drawrect.right = drawrect.left + 
-							(fBitmap->Bounds().Width() * 
-							(Frame().Height() / fBitmap->Bounds().Height()));
+			(fBitmap->Bounds().Width() * 
+			(Frame().Height() / fBitmap->Bounds().Height()));
 		} else {
 			drawrect.right = drawrect.left + fBitmap->Bounds().Width();
 		}

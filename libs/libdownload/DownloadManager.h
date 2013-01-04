@@ -19,11 +19,9 @@ class ActionDownload;
 class DownloadManager
 {
 public:
-	enum QueueType {
-		DOWNLOADS_QUEUE  = 0
-	};
+	enum 		QueueType {DOWNLOADS_QUEUE  = 0};
 
-	DownloadManager(BLooper* target);
+				DownloadManager(BLooper* target);
 
 	void		Enqueue(QueueType, ActionDownload*);
 

@@ -13,14 +13,14 @@
 class Action
 {
 public:
-	Action() { fActionID = 0; }
-	virtual				~Action() {}
+				Action() { fActionID = 0; }
+	virtual			~Action() {}
 
 	virtual	status_t	Perform(BMessage* errors) = 0;
 	virtual	BString		GetDescription() = 0;
 
-	void		SetActionID(const ActionID id) { fActionID = id; }
-	ActionID	GetActionID() const { return fActionID; }
+	void			SetActionID(const ActionID id) { fActionID = id; }
+	ActionID		GetActionID() const { return fActionID; }
 
 private:
 	ActionID	fActionID;

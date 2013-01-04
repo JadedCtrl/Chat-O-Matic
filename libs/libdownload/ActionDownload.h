@@ -27,55 +27,77 @@ public:
 		OK_DOWNLOADED		// 5
 	};
 
-	ActionDownload(BString URL, entry_ref dest,
+				ActionDownload(BString URL, entry_ref dest,
 	               bool allowResume, BLooper* target = NULL, uint32 msg = 0);
-	virtual ~ActionDownload();
+	virtual 	~ActionDownload();
 
 	status_t	Perform(BMessage* errors);
 	BString		GetDescription();
 	BString		GetLocalPath();
 
-	void		SetLooper(BLooper* loop, uint32 msg) {
+void		
+SetLooper(BLooper* loop, uint32 msg) 
+{
 		fTarget = loop;
 		fMsg = msg;
-	};
-	BLooper*	Looper() {
+};
+	
+BLooper*
+Looper() 
+{
 		return fTarget;
-	}
-	uint32		MessageWhat() {
+}
+
+uint32	
+MessageWhat() 
+{
 		return fMsg;
-	}
+}
 
 	// For compatibility:
-	void		SetExtraData(BString extra) {
+void		
+SetExtraData(BString extra) 
+{
 		extraInfo.AddString("extra", extra);
-	}
+}
 
-	void		SetKey(BString key, BString data) {
+void	
+SetKey(BString key, BString data) 
+{
 		extraInfo.AddString(key.String(), data);
-	}
+}
 
-	void		SetRef(BString key, entry_ref* ref) {
+void		
+SetRef(BString key, entry_ref* ref) 
+{
 		extraInfo.AddRef(key.String(), ref);
-	}
+}
 
-	status_t 	GetRef(BString key, entry_ref* ref) {
+status_t
+GetRef(BString key, entry_ref* ref) 
+{
 		return extraInfo.FindRef(key.String(), ref);
-	}
+}
 
-	BString	GetKey(BString key) {
+BString	GetKey(BString key) 
+{
 		BString data;
 		extraInfo.FindString(key.String(), &data);
 		return data;
-	}
+}
 
 
-	void	SetShouldStop(bool stop) {
+void
+SetShouldStop(bool stop) 
+{
 		fShouldStop = stop;
-	}
-	bool	ShouldStop() {
+}
+
+bool
+ShouldStop() 
+{
 		return fShouldStop;
-	}
+}
 
 	void	SetDownloadManager(DownloadManager* downloadManager);
 
@@ -87,7 +109,8 @@ private:
 
 	//curl callbacks:
 	static	size_t		save_file ( void* ptr, size_t size, size_t nmemb, void* stream);
-	static	int 		callback (void* clientp, double dltotal, double dlnow, double , double);
+	static	int 		callback (void* clientp, double dltotal, 
+							double dlnow, double , double);
 
 	CURL*		curl;
 	BString		fUrl;

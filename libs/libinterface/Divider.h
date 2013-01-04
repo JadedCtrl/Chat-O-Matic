@@ -12,7 +12,8 @@ class BMessenger;
 
 class Divider : public BView {
 public:
-					    		Divider(const char* name, uint32 flags = B_FRAME_EVENTS | B_WILL_DRAW);
+					    		Divider(const char* name, uint32 flags = 
+									B_FRAME_EVENTS | B_WILL_DRAW);
 	virtual						~Divider();
 
 					    		Divider(BMessage* archive);

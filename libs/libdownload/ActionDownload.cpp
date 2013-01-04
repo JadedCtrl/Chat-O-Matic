@@ -170,17 +170,20 @@ ActionDownload::Perform(BMessage* errors)
 	return status;
 }
 
+
 BString
 ActionDownload::GetDescription()
 {
 	return "HTTP File download";
 }
 
+
 BString
 ActionDownload::GetLocalPath()
 {
 	return BPath(&fDest).Path();
 }
+
 
 void
 ActionDownload::fillMessage(ActionDownload* ad, BMessage* msg)
@@ -194,7 +197,6 @@ ActionDownload::fillMessage(ActionDownload* ad, BMessage* msg)
 
 	msg->what = what;
 }
-
 
 
 void
@@ -253,6 +255,7 @@ ActionDownload::sendError(BLooper* looper,uint32 amsg,Status st,BString descr){
 */
 //
 
+
 int
 ActionDownload::callback(void* data,
                          double dltotal,
@@ -267,6 +270,7 @@ ActionDownload::callback(void* data,
 	return 0;
 }
 
+
 size_t
 ActionDownload::save_file( void* ptr, size_t size, size_t nmemb, void* data)
 {
@@ -280,6 +284,7 @@ ActionDownload::save_file( void* ptr, size_t size, size_t nmemb, void* data)
 		}
 	}
 	BFile* file = ad->file;
-	if (ad->ShouldStop()) return 0;
+	if (ad->ShouldStop()) 
+		return 0;
 	return file->Write(ptr, size * nmemb);
 }

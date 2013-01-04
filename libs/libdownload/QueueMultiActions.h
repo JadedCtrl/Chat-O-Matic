@@ -19,35 +19,37 @@ class QueueMultiActions
 
 public:
 
-	QueueMultiActions(const char* name, int count);
-	virtual ~QueueMultiActions();
+			QueueMultiActions(const char* name, int count);
+	virtual 	~QueueMultiActions();
 
 	void		AddAction(Action* );
 
 	//BEFORE CALLING CurrentAction, you MUST Lock() the Queue!
-	Action*	CurrentAction(int index);
+	Action*		CurrentAction(int index);
 
 	int32		CountActions();
-	int			CountThreads() {
+
+
+	int		CountThreads() {
 		return fCount;
 	}
 
-	Action*	ActionAt(int32 pos);
-	void	RemoveActionAt(int32 pos);
+	Action*		ActionAt(int32 pos);
+	void		RemoveActionAt(int32 pos);
 
 
-	void	SetDownloadCount(int count);
+	void		SetDownloadCount(int count);
 
 
-	bool	Lock();
-	void	Unlock();
-	bool	IsLocked();
+	bool		Lock();
+	void		Unlock();
+	bool		IsLocked();
 
 protected:
 
-	static	int32	ManageTheQueue(void*);
+static	int32		ManageTheQueue(void*);
 
-	virtual	void	ActionReadyToPerform(Action*) = 0;
+virtual	void		ActionReadyToPerform(Action*) = 0;
 	virtual	void	ActionPerformed(Action*, status_t, BMessage*) = 0;
 	virtual	void	SuppressAction(Action*) = 0;
 

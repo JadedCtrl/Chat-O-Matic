@@ -11,29 +11,29 @@ class BBitmap;
 
 class BitmapView : public BView {
 public:
-						BitmapView(const char* name = NULL, uint32 flags
-							= B_WILL_DRAW);
-						~BitmapView();
+							BitmapView(const char* name = NULL, 
+								uint32 flags = B_WILL_DRAW);
+							~BitmapView();
 
-	virtual	void		AttachedToWindow();
+	virtual		void		AttachedToWindow();
 
-			status_t	InitCheck();
+				status_t	InitCheck();
 
-			BBitmap*	Bitmap() const;
+				BBitmap*	Bitmap() const;
 
-			status_t	SetBitmap(const char* filename);
-			status_t	SetBitmap(const BBitmap* bitmap);
+				status_t	SetBitmap(const char* filename);
+				status_t	SetBitmap(const BBitmap* bitmap);
 
-	virtual BSize		MinSize();
-	virtual BSize		MaxSize();
-	virtual BSize		PreferredSize();
+	virtual 	BSize		MinSize();
+	virtual 	BSize		MaxSize();
+	virtual 	BSize		PreferredSize();
 
-	virtual	void		Draw(BRect frame);
+	virtual		void		Draw(BRect frame);
 
 private:
-			BBitmap*	fBitmap;
-			float		fWidth;
-			float		fHeight;
+				BBitmap*	fBitmap;
+				float		fWidth;
+				float		fHeight;
 };
 
 #endif	// _BITMAP_VIEW_H

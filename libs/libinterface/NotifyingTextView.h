@@ -14,23 +14,23 @@ class BMessenger;
 
 class NotifyingTextView : public BTextView {
 public:
-						NotifyingTextView(const char* name, uint32 flags
-							= B_WILL_DRAW | B_PULSE_NEEDED);
-						~NotifyingTextView();
+							NotifyingTextView(const char* name, uint32 flags
+								 = B_WILL_DRAW | B_PULSE_NEEDED);
+							~NotifyingTextView();
 
-			void		SetTarget(const BHandler* handler);
+				void		SetTarget(const BHandler* handler);
 
-			BMessage*	Message() const;
-			void		SetMessage(BMessage* msg);
+				BMessage*	Message() const;
+				void		SetMessage(BMessage* msg);
 
 protected:
-	virtual void		InsertText(const char* text, int32 length, int32 offset,
-								   const text_run_array* runs = NULL);
-	virtual void		DeleteText(int32 start, int32 finish);
+	virtual 	void		InsertText(const char* text, int32 length,
+								int32 offset, const text_run_array* runs = NULL);
+	virtual 	void		DeleteText(int32 start, int32 finish);
 
 private:
-			BMessenger*	fMessenger;
-			BMessage*	fMessage;
+				BMessenger*		fMessenger;
+				BMessage*		fMessage;
 };
 
 #endif	// _NOTIFYING_TEXT_VIEW_H

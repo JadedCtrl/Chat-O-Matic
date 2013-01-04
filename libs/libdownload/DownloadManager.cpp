@@ -13,19 +13,24 @@
 
 #define DEFAULT_ITEMS_DOWNLOAD		1
 
-DownloadManager::DownloadManager(BLooper* target): fTarget(target)
+DownloadManager::DownloadManager(BLooper* target)
+	:
+	fTarget(target)
 {
 }
+
 
 void
 DownloadManager::Enqueue(QueueType type, ActionDownload* ad)
 {
 	if (!fQueue[type]) {
-		fQueue[type] = new QueueFileDownload("queue_downloads", DEFAULT_ITEMS_DOWNLOAD, fTarget, DOWNLOAD_INFO);
+		fQueue[type] = new QueueFileDownload("queue_downloads",
+			DEFAULT_ITEMS_DOWNLOAD, fTarget, DOWNLOAD_INFO);
 	}
 	ad->SetDownloadManager(this);
 	fQueue[type]->AddAction(ad);
 }
+
 
 void
 DownloadManager::TryStopCurrentAction(QueueType type, BString key, BString value)
@@ -45,6 +50,7 @@ DownloadManager::TryStopCurrentAction(QueueType type, BString key, BString value
 		fQueue[type]->Unlock();
 	}
 }
+
 
 bool
 DownloadManager::RemoveFromQueue(QueueType type , BString key, BString value)
@@ -78,6 +84,7 @@ DownloadManager::RemoveFromQueue(QueueType type , BString key, BString value)
 	return false;
 }
 
+
 void
 DownloadManager::RemoveQueue(QueueType type, BList* removed)
 {
@@ -102,6 +109,7 @@ DownloadManager::RemoveQueue(QueueType type, BList* removed)
 			removed->AddItem( (void*)fQueue[type]->CurrentAction(i));
 	}
 }
+
 
 void
 DownloadManager::LoadProxySetting(BMessage* data)
@@ -158,6 +166,7 @@ DownloadManager::FinishCurl(CURL* curl)
 		curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD , fUserpwd.String() );
 }
 
+
 thread_id
 DownloadManager::SingleThreadAction(ActionDownload* action)
 {
@@ -165,10 +174,12 @@ DownloadManager::SingleThreadAction(ActionDownload* action)
 	if (action->Looper() == NULL) {
 		action->SetLooper(fTarget, DOWNLOAD_INFO);
 	}
-	thread_id id = spawn_thread(DownloadManager::SingleThreadPerform, "single_action_thread", B_NORMAL_PRIORITY, (void*)action);
+	thread_id id = spawn_thread(DownloadManager::SingleThreadPerform, 
+		"single_action_thread", B_NORMAL_PRIORITY, (void*)action);
 	resume_thread(id);
 	return id;
 }
+
 
 int32
 DownloadManager::SingleThreadPerform(void* a)

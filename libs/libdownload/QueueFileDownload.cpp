@@ -14,18 +14,21 @@ void
 QueueFileDownload::ActionReadyToPerform(Action* action)
 {
 	ActionDownload* ad = dynamic_cast<ActionDownload*>(action);
-	if (!ad) return;
+	if (!ad) 
+		return;
 
 	ad->SetLooper(fLooper, fMsg);
 
 }
+
 
 void
 QueueFileDownload::ActionPerformed(Action* action, status_t state, BMessage* msg)
 {
 
 	ActionDownload* ad = dynamic_cast<ActionDownload*>(action);
-	if (!ad) return;
+	if (!ad) 
+		return;
 
 	BMessage notify(*msg);
 	notify.what = fMsg;
@@ -36,11 +39,13 @@ QueueFileDownload::ActionPerformed(Action* action, status_t state, BMessage* msg
 	return;
 }
 
+
 void
 QueueFileDownload::SuppressAction(Action* action)
 {
 	ActionDownload* ad = dynamic_cast<ActionDownload*>(action);
-	if (!ad) return;
+	if (!ad) 
+		return;
 
 	ad->SetShouldStop(true);
 }

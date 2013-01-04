@@ -23,7 +23,7 @@ BBitmap*
 ReadNodeIcon(const char* name, icon_size size, bool followSymlink)
 {
 	BEntry entry(name, followSymlink);
-	entry_ref ref;
+	entry_ref 	ref;
 
 	entry.GetRef(&ref);
 
@@ -32,8 +32,8 @@ ReadNodeIcon(const char* name, icon_size size, bool followSymlink)
 	BBitmap* ret = new BBitmap(BRect(0, 0, (float)size - 1, (float)size - 1), B_RGBA32);
 	if (BIconUtils::GetIcon(&node, BEOS_ICON_ATTRIBUTE, BEOS_MINI_ICON_ATTRIBUTE,
 		BEOS_LARGE_ICON_ATTRIBUTE, size, ret) != B_OK) {
-		delete ret;
-		ret = NULL;
+			delete ret;
+			ret = NULL;
 	}
 
 	return ret;
@@ -127,7 +127,7 @@ RescaleBitmap(const BBitmap* src, float width, float height)
 
 		for (int32 x = 0; x <= width; x++)
 			memcpy((void*)((uint32)dstRow + (x * bpp)), (void*)((uint32)srcRow
-				+ ((uint32)(x * dx) * bpp)), bpp);
+			+ ((uint32)(x * dx) * bpp)), bpp);
 	}
 
 	return res;

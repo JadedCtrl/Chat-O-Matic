@@ -28,35 +28,37 @@ const uint32 kToolbarIconSize	= 16;
 		// this should go on BControlLook
 
 
-ToolButton::ToolButton(const char* name, const char* label, BMessage* message,
-	uint32 flags)
-	:
-	BControl(name, label, message,
+ToolButton::ToolButton(const char* name, const char* label, 
+				BMessage* message, uint32 flags)
+		:
+		BControl(name, label, message,
 		flags | B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE),
-	fBitmap(NULL),
-	fMenu(NULL),
-	fPreferredSize(-1, -1)
+		fBitmap(NULL),
+		fMenu(NULL),
+		fPreferredSize(-1, -1)
 {
 	SetFontSize(be_plain_font->Size() * 0.85f);
 }
 
 
 ToolButton::ToolButton(const char* label, BMessage* message)
-	: BControl(NULL, label, message,
+		: 
+		BControl(NULL, label, message,
 		B_WILL_DRAW | B_NAVIGABLE | B_FULL_UPDATE_ON_RESIZE),
-	fBitmap(NULL),
-	fMenu(NULL),
-	fPreferredSize(-1, -1)
+		fBitmap(NULL), 
+		fMenu(NULL), 
+		fPreferredSize(-1, -1)
 {
 	SetFontSize(be_plain_font->Size() * 0.85f);
 }
 
 
 ToolButton::ToolButton(BMessage* archive)
-	: BControl(archive),
-	fBitmap(NULL),
-	fMenu(NULL),
-	fPreferredSize(-1, -1)
+		: 
+		BControl(archive),
+		fBitmap(NULL),
+		fMenu(NULL),
+		fPreferredSize(-1, -1)
 {
 	SetFontSize(be_plain_font->Size() * 0.85f);
 }

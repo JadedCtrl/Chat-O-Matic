@@ -12,7 +12,7 @@ class BBitmap;
 class PictureView : public BView {
 public:
 						PictureView(const char* name, const char* filename,
-									uint32 flags = B_WILL_DRAW);
+							uint32 flags = B_WILL_DRAW);
 						~PictureView();
 
 			status_t	InitCheck();

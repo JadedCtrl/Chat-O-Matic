@@ -23,7 +23,7 @@ NotifyingTextView::NotifyingTextView(const char* name, uint32 flags)
 NotifyingTextView::~NotifyingTextView()
 {
 	if (fMessenger != NULL)
-	delete fMessenger;
+		delete fMessenger;
 }
 
 
@@ -51,8 +51,8 @@ NotifyingTextView::SetMessage(BMessage* msg)
 		
 
 void
-NotifyingTextView::InsertText(const char* text, int32 length, int32 offset,
-	const text_run_array* runs)
+NotifyingTextView::InsertText(const char* text, int32 length,
+	int32 offset, const text_run_array* runs)
 {
 	if ((fMessenger != NULL) && fMessenger->IsValid()) {
 		BMessage msg(*fMessage);
