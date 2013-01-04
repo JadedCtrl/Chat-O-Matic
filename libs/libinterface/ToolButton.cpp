@@ -196,7 +196,10 @@ ToolButton::MouseDown(BPoint where)
 	BRect rect(Bounds());
 	rect.left = rect.right - kPopUpMarkerRect;
 
-	if (fMenu && rect.Contains(where)) {
+	// NOTE the following code was disabled to allow the widget
+	// show the menu when the click is received in any part of the
+	// widget instead of the flap only.
+	if (fMenu /*&& rect.Contains(where)*/) {
 		BPoint coords(rect.left + 2, rect.bottom + 1);
 		ConvertToScreen(&coords);
 
