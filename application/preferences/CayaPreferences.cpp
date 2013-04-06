@@ -10,6 +10,18 @@
 template<> const char* CayaPreferences::fFolder = "Caya";
 template<> const char* CayaPreferences::fFilename = "preferences";
 
+/* TODO update _Add* methods to 
+ don't take the BPositionIO argument
+ and to automatically increase 
+ length counters. For example
+ the _AddBool() method, should
+ take the BPositionIO argument from
+ a private class value, and increase
+ the the size of another class value
+ respectively. This way the api looks better
+ and the possibility of bugs related to 
+ size become very minimal : ).
+*/
 
 CayaPreferencesData::CayaPreferencesData()
 	:
