@@ -23,6 +23,7 @@ public:
 	virtual void		ShowWindow();
 
 	virtual	void		MessageReceived(BMessage* message);
+			void		WindowActivated(bool active);
 	virtual	bool		QuitRequested();
 
 			void		UpdateAvatar();

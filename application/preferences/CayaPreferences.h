@@ -28,13 +28,17 @@ public:
 			bool 			MoveToCurrentWorkspace;
 			bool 			RaiseOnMessageReceived;
 			bool 			RaiseUserIsTyping;
+			bool			MarkUnreadWindow;
 			bool 			NotifyProtocolStatus;
 			bool 			NotifyContactStatus;
+			bool			NotifyNewMessage;
 
 			bool 			HideCayaDeskbar;
 			bool 			DisableReplicant;
 
 			bool 			IgnoreEmoticons;
+			
+			bool			HideOffline;
 private:
 			void 			_AddBool(BPositionIO* data, bool value) const;
 			void 			_AddString(BPositionIO* data,

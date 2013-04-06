@@ -28,6 +28,9 @@ const uint32 kRaiseOnMessageReceived = 'FCmr';
 const uint32 kRaiseUserIsTyping = 'FCit';
 const uint32 kNotifyProtocolsLogin = 'NTpl';
 const uint32 kNotifyContactStatus = 'NTcl';
+const uint32 kNotifyNewMessage = 'NTms';
+const uint32 kMarkUnreadWindow = 'MKuw';
+const uint32 kHideOffline = 'HiOf';
 
 
 PreferencesBehavior::PreferencesBehavior()
@@ -37,6 +40,10 @@ PreferencesBehavior::PreferencesBehavior()
 	fOnIncoming = new BStringView("onIncoming", "On incoming message...");
 	fOnIncoming->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 	fOnIncoming->SetFont(be_bold_font);
+	
+	fHideOffline = new BCheckBox("HideOfflineContacts",
+		"Hide offline contacts",
+		new BMessage(kHideOffline));
 
 	fToCurrentWorkspace = new BCheckBox("ToCurrentWorkspace",
 		"Move window to current workspace",
@@ -55,8 +62,8 @@ PreferencesBehavior::PreferencesBehavior()
 	fPlaySoundOnMessageReceived->SetEnabled(false);  // not implemented
 
 	fMarkUnreadWindow = new BCheckBox("MarkUnreadWindow",
-		"Mark unread window chat", NULL);
-	fMarkUnreadWindow->SetEnabled(false);
+		"Mark unread window chat", new BMessage(kMarkUnreadWindow));
+	/*fMarkUnreadWindow->SetEnabled(false); implementing it right now*/
 	
 	fMarkUnreadReplicant = new BCheckBox("MarkUnreadReplicant",
 		"Mark unread the Deskbar Replicant", NULL);
@@ -74,6 +81,9 @@ PreferencesBehavior::PreferencesBehavior()
 
 	fNotifyContactStatus = new BCheckBox("EnableContactNotify",
 		"Enable contact status notifications",new BMessage(kNotifyContactStatus));
+	
+	fNotifyNewMessage = new BCheckBox("EnableMessageNotify",
+		"Enable message notifications", new BMessage(kNotifyNewMessage));
 
 	const float spacing = be_control_look->DefaultItemSpacing();
 
@@ -81,6 +91,7 @@ PreferencesBehavior::PreferencesBehavior()
 	AddChild(BGroupLayoutBuilder(B_VERTICAL)
 		.Add(fOnIncoming)
 		.AddGroup(B_VERTICAL, spacing)
+			.Add(fHideOffline)
 			.Add(fToCurrentWorkspace)
 			.Add(fRaiseOnMessageReceived)
 			.Add(fRaiseUserIsTyping)
@@ -93,6 +104,7 @@ PreferencesBehavior::PreferencesBehavior()
 		.AddGroup(B_VERTICAL, spacing)
 			.Add(fNotifyProtocols)
 			.Add(fNotifyContactStatus)
+			.Add(fNotifyNewMessage)
 		.	SetInsets(spacing * 2, spacing, spacing, spacing)
 		.End()
 		.AddGlue()
@@ -105,22 +117,30 @@ PreferencesBehavior::PreferencesBehavior()
 void
 PreferencesBehavior::AttachedToWindow()
 {
+	fHideOffline->SetTarget(this);
 	fToCurrentWorkspace->SetTarget(this);
 	fRaiseUserIsTyping->SetTarget(this);
 	fRaiseOnMessageReceived->SetTarget(this);
 	fNotifyProtocols->SetTarget(this);
 	fNotifyContactStatus->SetTarget(this);
-
+	fNotifyNewMessage->SetTarget(this);
+	
+	fHideOffline->SetValue(
+		CayaPreferences::Item()->HideOffline);
 	fToCurrentWorkspace->SetValue(
 		CayaPreferences::Item()->MoveToCurrentWorkspace);
 	fRaiseUserIsTyping->SetValue(
 		CayaPreferences::Item()->RaiseUserIsTyping);
 	fRaiseOnMessageReceived->SetValue(
 		CayaPreferences::Item()->RaiseOnMessageReceived);
+	fMarkUnreadWindow->SetValue(
+		CayaPreferences::Item()->MarkUnreadWindow);
 	fNotifyProtocols->SetValue(
 		CayaPreferences::Item()->NotifyProtocolStatus);
 	fNotifyContactStatus->SetValue(
 		CayaPreferences::Item()->NotifyContactStatus);
+	fNotifyNewMessage->SetValue(
+		CayaPreferences::Item()->NotifyNewMessage);
 }
 
 
@@ -128,6 +148,10 @@ void
 PreferencesBehavior::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case kHideOffline:
+			CayaPreferences::Item()->HideOffline
+				= fHideOffline->Value();
+			break;
 		case kToCurrentWorkspace:
 			CayaPreferences::Item()->MoveToCurrentWorkspace
 				= fToCurrentWorkspace->Value();
@@ -147,6 +171,14 @@ PreferencesBehavior::MessageReceived(BMessage* message)
 		case kNotifyContactStatus:
 			CayaPreferences::Item()->NotifyContactStatus
 				= fNotifyContactStatus->Value();
+			break;
+		case kNotifyNewMessage:
+			CayaPreferences::Item()->NotifyNewMessage
+				= fNotifyNewMessage->Value();
+			break;
+		case kMarkUnreadWindow:
+			CayaPreferences::Item()->MarkUnreadWindow
+				= fMarkUnreadWindow->Value();
 			break;
 		default:
 			BView::MessageReceived(message);

@@ -21,6 +21,7 @@ public:
 private:
 
 	BStringView*	fOnIncoming;
+	BCheckBox*		fHideOffline;
 	BCheckBox*		fToCurrentWorkspace;
 	BCheckBox*		fRaiseOnMessageReceived;
 	BCheckBox*		fRaiseUserIsTyping;
@@ -31,6 +32,7 @@ private:
 	BStringView*	fNotifications;
 	BCheckBox*		fNotifyProtocols;
 	BCheckBox*		fNotifyContactStatus;	
+	BCheckBox*		fNotifyNewMessage;
 
 };
 

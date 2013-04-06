@@ -16,11 +16,14 @@ CayaPreferencesData::CayaPreferencesData()
 	MoveToCurrentWorkspace(true),
 	RaiseOnMessageReceived(false),
 	RaiseUserIsTyping(false),
+	MarkUnreadWindow(true),
 	HideCayaDeskbar(false),
 	DisableReplicant(true),
 	IgnoreEmoticons(false),
 	NotifyProtocolStatus(true),
-	NotifyContactStatus(false)
+	NotifyContactStatus(false),
+	NotifyNewMessage(true),
+	HideOffline(true)
 {
 }
 
@@ -60,7 +63,7 @@ CayaPreferencesData::FlattenedSize() const
 	// NOTE add the size of every settings
 	// you added.
 
-	ssize_t size = sizeof(bool) * 8;
+	ssize_t size = sizeof(bool) * 11;
 
 	return size;
 }
@@ -80,9 +83,11 @@ CayaPreferencesData::Flatten(BPositionIO* flatData) const
 	_AddBool(flatData, MoveToCurrentWorkspace);
 	_AddBool(flatData, RaiseOnMessageReceived);
 	_AddBool(flatData, RaiseUserIsTyping);
+	_AddBool(flatData, MarkUnreadWindow);
 
 	_AddBool(flatData, NotifyProtocolStatus);
 	_AddBool(flatData, NotifyContactStatus);
+	_AddBool(flatData, NotifyNewMessage);
 
 	// Replicant
 	_AddBool(flatData, HideCayaDeskbar);
@@ -90,14 +95,15 @@ CayaPreferencesData::Flatten(BPositionIO* flatData) const
 
 	// Chat window
 	_AddBool(flatData, IgnoreEmoticons);
+	
+	// Contact list
+	_AddBool(flatData, HideOffline);
 
 	// Usage example for strings :
 	// _AddString(flatData, yourBString.String());
 
 	// NOTE : The order is very important, Unflatten and Flatten
 	// classes should read/write the values in the same order.
-
-	_AddString(flatData, "str");
 
 	return B_OK;
 }
@@ -144,9 +150,11 @@ CayaPreferencesData::Unflatten(type_code code, BPositionIO* flatData)
 	MoveToCurrentWorkspace = _ReadBool(flatData);
 	RaiseOnMessageReceived = _ReadBool(flatData);
 	RaiseUserIsTyping = _ReadBool(flatData);
+	MarkUnreadWindow = _ReadBool(flatData);
 
 	NotifyProtocolStatus = _ReadBool(flatData);
 	NotifyContactStatus = _ReadBool(flatData);
+	NotifyNewMessage = _ReadBool(flatData);
 
 	// Replicant
 	HideCayaDeskbar = _ReadBool(flatData);
@@ -154,6 +162,9 @@ CayaPreferencesData::Unflatten(type_code code, BPositionIO* flatData)
 
 	// Chat window
 	IgnoreEmoticons = _ReadBool(flatData);
+	
+	// Contact list
+	HideOffline = _ReadBool(flatData);
 
 	// Usage example for strings :
 	// const char* str = _ReadString(flatData);
@@ -195,9 +206,8 @@ const char*
 CayaPreferencesData::_ReadString(BPositionIO* data)
 {
 	size_t len;
-	char* ret;
 	data->Read(&len, sizeof(size_t));
-	ret = new char[len];
+	char* ret = new char[len];
 	data->Read(ret, len);
 
 	return ret;

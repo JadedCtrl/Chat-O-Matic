@@ -22,10 +22,12 @@
 #include <SpaceLayoutItem.h>
 #include <ScrollView.h>
 #include <String.h>
+#include <Notification.h>
 
 #include "BitmapView.h"
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
+#include "CayaPreferences.h"
 #include "ChatWindow.h"
 #include "ContactLinker.h"
 #include "EditingFilter.h"
@@ -188,6 +190,32 @@ ChatWindow::ImMessage(BMessage* msg)
 
 			// Message received, clear status anyway
 			fStatus->SetText("");
+			
+			if (IsActive()) break;
+			
+			// Mark unread window			
+			if (CayaPreferences::Item()->MarkUnreadWindow) { 
+				BString title = "[*] ";
+				title<<fContactLinker->GetName();
+				SetTitle(title); 
+			}
+			
+			// Check if the user want the notification
+			if (!CayaPreferences::Item()->NotifyNewMessage)
+				break;
+
+			BString notify_message;
+			notify_message << "You've got new message from ";
+			notify_message << fContactLinker->GetName().String();
+
+
+			BNotification notification(B_INFORMATION_NOTIFICATION);
+			notification.SetGroup(BString("Caya"));
+			notification.SetTitle(BString("New message"));
+			notification.SetIcon(fAvatar->Bitmap());
+			notification.SetContent(notify_message);
+			notification.Send();
+			
 			break;
 		}
 		case IM_CONTACT_STARTED_TYPING:
@@ -206,6 +234,11 @@ ChatWindow::ImMessage(BMessage* msg)
 	}
 }
 
+void
+ChatWindow::WindowActivated(bool active)
+{
+	SetTitle(fContactLinker->GetName());
+}
 
 void
 ChatWindow::ObserveString(int32 what, BString str)

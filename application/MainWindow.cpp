@@ -278,11 +278,13 @@ MainWindow::ImMessage(BMessage* msg)
 
 				// Add or remove item
 				switch (status) {
-					case CAYA_OFFLINE:
+					/*case CAYA_OFFLINE:
 						// By default offline contacts are hidden
+						if (!CayaPreferences::Item()->HideOffline)
+							break;
 						if (HasItem(rosterItem))
 							RemoveItem(rosterItem);
-						return;
+						return;*/
 					default:
 						// Add item because it has a non-offline status
 						if (!HasItem(rosterItem))
@@ -377,7 +379,11 @@ void
 MainWindow::AddItem(RosterItem* item)
 {
 	// Don't add offline items and avoid duplicates
-	if ((item->Status() == CAYA_OFFLINE) || HasItem(item))
+	if ((item->Status() == CAYA_OFFLINE) 
+		&& CayaPreferences::Item()->HideOffline)
+		return;
+	
+	if (HasItem(item))
 		return;
 
 	// Add item and sort
