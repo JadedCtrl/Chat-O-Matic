@@ -6,3 +6,7 @@ SubInclude TOP libs librunview ;
 SubInclude TOP libs libsupport ;
 SubInclude TOP libs libinterface ;
 SubInclude TOP libs libimcomm ;
+SubInclude TOP libs libgloox ;
+SubInclude TOP libs libmsn ;
+SubInclude TOP libs libyahoo2 ;
+

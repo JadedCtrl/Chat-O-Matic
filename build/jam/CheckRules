@@ -75,3 +75,59 @@ rule CheckCurl
 		HAVE_CURL = $(haveLibs) ;
 	}
 }
+
+rule CheckLibYahoo2
+{
+	# CheckLibYahoo2
+	# Check for LibYahoo2 and defined HAVE_LIBYAHOO2 according, it also defines
+	# LIBYAHOO2_INCLUDE_DIR and LIBYAHOO2_LIBRARY_DIR with location of respectively
+	# include and library files.
+
+	HAVE_LIBYAHOO2 = ;
+	LIBYAHOO2_INCLUDE_DIR = ;
+	LIBYAHOO2_LIBRARY_DIR = ;
+
+	local haveHeaders = [ Glob $(COMMON_INCLUDE_DIRECTORY)/libyahoo2 : yahoo2.h ] ;
+	if $(haveHeaders) {
+		LIBYAHOO2_INCLUDE_DIR = $(COMMON_INCLUDE_DIRECTORY)/libyahoo2 ;
+
+		local haveLibs = [ Glob $(COMMON_LIB_DIRECTORY) : libyahoo2.so ] ;
+		if $(haveLibs) {
+			LIBYAHOO2_LIBRARY_DIR = $(COMMON_LIB_DIRECTORY) ;
+
+			Echo Yahoo Headers: $(LIBYAHOO2_INCLUDE_DIR) ;
+			Echo Yahoo Libs: $(LIBYAHOO2_LIBRARY_DIR) ;
+		}
+
+		HAVE_LIBYAHOO2 = $(haveLibs) ;
+	}
+}
+
+rule CheckCaya
+{
+	# CheckCaya
+	# Check for Caya and defined HAVE_CAYA according, it also defines
+	# CAYA_INCLUDE_DIR and CAYA_LIBRARY_DIR with location of respectively
+	# include and library files.
+
+	HAVE_CAYA = ;
+	CAYA_INCLUDE_DIR = ;
+	CAYA_LIBRARY_DIR = ;
+
+	local haveHeaders = [ Glob $(COMMON_INCLUDE_DIRECTORY)/caya : CayaProtocol.h ] ;
+	if $(haveHeaders) {
+		CAYA_INCLUDE_DIR = $(COMMON_INCLUDE_DIRECTORY)/caya ;
+
+#		local haveLibs = [ Glob $(COMMON_LIB_DIRECTORY) : libinfopopper.so ] ;
+#		if $(haveLibs) {
+#			CAYA_LIBRARY_DIR = $(COMMON_LIB_DIRECTORY) ;
+
+			Echo Caya Headers: $(CAYA_INCLUDE_DIR) ;
+#			Echo Caya Libs: $(CAYA_LIBRARY_DIR) ;
+#		}
+
+#		HAVE_CAYA = $(haveLibs) ;
+	}
+
+	HAVE_CAYA = $(haveHeaders) ;
+}

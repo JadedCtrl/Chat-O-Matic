@@ -1,0 +1,13 @@
+resource(1000) message('IMst') {
+	"setting" = message {
+		"name" = "yahooID",
+		"description" = "Yahoo! ID",
+		int32 "type" = 'CSTR'
+	},
+	"setting" = message {
+		"name" = "password",
+		"description" = "Password",
+		int32 "type" = 'CSTR',
+		"is_secret" = true
+	}
+};
