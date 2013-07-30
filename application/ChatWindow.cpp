@@ -42,6 +42,8 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 		cl->GetName().String(), B_TITLED_WINDOW, 0),
 		fContactLinker(cl)
 {
+	fMessageCount = 0;
+	
 	fReceiveView = new CayaRenderView("fReceiveView");
 	fReceiveView->SetOtherNick(cl->GetName());
 	BScrollView* scrollViewReceive = new BScrollView("scrollviewR",
@@ -193,11 +195,15 @@ ChatWindow::ImMessage(BMessage* msg)
 			
 			if (IsActive()) break;
 			
+			fMessageCount++;
+		
 			// Mark unread window			
 			if (CayaPreferences::Item()->MarkUnreadWindow) { 
-				BString title = "[*] ";
+				BString title = "[";
+				title<<fMessageCount;
+				title<<"] ";
 				title<<fContactLinker->GetName();
-				SetTitle(title); 
+				SetTitle(title);
 			}
 			
 			// Check if the user want the notification
@@ -205,15 +211,21 @@ ChatWindow::ImMessage(BMessage* msg)
 				break;
 
 			BString notify_message;
-			notify_message << "You've got new message from ";
+			notify_message << "You've got ";
+			notify_message << fMessageCount;
+			if (fMessageCount==1) {
+				notify_message << " new message from ";
+			} else {
+				notify_message << " new messages from ";
+			};
 			notify_message << fContactLinker->GetName().String();
-
 
 			BNotification notification(B_INFORMATION_NOTIFICATION);
 			notification.SetGroup(BString("Caya"));
 			notification.SetTitle(BString("New message"));
 			notification.SetIcon(fAvatar->Bitmap());
 			notification.SetContent(notify_message);
+			notification.SetMessageID(fContactLinker->GetName());
 			notification.Send();
 			
 			break;
@@ -238,6 +250,7 @@ void
 ChatWindow::WindowActivated(bool active)
 {
 	SetTitle(fContactLinker->GetName());
+	fMessageCount=0;
 }
 
 void
