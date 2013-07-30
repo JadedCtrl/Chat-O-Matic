@@ -8,6 +8,7 @@
 #include <Window.h>
 #include <TextView.h>
 #include <StringView.h>
+#include <Notification.h>
 #include "Observer.h"
 
 #include "CayaConstants.h"
@@ -43,6 +44,7 @@ private:
 		BStringView*	fStatus;
 		BTextView*		fPersonalMessage;
 		BitmapView*		fAvatar;
+		int32			fMessageCount;
 
 };
 
