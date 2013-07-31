@@ -141,7 +141,8 @@ namespace gloox
   {
     if( pos + needle.length() <= data.length() )
     {
-      if( !data.compare( pos, needle.length(), needle ) )
+      // if( !data.compare(pos, needle.length(), needle ) )
+      if( !data.compare(needle.substr(pos, needle.length())) )
       {
         pos += needle.length() - 1;
         return ForwardFound;

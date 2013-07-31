@@ -303,7 +303,7 @@ namespace gloox
 
   bool ci_equal( char ch1, char ch2 )
   {
-    return std::toupper( (unsigned char)ch1 ) == std::toupper( (unsigned char)ch2 );
+    return toupper( (unsigned char)ch1 ) == toupper( (unsigned char)ch2 );
   }
 
   std::string::size_type ci_find( const std::string& str1, const std::string& str2 )

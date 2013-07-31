@@ -30,7 +30,7 @@ CayaPreferencesData::CayaPreferencesData()
 	RaiseUserIsTyping(false),
 	MarkUnreadWindow(true),
 	HideCayaDeskbar(false),
-	DisableReplicant(true),
+	DisableReplicant(false),
 	IgnoreEmoticons(false),
 	NotifyProtocolStatus(true),
 	NotifyContactStatus(false),

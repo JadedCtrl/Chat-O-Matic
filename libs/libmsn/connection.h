@@ -29,6 +29,7 @@
 #include <vector>
 #include <map>
 #include <stdexcept>
+#include <sstream>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4290 )

@@ -1214,7 +1214,7 @@ namespace gloox
   /**
    * A multimap of strings.
    */
-  typedef std::multimap<std::string, std::string> StringMultiMap;
+  typedef std::multimap<const std::string, const std::string> StringMultiMap;
 
   class StanzaExtension;
   /**

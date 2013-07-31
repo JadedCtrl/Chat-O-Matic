@@ -84,11 +84,11 @@ namespace gloox
     DataFormField* dff = df.addField( DataFormField::TypeListSingle, "stream-method" );
     StringMultiMap sm;
     if( streamTypes & FTTypeS5B )
-      sm.insert( std::make_pair( "s5b", XMLNS_BYTESTREAMS ) );
+      sm.insert( std::make_pair<const char*, std::string>( "s5b", XMLNS_BYTESTREAMS ) );
     if( streamTypes & FTTypeIBB )
-      sm.insert( std::make_pair( "ibb", XMLNS_IBB ) );
+      sm.insert( std::make_pair<const char*, std::string>( "ibb", XMLNS_IBB ) );
     if( streamTypes & FTTypeOOB )
-      sm.insert( std::make_pair( "oob", XMLNS_IQ_OOB ) );
+      sm.insert( std::make_pair<const char*, std::string>( "oob", XMLNS_IQ_OOB ) );
     dff->setOptions( sm );
     feature->addChild( df.tag() );
 

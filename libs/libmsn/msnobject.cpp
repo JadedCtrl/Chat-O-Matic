@@ -30,7 +30,7 @@ namespace MSN
 {
     void MSNObject::addMSNObject(std::string filename, int Type)
     {
-        std::ifstream::pos_type size;
+        std::streampos size;
         char * memblock;
         SHA_CTX  ctx;
         unsigned char digest[SHA_DIGEST_LENGTH];

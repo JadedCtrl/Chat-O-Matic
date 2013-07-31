@@ -30,7 +30,7 @@ PreferencesReplicant::PreferencesReplicant()
 	: BView("Replicant", B_WILL_DRAW)
 {
 	fReplicantString = new BStringView("ReplicantString",
-		"Deskbar Replicant (only with gcc4hybrid)");
+		"Deskbar Replicant");
 
 	fReplicantString->SetExplicitAlignment(
 		BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
@@ -39,6 +39,9 @@ PreferencesReplicant::PreferencesReplicant()
 
 	fDisableReplicant = new BCheckBox("DisableReplicant",
 		"Disable Deskbar replicant", new BMessage(kDisableReplicant));
+
+	if (!CayaPreferences::Item()->HideCayaDeskbar)
+		Looper()->PostMessage(new BMessage(kDisableReplicant));
 
 	fPermanentReplicant = new BCheckBox("PermanentReplicant",
 		"Permanent Deskbar Replicant", NULL);

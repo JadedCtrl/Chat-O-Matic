@@ -52,7 +52,7 @@ const char* kProtocolName = "MSN Protocol";
 const uint32 kAvatarCheckMessage = 'AVMs';
 
 struct pollfd* kPollSockets = NULL;
-struct ssl {
+struct Ssl {
 	bool isSSL;
 	bool isConnected;
 	SSL *ssl;
@@ -718,7 +718,7 @@ void MSNP::registerSocket(void *s, int reading, int writing, bool isSSL)
 			return;
 		}
 
-		kSocketsSsl = (struct ssl*) realloc(kSocketsSsl, (kSocketsAvailable + 10) * sizeof(struct ssl));
+		kSocketsSsl = (struct Ssl*) realloc(kSocketsSsl, (kSocketsAvailable + 10) * sizeof(struct Ssl));
 		if (kSocketsSsl == NULL) {
 			Error("Memory Error!!\n", NULL);
 			return;

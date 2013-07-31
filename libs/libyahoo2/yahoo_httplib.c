@@ -29,19 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if STDC_HEADERS
 # include <string.h>
-#else
-# if !HAVE_STRCHR
-#  define strchr index
-#  define strrchr rindex
-# endif
-char *strchr(), *strrchr();
-# if !HAVE_MEMCPY
-#  define memcpy(d, s, n) bcopy ((s), (d), (n))
-#  define memmove(d, s, n) bcopy ((s), (d), (n))
-# endif
-#endif
 
 #include <errno.h>
 #if HAVE_UNISTD_H
@@ -374,7 +362,6 @@ void yahoo_http_get(int id, const char *url, const char *cookies, int http11,
 void yahoo_http_head(int id, const char *url, const char *cookies, int len,
 	char *payload, yahoo_get_fd_callback callback, void *data)
 {
-	printf("yahoo_http_read\n");
 	char host[255];
 	int port = 80;
 	char path[255];

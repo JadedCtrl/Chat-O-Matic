@@ -2,6 +2,7 @@ SubDir TOP protocols xmpp ;
 
 SubDirSysHdrs [ FDirName $(TOP) ] ;
 SubDirSysHdrs [ FDirName $(TOP) libs ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs libgloox ] ;
 SubDirSysHdrs [ FDirName $(OPENSSL_INCLUDE_DIR) ] ;
 SubDirSysHdrs [ FDirName $(CAYA_INCLUDE_DIR) ] ;
 

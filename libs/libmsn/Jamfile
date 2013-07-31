@@ -2,6 +2,7 @@ SubDir TOP libs libmsn ;
 
 SubDirSysHdrs [ FDirName $(TOP) ] ;
 SubDirSysHdrs [ FDirName $(TOP) libs ] ;
+SubDirSysHdrs [ FDirName $(TOP) libs libmsn ] ;
 
 SubDirSysHdrs [ FDirName $(OPENSSL_INCLUDE_DIR) ] ;
 

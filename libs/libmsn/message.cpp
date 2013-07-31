@@ -124,7 +124,7 @@ namespace MSN
     {
         std::string color = this->getFormatInfo()["CO"];
         assert(color.size() <= 6 && color.size() >= 0);
-        color.insert(0U, 6 - color.size(), '0');
+        color.insert((size_t)0, (size_t)(6 - color.size()), '0');
         int r = 0, g = 0, b = 0;
         
         b = strtol(color.substr(0, 2).c_str(), NULL, 16);
@@ -167,7 +167,7 @@ namespace MSN
     
     void Message::setColor(std::string color)
     {
-        color.insert(0U, 6 - color.size(), '0');
+        color.insert((size_t)0, (size_t)(6 - color.size()), '0');
         int r = 0, g = 0, b = 0;
         
         r = strtol(color.substr(0, 2).c_str(), NULL, 16);

@@ -146,8 +146,8 @@ namespace MSN
              it1 != s1.end() && it2 != s2.end();
              ++it1, ++it2)
         { 
-            if (std::toupper(*it1) != std::toupper(*it2)) 
-                return std::toupper(*it1) - std::toupper(*it2);
+            if (toupper(*it1) != toupper(*it2)) 
+                return toupper(*it1) - toupper(*it2);
         }
         size_t size1 = s1.size(), size2 = s2.size(); 
         return (int) (size1 - size2);
@@ -358,11 +358,11 @@ namespace MSN
     int FileSize(const char* sFileName)
     {
         std::ifstream f;
-        f.open(sFileName, std::ios_base::binary | std::ios_base::in);
+        f.open(sFileName, std::ios::binary | std::ios::in);
         if (!f.good() || f.eof() || !f.is_open()) { return 0; }
-        f.seekg(0, std::ios_base::beg);
-        std::ifstream::pos_type begin_pos = f.tellg();
-        f.seekg(0, std::ios_base::end);
+        f.seekg(0, std::ios::beg);
+        std::streampos begin_pos = f.tellg();
+        f.seekg(0, std::ios::end);
         return static_cast<int>(f.tellg() - begin_pos);
     }
 
