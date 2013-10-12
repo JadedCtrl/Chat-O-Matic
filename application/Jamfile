@@ -68,6 +68,8 @@ Depends Caya : libinterface.a ;
 Depends Caya : librunview.a ;
 Depends Caya : libsupport.a ;
 
+LINKFLAGS on Caya += -L$(EXPAT_LIBRARY_DIR) ;
+
 InstallBin $(CAYA_DIRECTORY) : Caya ;
 
 InstallFile $(COMMON_INCLUDE_DIRECTORY)/caya : CayaConstants.h ;

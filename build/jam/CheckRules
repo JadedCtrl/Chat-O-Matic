@@ -14,7 +14,7 @@ rule CheckGccPlatform
 		# /boot/develop/lib/x86 to judge whether this is a BeOS compatible and thus
 		# gcc 2 platform. This is not entirely correct, but should be good enough
 		# for the time being.
-		local haveLibStdC++.R4 = [ Glob /boot/develop/lib/x86 : libstdc++.r4.so ] ;
+		local haveLibStdC++.R4 = [ Glob /boot/system/develop/tools/lib : libstdc++.r4.so ] ;
 		if ! $(haveLibStdC++.R4) {
 			IS_GCC4_PLATFORM = 1 ;
 			Echo Using GCC4 platform ;
@@ -33,101 +33,38 @@ rule CheckOpenSSL
 	OPENSSL_INCLUDE_DIR = ;
 	OPENSSL_LIBRARY_DIR = ;
 
-	local haveHeaders = [ Glob $(COMMON_INCLUDE_DIRECTORY)/openssl : ssl.h ] ;
+	local haveHeaders = [ Glob $(USER_INCLUDE_DIRECTORY)/openssl : ssl.h ] ;
 	if $(haveHeaders) {
-		OPENSSL_INCLUDE_DIR = $(COMMON_INCLUDE_DIRECTORY)/openssl ;
+		OPENSSL_INCLUDE_DIR = $(USER_INCLUDE_DIRECTORY) ;
 
-		local haveLibs = [ Glob $(COMMON_LIB_DIRECTORY) : libssl.so ] ;
+		local haveLibs = [ Glob $(USER_LIB_DIRECTORY) : libssl.so ] ;
 		if $(haveLibs) {
-			OPENSSL_LIBRARY_DIR = $(COMMON_LIB_DIRECTORY) ;
+			OPENSSL_LIBRARY_DIR = $(USER_LIB_DIRECTORY) ;
 
 			Echo OpenSSL Headers: $(OPENSSL_INCLUDE_DIR) ;
 			Echo OpenSSL Libs: $(OPENSSL_LIBRARY_DIR) ;
 		}
-
 		HAVE_OPENSSL = $(haveLibs) ;
 	}
 }
 
-rule CheckCurl
+rule CheckExpat
 {
-	# CheckCurl ;
-	# Check for Curl and defined HAVE_CURL according, it also defines
-	# CURL_INCLUDE_DIR and CURL_LIBRARY_DIR with location of respectively
-	# include and library files.
+	HAVE_EXPAT = ;
+	EXPAT_INCLUDE_DIR = ;
+	EXPAT_LIBRARY_DIR = ;
 
-	HAVE_CURL = ;
-	CURL_INCLUDE_DIR = ;
-	CURL_LIBRARY_DIR = ;
-
-	local haveHeaders = [ Glob $(COMMON_INCLUDE_DIRECTORY)/curl : curl.h ] ;
+	local haveHeaders = [ Glob $(USER_INCLUDE_DIRECTORY)/ : expat.h ] ;
 	if $(haveHeaders) {
-		CURL_INCLUDE_DIR = $(COMMON_INCLUDE_DIRECTORY)/curl ;
+		EXPAT_INCLUDE_DIR = $(USER_INCLUDE_DIRECTORY)/ ;
 
-		local haveLibs = [ Glob $(COMMON_LIB_DIRECTORY) : libcurl.so ] ;
+		local haveLibs = [ Glob $(USER_LIB_DIRECTORY) : libexpat.so ] ;
 		if $(haveLibs) {
-			CURL_LIBRARY_DIR = $(COMMON_LIB_DIRECTORY) ;
+			EXPAT_LIBRARY_DIR = $(USER_LIB_DIRECTORY) ;
 
-			Echo Curl Headers: $(CURL_INCLUDE_DIR) ;
-			Echo Curl Libs: $(CURL_LIBRARY_DIR) ;
+			Echo Expat Headers: $(EXPAT_INCLUDE_DIR) ;
+			Echo Expat Libs: $(EXPAT_LIBRARY_DIR) ;
 		}
-
-		HAVE_CURL = $(haveLibs) ;
+		HAVE_EXPAT = $(haveLibs) ;
 	}
-}
-
-rule CheckLibYahoo2
-{
-	# CheckLibYahoo2
-	# Check for LibYahoo2 and defined HAVE_LIBYAHOO2 according, it also defines
-	# LIBYAHOO2_INCLUDE_DIR and LIBYAHOO2_LIBRARY_DIR with location of respectively
-	# include and library files.
-
-	HAVE_LIBYAHOO2 = ;
-	LIBYAHOO2_INCLUDE_DIR = ;
-	LIBYAHOO2_LIBRARY_DIR = ;
-
-	local haveHeaders = [ Glob $(COMMON_INCLUDE_DIRECTORY)/libyahoo2 : yahoo2.h ] ;
-	if $(haveHeaders) {
-		LIBYAHOO2_INCLUDE_DIR = $(COMMON_INCLUDE_DIRECTORY)/libyahoo2 ;
-
-		local haveLibs = [ Glob $(COMMON_LIB_DIRECTORY) : libyahoo2.so ] ;
-		if $(haveLibs) {
-			LIBYAHOO2_LIBRARY_DIR = $(COMMON_LIB_DIRECTORY) ;
-
-			Echo Yahoo Headers: $(LIBYAHOO2_INCLUDE_DIR) ;
-			Echo Yahoo Libs: $(LIBYAHOO2_LIBRARY_DIR) ;
-		}
-
-		HAVE_LIBYAHOO2 = $(haveLibs) ;
-	}
-}
-
-rule CheckCaya
-{
-	# CheckCaya
-	# Check for Caya and defined HAVE_CAYA according, it also defines
-	# CAYA_INCLUDE_DIR and CAYA_LIBRARY_DIR with location of respectively
-	# include and library files.
-
-	HAVE_CAYA = ;
-	CAYA_INCLUDE_DIR = ;
-	CAYA_LIBRARY_DIR = ;
-
-	local haveHeaders = [ Glob $(COMMON_INCLUDE_DIRECTORY)/caya : CayaProtocol.h ] ;
-	if $(haveHeaders) {
-		CAYA_INCLUDE_DIR = $(COMMON_INCLUDE_DIRECTORY)/caya ;
-
-#		local haveLibs = [ Glob $(COMMON_LIB_DIRECTORY) : libinfopopper.so ] ;
-#		if $(haveLibs) {
-#			CAYA_LIBRARY_DIR = $(COMMON_LIB_DIRECTORY) ;
-
-			Echo Caya Headers: $(CAYA_INCLUDE_DIR) ;
-#			Echo Caya Libs: $(CAYA_LIBRARY_DIR) ;
-#		}
-
-#		HAVE_CAYA = $(haveLibs) ;
-	}
-
-	HAVE_CAYA = $(haveHeaders) ;
 }

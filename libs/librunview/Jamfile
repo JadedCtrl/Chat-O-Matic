@@ -3,6 +3,8 @@ SubDir TOP libs librunview ;
 SubDirSysHdrs [ FDirName $(TOP) ] ;
 SubDirSysHdrs [ FDirName $(TOP) libs ] ;
 
+SubDirSysHdrs [ FDirName $(EXPAT_INCLUDE_DIR) ] ;
+
 SEARCH_SOURCE += [ FDirName $(TOP) libs ] ;
 
 local sources =
@@ -15,7 +17,7 @@ local sources =
 	Emoconfig.cpp
 ;
 
-
 StaticLibrary librunview.a : $(sources) ;
 
-Depends libjabber.a ;
+LINKFLAGS on librunview.a += -L$(EXPAT_LIBRARY_DIR) ;
+

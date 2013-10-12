@@ -46,20 +46,16 @@ LOCATE on $(HCACHEFILE) $(JCACHEFILE) = $(GENERATED_DIR) ;
 include [ FDirName $(JAM_DIR) CheckRules ] ;
 CheckGccPlatform ;
 
-#CheckCurl ;
-#if ! $(HAVE_CURL) {
-#	Echo "** Caya needs Curl" ;
-#}
-
-CheckCaya ;
-if ! $(HAVE_CAYA) {
-	Echo "** Caya library is needed!" ;
-	Exit 1 ;
-}
-
 CheckOpenSSL ;
 if ! $(HAVE_OPENSSL) {
-	Echo "** MSN, Jabber, GoogleTalk and Facebook protocols are disabled for lack of OpenSSL" ;
+	Echo "Warning OpenSSL is missing!" ;
+	exit 0 ;
+}
+
+CheckExpat ;
+if ! $(HAVE_EXPAT) {
+	Echo "Warning Expat is missing!" ;
+	exit 1 ;
 }
 
 # Include jam scripts

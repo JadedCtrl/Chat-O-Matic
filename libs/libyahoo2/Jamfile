@@ -4,9 +4,9 @@ SubDirSysHdrs [ FDirName $(TOP) ] ;
 SubDirSysHdrs [ FDirName $(TOP) libs ] ;
 SubDirSysHdrs [ FDirName $(TOP) libs libyahoo2 ] ;
 
-#SubDirSysHdrs [ FDirName $(OPENSSL_INCLUDE_DIR) ] ;
+SubDirSysHdrs [ FDirName $(OPENSSL_INCLUDE_DIR) ] ;
 
-#SEARCH_SOURCE += [ FDirName $(TOP) libs ] ;
+SEARCH_SOURCE += [ FDirName $(TOP) libs ] ;
 
 local sources =
 	# libyahoo

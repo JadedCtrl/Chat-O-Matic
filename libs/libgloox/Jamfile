@@ -6,7 +6,7 @@ SubDirSysHdrs [ FDirName $(OPENSSL_INCLUDE_DIR) ] ;
 
 SEARCH_SOURCE += [ FDirName $(TOP) libs ] ;
 
-StaticLibrary libgloox.a :
+local sources =
 	adhoc.cpp
 	amp.cpp
 	annotations.cpp
@@ -104,3 +104,8 @@ StaticLibrary libgloox.a :
 	vcardupdate.cpp
 	xhtmlim.cpp
 ;
+
+
+StaticLibrary libgloox.a : $(sources) ;
+
+Depends libssl.so ;
