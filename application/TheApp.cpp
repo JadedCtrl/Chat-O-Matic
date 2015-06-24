@@ -25,8 +25,6 @@
 #include "Server.h"
 #include "TheApp.h"
 
-#include "svn_revision.h"
-
 TheApp::TheApp()
 	:
 	BApplication(CAYA_SIGNATURE),
@@ -90,20 +88,21 @@ TheApp::AboutRequested()
 {
 	const char* holders[] = {
 		"2009-2010 Andrea Anzani",
+		"2010-2015 Dario Casalinuovo",
 		"2009-2010 Pier Luigi Fiorini",
-		"2010-2012 Casalinuovo Dario",
 		NULL
 	};
 
 	const char* authors[] = {
 		"Andrea Anzani",
+		"Dario Casalinuovo",
 		"Pier Luigi Fiorini",
-		"Casalinuovo Dario",
 		NULL
 	};
 
 	BString extraInfo;
-	extraInfo << "SVN Revision: " << kSVNRevision << "\n";
+	extraInfo << "Caya is released under the GNU GPL License." << "\n";
+	extraInfo << "Some parts of Caya are available under MIT license." << "\n";
 	extraInfo << "Built: " << BUILD_DATE;
 
 	AboutWindow* about = new AboutWindow("Caya", holders,
