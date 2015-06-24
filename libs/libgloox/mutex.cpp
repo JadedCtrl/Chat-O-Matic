@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -56,9 +56,17 @@ namespace gloox
     Mutex::MutexImpl::MutexImpl()
     {
 #if defined( _WIN32 ) && !defined( __SYMBIAN32__ )
+      // NOTE: Critical sections by nature allow "recursive"
+      //  (the same thread can get it again, and just bump the ref count).
       InitializeCriticalSection( &m_cs );
 #elif defined( HAVE_PTHREAD )
-      pthread_mutex_init( &m_mutex, 0 );
+      // For pthreads, configured the mutex to be recursive
+      //  (the same thread can get it again, and just bump the ref count).
+      pthread_mutexattr_t mutexAttribute;
+      pthread_mutexattr_init( &mutexAttribute );
+      pthread_mutexattr_settype( &mutexAttribute, PTHREAD_MUTEX_RECURSIVE );
+      pthread_mutex_init( &m_mutex, &mutexAttribute );
+      pthread_mutexattr_destroy( &mutexAttribute );
 #endif
     }
 

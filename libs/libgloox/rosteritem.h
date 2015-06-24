@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -14,6 +14,7 @@
 #ifndef ROSTERITEM_H__
 #define ROSTERITEM_H__
 
+#include "jid.h"
 #include "gloox.h"
 #include "resource.h"
 #include "presence.h"
@@ -33,7 +34,7 @@ namespace gloox
    * For each RosterItem all resources that are available (online in some way) are stored in
    * a ResourceMap. This map is accessible using the resources() function.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.3
    */
   class GLOOX_API RosterItem
@@ -45,6 +46,11 @@ namespace gloox
        * A list of resources for the given JID.
        */
       typedef std::map<std::string, Resource*> ResourceMap;
+
+      /**
+       * An empty string.
+       */
+      const JID EmptyJID;
 
       /**
        * Constructs a new item of the roster.
@@ -80,8 +86,16 @@ namespace gloox
       /**
        * Returns the contact's bare JID.
        * @return The contact's bare JID.
+       * @deprecated Use jidJID() for now. In 1.1, jidJID() will be renamed back to jid().
        */
-      const std::string& jid() const;
+      GLOOX_DEPRECATED const std::string& jid() const;
+
+      /**
+       * Returns the contact's bare JID.
+       * @return The contact's bare JID.
+       * @todo Rename to jid() for 1.1.
+       */
+      const JID& jidJID() const;
 
       /**
        * Sets the current subscription status of the contact.

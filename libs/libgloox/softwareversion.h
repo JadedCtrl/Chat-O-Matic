@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2008-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2008-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -26,9 +26,9 @@ namespace gloox
   class Tag;
 
   /**
-   * @brief This is an implementation of XEP-0092 as a StanzaExtension.
+   * @brief This is an implementation of @xep{0092} as a StanzaExtension.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 1.0
    */
   class GLOOX_API SoftwareVersion : public StanzaExtension

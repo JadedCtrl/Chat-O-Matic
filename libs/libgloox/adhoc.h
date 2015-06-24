@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -15,12 +15,13 @@
 #ifndef ADHOC_H__
 #define ADHOC_H__
 
-#include "dataform.h"
+#include "adhocplugin.h"
 #include "disco.h"
 #include "disconodehandler.h"
 #include "discohandler.h"
 #include "iqhandler.h"
 #include "stanzaextension.h"
+#include "mutex.h"
 
 #include <string>
 #include <list>
@@ -35,7 +36,7 @@ namespace gloox
   class AdhocCommandProvider;
 
   /**
-   * @brief This class implements a provider for XEP-0050 (Ad-hoc Commands).
+   * @brief This class implements a provider for @xep{0050} (Ad-hoc Commands).
    *
    * The current, not complete, implementation is probably best suited for fire-and-forget
    * type of commands. Any additional feature, like multiple stages, etc., would have to be
@@ -75,16 +76,16 @@ namespace gloox
    * ...TBC...
    *
    * XEP version: 1.2
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    */
   class GLOOX_API Adhoc : public DiscoNodeHandler, public DiscoHandler, public IqHandler
   {
     public:
       /**
-       * @brief An abstraction of an Adhoc Command element (from Adhoc Commands, XEP-0050)
+       * @brief An abstraction of an Adhoc Command element (from Adhoc Commands, @xep{0050})
        * as a StanzaExtension.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class GLOOX_API Command : public StanzaExtension
@@ -123,7 +124,7 @@ namespace gloox
           /**
            * An abstraction of a command note.
            *
-           * @author Jakob Schroeter <js@camaya.net>
+           * @author Jakob Schröter <js@camaya.net>
            * @since 1.0
            */
           class GLOOX_API Note
@@ -203,11 +204,11 @@ namespace gloox
            * @param node The node (command) to perform the action on.
            * @param sessionid The session ID of an already running adhoc command session.
            * @param action The action to perform.
-           * @param form An optional DataForm to include in the request. Will be deleted in Command's
+           * @param plugin An optional AdhocPlugin (e.g. DataForm) to include in the request. Will be deleted in Command's
            * destructor.
            */
           Command( const std::string& node, const std::string& sessionid, Action action,
-                   DataForm* form = 0 );
+                   AdhocPlugin* plugin = 0 );
 
           /**
            * Creates a Command object that can be used to perform the provided Action.
@@ -215,11 +216,11 @@ namespace gloox
            * @param node The node (command) to perform the action on.
            * @param sessionid The (possibly newly created) session ID of the adhoc command session.
            * @param status The execution status.
-           * @param form An optional DataForm to include in the reply. Will be deleted in Command's
+           * @param plugin An optional AdhocPlugin (e.g. DataForm) to include in the reply. Will be deleted in Command's
            * destructor.
            */
           Command( const std::string& node, const std::string& sessionid, Status status,
-                   DataForm* form = 0 );
+                   AdhocPlugin* plugin = 0 );
 
           /**
            * Creates a Command object that can be used to perform the provided Action.
@@ -230,12 +231,12 @@ namespace gloox
            * @param status The execution status.
            * @param executeAction The action to execute.
            * @param allowedActions Allowed reply actions.
-           * @param form An optional DataForm to include in the reply. Will be deleted in Command's
+           * @param plugin An optional AdhocPlugin (e.g. DataForm) to include in the reply. Will be deleted in Command's
            * destructor.
            */
           Command( const std::string& node, const std::string& sessionid, Status status,
                    Action executeAction, int allowedActions = Complete,
-                   DataForm* form = 0 );
+                   AdhocPlugin* plugin = 0 );
 
           /**
            * Creates a Command object that can be used to perform the provided Action.
@@ -243,11 +244,11 @@ namespace gloox
            * (single or multi stage).
            * @param node The node (command) to perform the action on.
            * @param action The action to perform.
-           * @param form An optional DataForm to include in the request. Will be deleted in Command's
+           * @param plugin An optional AdhocPlugin (e.g. DataForm) to include in the request. Will be deleted in Command's
            * destructor.
            */
           Command( const std::string& node, Action action,
-                   DataForm* form = 0 );
+                   AdhocPlugin* plugin = 0 );
 
           /**
            * Creates a Command object from the given Tag.
@@ -306,10 +307,17 @@ namespace gloox
           void addNote( const Note* note ) { m_notes.push_back( note ); }
 
           /**
-           * Returns the command's embedded DataForm.
-           * @return The command's embedded DataForm. May be 0.
+           * Returns the command's embedded AdhocPlugin (e.g. DataForm).
+           * @return The command's embedded AdhocPlugin (e.g. DataForm). May be 0.
+           * @note This will be removed in 1.1. Use plugin() instead.
            */
-          const DataForm* form() const { return m_form; }
+          GLOOX_DEPRECATED const AdhocPlugin* form() const { return m_plugin; }
+
+          /**
+           * Returns the command's embedded AdhocPlugin (e.g. DataForm).
+           * @return The command's embedded AdhocPlugin (e.g. DataForm). May be 0.
+           */
+          const AdhocPlugin* plugin() const { return m_plugin; }
 
           // reimplemented from StanzaExtension
           virtual const std::string& filterString() const;
@@ -334,7 +342,7 @@ namespace gloox
 
             c->m_node = m_node;
             c->m_sessionid = m_sessionid;
-            c->m_form = m_form ? static_cast<DataForm*>( m_form->clone() ) : 0;
+            c->m_plugin = m_plugin ? static_cast<AdhocPlugin*>( m_plugin->clone() ) : 0;
             c->m_action = m_action;
             c->m_status = m_status;
             c->m_actions = m_actions;
@@ -350,7 +358,7 @@ namespace gloox
 
           std::string m_node;
           std::string m_sessionid;
-          DataForm* m_form;
+          AdhocPlugin* m_plugin;
           Action m_action;
           Status m_status;
           int m_actions;
@@ -372,16 +380,18 @@ namespace gloox
        * This function queries the given remote entity for Adhoc Commands support.
        * @param remote The remote entity's JID.
        * @param ah The object handling the result of this request.
+       * @param context A user defined context.
        */
-      void checkSupport( const JID& remote, AdhocHandler* ah );
+      void checkSupport( const JID& remote, AdhocHandler* ah, int context = 0 );
 
       /**
        * Retrieves a list of commands from the remote entity. You should check whether the remote
        * entity actually supports Adhoc Commands by means of checkSupport().
        * @param remote The remote entity's JID.
        * @param ah The object handling the result of this request.
+       * @param context A user defined context.
        */
-      void getCommands( const JID& remote, AdhocHandler* ah );
+      void getCommands( const JID& remote, AdhocHandler* ah, int context = 0 );
 
       /**
        * Executes or continues the given command on the given remote entity.
@@ -392,14 +402,15 @@ namespace gloox
        * @param remote The remote entity's JID.
        * @param command The command to execute.
        * @param ah The object handling the result of this request.
+       * @param context A user defined context.
        */
-      void execute( const JID& remote, const Adhoc::Command* command, AdhocHandler* ah );
+      void execute( const JID& remote, const Adhoc::Command* command, AdhocHandler* ah, int context = 0 );
 
       /**
        * Use this function to respond to an execution request submitted by means
        * of AdhocCommandProvider::handleAdhocCommand().
        * It is recommended to use
-       * Command( const std::string&, const std::string&, Status, DataForm* )
+       * Command( const std::string&, const std::string&, Status, AdhocPlugin* )
        * to construct the @c command object.
        * Optionally, an Error object can be included. In that case the IQ sent is of type @c error.
        * @param remote The requester's JID.
@@ -411,8 +422,8 @@ namespace gloox
 
       /**
        * Using this function, you can register a AdhocCommandProvider -derived object as
-       * handler for a specific Ad-hoc Command as defined in XEP-0050.
-       * @param acp The obejct to register as handler for the specified command.
+       * handler for a specific Ad-hoc Command as defined in @xep{0050}.
+       * @param acp The object to register as handler for the specified command.
        * @param command The node name of the command. Will be announced in disco#items.
        * @param name The natural-language name of the command. Will be announced in disco#items.
        */
@@ -471,9 +482,11 @@ namespace gloox
         AdhocContext context;
         std::string session;
         AdhocHandler* ah;
+        int handlerContext;
       };
       typedef std::map<std::string, TrackStruct> AdhocTrackMap;
       AdhocTrackMap m_adhocTrackMap;
+      util::Mutex m_adhocTrackMapMutex;
 
       ClientBase* m_parent;
 

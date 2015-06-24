@@ -13,11 +13,17 @@
 /* Define to 1 if you have the <errno.h> header file. */
 #define HAVE_ERRNO_H 1
 
+/* Define to 1 if GCC atomic builtins are available */
+#define HAVE_GCC_ATOMIC_BUILTINS 1
+
 /* Define to 1 if you have the `getaddrinfo' function. */
 /* #undef HAVE_GETADDRINFO */
 
 /* Define to 1 if you want TLS support (GnuTLS). Undefine HAVE_OPENSSL. */
 /* #undef HAVE_GNUTLS */
+
+/* Define to 1 if you have GnuTLS 2.12.0 or above. */
+/* #undef HAVE_GNUTLS_SESSION_CHANNEL_BINDING */
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -28,14 +34,14 @@
 /* Define to 1 if you want IDN support. */
 /* #undef HAVE_LIBIDN */
 
-/* Define to 1 if you have the `network' library (-lnetwork). */
-#define HAVE_LIBNETWORK 1
-
 /* Define to 1 if you have the `resolv' library (-lresolv). */
 /* #undef HAVE_LIBRESOLV */
 
 /* Define to 1 if you have the `socket' library (-lsocket). */
 /* #undef HAVE_LIBSOCKET */
+
+/* enable mdns support */
+/* #undef HAVE_MDNS */
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
@@ -53,7 +59,7 @@
 /* #undef HAVE_RES_QUERYDOMAIN */
 
 /* Define to 1 if you have the `setsockopt' function. */
-#define HAVE_SETSOCKOPT 1
+/* #undef HAVE_SETSOCKOPT */
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -93,7 +99,7 @@
 #define PACKAGE_NAME "gloox"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "gloox 1.0"
+#define PACKAGE_STRING "gloox 1.0.13"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "gloox"
@@ -102,7 +108,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.0"
+#define PACKAGE_VERSION "1.0.13"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -112,6 +118,7 @@
 #define STDC_HEADERS 1
 
 /* Version number of package */
+#define VERSION "1.0.13"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */

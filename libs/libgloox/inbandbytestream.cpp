@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -113,6 +113,8 @@ namespace gloox
 
   InBandBytestream::~InBandBytestream()
   {
+    m_handler = 0; // to prevent handleBytestreamClose() from being called in close()
+
     if( m_open )
       close();
 
@@ -161,7 +163,7 @@ namespace gloox
   bool InBandBytestream::handleIq( const IQ& iq ) // data or open request, always 'set'
   {
     const IBB* i = iq.findExtension<IBB>( ExtIBB );
-    if( !i || !m_handler || iq.subtype() != IQ::Set )
+    if( !i || !m_handler || iq.subtype() != IQ::Set || i->sid() != this->sid() )
       return false;
 
     if( !m_open )
@@ -254,7 +256,7 @@ namespace gloox
     do
     {
       const std::string& id = m_clientbase->getID();
-      IQ iq( IQ::Set, m_target, id );
+      IQ iq( IQ::Set, m_clientbase->jid() == m_target ? m_initiator : m_target, id );
       iq.addExtension( new IBB( m_sid, ++m_sequence, data.substr( pos, m_blockSize ) ) );
       m_clientbase->send( iq, this, IBBData );
 

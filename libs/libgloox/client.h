@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -28,7 +28,7 @@ namespace gloox
   class IQ;
 
   /**
-   * @brief This class implements a basic Jabber Client.
+   * @brief This class implements a basic Jabber/XMPP Client.
    *
    * It supports @ref sasl_auth as well as TLS (Encryption), which can be
    * switched on/off separately. They are used automatically if the server supports them.
@@ -36,7 +36,7 @@ namespace gloox
    * To use, create a new Client instance and feed it connection credentials, either in the Constructor or
    * afterwards using the setters. You should then register packet handlers implementing the corresponding
    * Interfaces (ConnectionListener, PresenceHandler, MessageHandler, IqHandler, SubscriptionHandler),
-   * and call @ref connect() to establish the connection to the server.<br>
+   * and call @ref connect() to establish the connection to the server.
    *
    * @note While the MessageHandler interface is still available (and will be in future versions)
    * it is now recommended to use the new @link gloox::MessageSession MessageSession @endlink for any
@@ -67,9 +67,9 @@ namespace gloox
    * include:
    * @li jabber:iq:roster: by default the server-side roster is fetched and handled. Use
    * @ref rosterManager() and @ref RosterManager to interact with the Roster.
-   * @li XEP-0092 (Software Version): If no version is specified, a name of "based on gloox" with
+   * @li @xep{0092} (Software Version): If no version is specified, a name of "based on gloox" with
    * gloox's current version is announced.
-   * @li XEP-0030 (Service Discovery): All supported/available services are announced. No items are
+   * @li @xep{0030} (Service Discovery): All supported/available services are announced. No items are
    * returned.
    * @note As of gloox 0.9, by default a priority of 0 is sent along with the initial presence.
    * @note As of gloox 0.9, initial presence is automatically sent. Presence: available, Priority: 0.
@@ -78,7 +78,7 @@ namespace gloox
    *
    * @section sasl_auth SASL Authentication
    *
-   * Besides the simple, IQ-based authentication (XEP-0078), gloox supports several SASL (Simple
+   * Besides the simple, IQ-based authentication (@xep{0078}), gloox supports several SASL (Simple
    * Authentication and Security Layer, RFC 2222) authentication mechanisms.
    * @li DIGEST-MD5: This mechanism is preferred over all other mechanisms if username and password are
    * provided to the Client instance. It is secure even without TLS encryption.
@@ -93,7 +93,25 @@ namespace gloox
    *
    * Of course, all these mechanisms are not tried unless the server offers them.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @section stream_management Stream Management
+   *
+   * To enable Stream Management (@xep{0198}), call @ref setStreamManagement() with the first parameter set to @b true
+   * at any time. This will tell the server to enable Stream Management, if the feature is available. Once switched on,
+   * Stream Management can not be disabled for a given active stream. However, setting the first
+   * parameter to @b false, it can be disabled inside gloox so that Stream Management will not be used
+   * for subsequent connections.
+   *
+   * To enable the stream resumption feature, pass @b true as the second parameter to @ref setStreamManagement().
+   * Upon re-connect after an unexpected (i.e. neither user-triggered nor server-triggered) disconnect, gloox will try
+   * to resume the stream and re-send any non-acknowledged stanzas automatically.
+   * For stream resumption to work you have to re-connect using the very same Client instance.
+   *
+   * After an unexpected disconnect you may check the send queue using @link ClientBase::sendQueue() sendQueue() @endlink.
+   * Stanzas in the queue have been sent but not yet acknowledged by the server. Depending on the circumstances of the
+   * disconnect, this does not mean that those stanzas have not been received by the recipient.
+   * 
+   *
+   * @author Jakob Schröter <js@camaya.net>
    */
   class GLOOX_API Client : public ClientBase
   {
@@ -149,7 +167,7 @@ namespace gloox
        * Use this function to select a resource identifier that has been bound
        * previously by means of bindResource(). It is not necessary to call this function
        * if only one resource is bound. Use hasResourceBind() to find out if the
-       * server supports binding of multiple resources. selectResource() is a NOOP if it doesn't.
+       * server supports binding of multiple resources.
        * @param resource A resource string that has been bound previously.
        * @note If the resource string has not been bound previously, future sending of
        * stanzas will fail.
@@ -180,6 +198,39 @@ namespace gloox
        * @return The resource used to connect.
        */
       const std::string& resource() const { return m_jid.resource(); }
+
+      /**
+       * This function enables Stream Management (@xep{0198}) if the server supports it.
+       * Optionally, stream resumption can be disabled.
+       * @note You can use this function at any time. However, gloox will make sure Stream Management
+       * requests are sent only when allowed by the specification.
+       * @param enable Enable or disable Stream Management. Note: once enabled on a connection, Stream
+       * Management can not be disabled for that connection.
+       * @param resume Tells the server whether to enable stream resumption. Defaults to @b true.
+       * @note This function is part of @xep{0198}.
+       * @since 1.0.4
+       */
+      void setStreamManagement( bool enable = true, bool resume = true );
+
+      /**
+       * Use this function to send an unrequested 'ack' to the server to let it know the number of handled stanzas.
+       * You may use this function at any time. However, gloox will also reply to incoming 'ack requests' automatically.
+       * These automatic 'acks' are not announced anywhere in gloox.
+       * This function is a no-op if called in situations where sending an ack is not
+       * allowed by the protocol.
+       * @note This function is part of @xep{0198}.
+       * @since 1.0.4
+       */
+      void ackStreamManagement();
+
+      /**
+       * Use this function to request the number of handled stanzas from the server.
+       * You may use this function at any time. gloox does not send any such requests
+       * automatically.
+       * @note This function is part of @xep{0198}.
+       * @since 1.0.4
+       */
+      void reqStreamManagement();
 
       /**
        * Returns the current priority.
@@ -288,10 +339,13 @@ namespace gloox
       void nonSaslLogin();
 
     private:
+#ifdef CLIENT_TEST
+    public:
+#endif
       /**
        * @brief This is an implementation of a resource binding StanzaExtension.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class ResourceBind : public StanzaExtension
@@ -363,7 +417,7 @@ namespace gloox
       /**
        * @brief This is an implementation of a session creating StanzaExtension.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class SessionCreation : public StanzaExtension
@@ -396,7 +450,7 @@ namespace gloox
 
       };
 
-      virtual void handleStartNode() {}
+      virtual void handleStartNode( const Tag* /*start*/ ) {}
       virtual bool handleNormalNode( Tag* tag );
       virtual void disconnect( ConnectionError reason );
       virtual void handleIqIDForward( const IQ& iq, int context );
@@ -413,6 +467,7 @@ namespace gloox
       virtual void rosterFilled();
       virtual void cleanup();
       bool bindOperation( const std::string& resource, bool bind );
+      void sendStreamManagement();
 
       void init();
 
@@ -431,6 +486,12 @@ namespace gloox
       bool m_resourceBound;
       bool m_forceNonSasl;
       bool m_manageRoster;
+
+      std::string m_smId;
+      std::string m_smLocation;
+      bool m_smResume;
+      bool m_smWanted;
+      int m_smMax;
 
       int m_streamFeatures;
 

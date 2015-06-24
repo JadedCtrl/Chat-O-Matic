@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -26,14 +26,14 @@ namespace gloox
 
   /**
    * @brief A virtual interface that allows implementors to receive data
-   * sent over a SOCKS5 Bytestream as defined in XEP-0066, or an In-Band Bytestream
-   * as defined in XEP-0047. You'll also need it for sending of data.
+   * sent over a SOCKS5 Bytestream as defined in @xep{0066}, or an In-Band Bytestream
+   * as defined in @xep{0047}. You'll also need it for sending of data.
    *
    * An BytestreamDataHandler is registered with a Bytestream.
    *
    * See SIProfileFT for more information regarding file transfer.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 1.0
    */
   class GLOOX_API BytestreamDataHandler

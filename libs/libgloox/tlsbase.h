@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -25,7 +25,7 @@ namespace gloox
   /**
    * @brief An abstract base class for TLS implementations.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class GLOOX_API TLSBase
@@ -61,7 +61,7 @@ namespace gloox
       /**
        * Enables/disables initialization of the underlying TLS library. By default,
        * initialization is performed. You may want to switch it off if the TLS library
-       * is used elsewhere in your applicationas well and you have no control over the
+       * is used elsewhere in your application as well and you have no control over the
        * initialization.
        * @param init Whether or not to intialize the underlying TLS library.
        */
@@ -103,6 +103,18 @@ namespace gloox
        * @return The state of the encryption.
        */
       virtual bool isSecure() const { return m_secure; }
+
+      /**
+       * This function indicates whether the underlying TLS implementation supports channel binding (used in e.g. SASL SCRAM-SHA-1-PLUS).
+       * @return @b True if channel binding is supported, @b false otherwise.
+       */
+      virtual bool hasChannelBinding() const { return false; }
+
+      /**
+       * Returns the channel binding data for the established connection.
+       * @return The channel binding data, if any, or the empty string.
+       */
+      virtual const std::string channelBinding() const { return EmptyString; }
 
       /**
        * Use this function to set a number of trusted root CA certificates which shall be

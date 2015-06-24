@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -22,6 +22,7 @@ namespace gloox
 {
 
   class Tag;
+  class Stanza;
 
   /**
    * Supported Stanza extension types.
@@ -30,62 +31,66 @@ namespace gloox
   {
     ExtNone,                        /**< Invalid StanzaExtension. */
     ExtVCardUpdate,                 /**< Extension in the vcard-temp:x:update namespace,
-                                     * advertising a user avatar's SHA1 hash (XEP-0153). */
+                                     * advertising a user avatar's SHA1 hash (@xep{0153}). */
     ExtOOB,                         /**< An extension in the jabber:iq:oob or jabber:x:oob
-                                     * namespaces (XEP-0066). */
+                                     * namespaces (@xep{0066}). */
     ExtGPGSigned,                   /**< An extension containing a GPG/PGP signature
-                                     * (XEP-0027). */
+                                     * (@xep{0027}). */
     ExtGPGEncrypted,                /**< An extension containing a GPG/PGP encrypted message
-                                     * (XEP-0027). */
+                                     * (@xep{0027}). */
     ExtReceipt,                     /**< An extension containing a Message Receipt/Request
-                                     * (XEP-0184). */
+                                     * (@xep{0184}). */
     ExtDelay,                       /**< An extension containing notice of delayed delivery
-                                     * (XEP-0203 & XEP-0091). */
+                                     * (@xep{0203} & @xep{0091}). */
     ExtAMP,                         /**< An extension containing advanced message processing
-                                     * rules (XEP-0079). */
+                                     * rules (@xep{0079}). */
     ExtError,                       /**< An extension containing an error. */
     ExtCaps,                        /**< An extension containing Entity Capabilities
-                                     * (XEP-0115). */
-    ExtChatState,                   /**< An extension containing a chat state (XEP-0085). */
-    ExtMessageEvent,                /**< An extension containing a message event (XEP-0022). */
-    ExtDataForm,                    /**< An extension containing a Data Form (XEP-0004). */
-    ExtNickname,                    /**< An extension containing a User Nickname (XEP-0172). */
+                                     * (@xep{0115}). */
+    ExtChatState,                   /**< An extension containing a chat state (@xep{0085}). */
+    ExtMessageEvent,                /**< An extension containing a message event (@xep{0022}). */
+    ExtDataForm,                    /**< An extension containing a Data Form (@xep{0004}). */
+    ExtNickname,                    /**< An extension containing a User Nickname (@xep{0172}). */
     ExtResourceBind,                /**< A resource bind SE (RFC3921). */
     ExtSessionCreation,             /**< A session establishing SE (RFC3921). */
     ExtVersion,                     /**< An extension containing a Version request/reply
-                                     * (XEP-0092). */
+                                     * (@xep{0092}). */
     ExtXHtmlIM,                     /**< An extension containing an XHTML message
-                                     * representation (XEP-0071) */
-    ExtDiscoInfo,                   /**< An extension containing a disco#info element (XEP-0030). */
-    ExtDiscoItems,                  /**< An extension containing a disco#items element (XEP-0030). */
-    ExtAdhocCommand,                /**< An extension containing a Adhoc Command (XEP-0050). */
-    ExtPrivateXML,                  /**< An extension used for Private XML Storage (XEP-0048). */
+                                     * representation (@xep{0071}) */
+    ExtDiscoInfo,                   /**< An extension containing a disco#info element (@xep{0030}). */
+    ExtDiscoItems,                  /**< An extension containing a disco#items element (@xep{0030}). */
+    ExtAdhocCommand,                /**< An extension containing a Adhoc Command (@xep{0050}). */
+    ExtPrivateXML,                  /**< An extension used for Private XML Storage (@xep{0048}). */
     ExtRoster,                      /**< An extension dealing with the user's roster (RFC-3921). */
     ExtFeatureNeg,                  /**< An extension abstracting a Feature Negotiation element
-                                     * (XEP-0020). */
-    ExtIBB,                         /**< An extension dealing with IBBs (XEP-0047). */
-    ExtNonSaslAuth,                 /**< An extension for doing Non-SASL Authentication (XEP-0078). */
-    ExtMUC,                         /**< An extension dealing with the muc namespace of XEP-0045. */
-    ExtMUCOwner,                    /**< An extension dealing with the muc#owner namespace of XEP-0045. */
-    ExtMUCAdmin,                    /**< An extension dealing with the muc#admin namespace of XEP-0045. */
-    ExtMUCUser,                     /**< An extension dealing with the muc#user namespace of XEP-0045. */
-    ExtMUCUnique,                   /**< An extension dealing with the muc#unique namespace of XEP-0045. */
-    ExtPing,                        /**< An XMPP Ping (XEP-0199). */
-    ExtSearch,                      /**< A XEP-0055 (Jabber Search) wrapper. */
-    ExtRegistration,                /**< A XEP-0077 (In-Band Registration) wrapper. */
-    ExtJingle,                      /**< An extension dealing with Jingle (XEP-0166) */
-    ExtVCard,                       /**< An extension dealing with vcard-temp (XEP-0054) */
-    ExtPrivacy,                     /**< An extension dealing with Privacy Lists (XEP-0016) */
-    ExtLastActivity,                /**< An extension dealing with Last Activity (XEP-0012).  */
-    ExtFlexOffline,                 /**< An extension dealing with Flexible Offline Messages (XEP-0013). */
-    ExtSI,                          /**< An extension dealing with Stream Initiation (XEP-0095). */
-    ExtS5BQuery,                    /**< An extension dealing with stream host offers (XEP-0065) */
-    ExtPubSub,                      /**< An extension dealing with PubSub requests (XEP-0060). */
-    ExtPubSubOwner,                 /**< An extension dealing with PubSub owner requests (XEP-0060). */
+                                     * (@xep{0020}). */
+    ExtIBB,                         /**< An extension dealing with IBBs (@xep{0047}). */
+    ExtNonSaslAuth,                 /**< An extension for doing Non-SASL Authentication (@xep{0078}). */
+    ExtMUC,                         /**< An extension dealing with the muc namespace of @xep{0045}. */
+    ExtMUCOwner,                    /**< An extension dealing with the muc#owner namespace of @xep{0045}. */
+    ExtMUCAdmin,                    /**< An extension dealing with the muc#admin namespace of @xep{0045}. */
+    ExtMUCUser,                     /**< An extension dealing with the muc#user namespace of @xep{0045}. */
+    ExtMUCUnique,                   /**< An extension dealing with the muc#unique namespace of @xep{0045}. */
+    ExtPing,                        /**< An XMPP Ping (@xep{0199}). */
+    ExtSearch,                      /**< A @xep{0055} (Jabber Search) wrapper. */
+    ExtRegistration,                /**< A @xep{0077} (In-Band Registration) wrapper. */
+    ExtJingle,                      /**< An extension dealing with Jingle (@xep{0166}) */
+    ExtVCard,                       /**< An extension dealing with vcard-temp (@xep{0054}) */
+    ExtPrivacy,                     /**< An extension dealing with Privacy Lists (@xep{0016}) */
+    ExtLastActivity,                /**< An extension dealing with Last Activity (@xep{0012}).  */
+    ExtFlexOffline,                 /**< An extension dealing with Flexible Offline Messages (@xep{0013}). */
+    ExtSI,                          /**< An extension dealing with Stream Initiation (@xep{0095}). */
+    ExtS5BQuery,                    /**< An extension dealing with stream host offers (@xep{0065}) */
+    ExtPubSub,                      /**< An extension dealing with PubSub requests (@xep{0060}). */
+    ExtPubSubOwner,                 /**< An extension dealing with PubSub owner requests (@xep{0060}). */
     ExtPubSubEvent,                 /**< An extension for PubSub event notifications
-                                     * (XEP-0060) */
-    ExtSHIM,                        /**< An extension dealing with Stanza Headers and Internet Metadata (XEP-0131). */
-    ExtAttention,                   /**< An extension dealing with Attention (XEP-0224). */
+                                     * (@xep{0060}) */
+    ExtSHIM,                        /**< An extension dealing with Stanza Headers and Internet Metadata (@xep{0131}). */
+    ExtAttention,                   /**< An extension dealing with Attention (@xep{0224}). */
+    ExtForward,                     /**< An extension dealing with Stanza Forwarding (@xep{0297}). */
+    ExtCarbons,                     /**< An extension dealing with Message Carbons (@xep{0280}). */
+    ExtIOData,                      /**< An extension dealing with IO Data (@xep{0244}) (though the IOData extension
+                                     * is not actually used as/meant to be a StanzaExtension. */
     ExtUser                         /**< User-supplied extensions must use IDs above this. Do
                                      * not hard-code ExtUser's value anywhere, it is subject
                                      * to change. */
@@ -171,7 +176,7 @@ namespace gloox
    * must be reimplemented. The output Tag should -- like the input Tag -- be embeddable
    * into the respective stanza.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class GLOOX_API StanzaExtension
@@ -188,6 +193,22 @@ namespace gloox
        * Virtual destructor.
        */
       virtual ~StanzaExtension() {}
+
+      /**
+       * This function returns the embedded Stanza, if any.
+       * You only have to reimplement it if your protocol flow contains embedded Stanzas.
+       *
+       * @return The embedded Stanza. May be 0.
+       */
+      virtual Stanza* embeddedStanza() const { return 0; }
+
+      /**
+       * This function returns the embedded Tag that the embedded Stanza is based on, if any.
+       * You only have to reimplement it if your protocol flow contains embedded Stanzas.
+       *
+       * @return The embedded Tag. May be 0.
+       */
+      virtual Tag* embeddedTag() const { return 0; }
 
       /**
        * Returns an XPath expression that describes a path to child elements of a

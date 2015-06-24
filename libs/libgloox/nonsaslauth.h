@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -26,14 +26,14 @@ namespace gloox
   class Tag;
 
   /**
-   * @brief This class is an implementation of XEP-0078 (Non-SASL Authentication).
+   * @brief This class is an implementation of @xep{0078} (Non-SASL Authentication).
    *
    * It is invoked by @ref Client automatically if supported by the server and if SASL authentication
    * is not supported.
    * You should not need to use this class manually.
    *
    * XEP Version: 2.3
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.3
    */
   class GLOOX_API NonSaslAuth : public IqHandler
@@ -68,9 +68,9 @@ namespace gloox
     public:
 #endif
       /**
-       * @brief An abstraction of an IQ extension used for Non-SASL authentication (XEP-0078).
+       * @brief An abstraction of an IQ extension used for Non-SASL authentication (@xep{0078}).
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class Query : public StanzaExtension

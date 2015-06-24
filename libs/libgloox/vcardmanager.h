@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -72,7 +72,7 @@ namespace gloox
    * @section sec_store Storing one's own VCard
    *
    * @note Some, if not many, servers do not implement support for all the fields specified
-   * in XEP-0054. Therefore it is possible that you cannot retrieve fields you stored previously.
+   * in @xep{0054}. Therefore it is possible that you cannot retrieve fields you stored previously.
    *
    * Similar to the above, you need a VCardManager and a VCardHandler. Then construct
    * your VCard and call storeVCard().
@@ -94,7 +94,7 @@ namespace gloox
    *
    * When cleaning up, delete your VCardManager instance @b before deleting the Client/ClientBase instance.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.8
    */
   class GLOOX_API VCardManager : public IqHandler

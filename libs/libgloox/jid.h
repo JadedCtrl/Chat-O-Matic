@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -24,7 +24,7 @@ namespace gloox
   /**
    * @brief An abstraction of a JID.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.4
    */
   class GLOOX_API JID
@@ -140,19 +140,48 @@ namespace gloox
       bool operator!=( const JID& right ) const { return full() != right.full(); }
 
       /**
+       * Compares two JIDs to see if the left is less than the right.
+       * Needed for JID to be a key in a map.
+       * @param right The second JID.
+       * @since 1.0.4
+       */
+      bool operator<( const JID& right ) const { return full() < right.full(); }
+
+      /**
+       * Compares two JIDs to see if the left is less than or equal to the right.
+       * @param right The second JID.
+       * @since 1.0.4
+       */
+      bool operator<=( const JID& right ) const { return full() <= right.full(); }
+
+      /**
+       * Compares two JIDs to see if the left is greater than the right.
+       * @param right The second JID.
+       * @since 1.0.4
+       */
+      bool operator>( const JID& right ) const { return full() > right.full(); }
+
+      /**
+       * Compares two JIDs to see if the left is greater than the right.
+       * @param right The second JID.
+       * @since 1.0.4
+       */
+      bool operator>=( const JID& right ) const { return full() >= right.full(); }
+
+      /**
        * Converts to  @b true if the JID is valid, @b false otherwise.
        */
       operator bool() const { return m_valid; }
 
       /**
-       * XEP-0106: JID Escaping
+       * @xep{0106}: JID Escaping
        * @param node The node to escape.
        * @return The escaped node.
        */
       static std::string escapeNode( const std::string& node );
 
       /**
-       * XEP-0106: JID Escaping
+       * @xep{0106}: JID Escaping
        * @param node The node to unescape.
        * @return The unescaped node.
        */

@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -343,8 +343,21 @@ namespace gloox
       if( o )
       {
         if( m_ctx == InvalidContext )
-          m_ctx = GetSubscriptionOptions;
-        m_jid.setJID( o->findAttribute( "jid" ) );
+        {
+          Tag* parent = tag->parent();
+          if( parent && parent->findAttribute("type") == "set" )
+            m_ctx = SetSubscriptionOptions;
+          else
+            m_ctx = GetSubscriptionOptions;
+        }
+        if( m_ctx == SetSubscriptionOptions || m_ctx == GetSubscriptionOptions )
+        {
+          // We set both m_node and m_options.node for
+          // get/set options, since m_options.node is not exposed externally
+          m_node = o->findAttribute( "node" );
+          m_jid.setJID( o->findAttribute( "jid" ) );
+          m_subid = o->findAttribute( "subid" );
+        }
         m_options.node = o->findAttribute( "node" );
         m_options.df = new DataForm( o->findChild( "x", "xmlns", XMLNS_X_DATA ) );
       }
@@ -389,7 +402,7 @@ namespace gloox
         m_ctx = DeleteItem;
         m_node = r->findAttribute( "node" );
         m_notify = r->hasAttribute( "notify", "1" ) || r->hasAttribute( "notify", "true" );
-        const TagList& l = p->children();
+        const TagList& l = r->children();
         TagList::const_iterator it = l.begin();
         for( ; it != l.end(); ++it )
           m_items.push_back( new Item( (*it) ) );
@@ -475,12 +488,13 @@ namespace gloox
         u->addAttribute( "subid", m_subid );
       }
       else if( m_ctx == GetSubscriptionOptions
-               || m_ctx == SetSubscriptionOptions
-               || ( m_ctx == Subscription && m_options.df ) )
+               || m_ctx == SetSubscriptionOptions )
       {
         Tag* o = new Tag( t, "options" );
         o->addAttribute( "node", m_options.node );
         o->addAttribute( "jid", m_jid.full() );
+        if( !m_subid.empty() )
+          o->addAttribute( "subid", m_subid );
         if( m_options.df )
           o->addChild( m_options.df->tag() );
       }
@@ -594,22 +608,18 @@ namespace gloox
       if( !m_parent || !handler || !service || node.empty() )
         return EmptyString;
 
-      const std::string& id = m_parent->getID();
-      IQ iq( IQ::Set, service, id );
-      PubSub* ps = new PubSub( Subscription );
-      ps->setJID( jid ? jid : m_parent->jid() );
-      ps->setNode( node );
+      DataForm* options = 0;
       if( type != SubscriptionNodes || depth != 1 )
       {
-        DataForm* df = new DataForm( TypeSubmit );
-        df->addField( DataFormField::TypeHidden, "FORM_TYPE", XMLNS_PUBSUB_SUBSCRIBE_OPTIONS );
+        options = new DataForm( TypeSubmit );
+        options->addField( DataFormField::TypeHidden, "FORM_TYPE", XMLNS_PUBSUB_SUBSCRIBE_OPTIONS );
 
         if( type == SubscriptionItems )
-          df->addField( DataFormField::TypeNone, "pubsub#subscription_type", "items" );
+          options->addField( DataFormField::TypeNone, "pubsub#subscription_type", "items" );
 
         if( depth != 1 )
         {
-          DataFormField* field = df->addField( DataFormField::TypeNone, "pubsub#subscription_depth" );
+          DataFormField* field = options->addField( DataFormField::TypeNone, "pubsub#subscription_depth" );
           if( depth == 0 )
             field->setValue( "all" );
           else
@@ -618,12 +628,31 @@ namespace gloox
 
         if( !expire.empty() )
         {
-          DataFormField* field = df->addField( DataFormField::TypeNone, "pubsub#expire" );
+          DataFormField* field = options->addField( DataFormField::TypeNone, "pubsub#expire" );
           field->setValue( expire );
         }
-
-        ps->setOptions( node, df );
       }
+
+      return subscribe( service, node, handler, jid, options );
+    }
+
+    const std::string Manager::subscribe( const JID& service,
+                                          const std::string& node,
+                                          ResultHandler* handler,
+                                          const JID& jid,
+                                          DataForm* options
+                                          )
+    {
+      if( !m_parent || !handler || !service || node.empty() )
+        return EmptyString;
+
+      const std::string& id = m_parent->getID();
+      IQ iq( IQ::Set, service, id );
+      PubSub* ps = new PubSub( Subscription );
+      ps->setJID( jid ? jid : m_parent->jid() );
+      ps->setNode( node );
+      if( options != NULL )
+        ps->setOptions( node, options );
       iq.addExtension( ps  );
 
       m_trackMapMutex.lock();
@@ -664,7 +693,8 @@ namespace gloox
                                                     const JID& jid,
                                                     const std::string& node,
                                                     ResultHandler* handler,
-                                                    DataForm* df )
+                                                    DataForm* df,
+                                                    const std::string& subid )
     {
       if( !m_parent || !handler || !service )
         return EmptyString;
@@ -673,6 +703,8 @@ namespace gloox
       IQ iq( df ? IQ::Set : IQ::Get, service, id );
       PubSub* ps = new PubSub( context );
       ps->setJID( jid ? jid : m_parent->jid() );
+      if( !subid.empty() )
+        ps->setSubscriptionID( subid );
       ps->setOptions( node, df );
       iq.addExtension( ps );
 
@@ -1041,12 +1073,9 @@ namespace gloox
             case PublishItem:
             {
               const PubSub* ps = iq.findExtension<PubSub>( ExtPubSub );
-              if( ps && ps->items().size())
-              {
-                const ItemList il = ps->items();
-                rh->handleItemPublication( id, service, "",
-                                           il, error );
-              }
+              rh->handleItemPublication( id, service, "",
+                                         ps ? ps->items() : ItemList(),
+                                         error );
               break;
             }
             case DeleteItem:
@@ -1094,6 +1123,7 @@ namespace gloox
                                                    ps->jid(),
                                                    ps->node(),
                                                    ps->options(),
+                                                   ps->subscriptionID(),
                                                    error );
                   }
                   break;
@@ -1123,8 +1153,22 @@ namespace gloox
                     switch( context )
                     {
                       case SetSubscriptionOptions:
-                        rh->handleSubscriptionOptionsResult( id, service, JID( /* FIXME */ ), node, error );
+                      {
+                        const PubSub* ps = iq.findExtension<PubSub>( ExtPubSub );
+                        if( ps )
+                        {
+                          rh->handleSubscriptionOptionsResult( id, service,
+                                                         ps->jid(),
+                                                         node,
+                                                         ps->subscriptionID(),
+                                                         error );
+                        }
+                        else
+                        {
+                          rh->handleSubscriptionOptionsResult( id, service, JID( /* FIXME */ ), node, /* FIXME */ EmptyString, error );
+                        }
                         break;
+                      }
                       case SetSubscriberList:
                         rh->handleSubscribersResult( id, service, node, 0, error );
                         break;

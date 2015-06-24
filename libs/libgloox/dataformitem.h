@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -20,12 +20,12 @@ namespace gloox
 {
 
   /**
-   * @brief An abstraction of an &lt;item&gt; element in a XEP-0004 Data Form of type result.
+   * @brief An abstraction of an &lt;item&gt; element in a @xep{0004} Data Form of type result.
    *
-   * There are some constraints regarding usage of this element you should be aware of. Check XEP-0004
+   * There are some constraints regarding usage of this element you should be aware of. Check @xep{0004}
    * section 3.4. This class does not enforce correct usage at this point.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.7
    */
   class GLOOX_API DataFormItem : public DataFormFieldContainer

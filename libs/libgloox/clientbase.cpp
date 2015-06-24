@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -14,38 +14,41 @@
 
 #include "config.h"
 
+#include "base64.h"
 #include "clientbase.h"
-#include "connectionbase.h"
-#include "tlsbase.h"
 #include "compressionbase.h"
+#include "compressionzlib.h"
+#include "connectionbase.h"
+#include "connectionlistener.h"
 #include "connectiontcpclient.h"
 #include "disco.h"
-#include "messagesessionhandler.h"
-#include "tag.h"
-#include "iq.h"
-#include "message.h"
-#include "subscription.h"
-#include "presence.h"
-#include "connectionlistener.h"
-#include "iqhandler.h"
-#include "messagehandler.h"
-#include "presencehandler.h"
-#include "rosterlistener.h"
-#include "subscriptionhandler.h"
-#include "loghandler.h"
-#include "taghandler.h"
-#include "mucinvitationhandler.h"
-#include "mucroom.h"
-#include "jid.h"
-#include "base64.h"
 #include "error.h"
-#include "md5.h"
-#include "util.h"
-#include "tlsdefault.h"
-#include "compressionzlib.h"
-#include "stanzaextensionfactory.h"
 #include "eventhandler.h"
 #include "event.h"
+#include "iq.h"
+#include "iqhandler.h"
+#include "jid.h"
+#include "loghandler.h"
+#include "md5.h"
+#include "message.h"
+#include "messagehandler.h"
+#include "messagesessionhandler.h"
+#include "mucinvitationhandler.h"
+#include "mucroom.h"
+#include "mutexguard.h"
+#include "presence.h"
+#include "presencehandler.h"
+#include "rosterlistener.h"
+#include "stanzaextensionfactory.h"
+#include "sha.h"
+#include "subscription.h"
+#include "subscriptionhandler.h"
+#include "tag.h"
+#include "taghandler.h"
+#include "tlsbase.h"
+#include "tlsdefault.h"
+#include "prep.h"
+#include "util.h"
 
 #include <cstdlib>
 #include <string>
@@ -60,6 +63,11 @@
 
 #if defined( _WIN32 ) && !defined( __SYMBIAN32__ )
 #include <tchar.h>
+# ifdef __MINGW32__
+#  ifndef SecureZeroMemory
+#  define SecureZeroMemory(p,s) RtlFillMemory((p),(s),0)
+#  endif
+# endif
 #endif
 
 namespace gloox
@@ -87,13 +95,15 @@ namespace gloox
     : m_connection( 0 ), m_encryption( 0 ), m_compression( 0 ), m_disco( 0 ), m_namespace( ns ),
       m_xmllang( "en" ), m_server( server ), m_compressionActive( false ), m_encryptionActive( false ),
       m_compress( true ), m_authed( false ), m_block( false ), m_sasl( true ), m_tls( TLSOptional ), m_port( port ),
-      m_availableSaslMechs( SaslMechAll ),
+      m_availableSaslMechs( SaslMechAll ), m_smContext( CtxSMInvalid ), m_smHandled( 0 ),
       m_statisticsHandler( 0 ), m_mucInvitationHandler( 0 ),
       m_messageSessionHandlerChat( 0 ), m_messageSessionHandlerGroupchat( 0 ),
       m_messageSessionHandlerHeadline( 0 ), m_messageSessionHandlerNormal( 0 ),
       m_parser( this ), m_seFactory( 0 ), m_authError( AuthErrorUndefined ),
       m_streamError( StreamErrorUndefined ), m_streamErrorAppCondition( 0 ),
-      m_selectedSaslMech( SaslMechNone ), m_autoMessageSession( false )
+      m_selectedSaslMech( SaslMechNone ), m_customConnection( false ),
+      m_uniqueBaseId( (unsigned int)( ( (unsigned long long)time( 0 ) & 0xFFFF ) << 16 ) | ( ( (unsigned long long) & m_nextId ) & 0xFFFF ) ),
+      m_smSent( 0 )
   {
     init();
   }
@@ -104,19 +114,23 @@ namespace gloox
       m_password( password ),
       m_xmllang( "en" ), m_server( server ), m_compressionActive( false ), m_encryptionActive( false ),
       m_compress( true ), m_authed( false ), m_block( false ), m_sasl( true ), m_tls( TLSOptional ),
-      m_port( port ), m_availableSaslMechs( SaslMechAll ),
+      m_port( port ), m_availableSaslMechs( SaslMechAll ), m_smContext( CtxSMInvalid ), m_smHandled( 0 ),
       m_statisticsHandler( 0 ), m_mucInvitationHandler( 0 ),
       m_messageSessionHandlerChat( 0 ), m_messageSessionHandlerGroupchat( 0 ),
       m_messageSessionHandlerHeadline( 0 ), m_messageSessionHandlerNormal( 0 ),
       m_parser( this ), m_seFactory( 0 ), m_authError( AuthErrorUndefined ),
       m_streamError( StreamErrorUndefined ), m_streamErrorAppCondition( 0 ),
-      m_selectedSaslMech( SaslMechNone ), m_autoMessageSession( false )
+      m_selectedSaslMech( SaslMechNone ), m_customConnection( false ),
+      m_uniqueBaseId( (unsigned int)( ( (unsigned long long)time( 0 ) & 0xFFFF ) << 16 ) | ( ( (unsigned long long) & m_nextId ) & 0xFFFF ) ),
+      m_smSent( 0 )
   {
     init();
   }
 
   void ClientBase::init()
   {
+    srand( time( 0 ) );
+
     if( !m_disco )
     {
       m_disco = new Disco( this );
@@ -136,9 +150,20 @@ namespace gloox
 
   ClientBase::~ClientBase()
   {
-    delete m_connection;
-    delete m_encryption;
-    delete m_compression;
+    m_iqHandlerMapMutex.lock();
+    m_iqIDHandlers.clear();
+    m_iqHandlerMapMutex.unlock();
+
+    m_iqExtHandlerMapMutex.lock();
+    m_iqExtHandlers.clear();
+    m_iqExtHandlerMapMutex.unlock();
+
+    util::clearList( m_presenceExtensions );
+    util::clearMap( m_smQueue );
+
+    setConnectionImpl( 0 );
+    setEncryptionImpl( 0 );
+    setCompressionImpl( 0 );
     delete m_seFactory;
     m_seFactory = 0; // to avoid usage when Disco gets deleted below
     delete m_disco;
@@ -177,7 +202,7 @@ namespace gloox
       m_compression = getDefaultCompression();
 
     m_logInstance.dbg( LogAreaClassClientbase, "This is gloox " + GLOOX_VERSION + ", connecting to "
-                                               + m_server + ":" + util::int2string( m_port ) + "..." );
+                                               + m_server + ( ( m_customConnection )?( " using a custom connection" ):( m_port > 0 ? ( ":" + util::int2string( m_port ) ) : EmptyString ) ) + "..." );
     m_block = block;
     ConnectionError ret = m_connection->connect();
     if( ret != ConnNoError )
@@ -213,7 +238,7 @@ namespace gloox
       }
 
       m_sid = tag->findAttribute( "id" );
-      handleStartNode();
+      handleStartNode( tag );
     }
     else if( tag->name() == "error" && tag->xmlns() == XMLNS_STREAM )
     {
@@ -230,15 +255,23 @@ namespace gloox
           {
             IQ iq( tag );
             m_seFactory->addExtensions( iq, tag );
+            if( iq.hasEmbeddedStanza() )
+              m_seFactory->addExtensions( *iq.embeddedStanza(), iq.embeddedTag() );
             notifyIqHandlers( iq );
             ++m_stats.iqStanzasReceived;
+            if( m_smContext >= CtxSMEnabled )
+              ++m_smHandled;
           }
           else if( tag->name() == "message" )
           {
             Message msg( tag );
             m_seFactory->addExtensions( msg, tag );
+            if( msg.hasEmbeddedStanza() )
+              m_seFactory->addExtensions( *msg.embeddedStanza(), msg.embeddedTag() );
             notifyMessageHandlers( msg );
             ++m_stats.messageStanzasReceived;
+            if( m_smContext >= CtxSMEnabled )
+              ++m_smHandled;
           }
           else if( tag->name() == "presence" )
           {
@@ -248,6 +281,8 @@ namespace gloox
             {
               Subscription sub( tag );
               m_seFactory->addExtensions( sub, tag );
+              if( sub.hasEmbeddedStanza() )
+                m_seFactory->addExtensions( *sub.embeddedStanza(), sub.embeddedTag() );
               notifySubscriptionHandlers( sub );
               ++m_stats.s10nStanzasReceived;
             }
@@ -255,12 +290,16 @@ namespace gloox
             {
               Presence pres( tag );
               m_seFactory->addExtensions( pres, tag );
+              if( pres.hasEmbeddedStanza() )
+                m_seFactory->addExtensions( *pres.embeddedStanza(), pres.embeddedTag() );
               notifyPresenceHandlers( pres );
               ++m_stats.presenceStanzasReceived;
             }
+            if( m_smContext >= CtxSMEnabled )
+              ++m_smHandled;
           }
           else
-            m_logInstance.err( LogAreaClassClientbase, "Received invalid stanza." );
+            m_logInstance.err( LogAreaClassClientbase, "Invalid stanza received: " + tag->name() );
         }
         else
         {
@@ -377,8 +416,13 @@ namespace gloox
 
     m_encryptionActive = false;
     m_compressionActive = false;
+    m_smSent = 0;
 
     notifyOnDisconnect( reason );
+
+#ifdef CLIENTBASE_TEST
+    m_nextId.reset();
+#endif
   }
 
   void ClientBase::parse( const std::string& data )
@@ -442,6 +486,40 @@ namespace gloox
 
     switch( type )
     {
+      case SaslMechScramSha1Plus:
+      case SaslMechScramSha1:
+      {
+        if( type == SaslMechScramSha1 )
+        {
+          if( ( m_availableSaslMechs & SaslMechScramSha1Plus ) != SaslMechScramSha1Plus )
+            m_gs2Header = "y,";
+          else
+            m_gs2Header = "n,";
+          a->addAttribute( "mechanism", "SCRAM-SHA-1" );
+        }
+        else // SaslMechScramSha1Plus
+        {
+          m_gs2Header = "p=tls-unique,";
+          a->addAttribute( "mechanism", "SCRAM-SHA-1-PLUS" );
+        }
+
+        std::string t;
+        if( m_authzid && prep::saslprep( m_authzid.bare(), t ) )
+          m_gs2Header += "a=" + t;
+
+        m_gs2Header += ",";
+
+        m_clientFirstMessageBare = "n=";
+        if( !m_authcid.empty() && prep::saslprep( m_authcid, t ) )
+          m_clientFirstMessageBare += t;
+        else if( prep::saslprep( m_jid.username(), t ) )
+          m_clientFirstMessageBare += t;
+
+        m_clientFirstMessageBare += ",r=" + getRandom();
+
+        a->setCData( Base64::encode64( m_gs2Header + m_clientFirstMessageBare ) );
+        break;
+      }
       case SaslMechDigestMd5:
         a->addAttribute( "mechanism", "DIGEST-MD5" );
         break;
@@ -495,20 +573,70 @@ namespace gloox
       {
 #if defined( _WIN32 ) && !defined( __SYMBIAN32__ )
         a->addAttribute( "mechanism", "NTLM" );
-        SEC_WINNT_AUTH_IDENTITY identity, *ident = 0;
+        SEC_WINNT_AUTH_IDENTITY_W identity, *ident = 0;
         memset( &identity, 0, sizeof( identity ) );
+
+        WCHAR *usernameW = 0, *domainW = 0, *passwordW = 0;
+        int cchUsernameW = 0, cchDomainW = 0, cchPasswordW = 0;
+
         if( m_jid.username().length() > 0 )
         {
-          identity.User = (unsigned char*)m_jid.username().c_str();
-          identity.UserLength = (unsigned long)m_jid.username().length();
-          identity.Domain = (unsigned char*)m_ntlmDomain.c_str();
-          identity.DomainLength = (unsigned long)m_ntlmDomain.length();
-          identity.Password = (unsigned char*)m_password.c_str();
-          identity.PasswordLength = (unsigned long)m_password.length();
+          // NOTE: The return values of MultiByteToWideChar will include room
+          //  for the NUL character since we use -1 for the input length.
+
+          cchUsernameW = ::MultiByteToWideChar( CP_UTF8, 0, m_jid.username().c_str(), -1, 0, 0 );
+          if( cchUsernameW > 0 )
+          {
+            usernameW = new WCHAR[cchUsernameW];
+            ::MultiByteToWideChar( CP_UTF8, 0, m_jid.username().c_str(), -1, usernameW, cchUsernameW );
+            // Guarantee its NUL terminated.
+            usernameW[cchUsernameW-1] = L'\0';
+          }
+          cchDomainW = ::MultiByteToWideChar( CP_UTF8, 0, m_ntlmDomain.c_str(), -1, 0, 0 );
+          if( cchDomainW > 0 )
+          {
+            domainW = new WCHAR[cchDomainW];
+            ::MultiByteToWideChar( CP_UTF8, 0, m_ntlmDomain.c_str(), -1, domainW, cchDomainW );
+            // Guarantee its NUL terminated.
+            domainW[cchDomainW-1] = L'\0';
+          }
+          cchPasswordW = ::MultiByteToWideChar( CP_UTF8, 0, m_password.c_str(), -1, 0, 0 );
+          if( cchPasswordW > 0 )
+          {
+            passwordW = new WCHAR[cchPasswordW];
+            ::MultiByteToWideChar( CP_UTF8, 0, m_password.c_str(), -1, passwordW, cchPasswordW );
+            // Guarantee its NUL terminated.
+            passwordW[cchPasswordW-1] = L'\0';
+          }
+          identity.User = (unsigned short*)usernameW;
+          identity.UserLength = (unsigned long)cchUsernameW-1;
+          identity.Domain = (unsigned short*)domainW;
+          identity.DomainLength = (unsigned long)cchDomainW-1;
+          identity.Password = (unsigned short*)passwordW;
+          identity.PasswordLength = (unsigned long)cchPasswordW-1;
           identity.Flags = SEC_WINNT_AUTH_IDENTITY_UNICODE;
           ident = &identity;
         }
-        AcquireCredentialsHandle( 0, _T( "NTLM" ), SECPKG_CRED_OUTBOUND, 0, ident, 0, 0, &m_credHandle, 0 );
+
+        AcquireCredentialsHandleW( 0, L"NTLM", SECPKG_CRED_OUTBOUND, 0, ident, 0, 0, &m_credHandle, 0 );
+
+        if( usernameW != 0 )
+        {
+          delete[] usernameW;
+          usernameW = 0;
+        }
+        if( domainW != 0 )
+        {
+          delete[] domainW;
+          domainW = 0;
+        }
+        if( passwordW != 0 )
+        {
+          ::SecureZeroMemory( passwordW, cchPasswordW* sizeof( WCHAR ) );
+          delete[] passwordW;
+          passwordW = 0;
+        }
+
 #else
         logInstance().err( LogAreaClassClientbase,
                     "SASL NTLM is not supported on this platform. You should never see this." );
@@ -522,6 +650,52 @@ namespace gloox
     send( a );
   }
 
+  std::string ClientBase::hmac( const std::string& key, const std::string& str )
+  {
+    SHA sha;
+    std::string key_ = key;
+    if( key_.length() > 64 )
+    {
+      sha.feed( key_ );
+      key_ = sha.binary();
+      sha.reset();
+    }
+    unsigned char ipad[65];
+    unsigned char opad[65];
+    memset( ipad, '\0', sizeof( ipad ) );
+    memset( opad, '\0', sizeof( opad ) );
+    memcpy( ipad, key_.c_str(), key_.length() );
+    memcpy( opad, key_.c_str(), key_.length() );
+    for( int i = 0; i < 64; i++ )
+    {
+      ipad[i] ^= 0x36;
+      opad[i] ^= 0x5c;
+    }
+    sha.feed( ipad, 64 );
+    sha.feed( str );
+    key_ = sha.binary();
+    sha.reset();
+    sha.feed( opad, 64 );
+    sha.feed( key_ );
+
+    return sha.binary(); // hex() for testing
+  }
+
+  std::string ClientBase::hi( const std::string& str, const std::string& salt, int iter )
+  {
+    unsigned char xored[20];
+    memset( xored, '\0', sizeof( xored ) );
+    std::string tmp = salt;
+    tmp.append( "\0\0\0\1", 4 );
+    for( int i = 0; i < iter; ++i )
+    {
+      tmp = hmac( str, tmp );
+      for( int j = 0; j < 20; ++j )
+        xored[j] ^= tmp.c_str()[j];
+    }
+    return std::string( (char*)xored, 20 );
+  }
+
   void ClientBase::processSASLChallenge( const std::string& challenge )
   {
     Tag* t = new Tag( "response", XMLNS, XMLNS_STREAM_SASL );
@@ -530,6 +704,53 @@ namespace gloox
 
     switch( m_selectedSaslMech )
     {
+      case SaslMechScramSha1Plus:
+      case SaslMechScramSha1:
+      {
+        std::string snonce, salt, tmp;
+        int iter = 0;
+        std::string::size_type posn = decoded.find( "r=" );
+        std::string::size_type poss = decoded.find( "s=" );
+        std::string::size_type posi = decoded.find( "i=" );
+        if( posn == std::string::npos || poss == std::string::npos || posi == std::string::npos )
+          break;
+
+        snonce = decoded.substr( posn + 2, poss - posn - 3 );
+        salt = Base64::decode64( decoded.substr( poss + 2, posi - poss - 3 ) );
+        tmp = decoded.substr( posi + 2, decoded.length() - posi - 2 );
+        iter = atoi( tmp.c_str() );
+
+        if( !prep::saslprep( m_password, tmp ) )
+          break;
+
+        std::string saltedPwd = hi( tmp, salt, iter );
+        std::string ck = hmac( saltedPwd, "Client Key" );
+        SHA sha;
+        sha.feed( ck );
+        std::string storedKey = sha.binary();
+
+        if( m_selectedSaslMech == SaslMechScramSha1Plus )
+          tmp = "c=" + Base64::encode64( m_gs2Header + m_encryption->channelBinding() );
+        else
+          tmp = "c=biws";
+        tmp += ",r=" + snonce;
+
+        std::string authMessage = m_clientFirstMessageBare + "," + decoded + "," + tmp; // client-final-message-without-proof
+        std::string clientSignature = hmac( storedKey, authMessage );
+        unsigned char clientProof[20]; // ck XOR clientSignature
+        memcpy( clientProof, ck.c_str(), 20 );
+        for( int i = 0; i < 20; ++i )
+          clientProof[i] ^= clientSignature.c_str()[i];
+        std::string serverKey = hmac( saltedPwd, "Server Key" );
+        m_serverSignature = hmac( serverKey, authMessage );
+
+        tmp += ",p=";
+        tmp.append( Base64::encode64( std::string( (char*)clientProof, 20 ) ) );
+
+        t->setCData( Base64::encode64( tmp ) );
+
+        break;
+      }
       case SaslMechDigestMd5:
       {
         if( !decoded.compare( 0, 7, "rspauth" ) )
@@ -555,11 +776,7 @@ namespace gloox
           end = decoded.find( '"', end + 1 );
         std::string nonce = decoded.substr( pos + 7, end - ( pos + 7 ) );
 
-        std::string cnonce;
-        char cn[4*8+1];
-        for( int i = 0; i < 4; ++i )
-          sprintf( cn + i*8, "%08x", rand() );
-        cnonce.assign( cn, 4*8 );
+        std::string cnonce = getRandom();
 
         MD5 md5;
         md5.feed( m_jid.username() );
@@ -699,7 +916,7 @@ namespace gloox
 #endif
   }
 
-  void ClientBase::processSASLSuccess()
+  bool ClientBase::processSASLSuccess( const std::string& payload )
   {
 #if defined( _WIN32 ) && !defined( __SYMBIAN32__ )
     if( m_selectedSaslMech == SaslMechNTLM )
@@ -708,6 +925,14 @@ namespace gloox
       DeleteSecurityContext( &m_ctxtHandle );
     }
 #endif
+    if( m_selectedSaslMech == SaslMechScramSha1 || m_selectedSaslMech == SaslMechScramSha1Plus )
+    {
+      const std::string decoded = Base64::decode64( payload );
+      if( decoded.length() < 3 || Base64::decode64( decoded.substr( 2 ) ) != m_serverSignature  )
+        return false;
+    }
+
+    return true;
   }
 
   void ClientBase::send( IQ& iq, IqHandler* ih, int context, bool del )
@@ -735,7 +960,7 @@ namespace gloox
     Tag* tag = iq.tag();
     addFrom( tag );
     addNamespace( tag );
-    send( tag );
+    send( tag, true, false );
   }
 
   void ClientBase::send( const Message& msg )
@@ -744,7 +969,7 @@ namespace gloox
     Tag* tag = msg.tag();
     addFrom( tag );
     addNamespace( tag );
-    send( tag );
+    send( tag, true, false );
   }
 
   void ClientBase::send( const Subscription& sub )
@@ -753,10 +978,10 @@ namespace gloox
     Tag* tag = sub.tag();
     addFrom( tag );
     addNamespace( tag );
-    send( tag );
+    send( tag, true, false );
   }
 
-  void ClientBase::send( Presence& pres )
+  void ClientBase::send( const Presence& pres )
   {
     ++m_stats.presenceStanzasSent;
     Tag* tag = pres.tag();
@@ -765,13 +990,21 @@ namespace gloox
       tag->addChild( (*it)->tag() );
     addFrom( tag );
     addNamespace( tag );
-    send( tag );
+    send( tag, true, false );
   }
 
   void ClientBase::send( Tag* tag )
   {
     if( !tag )
       return;
+
+    send( tag, false, true );
+  }
+
+  void ClientBase::send( Tag* tag, bool queue, bool del )
+  {
+    if( !tag )
+    return;
 
     send( tag->xml() );
 
@@ -780,7 +1013,14 @@ namespace gloox
     if( m_statisticsHandler )
       m_statisticsHandler->handleStatistics( getStatistics() );
 
-    delete tag;
+    if( queue && m_smContext >= CtxSMEnabled )
+    {
+      m_queueMutex.lock();
+      m_smQueue.insert( std::make_pair( ++m_smSent, tag ) );
+      m_queueMutex.unlock();
+    }
+    else if( del || m_smContext < CtxSMEnabled )
+      delete tag;
   }
 
   void ClientBase::send( const std::string& xml )
@@ -798,15 +1038,49 @@ namespace gloox
     }
   }
 
+  void ClientBase::checkQueue( int handled, bool resend )
+  {
+    if( m_smContext < CtxSMEnabled || handled < 0 )
+      return;
+
+    util::MutexGuard mg( m_queueMutex );
+    SMQueueMap::iterator it = m_smQueue.begin();
+    while( it != m_smQueue.end() )
+    {
+      if( (*it).first <= handled )
+      {
+        delete (*it).second;
+        m_smQueue.erase( it++ );
+      }
+      else if( resend && (*it).first > handled )
+      {
+        send( (*it).second, false, false );
+        ++it;
+      }
+      else
+      {
+        ++it;
+      }
+    }
+  }
+
+  const TagList ClientBase::sendQueue()
+  {
+    TagList l;
+    util::MutexGuard mg( m_queueMutex );
+    SMQueueMap::iterator it = m_smQueue.begin();
+    for( ; it != m_smQueue.end(); ++it )
+      l.push_back( (*it).second->clone() );
+
+    return l;
+  }
+
   void ClientBase::addFrom( Tag* tag )
   {
     if( !m_authed /*for IQ Auth */ || !tag || tag->hasAttribute( "from" ) )
       return;
 
-    if ( m_selectedResource.empty() )
-      tag->addAttribute( "from", m_jid.bare() );
-    else
-      tag->addAttribute( "from", m_jid.bare() + '/' + m_selectedResource );
+    tag->addAttribute( "from", m_jid.full() );
   }
 
   void ClientBase::addNamespace( Tag* tag )
@@ -885,11 +1159,14 @@ namespace gloox
 
   const std::string ClientBase::getID()
   {
-    static unsigned int uniqueBaseID = (unsigned int)time( 0 );
+#ifdef CLIENTBASE_TEST // to create predictable UIDs in test mode
+    return "uid" + util::int2string( m_nextId.increment() );
+#else
     char r[21+1];
-    sprintf( r, "uid:%08x:%08x", uniqueBaseID, rand() );
+    sprintf( r, "uid-%08x-%08x", m_uniqueBaseId, m_nextId.increment() );
     std::string ret( r, 21 );
     return ret;
+#endif
   }
 
   bool ClientBase::checkStreamVersion( const std::string& version )
@@ -898,44 +1175,42 @@ namespace gloox
       return false;
 
     int major = 0;
-    int minor = 0;
+//     int minor = 0;
     int myMajor = atoi( XMPP_STREAM_VERSION_MAJOR.c_str() );
 
     size_t dot = version.find( '.' );
     if( !version.empty() && dot && dot != std::string::npos )
     {
       major = atoi( version.substr( 0, dot ).c_str() );
-      minor = atoi( version.substr( dot ).c_str() );
+//       minor = atoi( version.substr( dot ).c_str() );
     }
 
     return myMajor >= major;
   }
 
-  void ClientBase::setConnectionImpl( ConnectionBase* cb )
+  void ClientBase::setConnectionImpl( ConnectionBase* connection )
   {
-    if( m_connection )
-    {
-      delete m_connection;
-    }
-    m_connection = cb;
+    ConnectionBase* old = m_connection;
+    m_connection = connection;
+    m_customConnection = true;
+    if( old )
+      delete old;
   }
 
-  void ClientBase::setEncryptionImpl( TLSBase* tb )
+  void ClientBase::setEncryptionImpl( TLSBase* encryption )
   {
-    if( m_encryption )
-    {
-      delete m_encryption;
-    }
-    m_encryption = tb;
+    TLSBase* old = m_encryption;
+    m_encryption = encryption;
+    if( old )
+      delete old;
   }
 
-  void ClientBase::setCompressionImpl( CompressionBase* cb )
+  void ClientBase::setCompressionImpl( CompressionBase* compression )
   {
-    if( m_compression )
-    {
-      delete m_compression;
-    }
-    m_compression = cb;
+    CompressionBase* old = m_compression;
+    m_compression = compression;
+    if( old )
+      delete old;
   }
 
   void ClientBase::handleStreamError( Tag* tag )
@@ -1093,11 +1368,14 @@ namespace gloox
     if( !ih )
       return;
 
+    util::MutexGuard m( m_iqExtHandlerMapMutex );
     typedef IqHandlerMap::const_iterator IQci;
     std::pair<IQci, IQci> g = m_iqExtHandlers.equal_range( exttype );
     for( IQci it = g.first; it != g.second; ++it )
+    {
       if( (*it).second == ih )
         return;
+    }
 
     m_iqExtHandlers.insert( std::make_pair( exttype, ih ) );
   }
@@ -1107,6 +1385,7 @@ namespace gloox
     if( !ih )
       return;
 
+    util::MutexGuard m( m_iqExtHandlerMapMutex );
     typedef IqHandlerMap::iterator IQi;
     std::pair<IQi, IQi> g = m_iqExtHandlers.equal_range( exttype );
     IQi it2;
@@ -1180,11 +1459,21 @@ namespace gloox
   {
     if( th )
     {
-      TagHandlerList::iterator it = m_tagHandlers.begin();
-      for( ; it != m_tagHandlers.end(); ++it )
+      for( TagHandlerList::iterator it = m_tagHandlers.begin(); it != m_tagHandlers.end(); )
       {
         if( (*it).th == th && (*it).tag == tag && (*it).xmlns == xmlns )
-          m_tagHandlers.erase( it );
+        {
+          // Normally we'd just assign it to the return value of the .erase() call,
+          // which is either the next element, or .end().  However,
+          // it's only since C++11 that this works; C++03 version returns void.
+          // So instead, we do a post-increment. this increments the iterator to point
+          // to the next element, then passes a copy of the old iterator (that is to the item to be deleted)
+          m_tagHandlers.erase( it++ );
+        }
+        else
+        {
+          ++it;
+        }
       }
     }
   }
@@ -1309,8 +1598,9 @@ namespace gloox
   {
     m_iqHandlerMapMutex.lock();
     IqTrackMap::iterator it_id = m_iqIDHandlers.find( iq.id() );
+    bool haveIdHandler = ( it_id != m_iqIDHandlers.end() );
     m_iqHandlerMapMutex.unlock();
-    if( it_id != m_iqIDHandlers.end() && iq.subtype() & ( IQ::Result | IQ::Error ) )
+    if( haveIdHandler && ( iq.subtype() == IQ::Result || iq.subtype() == IQ::Error ) )
     {
       (*it_id).second.ih->handleIqID( iq, (*it_id).second.context );
       if( (*it_id).second.del )
@@ -1322,9 +1612,17 @@ namespace gloox
     }
 
     if( iq.extensions().empty() )
+    {
+      if ( iq.subtype() == IQ::Get || iq.subtype() == IQ::Set )
+      {
+        IQ re( IQ::Error, iq.from(), iq.id() );
+        re.addExtension( new Error( StanzaErrorTypeCancel, StanzaErrorFeatureNotImplemented ) );
+        send( re );
+      }
       return;
+    }
 
-    bool res = false;
+    bool handled = false;
 
     // FIXME remove for 1.1
 //     typedef IqHandlerMapXmlns::const_iterator IQciXmlns
@@ -1337,20 +1635,22 @@ namespace gloox
 //     }
 //     delete tag;
 
+    m_iqExtHandlerMapMutex.lock();
     typedef IqHandlerMap::const_iterator IQci;
     const StanzaExtensionList& sel = iq.extensions();
     StanzaExtensionList::const_iterator itse = sel.begin();
-    for( ; itse != sel.end(); ++itse )
+    for( ; !handled && itse != sel.end(); ++itse )
     {
       std::pair<IQci, IQci> g = m_iqExtHandlers.equal_range( (*itse)->extensionType() );
-      for( IQci it = g.first; it != g.second; ++it )
+      for( IQci it = g.first; !handled && it != g.second; ++it )
       {
         if( (*it).second->handleIq( iq ) )
-          res = true;
+          handled = true;
       }
     }
+    m_iqExtHandlerMapMutex.unlock();
 
-    if( !res && iq.subtype() & ( IQ::Get | IQ::Set ) )
+    if( !handled && ( iq.subtype() == IQ::Get || iq.subtype() == IQ::Set ) )
     {
       IQ re( IQ::Error, iq.from(), iq.id() );
       re.addExtension( new Error( StanzaErrorTypeCancel, StanzaErrorServiceUnavailable ) );
@@ -1429,8 +1729,6 @@ namespace gloox
 
     if( msHandler )
     {
-      if( msg.subtype() == Message::Chat && msg.body().empty() )
-        return; // don't want a new MS for empty messages
       MessageSession* session = new MessageSession( this, msg.from(), true, msg.subtype() );
       msHandler->handleMessageSession( session );
       session->handleMessage( msg );
@@ -1481,6 +1779,14 @@ namespace gloox
     }
 
     return false;
+  }
+
+  std::string ClientBase::getRandom()
+  {
+    char cn[4*8+1];
+    for( int i = 0; i < 4; ++i )
+      sprintf( cn + i*8, "%08x", rand() );
+    return std::string( cn, 4*8 );;
   }
 
   CompressionBase* ClientBase::getDefaultCompression()

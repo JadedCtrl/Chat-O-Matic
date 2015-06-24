@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -30,7 +30,7 @@ namespace gloox
    *
    * You should not need to use this class directly.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 1.0
    */
   class GLOOX_API RosterItemData
@@ -43,9 +43,9 @@ namespace gloox
        * @param name The displayed name of the contact.
        * @param groups A list of groups the contact belongs to.
        */
-      RosterItemData( const std::string& jid, const std::string& name,
+      RosterItemData( const JID& jid, const std::string& name,
                       const StringList& groups )
-        : m_jid( jid ), m_name( name ), m_groups( groups ),
+        : m_jid( jid.full() ), m_jidJID( jid ), m_name( name ), m_groups( groups ),
           m_subscription( S10nNone ), m_changed( false ), m_remove( false )
       {}
 
@@ -53,8 +53,41 @@ namespace gloox
        * Constructs a new item of the roster, scheduled for removal.
        * @param jid The JID of the contact to remove.
        */
-      RosterItemData( const std::string& jid )
-        : m_jid( jid ), m_subscription( S10nNone ), m_changed( false ),
+      RosterItemData( const JID& jid )
+        : m_jid( jid.full() ), m_jidJID( jid ), m_subscription( S10nNone ), m_changed( false ),
+          m_remove( true )
+      {}
+
+      /**
+       * Copy constructor.
+       * @param right The RosterItemData to copy.
+       */
+      RosterItemData( const RosterItemData& right )
+        : m_jid( right.m_jid ), m_jidJID( right.m_jidJID ), m_name( right.m_name ),
+          m_groups( right.m_groups ), m_subscription( right.m_subscription ),
+          m_changed( right.m_changed ), m_remove( right.m_remove )
+      {}
+
+      /**
+       * Constructs a new item of the roster.
+       * @param jid The JID of the contact.
+       * @param name The displayed name of the contact.
+       * @param groups A list of groups the contact belongs to.
+       * @deprecated Will be removed for 1.1.
+       */
+      GLOOX_DEPRECATED_CTOR RosterItemData( const std::string& jid, const std::string& name,
+                      const StringList& groups )
+        : m_jid( jid ), m_jidJID( jid), m_name( name ), m_groups( groups ),
+          m_subscription( S10nNone ), m_changed( false ), m_remove( false )
+      {}
+
+      /**
+       * Constructs a new item of the roster, scheduled for removal.
+       * @param jid The JID of the contact to remove.
+       * @deprecated Will be removed for 1.1.
+       */
+      GLOOX_DEPRECATED_CTOR RosterItemData( const std::string& jid )
+        : m_jid( jid ), m_jidJID( jid), m_subscription( S10nNone ), m_changed( false ),
           m_remove( true )
       {}
 
@@ -66,8 +99,16 @@ namespace gloox
       /**
        * Returns the contact's bare JID.
        * @return The contact's bare JID.
+       * @deprecated Will be removed for 1.1.
        */
-      const std::string& jid() const { return m_jid; }
+      GLOOX_DEPRECATED const std::string& jid() const { return m_jid; }
+
+      /**
+       * Returns the contact's bare JID.
+       * @return The contact's bare JID.
+       * @todo Rename to jid() for 1.1.
+       */
+      const JID& jidJID() const { return m_jidJID; }
 
       /**
        * Sets the displayed name of a contact/roster item.
@@ -158,7 +199,7 @@ namespace gloox
       Tag* tag() const
       {
         Tag* i = new Tag( "item" );
-        i->addAttribute( "jid", m_jid );
+        i->addAttribute( "jid", m_jidJID.full() );
         if( m_remove )
           i->addAttribute( "subscription", "remove" );
         else
@@ -174,7 +215,8 @@ namespace gloox
       }
 
     protected:
-      std::string m_jid;
+      GLOOX_DEPRECATED std::string m_jid; /**< @deprecated Will be removed for 1.1. */
+      JID m_jidJID; /**< @todo Rename to m_jid for 1.1. */
       std::string m_name;
       StringList m_groups;
       SubscriptionType m_subscription;

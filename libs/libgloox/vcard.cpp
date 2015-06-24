@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -104,6 +104,8 @@ namespace gloox
           std::string::size_type pos = 0;
           while( ( pos = binval.find( '\n' ) ) != std::string::npos )
             binval.erase( pos, 1 );
+          while( ( pos = binval.find( '\r' ) ) != std::string::npos )
+            binval.erase( pos, 1 );
           m_photo.type = tag.findChild( "TYPE" )->cdata();
           m_photo.binval = Base64::decode64( binval );
           m_PHOTO = true;
@@ -121,6 +123,8 @@ namespace gloox
           std::string binval = tag.findChild( "BINVAL" )->cdata();
           std::string::size_type pos = 0;
           while( ( pos = binval.find( '\n' ) ) != std::string::npos )
+            binval.erase( pos, 1 );
+          while( ( pos = binval.find( '\r' ) ) != std::string::npos )
             binval.erase( pos, 1 );
           m_logo.type = tag.findChild( "TYPE" )->cdata();
           m_logo.binval = Base64::decode64( binval );
@@ -236,7 +240,7 @@ namespace gloox
     m_N = true;
   }
 
-  void VCard::setPhoto( const std::string& extval )
+  void VCard::setPhotoUri( const std::string& extval )
   {
     if( !extval.empty() )
     {

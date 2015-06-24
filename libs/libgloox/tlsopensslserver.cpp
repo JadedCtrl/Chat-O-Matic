@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2009-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -36,7 +36,7 @@ namespace gloox
 
   bool OpenSSLServer::setType()
   {
-    m_ctx = SSL_CTX_new( SSLv23_server_method() );
+    m_ctx = SSL_CTX_new( TLSv1_server_method() );
     if( !m_ctx )
       return false;
 
@@ -254,7 +254,6 @@ namespace gloox
   {
     SSL_CTX_set_tmp_rsa_callback( m_ctx, tmp_rsa_callback );
     SSL_CTX_set_tmp_dh_callback( m_ctx, tmp_dh_callback );
-    SSL_CTX_set_tmp_ecdh( m_ctx, EC_KEY_new_by_curve_name( NID_sect163r2 ) );
     SSL_CTX_set_options( m_ctx, SSL_OP_CIPHER_SERVER_PREFERENCE );
     return true;
   }

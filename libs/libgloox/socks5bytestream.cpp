@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -144,12 +144,17 @@ namespace gloox
   void SOCKS5Bytestream::handleConnect( const ConnectionBase* /*connection*/ )
   {
     m_manager->acknowledgeStreamHost( true, m_proxy, m_sid );
+
+    if( !m_open )
+    {
+      m_open = true;
+      m_handler->handleBytestreamOpen( this );
+    }
   }
 
   void SOCKS5Bytestream::handleDisconnect( const ConnectionBase* /*connection*/, ConnectionError /*reason*/ )
   {
-    if( m_handler && m_connected )
-      m_handler->handleBytestreamClose( this );
+    close();
   }
 
 }

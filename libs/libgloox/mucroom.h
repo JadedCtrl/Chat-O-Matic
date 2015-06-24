@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -36,7 +36,7 @@ namespace gloox
   class Message;
 
   /**
-   * @brief This is an implementation of XEP-0045 (Multi-User Chat).
+   * @brief This is an implementation of @xep{0045} (Multi-User Chat).
    *
    * Usage is pretty simple:
    *
@@ -79,7 +79,7 @@ namespace gloox
    * (room\@service/nick).
    *
    * XEP version: 1.21
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class GLOOX_API MUCRoom : private DiscoHandler, private PresenceHandler,
@@ -99,7 +99,7 @@ namespace gloox
         HistorySeconds,             /**< Send only the messages received in the last "X" seconds. */
         HistorySince,               /**< Send only the messages received since the datetime specified
                                      * (which MUST conform to the DateTime profile specified in Jabber
-                                     * Date and Time Profiles (XEP-0082)). */
+                                     * Date and Time Profiles (@xep{0082})). */
         HistoryUnknown              /**< It is up to the service to decide how much history to send.
                                      * This is the default. */
       };
@@ -121,7 +121,7 @@ namespace gloox
        *
        * You should not need to use this class directly.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class MUC : public StanzaExtension
@@ -195,7 +195,7 @@ namespace gloox
        *
        * You should not need to use this class directly.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class MUCUser : public StanzaExtension
@@ -535,7 +535,7 @@ namespace gloox
        * Use this function to request room history since specific datetime.
        * History is sent only once after entering a room. You should use this function before joining.
        * @param since A string representing a datetime conforming to the DateTime profile specified
-       * in Jabber Date and Time Profiles (XEP-0082).
+       * in Jabber Date and Time Profiles (@xep{0082}).
        * @note If this function is not used to request a specific amount of room history, it is up
        * to the MUC service to decide how much history to send.
        */
@@ -789,7 +789,7 @@ namespace gloox
       /**
        * @brief An abstraction of a MUC owner query.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class MUCOwner : public StanzaExtension
@@ -879,7 +879,7 @@ namespace gloox
       /**
        * @brief An abstraction of a MUC admin query.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class MUCAdmin : public StanzaExtension

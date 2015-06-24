@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -127,7 +127,7 @@ namespace gloox
     }
     xml += m_name;
     xml += "='";
-    xml += util::escape( m_value );
+    util::appendEscaped( xml, m_value );
     xml += '\'';
 
     return xml;
@@ -333,7 +333,7 @@ namespace gloox
             xml += (*it_n)->tag->xml();
             break;
           case TypeString:
-            xml += util::escape( *((*it_n)->str) );
+            util::appendEscaped( xml, *((*it_n)->str) );
             break;
         }
       }
@@ -466,6 +466,10 @@ namespace gloox
           t = it++;
           delete (*t);
           m_nodes->erase( t );
+        }
+        else
+        {
+           it++;
         }
       }
     }

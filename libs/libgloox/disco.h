@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -34,13 +34,13 @@ namespace gloox
   class IQ;
 
   /**
-   * @brief This class implements XEP-0030 (Service Discovery) and XEP-0092 (Software Version).
+   * @brief This class implements @xep{0030} (Service Discovery) and @xep{0092} (Software Version).
    *
    * ClientBase will automatically instantiate a Disco object. It can be used to
    * announce special features of your client, or its version, or...
    *
    * XEP version: 2.2
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    */
   class GLOOX_API Disco : public IqHandler
   {
@@ -56,10 +56,10 @@ namespace gloox
       typedef std::list<Identity*> IdentityList;
 
       /**
-       * @brief An abstraction of a Disco Info element (from Service Discovery, XEP-0030)
+       * @brief An abstraction of a Disco Info element (from Service Discovery, @xep{0030})
        * as a StanzaExtension.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class GLOOX_API Info : public StanzaExtension
@@ -93,13 +93,13 @@ namespace gloox
           const IdentityList& identities() const { return m_identities; }
 
           /**
-           * Returns an optionally included data form. This is used by e.g. MUC (XEP-0045).
+           * Returns an optionally included data form. This is used by e.g. MUC (@xep{0045}).
            * @return An optional data form included in the disco#info. May be 0.
            */
           const DataForm* form() const { return m_form; }
 
           /**
-           * Adds an optional DataForm, e.g. for XEP-0232. Only one form can be added
+           * Adds an optional DataForm, e.g. for @xep{0232}. Only one form can be added
            * at this point.
            * @param form An optional DataForm to include in the Info reply.
            * The form will be owned by and deleted on destruction of the Info object.
@@ -188,9 +188,9 @@ namespace gloox
       };
 
       /**
-       * @brief An abstraction of a Disco identity (Service Discovery, XEP-0030).
+       * @brief An abstraction of a Disco identity (Service Discovery, @xep{0030}).
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class GLOOX_API Identity
@@ -266,10 +266,10 @@ namespace gloox
       typedef std::list<Item*> ItemList;
 
       /**
-       * @brief An abstraction of a Disco query element (from Service Discovery, XEP-0030)
+       * @brief An abstraction of a Disco query element (from Service Discovery, @xep{0030})
        * in the disco#items namespace, implemented as a StanzaExtension.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class GLOOX_API Items : public StanzaExtension
@@ -278,7 +278,7 @@ namespace gloox
 
         public:
           // This needs to be public so one can proactively send a list of adhoc commands
-          // see XEP-0050
+          // see @xep{0050}
           /**
            * Creates an empty Items object, suitable for making disco#items requests.
            * @param node The node identifier to query (optional).
@@ -344,9 +344,9 @@ namespace gloox
       };
 
       /**
-       * @brief An abstraction of a Disco item (Service Discovery, XEP-0030).
+       * @brief An abstraction of a Disco item (Service Discovery, @xep{0030}).
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class GLOOX_API Item
@@ -439,7 +439,7 @@ namespace gloox
 
       /**
        * Queries the given JID for general infomation according to
-       * XEP-0030 (Service Discovery).
+       * @xep{0030} (Service Discovery).
        * To receive the results inherit from DiscoHandler and register with the Disco object.
        * @param to The destination-JID of the query.
        * @param node An optional node to query. Not inserted if empty.
@@ -454,7 +454,7 @@ namespace gloox
 
       /**
        * Queries the given JID for its items according to
-       * XEP-0030 (Service Discovery).
+       * @xep{0030} (Service Discovery).
        * To receive the results inherit from DiscoHandler and register with the Disco object.
        * @param to The destination-JID of the query.
        * @param node An optional node to query. Not inserted if empty.
@@ -471,8 +471,8 @@ namespace gloox
        * Sets the version of the host application using this library.
        * The library takes care of jabber:iq:version requests. These
        * IQ packets will not be forwarded to the IqHandlers.
-       * @param name The name to be returned to inquireing clients.
-       * @param version The version to be returned to inquireing clients.
+       * @param name The name to be returned to inquiring clients.
+       * @param version The version to be returned to inquiring clients.
        * @param os The operating system to announce. Default: don't include.
        */
       void setVersion( const std::string& name, const std::string& version,
@@ -500,10 +500,10 @@ namespace gloox
        * Sets the identity of this entity.
        * The library uses this information to answer disco#info requests
        * with a correct identity.
-       * XEP-0030 requires an entity to have at least one identity. See XEP-0030
+       * @xep{0030} requires an entity to have at least one identity. See @xep{0030}
        * for more information on categories and types.
-       * @param category The entity category of this client. Default: client.
-       * @param type The type of this entity. Default: bot.
+       * @param category The entity category of this client. Default: client. May not be empty.
+       * @param type The type of this entity. Default: bot. May not be empty.
        * @param name The name of the entity. Default: empty.
        * @note An entity can have more than one identity. You cann add more identities
        * using addIdentity(). A call to setIdentity() will clear the list of identities
@@ -514,8 +514,8 @@ namespace gloox
 
       /**
        * Adds another identity to the list of identities.
-       * @param category The entity category of this client. Default: client.
-       * @param type The type of this entity. Default: bot.
+       * @param category The entity category of this client. Default: client. May not be empty.
+       * @param type The type of this entity. Default: bot. May not be empty.
        * @param name The name of the entity. Default: empty.
        */
       void addIdentity( const std::string& category, const std::string& type,
@@ -529,7 +529,7 @@ namespace gloox
       const IdentityList& identities() const { return m_identities; }
 
       /**
-       * Adds an optional DataForm to Disco:Info replies, e.g. for XEP-0232.
+       * Adds an optional DataForm to Disco:Info replies, e.g. for @xep{0232}.
        * Only one form can be added at this point.
        * @param form An optional DataForm to include in the Info reply.
        * The form will be owned by and deleted on destruction of the Disco object.

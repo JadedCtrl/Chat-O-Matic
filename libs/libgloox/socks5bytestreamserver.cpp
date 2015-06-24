@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -12,7 +12,6 @@
 
 
 #include "socks5bytestreamserver.h"
-#include "connectiontcpserver.h"
 #include "mutexguard.h"
 #include "util.h"
 
@@ -30,10 +29,15 @@ namespace gloox
   {
     if( m_tcpServer )
       delete m_tcpServer;
+    m_tcpServer = 0;
 
+    m_mutex.lock();
     ConnectionMap::const_iterator it = m_connections.begin();
     for( ; it != m_connections.end(); ++it )
       delete (*it).first;
+    m_connections.clear();
+    util::clearList( m_oldConnections );
+    m_mutex.unlock();
   }
 
   ConnectionError SOCKS5BytestreamServer::listen()
@@ -53,15 +57,26 @@ namespace gloox
     if( ce != ConnNoError )
       return ce;
 
-    ConnectionMap::const_iterator it = m_connections.begin();
-    ConnectionMap::const_iterator it2;
-    while( it != m_connections.end() )
-    {
-      it2 = it++;
-      (*it2).first->recv( timeout );
-    }
+    // First take a snapshot of our connections, and then iterate the snapshot
+    // (so that the live map can be modified by an erase while we
+    // iterate the snapshot of the map)
+    ConnectionMap connectionsSnapshot;
 
+    m_mutex.lock();
+    connectionsSnapshot.insert( m_connections.begin(), m_connections.end() );
+    m_mutex.unlock();
+
+    ConnectionMap::const_iterator it = connectionsSnapshot.begin();
+    for( ; it != connectionsSnapshot.end(); ++it )
+    {
+      (*it).first->recv( timeout );
+    }
+    connectionsSnapshot.clear();
+
+    m_mutex.lock();
     util::clearList( m_oldConnections );
+    m_mutex.unlock();
+
     return ConnNoError;
   }
 
@@ -126,15 +141,23 @@ namespace gloox
     connection->registerConnectionDataHandler( this );
     ConnectionInfo ci;
     ci.state = StateUnnegotiated;
+
+    m_mutex.lock();
     m_connections[connection] = ci;
+    m_mutex.unlock();
   }
 
   void SOCKS5BytestreamServer::handleReceivedData( const ConnectionBase* connection,
                                                    const std::string& data )
   {
+    m_mutex.lock();
     ConnectionMap::iterator it = m_connections.find( const_cast<ConnectionBase*>( connection ) );
     if( it == m_connections.end() )
+    {
+      m_mutex.unlock();
       return;
+    }
+    m_mutex.unlock();
 
     switch( (*it).second.state )
     {
@@ -184,6 +207,7 @@ namespace gloox
         {
           const std::string hash = data.substr( 5, 40 );
 
+          m_mutex.lock();
           HashMap::const_iterator ith = m_hashes.begin();
           for( ; ith != m_hashes.end() && (*ith) != hash; ++ith )
             ;
@@ -194,6 +218,7 @@ namespace gloox
             (*it).second.hash = hash;
             (*it).second.state = StateDestinationAccepted;
           }
+          m_mutex.unlock();
         }
         (*it).first->send( reply );
         break;
@@ -213,6 +238,7 @@ namespace gloox
   void SOCKS5BytestreamServer::handleDisconnect( const ConnectionBase* connection,
                                                        ConnectionError /*reason*/ )
   {
+    util::MutexGuard mg( m_mutex );
     m_connections.erase( const_cast<ConnectionBase*>( connection ) );
     m_oldConnections.push_back( connection );
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -26,13 +26,13 @@ namespace gloox
   class MessageSession;
 
   /**
-   * @brief This class adds Message Event (XEP-0022) support to a MessageSession.
+   * @brief This class adds Message Event (@xep{0022}) support to a MessageSession.
    *
    * This implementation of Message Events is fully transparent to the user of the class.
    * If the remote entity does not request message events, MessageEventFilter will not send
    * any, even if the user requests it. (This is required by the protocol specification.)
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.8
    */
   class GLOOX_API MessageEventFilter : public MessageFilter
@@ -50,7 +50,7 @@ namespace gloox
       virtual ~MessageEventFilter();
 
       /**
-       * Use this function to raise an event as defined in XEP-0022.
+       * Use this function to raise an event as defined in @xep{0022}.
        * @note The Spec states that Message Events shall not be sent to an entity
        * which did not request them. Reasonable effort is taken in this function to
        * avoid spurious event sending. You should be safe to call this even if Message
@@ -63,7 +63,7 @@ namespace gloox
 
       /**
        * The MessageEventHandler registered here will receive Message Events according
-       * to XEP-0022.
+       * to @xep{0022}.
        * @param meh The MessageEventHandler to register.
        */
       void registerMessageEventHandler( MessageEventHandler* meh );

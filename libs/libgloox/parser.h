@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -28,7 +28,7 @@ namespace gloox
   /**
    * @brief This class implements an XML parser.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class GLOOX_API Parser
@@ -104,7 +104,6 @@ namespace gloox
       void addCData();
       bool closeTag();
       bool isWhitespace( unsigned char c );
-      bool isValid( unsigned char c );
       void streamEvent( Tag* tag );
       ForwardScanState forwardScan( std::string::size_type& pos, const std::string& data,
                                     const std::string& needle );

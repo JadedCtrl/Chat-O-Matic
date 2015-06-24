@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -139,7 +139,7 @@ namespace gloox
         m_proxyHandshakeBuffer = EmptyString;
         m_state = StateConnected;
         m_logInstance.dbg( LogAreaClassConnectionHTTPProxy,
-                           "http proxy connection established" );
+                           "HTTP proxy connection established" );
         m_handler->handleConnect( this );
       }
       else if( !m_proxyHandshakeBuffer.compare( 9, 3, "407" ) )
@@ -174,7 +174,7 @@ namespace gloox
           port = host.second;
         }
       }
-      std::string message = "Requesting http proxy connection to " + server + ":"
+      std::string message = "Requesting HTTP proxy connection to " + server + ":"
           + util::int2string( port );
       m_logInstance.dbg( LogAreaClassConnectionHTTPProxy, message );
 

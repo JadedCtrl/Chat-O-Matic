@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -19,6 +19,7 @@
 #include "logsink.h"
 #include "prep.h"
 #include "mutexguard.h"
+#include "util.h"
 
 #ifdef __MINGW32__
 # include <winsock.h>
@@ -32,6 +33,7 @@
 # include <netinet/in.h>
 # include <unistd.h>
 # include <string.h>
+# include <errno.h>
 #elif ( defined( _WIN32 ) || defined( _WIN32_WCE ) ) && !defined( __SYMBIAN32__ )
 # include <winsock.h>
 typedef int socklen_t;
@@ -49,7 +51,7 @@ namespace gloox
                                         const std::string& server, int port )
     : ConnectionBase( 0 ),
       m_logInstance( logInstance ), m_buf( 0 ), m_socket( -1 ), m_totalBytesIn( 0 ),
-      m_totalBytesOut( 0 ), m_bufsize( 1024 ), m_cancel( true )
+      m_totalBytesOut( 0 ), m_bufsize( 8192 ), m_cancel( true )
   {
     init( server, port );
   }
@@ -58,7 +60,7 @@ namespace gloox
                                         const std::string& server, int port )
     : ConnectionBase( cdh ),
       m_logInstance( logInstance ), m_buf( 0 ), m_socket( -1 ), m_totalBytesIn( 0 ),
-      m_totalBytesOut( 0 ), m_bufsize( 1024 ), m_cancel( true )
+      m_totalBytesOut( 0 ), m_bufsize( 8192 ), m_cancel( true )
   {
     init( server, port );
   }
@@ -110,7 +112,7 @@ namespace gloox
       return ConnNotConnected;
 
     ConnectionError err = ConnNoError;
-    while( !m_cancel && ( err = recv( 10 ) ) == ConnNoError )
+    while( !m_cancel && ( err = recv( 1000000 ) ) == ConnNoError )
       ;
     return err == ConnNoError ? ConnNotConnected : err;
   }
@@ -135,8 +137,20 @@ namespace gloox
 
     m_sendMutex.unlock();
 
-    if( sent == -1 && m_handler )
-      m_handler->handleDisconnect( this, ConnIoError );
+    if( sent == -1 )
+    {
+        // send() failed for an unexpected reason
+        std::string message = "send() failed. "
+#if defined( _WIN32 ) && !defined( __SYMBIAN32__ )
+          "WSAGetLastError: " + util::int2string( ::WSAGetLastError() );
+#else
+          "errno: " + util::int2string( errno ) + ": " + strerror( errno );
+#endif
+      m_logInstance.err( LogAreaClassConnectionTCPBase, message );
+
+      if( m_handler )
+        m_handler->handleDisconnect( this, ConnIoError );
+    }
 
     return sent != -1;
   }

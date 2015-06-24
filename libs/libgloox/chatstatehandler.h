@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -23,9 +23,9 @@ namespace gloox
 
   /**
    * @brief A virtual interface that enables an object to be notified about
-   * a remote entity's Chat States (XEP-0085).
+   * a remote entity's Chat States (@xep{0085}).
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.8
    */
   class GLOOX_API ChatStateHandler

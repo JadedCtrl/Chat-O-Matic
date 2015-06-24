@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -42,13 +42,6 @@ namespace gloox
                                const std::string&,
                                const StringList& )
   {
-    const int protocolPriority[] = { GNUTLS_TLS1, 0 };
-    const int kxPriority[]       = { GNUTLS_KX_ANON_DH, 0 };
-    const int cipherPriority[]   = { GNUTLS_CIPHER_AES_256_CBC, GNUTLS_CIPHER_AES_128_CBC,
-                                     GNUTLS_CIPHER_3DES_CBC, GNUTLS_CIPHER_ARCFOUR, 0 };
-    const int compPriority[]     = { GNUTLS_COMP_ZLIB, GNUTLS_COMP_NULL, 0 };
-    const int macPriority[]      = { GNUTLS_MAC_SHA, GNUTLS_MAC_MD5, 0 };
-
     if( m_initLib && gnutls_global_init() != 0 )
       return false;
 
@@ -61,11 +54,28 @@ namespace gloox
     if( gnutls_init( m_session, GNUTLS_SERVER ) != 0 )
       return false;
 
+#if GNUTLS_VERSION_NUMBER >= 0x020600
+    int ret = gnutls_priority_set_direct( *m_session, "SECURE128:+PFS:+COMP-ALL:+VERS-TLS-ALL:-VERS-SSL3.0:+SIGN-ALL:+CURVE-ALL", 0 );
+    if( ret != GNUTLS_E_SUCCESS )
+      return false;
+#else
+    const int protocolPriority[] = {
+#ifdef GNUTLS_TLS1_2
+      GNUTLS_TLS1_2,
+#endif
+      GNUTLS_TLS1_1, GNUTLS_TLS1, 0 };
+    const int kxPriority[]       = { GNUTLS_KX_ANON_DH, 0 };
+    const int cipherPriority[]   = { GNUTLS_CIPHER_AES_256_CBC, GNUTLS_CIPHER_AES_128_CBC,
+                                     GNUTLS_CIPHER_3DES_CBC, GNUTLS_CIPHER_ARCFOUR, 0 };
+    const int compPriority[]     = { GNUTLS_COMP_ZLIB, GNUTLS_COMP_NULL, 0 };
+    const int macPriority[]      = { GNUTLS_MAC_SHA, GNUTLS_MAC_MD5, 0 };
     gnutls_protocol_set_priority( *m_session, protocolPriority );
     gnutls_cipher_set_priority( *m_session, cipherPriority );
     gnutls_compression_set_priority( *m_session, compPriority );
     gnutls_kx_set_priority( *m_session, kxPriority );
     gnutls_mac_set_priority( *m_session, macPriority );
+#endif
+
     gnutls_credentials_set( *m_session, GNUTLS_CRD_ANON, m_anoncred );
 
     gnutls_dh_set_prime_bits( *m_session, m_dhBits );

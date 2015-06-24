@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -29,8 +29,6 @@
 #if !defined( _WIN32 ) && !defined( _WIN32_WCE )
 # include <unistd.h>
 #endif
-
-#include <cstdio>
 
 namespace gloox
 {
@@ -107,6 +105,7 @@ namespace gloox
       m_rosterManager( 0 ), m_auth( 0 ),
       m_presence( Presence::Available, JID() ), m_resourceBound( false ),
       m_forceNonSasl( false ), m_manageRoster( true ),
+      m_smId( EmptyString ), m_smLocation( EmptyString ), m_smResume( false ), m_smWanted( false ), m_smMax( 0 ),
       m_streamFeatures( 0 )
   {
     m_jid.setServer( server );
@@ -118,6 +117,7 @@ namespace gloox
       m_rosterManager( 0 ), m_auth( 0 ),
       m_presence( Presence::Available, JID() ), m_resourceBound( false ),
       m_forceNonSasl( false ), m_manageRoster( true ),
+      m_smId( EmptyString ), m_smLocation( EmptyString ), m_smResume( false ), m_smWanted( false ), m_smMax( 0 ),
       m_streamFeatures( 0 )
   {
     m_jid = jid;
@@ -176,7 +176,11 @@ namespace gloox
       {
         if( m_authed )
         {
-          if( m_streamFeatures & StreamFeatureBind )
+          if( m_streamFeatures & StreamFeatureStreamManagement && m_smWanted && m_smContext >= CtxSMEnabled )
+          {
+            sendStreamManagement();
+          }
+          else if( m_streamFeatures & StreamFeatureBind && m_smContext < CtxSMEnabled )
           {
             notifyStreamEvent( StreamEventResourceBinding );
             bindResource( resource() );
@@ -290,10 +294,65 @@ namespace gloox
       }
       else if( name == "success" && xmlns == XMLNS_STREAM_SASL )
       {
+        if( !processSASLSuccess( tag->cdata() ) )
+        {
+          logInstance().err( LogAreaClassClient, "The Server response could not be verified!" );
+          disconnect( ConnAuthenticationFailed );
+          return false;
+        }
+
         logInstance().dbg( LogAreaClassClient, "SASL authentication successful" );
-        processSASLSuccess();
         setAuthed( true );
         header();
+      }
+      else if( name == "enabled" && xmlns == XMLNS_STREAM_MANAGEMENT )
+      {
+        m_smContext = CtxSMEnabled;
+        m_smMax = atoi( tag->findAttribute( "max" ).c_str() );
+        m_smId = tag->findAttribute( "id" );
+        const std::string res = tag->findAttribute( "resume" );
+        m_smResume = ( ( res == "true" || res == "1" ) && !m_smId.empty() ) ? true : false;
+        m_smLocation = tag->findAttribute( "location" );
+
+        if( m_streamFeatures & StreamFeatureSession )
+          createSession();
+        else
+          connected();
+      }
+      else if( name == "resumed" && xmlns == XMLNS_STREAM_MANAGEMENT && m_smContext == CtxSMResume )
+      {
+        if( tag->findAttribute( "previd" ) == m_smId )
+        {
+          m_smContext = CtxSMResumed;
+          notifyStreamEvent( StreamEventSMResumed );
+          int h = atoi( tag->findAttribute( "h" ).c_str() );
+          connected();
+          checkQueue( h, true );
+        }
+      }
+      else if( name == "a" && xmlns == XMLNS_STREAM_MANAGEMENT && m_smContext >= CtxSMEnabled )
+      {
+        int h = atoi( tag->findAttribute( "h" ).c_str() );
+        checkQueue( h, false );
+      }
+      else if( name == "r" && xmlns == XMLNS_STREAM_MANAGEMENT )
+      {
+        ackStreamManagement();
+      }
+      else if( name == "failed" && xmlns == XMLNS_STREAM_MANAGEMENT )
+      {
+        switch( m_smContext )
+        {
+          case CtxSMEnable:
+            notifyStreamEvent( StreamEventSMEnableFailed );
+            break;
+          case CtxSMResume:
+            notifyStreamEvent( StreamEventSMResumeFailed );
+            break;
+          default:
+            break;
+        }
+        m_smContext = CtxSMFailed;
       }
       else
         return false;
@@ -333,6 +392,9 @@ namespace gloox
     if( tag->hasChild( "compression", XMLNS, XMLNS_STREAM_COMPRESS ) )
       features |= getCompressionMethods( tag->findChild( "compression" ) );
 
+    if( tag->hasChild( "sm", XMLNS, XMLNS_STREAM_MANAGEMENT ) )
+      features |= StreamFeatureStreamManagement;
+
     if( features == 0 )
       features = StreamFeatureIqAuth;
 
@@ -344,6 +406,12 @@ namespace gloox
     int mechs = SaslMechNone;
 
     const std::string mech = "mechanism";
+
+    if( tag->hasChildWithCData( mech, "SCRAM-SHA-1-PLUS" ) )
+      mechs |= SaslMechScramSha1Plus;
+
+    if( tag->hasChildWithCData( mech, "SCRAM-SHA-1" ) )
+      mechs |= SaslMechScramSha1;
 
     if( tag->hasChildWithCData( mech, "DIGEST-MD5" ) )
       mechs |= SaslMechDigestMd5;
@@ -383,8 +451,21 @@ namespace gloox
   {
     bool retval = true;
 
-    if( m_streamFeatures & SaslMechDigestMd5 && m_availableSaslMechs & SaslMechDigestMd5
+    if( ( m_streamFeatures & SaslMechScramSha1Plus && m_availableSaslMechs & SaslMechScramSha1Plus
+          && m_encryption && m_encryptionActive && m_encryption->hasChannelBinding() )
         && !m_forceNonSasl )
+    {
+      notifyStreamEvent( StreamEventAuthentication );
+      startSASL( SaslMechScramSha1Plus );
+    }
+    else if( m_streamFeatures & SaslMechScramSha1 && m_availableSaslMechs & SaslMechScramSha1
+             && !m_forceNonSasl )
+    {
+      notifyStreamEvent( StreamEventAuthentication );
+      startSASL( SaslMechScramSha1 );
+    }
+    else if( m_streamFeatures & SaslMechDigestMd5 && m_availableSaslMechs & SaslMechDigestMd5
+             && !m_forceNonSasl )
     {
       notifyStreamEvent( StreamEventAuthentication );
       startSASL( SaslMechDigestMd5 );
@@ -438,10 +519,11 @@ namespace gloox
 
   bool Client::selectResource( const std::string& resource )
   {
+    m_selectedResource = resource; // TODO: remove for 1.1
+    m_jid.setResource( resource );
+
     if( !( m_streamFeatures & StreamFeatureUnbind ) )
       return false;
-
-    m_selectedResource = resource;
 
     return true;
   }
@@ -461,10 +543,12 @@ namespace gloox
 
         m_jid = rb->jid();
         m_resourceBound = true;
-        m_selectedResource = m_jid.resource();
+        m_selectedResource = m_jid.resource(); // TODO: remove for 1.1
         notifyOnResourceBind( m_jid.resource() );
 
-        if( m_streamFeatures & StreamFeatureSession )
+        if( m_streamFeatures & StreamFeatureStreamManagement && m_smWanted )
+          sendStreamManagement();
+        else if( m_streamFeatures & StreamFeatureSession )
           createSession();
         else
           connected();
@@ -477,6 +561,71 @@ namespace gloox
       }
       default:
         break;
+    }
+  }
+
+  void Client::setStreamManagement( bool enable, bool resume )
+  {
+    m_smWanted = enable;
+    m_smResume = resume;
+
+    if( !m_smWanted )
+    {
+      m_smId = EmptyString;
+      m_smLocation = EmptyString;
+      m_smMax = 0;
+      m_smResume = false;
+      return;
+    }
+
+    if( m_smWanted && m_resourceBound )
+      sendStreamManagement();
+  }
+
+  void Client::sendStreamManagement()
+  {
+    if( !m_smWanted )
+      return;
+
+    if( m_smContext == CtxSMInvalid )
+    {
+      notifyStreamEvent( StreamEventSMEnable );
+      Tag* e = new Tag( "enable" );
+      e->setXmlns( XMLNS_STREAM_MANAGEMENT );
+      if( m_smResume )
+        e->addAttribute( "resume", "true" );
+      send( e );
+      m_smContext = CtxSMEnable;
+      m_smHandled = 0;
+    }
+    else if( m_smContext == CtxSMEnabled )
+    {
+      notifyStreamEvent( StreamEventSMResume );
+      Tag* r = new Tag( "resume" );
+      r->setXmlns( XMLNS_STREAM_MANAGEMENT );
+      r->addAttribute( "h", m_smHandled );
+      r->addAttribute( "previd", m_smId );
+      send( r );
+      m_smContext = CtxSMResume;
+    }
+  }
+
+  void Client::ackStreamManagement()
+  {
+    if( m_smContext >= CtxSMEnabled )
+    {
+      Tag* a = new Tag( "a", "xmlns", XMLNS_STREAM_MANAGEMENT );
+      a->addAttribute( "h", m_smHandled );
+      send( a );
+    }
+  }
+
+  void Client::reqStreamManagement()
+  {
+    if( m_smContext >= CtxSMEnabled )
+    {
+      Tag* r = new Tag( "r", "xmlns", XMLNS_STREAM_MANAGEMENT );
+      send( r );
     }
   }
 
@@ -556,7 +705,7 @@ namespace gloox
 
   void Client::connected()
   {
-    if( m_authed )
+    if( m_authed && m_smContext != CtxSMResumed )
     {
       if( m_manageRoster )
       {
@@ -582,6 +731,14 @@ namespace gloox
 
   void Client::disconnect()
   {
+    m_smContext = CtxSMInvalid;
+    m_smHandled = 0;
+    m_smId = EmptyString;
+    m_smLocation = EmptyString;
+    m_smMax = 0;
+    m_smResume = false;
+    m_smWanted = false;
+
     disconnect( ConnUserDisconnected );
   }
 

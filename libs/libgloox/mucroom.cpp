@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -969,6 +969,9 @@ namespace gloox
         m_roomHandler->handleMUCParticipantPresence( this, party, presence );
 
       delete party.nick;
+      delete party.jid;
+      delete party.actor;
+      delete party.alternate;
     }
   }
 
@@ -1081,12 +1084,9 @@ namespace gloox
       {
         std::string when;
         bool privMsg = false;
-        bool history = false;
         if( msg.when() )
-        {
           when = msg.when()->stamp();
-          history = true;
-        }
+
         if( msg.subtype() & ( Message::Chat | Message::Normal ) )
           privMsg = true;
 

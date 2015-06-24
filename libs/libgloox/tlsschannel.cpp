@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+ * Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
  * This file is part of the gloox library. http://camaya.net/gloox
  *
  * This software is distributed under a license. The full license
@@ -43,7 +43,7 @@ namespace gloox
     SecBufferDesc buffer_desc;
     DWORD cbIoBufferLength = m_sizes.cbHeader + m_sizes.cbMaximumMessage + m_sizes.cbTrailer;
 
-    PBYTE e_iobuffer = static_cast<PBYTE>( LocalAlloc( LMEM_FIXED, cbIoBufferLength ) );
+    PBYTE e_iobuffer = static_cast<PBYTE>( malloc( cbIoBufferLength ) );
 
     if( e_iobuffer == NULL )
     {
@@ -93,7 +93,8 @@ namespace gloox
       }
       else
       {
-        LocalFree( e_iobuffer );
+        free( e_iobuffer );
+        e_iobuffer = 0;
         if( !m_secure )
           m_handler->handleHandshakeResult( this, false, m_certInfo );
         cleanup();
@@ -101,7 +102,8 @@ namespace gloox
       }
     }
     while( data_copy.size() > 0 );
-    LocalFree( e_iobuffer );
+    free( e_iobuffer );
+    e_iobuffer = 0;
     return true;
   }
 
@@ -121,7 +123,7 @@ namespace gloox
       DWORD cbIoBufferLength = m_sizes.cbHeader + m_sizes.cbMaximumMessage + m_sizes.cbTrailer;
       bool wantNewBufferSize = false;
 
-      PBYTE e_iobuffer = static_cast<PBYTE>( LocalAlloc( LMEM_FIXED, cbIoBufferLength ) );
+      PBYTE e_iobuffer = static_cast<PBYTE>( malloc( cbIoBufferLength ) );
       if( e_iobuffer == NULL )
       {
         //printf("**** Out of memory (2)\n");
@@ -136,8 +138,19 @@ namespace gloox
       {
         if( wantNewBufferSize )
         {
-          e_iobuffer = static_cast<PBYTE>( LocalReAlloc( e_iobuffer, cbIoBufferLength, 0 ) );
-          wantNewBufferSize = false;
+          void* tmp = realloc( e_iobuffer, cbIoBufferLength );
+          if( tmp )
+          {
+            e_iobuffer = static_cast<PBYTE>( tmp );
+            wantNewBufferSize = false;
+          }
+          else
+          {
+            //printf("**** Out of memory (2)\n");
+            cleanup();
+            m_handler->handleHandshakeResult( this, false, m_certInfo );
+            return 0;
+          }
         }
 
         // copy data chunk from tmp string into encryption memory buffer
@@ -221,7 +234,7 @@ namespace gloox
         }
       }
       while( m_buffer.size() != 0 );
-      LocalFree( e_iobuffer );
+      free( e_iobuffer );
     }
     else
     {
@@ -465,6 +478,27 @@ namespace gloox
     while( true );
   }
 
+  bool SChannel::hasChannelBinding() const
+  {
+#ifdef HAVE_WINTLS_CHANNEL_BINDING
+    return true;
+#else
+    return false;
+#endif
+  }
+
+  const std::string SChannel::channelBinding() const
+  {
+#ifdef HAVE_WINTLS_CHANNEL_BINDING // see ../config.h.win if the following doesn't compile
+    SecPkgContext_Bindings buf;
+    if( QueryContextAttributes( &m_context, SECPKG_ATTR_UNIQUE_BINDINGS, &buf ) == SEC_E_OK )
+    {
+      return std::string( buf->Bindings[buf->Bindings.dwApplicationDataOffset], buf->Bindings.cbApplicationDataLength );
+    }
+#endif
+    return EmptyString;
+  }
+
   void SChannel::setCACerts( const StringList& /*cacerts*/ ) {}
 
   void SChannel::setClientCert( const std::string& /*clientKey*/, const std::string& /*clientCerts*/ ) {}
@@ -537,8 +571,7 @@ namespace gloox
       // unicode conversation
       // calculating unicode server name size
       csizeServerName = MultiByteToWideChar( CP_ACP, 0, serverName, -1, NULL, 0 );
-      uServerName = reinterpret_cast<WCHAR *>( LocalAlloc( LMEM_FIXED,
-                                                             csizeServerName * sizeof( WCHAR ) ) );
+      uServerName = reinterpret_cast<WCHAR *>( malloc( csizeServerName * sizeof( WCHAR ) ) );
       if( uServerName == NULL )
       {
         //printf("SEC_E_INSUFFICIENT_MEMORY ~ Not enough memory!!!\n");

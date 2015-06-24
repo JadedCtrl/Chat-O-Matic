@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -21,12 +21,12 @@ namespace gloox
 {
 
   /**
-   * @brief A virtual interface for an Ad-hoc Command users according to XEP-0050.
+   * @brief A virtual interface for an Ad-hoc Command users according to @xep{0050}.
    *
    * Derived classes can be registered with the Adhoc object to receive notifications
    * about Adhoc Commands remote entities support.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class GLOOX_API AdhocHandler
@@ -41,17 +41,19 @@ namespace gloox
        * This function is called in response to a call to Adhoc::checkSupport().
        * @param remote The queried remote entity's JID.
        * @param support Whether the remote entity supports Adhoc Commands.
+       * @param context A user defined context.
        */
-      virtual void handleAdhocSupport( const JID& remote, bool support ) = 0;
+      virtual void handleAdhocSupport( const JID& remote, bool support, int context ) = 0;
 
       /**
        * This function is called in response to a call to Adhoc::getCommands()
        * and delivers a list of supported commands.
        * @param remote The queried remote entity's JID.
        * @param commands A map of supported commands and their human-readable name.
+       * @param context A user defined context.
        * The map may be empty.
        */
-      virtual void handleAdhocCommands( const JID& remote, const StringMap& commands ) = 0;
+      virtual void handleAdhocCommands( const JID& remote, const StringMap& commands, int context ) = 0;
 
       /**
        * This function is called in response to a call to Adhoc::getCommands() or
@@ -59,15 +61,17 @@ namespace gloox
        * an error.
        * @param remote The queried remote entity's JID.
        * @param error The error condition. May be 0.
+       * @param context A user defined context.
        */
-      virtual void handleAdhocError( const JID& remote, const Error* error ) = 0;
+      virtual void handleAdhocError( const JID& remote, const Error* error, int context ) = 0;
 
       /**
        * This function is called in response to a remote command execution.
        * @param remote The remote entity's JID.
        * @param command The command being executed.
+       * @param context A user defined context.
        */
-      virtual void handleAdhocExecutionResult( const JID& remote, const Adhoc::Command& command ) = 0;
+      virtual void handleAdhocExecutionResult( const JID& remote, const Adhoc::Command& command, int context ) = 0;
   };
 
 }

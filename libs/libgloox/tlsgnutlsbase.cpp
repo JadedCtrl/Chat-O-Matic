@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cstdio>
 
 namespace gloox
 {
@@ -97,12 +98,13 @@ namespace gloox
     gnutls_bye( *m_session, GNUTLS_SHUT_RDWR );
     gnutls_db_remove_session( *m_session );
     gnutls_credentials_clear( *m_session );
-    if( m_secure )
+    if( m_session )
       gnutls_deinit( *m_session );
+
+    delete m_session;
 
     m_secure = false;
     m_valid = false;
-    delete m_session;
     m_session = 0;
     m_session = new gnutls_session_t;
     m_handler = handler;
@@ -137,6 +139,28 @@ namespace gloox
 
     m_handler->handleHandshakeResult( this, true, m_certInfo );
     return true;
+  }
+
+  bool GnuTLSBase::hasChannelBinding() const
+  {
+#ifdef HAVE_GNUTLS_SESSION_CHANNEL_BINDING
+    return true;
+#else
+    return false;
+#endif
+  }
+
+  const std::string GnuTLSBase::channelBinding() const
+  {
+#ifdef HAVE_GNUTLS_SESSION_CHANNEL_BINDING
+    gnutls_datum_t cb;
+    int rc;
+    rc = gnutls_session_channel_binding( *m_session, GNUTLS_CB_TLS_UNIQUE, &cb );
+    if( !rc )
+      return std::string( (char*)cb.data, cb.size );
+    else
+#endif
+      return EmptyString;
   }
 
   ssize_t GnuTLSBase::pullFunc( void* data, size_t len )

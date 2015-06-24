@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -24,11 +24,11 @@ namespace gloox
 {
 
   /**
-   * @brief An implementation of XEP-0013 (Flexible Offline Message Retrieval).
+   * @brief An implementation of @xep{0013} (Flexible Offline Message Retrieval).
    *
    * Use the FlexibleOfflineHandler to receive results.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.7
    */
   class GLOOX_API FlexibleOffline : public DiscoHandler, public IqHandler
@@ -84,7 +84,7 @@ namespace gloox
         { messageOperation( FORemoveMsgs, msgs ); }
 
       /**
-       * Registers a FlexibleOfflineHandler as object that receives results of XEP-0013 queries.
+       * Registers a FlexibleOfflineHandler as object that receives results of @xep{0013} queries.
        * Only one Handler at a time is possible.
        * @param foh The Handler object to register.
        */

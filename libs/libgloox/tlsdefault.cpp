@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+ * Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
  * This file is part of the gloox library. http://camaya.net/gloox
  *
  * This software is distributed under a license. The full license
@@ -124,6 +124,16 @@ namespace gloox
   bool TLSDefault::isSecure() const
   {
     return m_impl ? m_impl->isSecure() : false;
+  }
+
+  bool TLSDefault::hasChannelBinding() const
+  {
+    return m_impl ? m_impl->hasChannelBinding() : false;
+  }
+
+  const std::string TLSDefault::channelBinding() const
+  {
+    return m_impl ? m_impl->channelBinding() : EmptyString;
   }
 
   void TLSDefault::setCACerts( const StringList& cacerts )

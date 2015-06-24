@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -24,16 +24,16 @@ namespace gloox
   class Tag;
 
   /**
-   * @brief An implementation of Message Receipts (XEP-0184) as a StanzaExtension.
+   * @brief An implementation of Message Receipts (@xep{0184}) as a StanzaExtension.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 1.0
    */
   class GLOOX_API Receipt : public StanzaExtension
   {
     public:
       /**
-       * Contains valid receipt types (XEP-0184).
+       * Contains valid receipt types (@xep{0184}).
        */
       enum ReceiptType
       {
@@ -51,9 +51,10 @@ namespace gloox
       /**
        * Constructs a new object of the given type.
        * @param rcpt The receipt type.
+       * @param id The message ID.
        */
-      Receipt( ReceiptType rcpt )
-        : StanzaExtension( ExtReceipt ), m_rcpt( rcpt )
+      Receipt( ReceiptType rcpt, const std::string& id = EmptyString )
+        : StanzaExtension( ExtReceipt ), m_rcpt( rcpt ), m_id( id )
       {}
 
       /**
@@ -66,6 +67,12 @@ namespace gloox
        * @return The object's state.
        */
       ReceiptType rcpt() const { return m_rcpt; }
+
+      /**
+       * Returns the message id for acknowledgement tracking.
+       * @return The message ID for acknowledgement tracking.
+       */
+      std::string id() const { return m_id; }
 
       // reimplemented from StanzaExtension
       virtual const std::string& filterString() const;
@@ -87,6 +94,7 @@ namespace gloox
 
     private:
       ReceiptType m_rcpt;
+      std::string m_id;
 
   };
 

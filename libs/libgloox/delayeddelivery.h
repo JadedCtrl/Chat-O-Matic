@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -26,13 +26,13 @@ namespace gloox
   class Tag;
 
   /**
-   * @brief This is an implementation of XEP-0203 (Delayed Delivery).
+   * @brief This is an implementation of @xep{0203} (Delayed Delivery).
    *
-   * The class also implements the deprecated XEP-0091 (Delayed Delivery) in a read-only fashion.
-   * It understands both XEP formats for input, but any output will conform to XEP-0203.
+   * The class also implements the deprecated @xep{0091} (Delayed Delivery) in a read-only fashion.
+   * It understands both XEP formats for input, but any output will conform to @xep{0203}.
    *
    * XEP Version: 0.1
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class GLOOX_API DelayedDelivery : public StanzaExtension
@@ -61,7 +61,7 @@ namespace gloox
 
       /**
        * Returns the datetime when the stanza was originally sent.
-       * The format MUST adhere to the dateTime format specified in XEP-0082 and MUST
+       * The format MUST adhere to the dateTime format specified in @xep{0082} and MUST
        * be expressed in UTC.
        * @return The original datetime.
        */
@@ -76,7 +76,7 @@ namespace gloox
       /**
        * Returns the JID of the original sender of the stanza or the entity that
        * delayed the sending.
-       * The format MUST adhere to the dateTime format specified in XEP-0082 and MUST
+       * The format MUST adhere to the dateTime format specified in @xep{0082} and MUST
        * be expressed in UTC.
        * @return The JID.
        */

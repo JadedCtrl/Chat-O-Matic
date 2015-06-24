@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -39,9 +39,9 @@ namespace gloox
    * You can modify any number of RosterItems within the Roster at any time. These changes must be
    * synchronized with the server by calling @ref synchronize(). Note that incoming Roster pushes
    * initiated by other resources may overwrite changed values.
-   * Additionally, XEP-0083 (Nested Roster Groups) is implemented herein.
+   * Additionally, @xep{0083} (Nested Roster Groups) is implemented herein.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.3
    */
    class GLOOX_API RosterManager : public IqHandler, public PresenceHandler, public SubscriptionHandler,
@@ -134,14 +134,14 @@ namespace gloox
       void ackSubscriptionRequest( const JID& to, bool ack );
 
       /**
-       * Use this function to retrieve the delimiter of Nested Roster Groups (XEP-0083).
+       * Use this function to retrieve the delimiter of Nested Roster Groups (@xep{0083}).
        * @return The group delimiter.
        * @since 0.7
        */
       const std::string& delimiter() const { return m_delimiter; }
 
       /**
-       * Use this function to set the group delimiter (XEP-0083).
+       * Use this function to set the group delimiter (@xep{0083}).
        * @param delimiter The group delimiter.
        * @since 0.7
        */
@@ -197,7 +197,7 @@ namespace gloox
       /**
        * @brief An implementation of StanzaExtension that helps in roster management.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class Query : public StanzaExtension

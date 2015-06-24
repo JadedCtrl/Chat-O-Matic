@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -21,9 +21,9 @@
 namespace gloox
 {
 
-  MessageSession::MessageSession( ClientBase* parent, const JID& jid, bool wantUpgrade, int types, bool honorTID )
+  MessageSession::MessageSession( ClientBase* parent, const JID& jid, bool wantResourceTracking, int types, bool honorTID )
     : m_parent( parent ), m_target( jid ), m_messageHandler( 0 ),
-      m_types( types ), m_wantUpgrade( wantUpgrade ), m_hadMessages( false ), m_honorThreadID( honorTID )
+      m_types( types ), m_wantResourceTracking( wantResourceTracking ), m_hadMessages( false ), m_honorThreadID( honorTID )
   {
     if( m_parent )
       m_parent->registerMessageSession( this );
@@ -36,7 +36,7 @@ namespace gloox
 
   void MessageSession::handleMessage( Message& msg )
   {
-    if( m_wantUpgrade && msg.from().bare() == m_target.full() )
+    if( m_wantResourceTracking && msg.from().resource() != m_target.resource() )
       setResource( msg.from().resource() );
 
     if( !m_hadMessages )
@@ -55,8 +55,13 @@ namespace gloox
     for( ; it != m_messageFilterList.end(); ++it )
       (*it)->filter( msg );
 
-    if( m_messageHandler && !msg.body().empty() )
+    if( m_messageHandler )
       m_messageHandler->handleMessage( msg, this );
+  }
+
+  void MessageSession::send( const std::string& message )
+  {
+    send( message, EmptyString );
   }
 
   void MessageSession::send( const std::string& message, const std::string& subject, const StanzaExtensionList& sel )
@@ -93,7 +98,6 @@ namespace gloox
 
   void MessageSession::resetResource()
   {
-    m_wantUpgrade = true;
     m_target.setResource( EmptyString );
   }
 

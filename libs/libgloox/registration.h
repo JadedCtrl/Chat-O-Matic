@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -31,7 +31,7 @@ namespace gloox
 
   /**
    * Holds all the possible fields a server may require for registration according
-   * to Section 14.1, XEP-0077.
+   * to Section 14.1, @xep{0077}.
    */
   struct RegistrationFields
   {
@@ -54,7 +54,7 @@ namespace gloox
   };
 
   /**
-   * @brief This class is an implementation of XEP-0077 (In-Band Registration).
+   * @brief This class is an implementation of @xep{0077} (In-Band Registration).
    *
    * Derive your object from @ref RegistrationHandler and implement the
    * virtual functions offered by that interface. Then use it like this:
@@ -86,7 +86,7 @@ namespace gloox
    *
    * Check @c tests/register_test.cpp for an example.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.2
    */
   class GLOOX_API Registration : public IqHandler
@@ -94,32 +94,32 @@ namespace gloox
     public:
 
       /**
-       * The possible fields of a XEP-0077 account registration.
+       * The possible fields of a @xep{0077} account registration.
        */
       enum fieldEnum
       {
-        FieldUsername  =     1,
-        FieldNick      =     2,
-        FieldPassword  =     4,
-        FieldName      =     8,
-        FieldFirst     =    16,
-        FieldLast      =    32,
-        FieldEmail     =    64,
-        FieldAddress   =   128,
-        FieldCity      =   256,
-        FieldState     =   512,
-        FieldZip       =  1024,
-        FieldPhone     =  2048,
-        FieldUrl       =  4096,
-        FieldDate      =  8192,
-        FieldMisc      = 16384,
-        FieldText      = 32768
+        FieldUsername  =     1,     /**< Username requested */
+        FieldNick      =     2,     /**< Nickname requested */
+        FieldPassword  =     4,     /**< Password requested */
+        FieldName      =     8,     /**< Name requested */
+        FieldFirst     =    16,     /**< Given name requested */
+        FieldLast      =    32,     /**< Family name requested */
+        FieldEmail     =    64,     /**< Email address requested */
+        FieldAddress   =   128,     /**< Postal address requested */
+        FieldCity      =   256,     /**< Locality requested */
+        FieldState     =   512,     /**< State/Province requested */
+        FieldZip       =  1024,     /**< ZIP requested */
+        FieldPhone     =  2048,     /**< Phone no. requested */
+        FieldUrl       =  4096,     /**< Homepage or other URL requested */
+        FieldDate      =  8192,     /**< Date requested (unknown purpose; see @xep{0077}) */
+        FieldMisc      = 16384,     /**< Misc data requested (unknown purpose; see @xep{0077}) */
+        FieldText      = 32768      /**< Extra text requested (unknown purpose; see @xep{0077}) */
       };
 
       /**
-       * @brief A wrapping class for the XEP-0077 &lt;query&gt; element.
+       * @brief A wrapping class for the @xep{0077} &lt;query&gt; element.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class Query : public StanzaExtension
@@ -276,7 +276,7 @@ namespace gloox
       /**
        * Attempts to register an account with the given credentials. This can only be called with an
        * unauthenticated parent (@ref Client).
-       * @note According to XEP-0077, if the server sends both old-style fields and data form,
+       * @note According to @xep{0077}, if the server sends both old-style fields and data form,
        * implementations SHOULD prefer data forms.
        * @param form The DataForm containing the registration credentials.
        */

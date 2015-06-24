@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2009-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -22,6 +22,7 @@
 #include <cstdlib>
 
 #include <openssl/err.h>
+#include <openssl/comp.h>
 
 namespace gloox
 {
@@ -269,6 +270,8 @@ namespace gloox
 
       if( ASN1_UTCTIME_cmp_time_t( X509_get_notAfter( peer ), time( 0 ) ) != 1 )
         m_certInfo.status |= CertExpired;
+
+      X509_free( peer );
     }
     else
     {

@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -22,7 +22,6 @@
 #endif
 
 #include <stdio.h>
-#include <string.h>
 
 #if ( !defined( _WIN32 ) && !defined( _WIN32_WCE ) ) || defined( __SYMBIAN32__ )
 # include <netinet/in.h>
@@ -99,7 +98,7 @@ namespace gloox
     HEADER* hdr = (HEADER*)srvbuf.buf;
     unsigned char* here = srvbuf.buf + NS_HFIXEDSZ;
 
-    if( ( hdr->tc ) || ( srvbuf.len < NS_HFIXEDSZ ) )
+    if( srvbuf.len < NS_HFIXEDSZ )
       error = true;
 
     if( hdr->rcode >= 1 && hdr->rcode <= 5 )
@@ -157,7 +156,7 @@ namespace gloox
     return servers;
   }
 
-#elif defined( _WIN32 ) && defined( HAVE_WINDNS_H )
+#elif defined( _WIN32 ) && defined( HAVE_WINDNS_H ) && !defined( __MINGW32__ )
   DNS::HostMap DNS::resolve( const std::string& service, const std::string& proto,
                              const std::string& domain, const LogSink& logInstance )
   {
@@ -169,7 +168,10 @@ namespace gloox
     DNS_STATUS status = DnsQuery_UTF8( dname.c_str(), DNS_TYPE_SRV, DNS_QUERY_STANDARD, NULL, &pRecord, NULL );
     if( status == ERROR_SUCCESS )
     {
-      DNS_RECORD* pRec = pRecord;
+      // NOTE: DnsQuery_UTF8 and DnsQuery_A really should have been defined with
+      // PDNS_RECORDA instead of PDNS_RECORD, since that's what it is (even with _UNICODE defined).
+      // We'll correct for that mistake with a cast.
+      DNS_RECORDA* pRec = (DNS_RECORDA*)pRecord;
       do
       {
         if( pRec->wType == DNS_TYPE_SRV )
@@ -290,10 +292,9 @@ namespace gloox
       }
 
       if( res->ai_canonname )
-        logInstance.dbg( LogAreaClassDns, "Connecting to " + std::string( res->ai_canonname )
-                                          + " (" + ip + "), port " + port );
+        logInstance.dbg( LogAreaClassDns, std::string( "Connecting to " ).append( res->ai_canonname ).append( " (" ).append( ip ).append( "), port  " ).append( port ) );
       else
-        logInstance.dbg( LogAreaClassDns, "Connecting to " + ip + ":" + port );
+        logInstance.dbg( LogAreaClassDns, std::string( "Connecting to " ).append( ip ).append( ":" ).append( port ) );
 
       return fd;
     }
@@ -302,7 +303,7 @@ namespace gloox
 #if defined( _WIN32 ) && !defined( __SYMBIAN32__ )
         "WSAGetLastError: " + util::int2string( ::WSAGetLastError() );
 #else
-        "errno: " + util::int2string( errno );
+        "errno: " + util::int2string( errno ) + ": " + strerror( errno );
 #endif
     logInstance.dbg( LogAreaClassDns, message );
 
@@ -343,6 +344,7 @@ namespace gloox
 #endif
 
     int protocol = IPPROTO_TCP;
+#if !defined( __APPLE__ )  // Sandboxing on Apple doesn't like you to use getprotobyname
     struct protoent* prot;
     if( ( prot = getprotobyname( "tcp" ) ) != 0 )
     {
@@ -354,13 +356,14 @@ namespace gloox
 #if defined( _WIN32 ) && !defined( __SYMBIAN32__ )
           "WSAGetLastError: " + util::int2string( ::WSAGetLastError() )
 #else
-          "errno: " + util::int2string( errno );
+          "errno: " + util::int2string( errno ) + ": " + strerror( errno );
 #endif
           + ". Falling back to IPPROTO_TCP: " + util::int2string( IPPROTO_TCP );
       logInstance.dbg( LogAreaClassDns, message );
 
       // Do not return an error. We'll fall back to IPPROTO_TCP.
     }
+#endif // !defined( __APPLE__ )
 
     return getSocket( PF_INET, SOCK_STREAM, protocol, logInstance );
   }
@@ -382,7 +385,7 @@ namespace gloox
 #if defined( _WIN32 ) && !defined( __SYMBIAN32__ )
           "WSAGetLastError: " + util::int2string( ::WSAGetLastError() );
 #else
-          "errno: " + util::int2string( errno );
+          "errno: " + util::int2string( errno ) + ": " + strerror( errno );
 #endif
       logInstance.dbg( LogAreaClassDns, message );
 
@@ -392,8 +395,9 @@ namespace gloox
 
 #ifdef HAVE_SETSOCKOPT
     int timeout = 5000;
+    int reuseaddr = 1;
     setsockopt( fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof( timeout ) );
-    setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, (char*)&timeout, sizeof( timeout ) );
+    setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, (char*)&reuseaddr, sizeof( reuseaddr ) );
 #endif
 
     return (int)fd;
@@ -410,6 +414,7 @@ namespace gloox
     {
       logInstance.dbg( LogAreaClassDns, "gethostbyname() failed for " + host + "." );
       cleanup( logInstance );
+      closeSocket( fd, logInstance );
       return -ConnDnsError;
     }
 
@@ -421,6 +426,7 @@ namespace gloox
     {
       logInstance.dbg( LogAreaClassDns, "gethostbyname() returned unexpected structure." );
       cleanup( logInstance );
+      closeSocket( fd, logInstance );
       return -ConnDnsError;
     }
     else
@@ -444,7 +450,7 @@ namespace gloox
 #if defined( _WIN32 ) && !defined( __SYMBIAN32__ )
         "WSAGetLastError: " + util::int2string( ::WSAGetLastError() );
 #else
-        "errno: " + util::int2string( errno );
+        "errno: " + util::int2string( errno ) + ": " + strerror( errno );
 #endif
     logInstance.dbg( LogAreaClassDns, message );
 
@@ -466,7 +472,7 @@ namespace gloox
 #if defined( _WIN32 ) && !defined( __SYMBIAN32__ )
           "WSAGetLastError: " + util::int2string( ::WSAGetLastError() );
 #else
-          "errno: " + util::int2string( errno );
+          "errno: " + util::int2string( errno ) + ": " + strerror( errno );
 #endif
       logInstance.dbg( LogAreaClassDns, message );
     }

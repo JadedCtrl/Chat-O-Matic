@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -18,6 +18,7 @@
 #include "dns.h"
 #include "logsink.h"
 #include "mutexguard.h"
+#include "util.h"
 
 #ifdef __MINGW32__
 # include <winsock.h>
@@ -28,6 +29,8 @@
 # include <sys/socket.h>
 # include <sys/select.h>
 # include <unistd.h>
+# include <string.h>
+# include <errno.h>
 #elif ( defined( _WIN32 ) || defined( _WIN32_WCE ) ) && !defined( __SYMBIAN32__ )
 # include <winsock.h>
 #endif
@@ -142,6 +145,18 @@ namespace gloox
 
     if( size <= 0 )
     {
+      if( size == -1 )
+      {
+        // recv() failed for an unexpected reason
+        std::string message = "recv() failed. "
+#if defined( _WIN32 ) && !defined( __SYMBIAN32__ )
+          "WSAGetLastError: " + util::int2string( ::WSAGetLastError() );
+#else
+          "errno: " + util::int2string( errno ) + ": " + strerror( errno );
+#endif
+        m_logInstance.err( LogAreaClassConnectionTCPClient, message );
+      }
+
       ConnectionError error = ( size ? ConnIoError : ConnStreamClosed );
       if( m_handler )
         m_handler->handleDisconnect( this, error );

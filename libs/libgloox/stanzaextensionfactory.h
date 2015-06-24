@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -13,6 +13,8 @@
 
 #ifndef STANZAEXTENSIONFACTORY_H__
 #define STANZAEXTENSIONFACTORY_H__
+
+#include "mutex.h"
 
 #include <list>
 
@@ -33,7 +35,7 @@ namespace gloox
    * instead. See StanzaExtension for more information about adding protocol implementations
    * to gloox.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class StanzaExtensionFactory
@@ -82,6 +84,7 @@ namespace gloox
     private:
       typedef std::list<StanzaExtension*> SEList;
       SEList m_extensions;
+      util::Mutex m_extensionsMutex;
 
   };
 

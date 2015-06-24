@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -45,7 +45,7 @@ namespace gloox
   /**
    * @brief An SOCKS5BytestreamManager dispatches SOCKS5 Bytestreams.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class GLOOX_API SOCKS5BytestreamManager : public IqHandler
@@ -101,7 +101,7 @@ namespace gloox
        * without waiting for success.
        * @param to The recipient of the requested bytestream.
        * @param mode The desired transport layer protocol.
-       * @param sid The bytestream's stream ID, if previously negotiated e.g. using SI (XEP-0095).
+       * @param sid The bytestream's stream ID, if previously negotiated e.g. using SI (@xep{0095}).
        * @param from An optional 'from' address to stamp outgoing
        * requests with. Only useful in component scenarios. Defaults to empty JID.
        * @return @b False in case of an error, @b true otherwise. A return value of @b true does

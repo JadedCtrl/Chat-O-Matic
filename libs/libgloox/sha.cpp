@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -55,7 +55,8 @@ namespace gloox
     if( m_corrupted )
       return EmptyString;
 
-    finalize();
+    if( !m_finished )
+      finalize();
 
     char buf[41];
     for( int i = 0; i < 20; ++i )
@@ -214,7 +215,7 @@ namespace gloox
   {
     Message_Block[Message_Block_Index++] = 0x80;
 
-    if( Message_Block_Index > 55 )
+    if( Message_Block_Index > 56 )
     {
       while( Message_Block_Index < 64 )
       {

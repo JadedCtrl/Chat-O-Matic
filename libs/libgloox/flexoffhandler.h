@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -30,14 +30,14 @@ namespace gloox
     FomrForbidden,               /**< The requester is a JID other than an authorized resource of the
                                   * user. Something wnet serieously wrong */
     FomrItemNotFound,            /**< The requested node (message ID) does not exist. */
-    FomrUnknownError             /**< An error occurred which is not specified in XEP-0013. */
+    FomrUnknownError             /**< An error occurred which is not specified in @xep{0013}. */
   };
 
   /**
    * @brief Implementation of this virtual interface allows for retrieval of offline messages following
-   * XEP-0030.
+   * @xep{0030}.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.7
    */
   class GLOOX_API FlexibleOfflineHandler
@@ -49,9 +49,9 @@ namespace gloox
       virtual ~FlexibleOfflineHandler() {}
 
       /**
-       * This function is called to indicate whether the server supports XEP-0013 or not.
+       * This function is called to indicate whether the server supports @xep{0013} or not.
        * Call @ref FlexibleOffline::checkSupport() to trigger the check.
-       * @param support Whether the server support XEP-0013 or not.
+       * @param support Whether the server support @xep{0013} or not.
        */
       virtual void handleFlexibleOfflineSupport( bool support ) = 0;
 

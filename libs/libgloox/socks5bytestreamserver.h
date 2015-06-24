@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -16,13 +16,12 @@
 
 #include "macros.h"
 #include "connectionhandler.h"
+#include "connectiontcpserver.h"
 #include "logsink.h"
 #include "mutex.h"
 
 namespace gloox
 {
-
-  class ConnectionTCPServer;
 
   /**
    * @brief A server listening for SOCKS5 bytestreams.
@@ -31,7 +30,7 @@ namespace gloox
    *
    * @note It is safe to put a SOCKS5BytestreamServer instance into a separate thread.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class GLOOX_API SOCKS5BytestreamServer : public ConnectionHandler, public ConnectionDataHandler
@@ -86,6 +85,12 @@ namespace gloox
        * @return The locally bound IP address.
        */
       const std::string localInterface() const;
+
+      /**
+       * Exposes the local socket.
+       * @return The local socket.
+       */
+      int serverSocket() const { return m_tcpServer->socket(); }
 
       // reimplemented from ConnectionHandler
       virtual void handleIncomingConnection( ConnectionBase* server, ConnectionBase* connection );

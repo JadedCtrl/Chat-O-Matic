@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -27,13 +27,14 @@ namespace gloox
    * @brief An abstraction of a message stanza.
    *
    * @author Vincent Thomasset
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 1.0
    */
   class GLOOX_API Message : public Stanza
   {
 
     friend class ClientBase;
+    friend class Forward;
 
     public:
 
@@ -123,6 +124,8 @@ namespace gloox
       /**
        * Convenience function that returns a pointer to a DelayedDelivery StanzaExtension, if the
        * message contains one.
+       * Make sure you have registered a DelayedDelivery instance with your ClientBase (this is not done automatically),
+       * otherwise this method will always return 0.
        * @return A pointer to a DelayedDelivery object, or 0.
        */
       const DelayedDelivery* when() const

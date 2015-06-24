@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -25,11 +25,11 @@ namespace gloox
   class Tag;
 
   /**
-   * @brief This is an abstraction of a vcard-temp:x:update namespace element, as used in XEP-0153
+   * @brief This is an abstraction of a vcard-temp:x:update namespace element, as used in @xep{0153}
    * (vCard-Based Avatars).
    *
    * XEP version: 1.0
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class GLOOX_API VCardUpdate : public StanzaExtension
@@ -63,6 +63,16 @@ namespace gloox
        * @return The avatar's SHA hash.
        */
       const std::string& hash() const { return m_hash; }
+      
+      /**
+       * Indicates whether the VCard update contained a @c photo tag
+       * (which might have been empty).
+       * This function is only useful for incoming VCardUpdate objects.
+       * @return @b True if the VCard update contained a @c photo
+       * tag (empty or non-empty), @b false otherwise.
+       * @since 1.0.3
+       */
+      bool hasPhoto() { return m_hasPhoto; }
 
       // reimplemented from StanzaExtension
       virtual const std::string& filterString() const;
@@ -87,6 +97,7 @@ namespace gloox
       bool m_notReady;
       bool m_noImage;
       bool m_valid;
+      bool m_hasPhoto;
 
   };
 

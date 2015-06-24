@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -24,12 +24,12 @@ namespace gloox
 {
 
   Stanza::Stanza( const JID& to )
-    : m_xmllang( "default" ), m_to( to )
+    : m_xmllang( "default" ), m_to( to ), m_hasEmbeddedStanza( false )
   {
   }
 
   Stanza::Stanza( Tag* tag )
-    : m_xmllang( "default" )
+    : m_xmllang( "default" ), m_hasEmbeddedStanza( false )
   {
     if( !tag )
       return;
@@ -66,6 +66,20 @@ namespace gloox
     util::clearList( m_extensionList );
   }
 
+  Stanza* Stanza::embeddedStanza() const
+  {
+    StanzaExtensionList::const_iterator it = m_extensionList.begin();
+    for( ; it != m_extensionList.end() && !(*it)->embeddedStanza(); ++it ) ;
+    return it != m_extensionList.end() ? (*it)->embeddedStanza() : 0;
+  }
+  
+  Tag* Stanza::embeddedTag() const
+  {
+    StanzaExtensionList::const_iterator it = m_extensionList.begin();
+    for( ; it != m_extensionList.end() && !(*it)->embeddedTag(); ++it ) ;
+    return it != m_extensionList.end() ? (*it)->embeddedTag() : 0;
+  }
+  
   void Stanza::setLang( StringMap** map,
                         std::string& defaultLang,
                         const Tag* tag )

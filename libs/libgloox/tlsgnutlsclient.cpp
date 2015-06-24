@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -33,24 +33,15 @@ namespace gloox
   void GnuTLSClient::cleanup()
   {
     GnuTLSBase::cleanup();
+    if( m_credentials )
+      gnutls_certificate_free_credentials( m_credentials );
     init();
   }
 
-  bool GnuTLSClient::init( const std::string& clientKey,
-                           const std::string& clientCerts,
-                           const StringList& cacerts )
+  bool GnuTLSClient::init( const std::string& /*clientKey*/,
+                           const std::string& /*clientCerts*/,
+                           const StringList& /*cacerts*/ )
   {
-    const int protocolPriority[] = {
-#ifdef GNUTLS_TLS1_2
-      GNUTLS_TLS1_2,
-#endif
-      GNUTLS_TLS1_1, GNUTLS_TLS1, 0 };
-    const int kxPriority[]       = { GNUTLS_KX_RSA, GNUTLS_KX_DHE_RSA, GNUTLS_KX_DHE_DSS, 0 };
-    const int cipherPriority[]   = { GNUTLS_CIPHER_AES_256_CBC, GNUTLS_CIPHER_AES_128_CBC,
-                                     GNUTLS_CIPHER_3DES_CBC, GNUTLS_CIPHER_ARCFOUR, 0 };
-    const int compPriority[]     = { GNUTLS_COMP_ZLIB, GNUTLS_COMP_NULL, 0 };
-    const int macPriority[]      = { GNUTLS_MAC_SHA, GNUTLS_MAC_MD5, 0 };
-
     if( m_initLib && gnutls_global_init() != 0 )
       return false;
 
@@ -63,11 +54,28 @@ namespace gloox
       return false;
     }
 
+#if GNUTLS_VERSION_NUMBER >= 0x020600
+    int ret = gnutls_priority_set_direct( *m_session, "SECURE128:+PFS:+COMP-ALL:+VERS-TLS-ALL:-VERS-SSL3.0:+SIGN-ALL:+CURVE-ALL", 0 );
+    if( ret != GNUTLS_E_SUCCESS )
+      return false;
+#else
+    const int protocolPriority[] = {
+#ifdef GNUTLS_TLS1_2
+      GNUTLS_TLS1_2,
+#endif
+      GNUTLS_TLS1_1, GNUTLS_TLS1, 0 };
+    const int kxPriority[]       = { GNUTLS_KX_RSA, GNUTLS_KX_DHE_RSA, GNUTLS_KX_DHE_DSS, 0 };
+    const int cipherPriority[]   = { GNUTLS_CIPHER_AES_256_CBC, GNUTLS_CIPHER_AES_128_CBC,
+                                     GNUTLS_CIPHER_3DES_CBC, GNUTLS_CIPHER_ARCFOUR, 0 };
+    const int compPriority[]     = { GNUTLS_COMP_ZLIB, GNUTLS_COMP_NULL, 0 };
+    const int macPriority[]      = { GNUTLS_MAC_SHA, GNUTLS_MAC_MD5, 0 };
     gnutls_protocol_set_priority( *m_session, protocolPriority );
     gnutls_cipher_set_priority( *m_session, cipherPriority );
     gnutls_compression_set_priority( *m_session, compPriority );
     gnutls_kx_set_priority( *m_session, kxPriority );
     gnutls_mac_set_priority( *m_session, macPriority );
+#endif
+
     gnutls_credentials_set( *m_session, GNUTLS_CRD_CERTIFICATE, m_credentials );
 
     gnutls_transport_set_ptr( *m_session, (gnutls_transport_ptr_t)this );
@@ -119,9 +127,11 @@ namespace gloox
     if( status & GNUTLS_CERT_SIGNER_NOT_CA )
       m_certInfo.status |= CertSignerNotCa;
     const gnutls_datum_t* certList = 0;
-    unsigned int certListSize;
+    unsigned int certListSize = 0;
     if( !error && ( ( certList = gnutls_certificate_get_peers( *m_session, &certListSize ) ) == 0 ) )
       error = true;
+
+    unsigned int certListSizeFull = certListSize;
 
     gnutls_x509_crt_t* cert = new gnutls_x509_crt_t[certListSize+1];
     for( unsigned int i=0; !error && ( i<certListSize ); ++i )
@@ -189,7 +199,7 @@ namespace gloox
     if( !gnutls_x509_crt_check_hostname( cert[0], m_server.c_str() ) )
       m_certInfo.status |= CertWrongPeer;
 
-    for( unsigned int i = 0; i < certListSize; ++i )
+    for( unsigned int i = 0; i < certListSizeFull; ++i )
       gnutls_x509_crt_deinit( cert[i] );
 
     delete[] cert;

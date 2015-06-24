@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -27,7 +27,7 @@ namespace gloox
   class Message;
 
   /**
-   * @brief An implementation of a single In-Band Bytestream (XEP-0047).
+   * @brief An implementation of a single In-Band Bytestream (@xep{0047}).
    *
    * One instance of this class handles a single byte stream.
    *
@@ -37,7 +37,7 @@ namespace gloox
    * are not using MessageSessions. However, it will always send
    * data using IQ stanzas (which will always work).
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.8
    */
   class GLOOX_API InBandBytestream : public Bytestream, public IqHandler, public MessageHandler
@@ -100,7 +100,7 @@ namespace gloox
       /**
        * @brief An abstraction of IBB elements, implemented as as StanzaExtension.
        *
-       * @author Jakob Schroeter <js@camaya.net>
+       * @author Jakob Schröter <js@camaya.net>
        * @since 1.0
        */
       class IBB : public StanzaExtension

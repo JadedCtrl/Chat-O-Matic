@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -19,8 +19,10 @@
 namespace gloox
 {
 
+  JID EmptyJID();
+
   RosterItem::RosterItem( const std::string& jid, const std::string& name )
-    : m_data( new RosterItemData( jid, name, StringList() ) )
+    : m_data( new RosterItemData( JID( jid ), name, StringList() ) )
   {
   }
 
@@ -47,6 +49,14 @@ namespace gloox
       return m_data->name();
     else
       return EmptyString;
+  }
+
+  const JID& RosterItem::jidJID() const
+  {
+    if( m_data )
+      return m_data->jidJID();
+    else
+      return EmptyJID;
   }
 
   const std::string& RosterItem::jid() const

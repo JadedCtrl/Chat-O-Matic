@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -25,11 +25,11 @@ namespace gloox
   class DataFormField;
 
   /**
-    * @brief An abstract base class for a XEP-0004 Data Form.
+    * @brief An abstract base class for a @xep{0004} Data Form.
     *
     * You shouldn't need to use this class directly. Use DataForm instead.
     *
-    * @author Jakob Schroeter <js@camaya.net>
+    * @author Jakob Schröter <js@camaya.net>
     * @since 0.7
     */
   class GLOOX_API DataFormFieldContainer
@@ -52,7 +52,7 @@ namespace gloox
       virtual ~DataFormFieldContainer();
 
       /**
-        * A list of XEP-0004 Data Form Fields.
+        * A list of @xep{0004} Data Form Fields.
         */
       typedef std::list<DataFormField*> FieldList;
 

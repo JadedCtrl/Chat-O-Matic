@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -24,11 +24,11 @@ namespace gloox
   class SIHandler;
 
   /**
-   * @brief This class manages streams initiated using XEP-0095.
+   * @brief This class manages streams initiated using @xep{0095}.
    *
    * You need only one SIManager object per ClientBase instance.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class GLOOX_API SIManager : public IqHandler
@@ -148,11 +148,11 @@ namespace gloox
        * Starts negotiating a stream with a remote entity.
        * @param sih The SIHandler to handle the result of this request.
        * @param to The entity to talk to.
-       * @param profile The SI profile to use. See XEP-0095 for more info.
+       * @param profile The SI profile to use. See @xep{0095} for more info.
        * @param child1 The first of the two allowed children of the SI offer. See
-       * XEP-0095 for more info.
+       * @xep{0095} for more info.
        * @param child2 The second of the two allowed children of the SI offer. See
-       * XEP-0095 for more info. Defaults to 0.
+       * @xep{0095} for more info. Defaults to 0.
        * @param mimetype The stream's/file's mime-type. Defaults to 'binary/octet-stream'.
        * @param from An optional 'from' address to stamp outgoing requests with.
        * Used in component scenario only. Defaults to empty JID.
@@ -170,8 +170,8 @@ namespace gloox
        * SIProfileHandler::handleSIRequest().
        * @param to The requestor.
        * @param id The request's id, as passed to SIProfileHandler::handleSIRequest().
-       * @param child1 The &lt;feature/&gt; child of the SI request. See XEP-0095 for details.
-       * @param child2 The profile-specific child of the SI request. May be 0. See XEP-0095
+       * @param child1 The &lt;feature/&gt; child of the SI request. See @xep{0095} for details.
+       * @param child2 The profile-specific child of the SI request. May be 0. See @xep{0095}
        * for details.
        * @param from An optional 'from' address to stamp outgoing stanzas with.
        * Used in component scenario only. Defaults to empty JID.

@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -14,6 +14,7 @@
 #include "stanzaextensionfactory.h"
 
 #include "gloox.h"
+#include "mutexguard.h"
 #include "util.h"
 #include "stanza.h"
 #include "stanzaextension.h"
@@ -28,7 +29,9 @@ namespace gloox
 
   StanzaExtensionFactory::~StanzaExtensionFactory()
   {
+    m_extensionsMutex.lock();
     util::clearList( m_extensions );
+    m_extensionsMutex.unlock();
   }
 
   void StanzaExtensionFactory::registerExtension( StanzaExtension* ext )
@@ -36,6 +39,7 @@ namespace gloox
     if( !ext )
       return;
 
+    util::MutexGuard m( m_extensionsMutex );
     SEList::iterator it = m_extensions.begin();
     SEList::iterator it2;
     while( it != m_extensions.end() )
@@ -52,6 +56,7 @@ namespace gloox
 
   bool StanzaExtensionFactory::removeExtension( int ext )
   {
+    util::MutexGuard m( m_extensionsMutex );
     SEList::iterator it = m_extensions.begin();
     for( ; it != m_extensions.end(); ++it )
     {
@@ -68,6 +73,8 @@ namespace gloox
   void StanzaExtensionFactory::addExtensions( Stanza& stanza, Tag* tag )
   {
     ConstTagList::const_iterator it;
+
+    util::MutexGuard m( m_extensionsMutex );
     SEList::const_iterator ite = m_extensions.begin();
     for( ; ite != m_extensions.end(); ++ite )
     {
@@ -77,7 +84,11 @@ namespace gloox
       {
         StanzaExtension* se = (*ite)->newInstance( (*it) );
         if( se )
+        {
           stanza.addExtension( se );
+          if( se->embeddedStanza() )
+            stanza.setEmbeddedStanza();
+        }
       }
     }
   }

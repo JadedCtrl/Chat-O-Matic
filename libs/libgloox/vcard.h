@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -28,7 +28,7 @@ namespace gloox
    * See @link gloox::VCardManager VCardManager @endlink for info on how to
    * fetch VCards.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.8
    */
   class GLOOX_API VCard : public StanzaExtension
@@ -39,7 +39,7 @@ namespace gloox
        * @note @c AddrTypeDom and @c AddrTypeIntl are mutually exclusive. If both are present,
        * @c AddrTypeDom takes precendence.
        * @note Also note that not all adress types are applicable everywhere. For example,
-       * @c AddrTypeIsdn does not make sense for a postal address. Check XEP-0054
+       * @c AddrTypeIsdn does not make sense for a postal address. Check @xep{0054}
        * for details.
        */
       enum AddressType
@@ -428,7 +428,7 @@ namespace gloox
        * Sets a URI to a photo.
        * @param extval The URI to the photo.
        */
-      void setPhoto( const std::string& extval );
+      void setPhotoUri( const std::string& extval );
 
       /**
        * Sets the photo directly.
@@ -475,7 +475,7 @@ namespace gloox
        * Returns a list of email addresses.
        * @return A list of email addresses.
        */
-      EmailList& emailAddresses() { return m_emailList; }
+      const EmailList& emailAddresses() const { return m_emailList; }
 
       /**
        * Adds an address.
@@ -504,13 +504,13 @@ namespace gloox
        * Returns a list of addresses.
        * @return A list of addresses.
        */
-      AddressList& addresses() { return m_addressList; }
+      const AddressList& addresses() const { return m_addressList; }
 
       /**
        * Returns a list of address labels.
        * @return A list of address labels.
        */
-      LabelList& labels() { return m_labelList; }
+      const LabelList& labels() const { return m_labelList; }
 
       /**
        * Adds a telephone number.
@@ -523,7 +523,7 @@ namespace gloox
        * Returns a list of telephone numbers.
        * @return A list of telephone numbers.
        */
-      TelephoneList& telephone() { return m_telephoneList; }
+      const TelephoneList& telephone() const { return m_telephoneList; }
 
       /**
        * Sets "Geographical position. Values are the decimal degrees of
@@ -562,7 +562,7 @@ namespace gloox
        * Returns information about classification.
        * @return Info about the classification.
        */
-      VCardClassification classification() const { return m_class; }
+      const VCardClassification& classification() const { return m_class; }
 
       // reimplemented from StanzaExtension
       virtual const std::string& filterString() const;

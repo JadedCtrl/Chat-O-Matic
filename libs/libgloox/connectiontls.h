@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+ * Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
  * This file is part of the gloox library. http://camaya.net/gloox
  *
  * This software is distributed under a license. The full license
@@ -35,7 +35,7 @@ namespace gloox
    * @code
    * Client *c = new Client( ... );
    * c->setConnectionImpl( new ConnectionTLS( c,
-   *                                new ConnectionTCP( c->logInstance(), server, 5223 ),
+   *                                new ConnectionTCPClient( c->logInstance(), server, 5223 ),
    *                                c->logInstance()) );
    * @endcode
    *
@@ -43,7 +43,7 @@ namespace gloox
    * established, be sure not to use the connection until ConnectionDataHandler::handleConnect()
    * of the specified ConnectionDataHandler is called.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @author Matthew Wild <mwild1@gmail.com>
    * @since 1.0
    */

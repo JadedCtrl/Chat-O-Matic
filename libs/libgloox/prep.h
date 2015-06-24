@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -32,7 +32,7 @@ namespace gloox
    * LibIDN is not installed these functions return the string they are given
    * without any modification.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.2
    */
   namespace prep
@@ -42,7 +42,7 @@ namespace gloox
      * @param node The string to apply the profile to.
      * @param out The prepped string. In case of an error this string is not touched.
      * If LibIDN is not available the string is returned unchanged.
-     * @return @b True if prepping was successful, @b false otherwise or of LibIDN
+     * @return @b True if prepping was successful, @b false otherwise or if LibIDN
      * is not available.
      */
     bool nodeprep( const std::string& node, std::string& out );
@@ -52,7 +52,7 @@ namespace gloox
      * @param domain The string to apply the profile to.
      * @param out The prepped string. In case of an error this string is not touched.
      * If LibIDN is not available the string is returned unchanged.
-     * @return @b True if prepping was successful, @b false otherwise or of LibIDN
+     * @return @b True if prepping was successful, @b false otherwise or if LibIDN
      * is not available.
      */
     bool nameprep( const std::string& domain, std::string& out );
@@ -62,10 +62,20 @@ namespace gloox
      * @param resource The string to apply the profile to.
      * @param out The prepped string. In case of an error this string is not touched.
      * If LibIDN is not available the string is returned unchanged.
-     * @return @b True if prepping was successful, @b false otherwise or of LibIDN
+     * @return @b True if prepping was successful, @b false otherwise or if LibIDN
      * is not available.
      */
     bool resourceprep( const std::string& resource, std::string& out );
+
+    /**
+     * This function applies the Saslprep profile of Stringprep to a std::string.
+     * @param input The string to apply the profile to.
+     * @param out The prepped string. In case of an error this string is not touched.
+     * If LibIDN is not available the string is returned unchanged.
+     * @return @b True if prepping was successful, @b false otherwise or if LibIDN
+     * is not available.
+     */
+    bool saslprep( const std::string& input, std::string& out );
 
     /**
      * This function applies the idna() function to a string. I.e. it transforms
@@ -73,7 +83,7 @@ namespace gloox
      * @param domain The string to convert.
      * @param out The converted string. In case of an error this string is not touched.
      * If LibIDN is not available the string is returned unchanged.
-     * @return @b True if prepping was successful, @b false otherwise or of LibIDN
+     * @return @b True if prepping was successful, @b false otherwise or if LibIDN
      * is not available.
      */
     bool idna( const std::string& domain, std::string& out );

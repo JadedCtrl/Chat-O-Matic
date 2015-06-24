@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -123,6 +123,7 @@ namespace gloox
 
     switch( m_state )
     {
+      case InterTag:
       case TagInside:
         m_cdata += rep;
         break;
@@ -141,8 +142,7 @@ namespace gloox
   {
     if( pos + needle.length() <= data.length() )
     {
-      // if( !data.compare(pos, needle.length(), needle ) )
-      if( !data.compare(needle.substr(pos, needle.length())) )
+      if( !data.compare( pos, needle.length(), needle ) )
       {
         pos += needle.length() - 1;
         return ForwardFound;
@@ -173,12 +173,6 @@ namespace gloox
       const unsigned char c = data[i];
 //       printf( "found char:   %c, ", c );
 
-      if( !isValid( c ) )
-      {
-        cleanup();
-        return static_cast<int>( i );
-      }
-
       switch( m_state )
       {
         case Initial:
@@ -201,10 +195,29 @@ namespace gloox
 //           printf( "InterTag: %c\n", c );
           m_tag = EmptyString;
           if( isWhitespace( c ) )
+          {
+            m_state = TagInside;
+            if( m_current )
+              m_cdata += c;
             break;
+          }
 
           switch( c )
           {
+            case '&':
+//               printf( "InterTag, calling decode\n" );
+              switch( decode( i, data ) )
+              {
+                case DecodeValid:
+                  m_state = TagInside;
+                  break;
+                case DecodeInvalid:
+                  cleanup();
+                  return static_cast<int>( i );
+                case DecodeInsufficient:
+                  return -1;
+              }
+              break;
             case '<':
               m_state = TagOpening;
               break;
@@ -780,11 +793,6 @@ namespace gloox
     m_attribs.clear();
     m_state = Initial;
     m_preamble = 0;
-  }
-
-  bool Parser::isValid( unsigned char c )
-  {
-    return ( c != 0xc0 || c != 0xc1 || c < 0xf5 );
   }
 
   bool Parser::isWhitespace( unsigned char c )

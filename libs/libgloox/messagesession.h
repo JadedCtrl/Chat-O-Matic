@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -139,7 +139,7 @@ namespace gloox
    * @note You should never delete a MessageSession manually. Use ClientBase::disposeMessageSession()
    * instead.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.8
    */
   class GLOOX_API MessageSession
@@ -163,7 +163,8 @@ namespace gloox
        * JID that has no resource. This 'upgrade' will only happen once.
        * @param types ORed list of Message::MessageType values this MessageSession shall receive.
        * Defaults to 0 which means any type is received.
-       * @param honorTID Indicates whether thread IDs should be honored when matching incoming messages to MessageSessions. The default is usually fine.
+       * @param honorTID Indicates whether thread IDs should be honored when matching incoming messages to MessageSessions.
+       * The default (@b true) is usually fine.
        */
       MessageSession( ClientBase* parent, const JID& jid, bool wantUpgrade = true, int types = 0, bool honorTID = true );
 
@@ -219,6 +220,12 @@ namespace gloox
         { m_messageHandler = 0; }
 
       /**
+       * A convenience function to quickly send a message.
+       * @param message The message to send.
+       */
+      virtual void send( const std::string& message );
+
+      /**
        * A convenience function to quickly send a message (optionally with subject). This is
        * the preferred way to send a message from a MessageSession.
        * @param message The message to send.
@@ -226,7 +233,7 @@ namespace gloox
        * @param sel An optional list of StanzaExtensions. The extensions will be owned by the message-to-be-sent;
        * do not attempt to re-use or delete them.
        */
-      virtual void send( const std::string& message, const std::string& subject = EmptyString,
+      virtual void send( const std::string& message, const std::string& subject,
                          const StanzaExtensionList& sel = StanzaExtensionList() );
 
       /**
@@ -265,7 +272,9 @@ namespace gloox
        * This function resets the session's target JID to its bare form such that
        * subsequently sent messages will be sent to that bare JID. The server will
        * determine the best resource to deliver to. Useful if the target
-       * resource changed presence to e.g. away or offline.
+       * resource changed presence to e.g. away or offline. This does not automatically
+       * set the wantResourceTracking option. If you need escalation, be sure to set
+       * this option in the constructor.
        */
       void resetResource();
 
@@ -298,7 +307,7 @@ namespace gloox
 
       std::string m_thread;
       int m_types;
-      bool m_wantUpgrade;
+      bool m_wantResourceTracking;
       bool m_hadMessages;
       bool m_honorThreadID;
 

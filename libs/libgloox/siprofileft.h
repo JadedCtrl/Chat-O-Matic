@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2007-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2007-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -35,7 +35,7 @@ namespace gloox
   class SOCKS5Bytestream;
 
   /**
-   * @brief An implementation of the file transfer SI profile (XEP-0096).
+   * @brief An implementation of the file transfer SI profile (@xep{0096}).
    *
    * An SIProfileFT object acts as a 'plugin' to the SIManager. SIProfileFT
    * manages most of the file transfer functionality. The naming comes from the fact that
@@ -144,7 +144,7 @@ namespace gloox
    *
    * For usage examples see src/examples/ft_send.cpp and src/examples/ft_recv.cpp.
    *
-   * @author Jakob Schroeter <js@camaya.net>
+   * @author Jakob Schröter <js@camaya.net>
    * @since 0.9
    */
   class GLOOX_API SIProfileFT : public SIProfileHandler, public SIHandler,
@@ -190,7 +190,7 @@ namespace gloox
        * @param size The file's size. Mandatory and must be > 0.
        * @param hash The file content's MD5 hash.
        * @param desc A description.
-       * @param date The file's last modification date/time. See XEP-0082 for details.
+       * @param date The file's last modification date/time. See @xep{0082} for details.
        * @param mimetype The file's mime-type. Defaults to 'binary/octet-stream' if empty.
        * @param streamTypes ORed StreamType that can be used for this transfer.
        * @param from An optional 'from' address to stamp outgoing requests with.

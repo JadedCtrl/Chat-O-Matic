@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2005-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2005-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -71,13 +71,12 @@ namespace gloox
     m_zdeflate.avail_in = static_cast<uInt>( data.length() );
     m_zdeflate.next_in = (Bytef*)in;
 
-    int ret;
     std::string result;
     do {
       m_zdeflate.avail_out = static_cast<uInt>( CHUNK );
       m_zdeflate.next_out = (Bytef*)out;
 
-      ret = deflate( &m_zdeflate, Z_SYNC_FLUSH );
+      deflate( &m_zdeflate, Z_SYNC_FLUSH );
       result.append( (char*)out, CHUNK - m_zdeflate.avail_out );
     } while( m_zdeflate.avail_out == 0 );
 
@@ -103,14 +102,13 @@ namespace gloox
     m_zinflate.avail_in = static_cast<uInt>( data.length() );
     m_zinflate.next_in = (Bytef*)in;
 
-    int ret = Z_OK;
     std::string result;
     do
     {
       m_zinflate.avail_out = CHUNK;
       m_zinflate.next_out = (Bytef*)out;
 
-      ret = inflate( &m_zinflate, Z_SYNC_FLUSH );
+      inflate( &m_zinflate, Z_SYNC_FLUSH );
       result.append( out, CHUNK - m_zinflate.avail_out );
     } while( m_zinflate.avail_out == 0 );
 
@@ -121,13 +119,17 @@ namespace gloox
 
   void CompressionZlib::cleanup()
   {
-    if( !m_valid )
-      return;
+    m_compressMutex.lock();
 
-    inflateEnd( &m_zinflate );
-    deflateEnd( &m_zdeflate );
+    if( m_valid )
+    {
+       inflateEnd( &m_zinflate );
+       deflateEnd( &m_zdeflate );
 
-    m_valid = false;
+       m_valid = false;
+    }
+
+    m_compressMutex.unlock();
   }
 
 }

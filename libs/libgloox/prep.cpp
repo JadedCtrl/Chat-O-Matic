@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2004-2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2004-2015 by Jakob Schröter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -92,6 +92,18 @@ namespace gloox
 #endif
     }
 
+    bool saslprep( const std::string& input, std::string& out )
+    {
+      #ifdef HAVE_LIBIDN
+      return prepare( input, out, stringprep_saslprep );
+      #else
+      if( input.length() > JID_PORTION_SIZE )
+        return false;
+      out = input;
+      return true;
+      #endif
+    }
+
     bool idna( const std::string& domain, std::string& out )
     {
 #ifdef HAVE_LIBIDN
@@ -103,6 +115,7 @@ namespace gloox
       if( rc == IDNA_SUCCESS )
       {
         out = prepped;
+        free( prepped );
         return true;
       }
       if( rc != IDNA_MALLOC_ERROR )
