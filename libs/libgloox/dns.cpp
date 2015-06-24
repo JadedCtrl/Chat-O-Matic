@@ -45,6 +45,10 @@
 # include <windns.h>
 #endif
 
+#ifdef __HAIKU__
+#include <string.h>
+#endif
+
 #define SRV_COST    (RRFIXEDSZ+0)
 #define SRV_WEIGHT  (RRFIXEDSZ+2)
 #define SRV_PORT    (RRFIXEDSZ+4)

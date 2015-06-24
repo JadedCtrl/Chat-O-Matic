@@ -10,6 +10,7 @@ local sources =
 	adhoc.cpp
 	amp.cpp
 	annotations.cpp
+	atomicrefcount.cpp
 	attention.cpp
 	base64.cpp
 	bookmarkstorage.cpp
