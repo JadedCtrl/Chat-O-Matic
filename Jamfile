@@ -8,4 +8,4 @@ SubInclude TOP smileys ;
 SubInclude TOP tests ;
 
 UninstallTarget $(CAYA_DIRECTORY) ;
-UninstallTarget $(COMMON_INCLUDE_DIRECTORY)/caya ;
+UninstallTarget $(SYSTEM_INCLUDE_DIRECTORY)/caya ;

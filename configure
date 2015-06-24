@@ -1,10 +1,12 @@
 #!/bin/sh
 #
+# Copyright 2014-2015, Dario Casalinuovo.
 # Copyright 2009, Pier Luigi Fiorini.
 # Distributed under the terms of the MIT License.
 #
 # Authors:
 #		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
+#		Dario Casalinuovo
 #
 
 current_dir=`pwd`
@@ -122,17 +124,13 @@ MIMESET = ${mimesetbin} ;
 SETVERSION = ${setversionbin} ;
 COPYATTR = ${copyattrbin} ;
 
-#TODO common doesn't exists anymore, change COMMON to SYSTEM
-COMMON_BIN_DIRECTORY = $(finddir B_SYSTEM_BIN_DIRECTORY) ;
-COMMON_INCLUDE_DIRECTORY = $(finddir B_SYSTEM_HEADERS_DIRECTORY) ;
-COMMON_LIB_DIRECTORY = $(finddir B_SYSTEM_DEVELOP_DIRECTORY)/lib ;
-COMMON_SERVERS_DIRECTORY = $(finddir B_SYSTEM_SERVERS_DIRECTORY) ;
-COMMON_ADDONS_DIRECTORY = $(finddir B_SYSTEM_ADDONS_DIRECTORY) ;
-COMMON_DEVELOP_DIRECTORY = $(finddir B_SYSTEM_DEVELOP_DIRECTORY) ;
-
 USER_CONFIG_DIRECTORY = $(finddir B_USER_CONFIG_DIRECTORY) ;
 
 SYSTEM_DIRECTORY = $(finddir B_SYSTEM_DIRECTORY) ;
+SYSTEM_BIN_DIRECTORY = $(finddir B_SYSTEM_BIN_DIRECTORY) ;
+SYSTEM_SERVERS_DIRECTORY = $(finddir B_SYSTEM_SERVERS_DIRECTORY) ;
+SYSTEM_ADDONS_DIRECTORY = $(finddir B_SYSTEM_ADDONS_DIRECTORY) ;
+SYSTEM_DEVELOP_DIRECTORY = $(finddir B_SYSTEM_DEVELOP_DIRECTORY) ;
 SYSTEM_INCLUDE_DIRECTORY = $(finddir B_SYSTEM_HEADERS_DIRECTORY) ;
 SYSTEM_DEVELOP_LIB_DIRECTORY = $(finddir B_SYSTEM_DEVELOP_DIRECTORY)/lib ;
 SYSTEM_LIB_DIRECTORY = $(finddir B_SYSTEM_LIB_DIRECTORY) ;
