@@ -10,7 +10,7 @@
 
 #include <Path.h>
 
-#include <private/IconUtils.h>
+#include <IconUtils.h>
 
 #include "BitmapUtils.h"
 

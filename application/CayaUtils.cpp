@@ -11,9 +11,8 @@
 #include <Bitmap.h>
 #include <Directory.h>
 #include <FindDirectory.h>
+#include <IconUtils.h>
 #include <Path.h>
-
-#include "private/IconUtils.h"
 
 #include "CayaUtils.h"
 
