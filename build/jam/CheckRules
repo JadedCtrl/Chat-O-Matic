@@ -33,13 +33,13 @@ rule CheckOpenSSL
 	OPENSSL_INCLUDE_DIR = ;
 	OPENSSL_LIBRARY_DIR = ;
 
-	local haveHeaders = [ Glob $(USER_INCLUDE_DIRECTORY)/openssl : ssl.h ] ;
+	local haveHeaders = [ Glob $(SYSTEM_INCLUDE_DIRECTORY)/openssl : ssl.h ] ;
 	if $(haveHeaders) {
-		OPENSSL_INCLUDE_DIR = $(USER_INCLUDE_DIRECTORY) ;
+		OPENSSL_INCLUDE_DIR = $(SYSTEM_INCLUDE_DIRECTORY) ;
 
-		local haveLibs = [ Glob $(USER_LIB_DIRECTORY) : libssl.so ] ;
+		local haveLibs = [ Glob $(SYSTEM_DEVELOP_LIB_DIRECTORY) : libssl.so ] ;
 		if $(haveLibs) {
-			OPENSSL_LIBRARY_DIR = $(USER_LIB_DIRECTORY) ;
+			OPENSSL_LIBRARY_DIR = $(SYSTEM_DEVELOP_LIB_DIRECTORY) ;
 
 			Echo OpenSSL Headers: $(OPENSSL_INCLUDE_DIR) ;
 			Echo OpenSSL Libs: $(OPENSSL_LIBRARY_DIR) ;
@@ -54,13 +54,13 @@ rule CheckExpat
 	EXPAT_INCLUDE_DIR = ;
 	EXPAT_LIBRARY_DIR = ;
 
-	local haveHeaders = [ Glob $(USER_INCLUDE_DIRECTORY)/ : expat.h ] ;
+	local haveHeaders = [ Glob $(SYSTEM_INCLUDE_DIRECTORY)/ : expat.h ] ;
 	if $(haveHeaders) {
-		EXPAT_INCLUDE_DIR = $(USER_INCLUDE_DIRECTORY)/ ;
+		EXPAT_INCLUDE_DIR = $(SYSTEM_INCLUDE_DIRECTORY)/ ;
 
-		local haveLibs = [ Glob $(USER_LIB_DIRECTORY) : libexpat.so ] ;
+		local haveLibs = [ Glob $(SYSTEM_DEVELOP_LIB_DIRECTORY) : libexpat.so ] ;
 		if $(haveLibs) {
-			EXPAT_LIBRARY_DIR = $(USER_LIB_DIRECTORY) ;
+			EXPAT_LIBRARY_DIR = $(SYSTEM_DEVELOP_LIB_DIRECTORY) ;
 
 			Echo Expat Headers: $(EXPAT_INCLUDE_DIR) ;
 			Echo Expat Libs: $(EXPAT_LIBRARY_DIR) ;
