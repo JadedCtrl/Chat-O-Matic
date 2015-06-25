@@ -1,4 +1,0 @@
-SubDir TOP tests ;
-
-# Include all the components
-#SubInclude TOP tests libdownload ;
