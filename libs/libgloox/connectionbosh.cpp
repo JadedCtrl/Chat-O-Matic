@@ -25,6 +25,10 @@
 #include <cctype>
 #include <algorithm>
 
+#if defined(__HAIKU__) &&  __GNUC__ < 4
+#include <ctype.h>
+#endif
+
 namespace gloox
 {
 
@@ -305,7 +309,11 @@ namespace gloox
 
   bool ci_equal( char ch1, char ch2 )
   {
+    #if defined(__HAIKU__) &&  __GNUC__ < 4
+    return toupper( (unsigned char)ch1 ) == toupper( (unsigned char)ch2 );
+    #else
     return std::toupper( (unsigned char)ch1 ) == std::toupper( (unsigned char)ch2 );
+    #endif
   }
 
   std::string::size_type ci_find( const std::string& str1, const std::string& str2 )

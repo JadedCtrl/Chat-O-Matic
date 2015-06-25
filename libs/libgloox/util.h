@@ -247,6 +247,36 @@ namespace gloox
      * @param base The integer's base.
      * @return The long int's string represenation.
      */
+
+	// NOTE this is the 1.0 version of the function downgraded.
+	// TODO investigate on how to make the new one working.
+    #if defined(__HAIKU__) &&  __GNUC__ < 4	    
+    static inline const std::string long2string( long int value, const int base = 10 )
+    {
+      int add = 0;
+      if( base < 2 || base > 16 || value == 0 )
+        return "0";
+      else if( value < 0 )
+      {
+        ++add;
+        value = -value;
+      }
+      int len = (int)( log( (double)( value ? value : 1 ) ) / log( (double)base ) ) + 1;
+      const char digits[] = "0123456789ABCDEF";
+      char* num = (char*)calloc( len + 1 + add, sizeof( char ) );
+      num[len--] = '\0';
+      if( add )
+        num[0] = '-';
+      while( value && len > -1 )
+      {
+        num[len-- + add] = digits[(int)( value % base )];
+        value /= base;
+      }
+      const std::string result( num );
+      free( num );
+      return result;
+    }
+	#else
     static inline const std::string long2string( long int value, const int base = 10 )
     {
       if( base < 2 || base > 16 || value == 0 )
@@ -263,12 +293,14 @@ namespace gloox
 
       while( output.empty() || value > 0 )
       {
-        output.insert( 0, 1, static_cast<char>( value % base + '0' ) );
+
+        output.insert((0, 1, static_cast<char>( value % base + '0' ) );
         value /= base;
       }
 
       return sign + output;
     }
+	#endif
 
     /**
      * Converts an int to its string representation.

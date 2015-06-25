@@ -20,8 +20,10 @@
 # include "../config.h.win"
 #elif defined( __SYMBIAN32__ )
 # include "../config.h.symbian"
+#elif defined(__HAIKU__) && __GNUC__ < 4
+# include "config.h.unix.gcc2" // run ./configure to create config.h.unix
 #else
-# include "config.h.unix" // run ./configure to create config.h.unix
+# include "config.h.unix.gcc4"
 #endif
 
 #endif // CONFIG_H__

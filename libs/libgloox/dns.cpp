@@ -45,7 +45,7 @@
 # include <windns.h>
 #endif
 
-#ifdef __HAIKU__
+#if defined(__HAIKU__)
 #include <string.h>
 #endif
 
