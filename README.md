@@ -1,6 +1,8 @@
 # Caya
 Caya is the best Instant Messaging client for Haiku.
 
+[Project Page](http://www.versut.com/caya)
+
 Protocols supported:
 
 * XMPP (Jabber, GTalk, Facebook…)
