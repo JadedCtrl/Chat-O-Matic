@@ -7,7 +7,7 @@ resource app_signature CAYA_SIGNATURE;
 resource app_version {
 	major  = 0,
 	middle = 0,
-	minor  = 0,
+	minor  = 3,
 
 	variety = B_APPV_ALPHA,
 	internal = 0,
