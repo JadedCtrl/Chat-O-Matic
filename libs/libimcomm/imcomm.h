@@ -52,7 +52,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <netinet/in.h>
-#ifndef __BEOS__
+#ifndef __HAIKU__
 #include <arpa/inet.h>
 #endif
 #include <netdb.h>
@@ -74,7 +74,7 @@ typedef unsigned __int8 uint8_t;
 #endif
 #endif
 
-#ifdef __BEOS__
+#ifdef __HAIKU__
 #include <inttypes.h>
 #endif
 
