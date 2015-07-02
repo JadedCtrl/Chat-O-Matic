@@ -5,7 +5,6 @@ SubInclude TOP libs ;
 SubInclude TOP application ;
 SubInclude TOP protocols ;
 SubInclude TOP smileys ;
-SubInclude TOP tests ;
 
 UninstallTarget $(CAYA_DIRECTORY) ;
 UninstallTarget $(SYSTEM_INCLUDE_DIRECTORY)/caya ;
