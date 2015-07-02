@@ -36,20 +36,20 @@
 #include <ctype.h>
 #include <assert.h>
 
+#include <Bitmap.h>
+#include <Clipboard.h>
+#include <Cursor.h>
 #include <Message.h>
 #include <Messenger.h>
 #include <MessageRunner.h>
 #include <PopUpMenu.h>
 #include <MenuItem.h>
-#include <Clipboard.h>
+#include <ObjectList.h>
 #include <ScrollView.h>
 #include <ScrollBar.h>
 #include <Region.h>
 #include <Window.h>
-#include <Bitmap.h>
-#include <Cursor.h>
 
-#include "ObjectList.h"
 #include "Theme.h"
 #include "RunView.h"
 #include "URLCrunch.h"
