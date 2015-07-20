@@ -1292,7 +1292,7 @@ void * MSNP::connectToServer(std::string hostname, int port, bool *connected, bo
 
 	if ((hp = gethostbyname(hostname.c_str())) == NULL) {
 		errno = ECONNREFUSED;
-		return (void*)-1;
+		return NULL;
 	}
 
 	memset(&sa,0,sizeof(sa));
@@ -1301,7 +1301,7 @@ void * MSNP::connectToServer(std::string hostname, int port, bool *connected, bo
 	sa.sin_port = htons((u_short)port);
 
 	if ((s = socket(hp->h_addrtype,SOCK_STREAM,0)) < 0)     /* get socket */
-		return (void*)-1;
+		return NULL;
 
 	int oldfdArgs = fcntl(s, F_GETFL, 0);
 	fcntl(s, F_SETFL, oldfdArgs | O_NONBLOCK);
@@ -1309,7 +1309,7 @@ void * MSNP::connectToServer(std::string hostname, int port, bool *connected, bo
 	if (connect(s,(struct sockaddr *)&sa,sizeof sa) < 0) {
 		if (errno != EINPROGRESS) {
 			close(s);
-			return (void*)-1;
+			return NULL;
 		}
 		*connected = false;
 	} else {
