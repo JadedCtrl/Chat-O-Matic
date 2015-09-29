@@ -145,4 +145,6 @@ CAYA_DIRECTORY =  $(finddir B_USER_APPS_DIRECTORY)/Caya ;
 DEFINES += ${defines} ;
 EOF
 
+echo $USER_CONFIG_DIRECTORY 
+echo $SYSTEM_DEVELOP_DIRECTORY
 echo "Configuration done."

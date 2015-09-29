@@ -125,12 +125,19 @@ MainWindow::Start()
 bool
 MainWindow::QuitRequested()
 {
-	fListView->MakeEmpty();
-	fServer->Quit();
-	CayaPreferences::Get()->Save();
-	ReplicantStatusView::RemoveReplicant();
-	be_app->PostMessage(B_QUIT_REQUESTED);
-	return true;
+	BAlert* alert = new BAlert("Closing", "Are you sure you wan to quit?", "Yes", "No", NULL, B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+	alert->SetShortcut(0, B_ESCAPE);
+	int32 button_index = alert->Go();
+	if(button_index == 0) {
+		fListView->MakeEmpty();
+		fServer->Quit();
+		CayaPreferences::Get()->Save();
+		ReplicantStatusView::RemoveReplicant();
+		be_app->PostMessage(B_QUIT_REQUESTED);
+		return true;
+	} else {
+		return false;
+	}
 }
 
 

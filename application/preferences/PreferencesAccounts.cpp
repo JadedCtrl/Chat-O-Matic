@@ -71,9 +71,9 @@ PreferencesAccounts::PreferencesAccounts()
 		fProtosMenu->AddItem(item);
 	}
 
-	ToolButton* proto = new ToolButton("+", NULL);
+	ToolButton* proto = new ToolButton("Add", NULL);
 	proto->SetMenu(fProtosMenu);
-	fDelButton = new ToolButton("-", new BMessage(kDelAccount));
+	fDelButton = new ToolButton("Del", new BMessage(kDelAccount));
 	fEditButton = new ToolButton("Edit...", new BMessage(kEditAccount));
 	fDelButton->SetEnabled(false);
 	fEditButton->SetEnabled(false);
