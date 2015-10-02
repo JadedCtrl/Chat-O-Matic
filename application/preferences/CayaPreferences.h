@@ -35,6 +35,7 @@ public:
 
 			bool 			HideCayaDeskbar;
 			bool 			DisableReplicant;
+			bool			DisableQuitConfirm;
 
 			bool 			IgnoreEmoticons;
 			

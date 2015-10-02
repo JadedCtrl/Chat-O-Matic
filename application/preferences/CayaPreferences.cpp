@@ -35,7 +35,8 @@ CayaPreferencesData::CayaPreferencesData()
 	NotifyProtocolStatus(true),
 	NotifyContactStatus(false),
 	NotifyNewMessage(true),
-	HideOffline(true)
+	HideOffline(true),
+	DisableQuitConfirm(true)
 {
 }
 
@@ -100,6 +101,7 @@ CayaPreferencesData::Flatten(BPositionIO* flatData) const
 	_AddBool(flatData, NotifyProtocolStatus);
 	_AddBool(flatData, NotifyContactStatus);
 	_AddBool(flatData, NotifyNewMessage);
+	_AddBool(flatData, DisableQuitConfirm);
 
 	// Replicant
 	_AddBool(flatData, HideCayaDeskbar);
@@ -167,6 +169,7 @@ CayaPreferencesData::Unflatten(type_code code, BPositionIO* flatData)
 	NotifyProtocolStatus = _ReadBool(flatData);
 	NotifyContactStatus = _ReadBool(flatData);
 	NotifyNewMessage = _ReadBool(flatData);
+	DisableQuitConfirm = _ReadBool(flatData);
 
 	// Replicant
 	HideCayaDeskbar = _ReadBool(flatData);

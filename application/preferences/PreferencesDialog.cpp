@@ -21,7 +21,7 @@ const uint32 kApply = 'SAVE';
 
 
 PreferencesDialog::PreferencesDialog()
-	: BWindow(BRect(0, 0, 500, 550), "Preferences", B_TITLED_WINDOW,
+	: BWindow(BRect(0, 0, 500, 615), "Preferences", B_TITLED_WINDOW,
 		B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_CLOSE_ON_ESCAPE)
 {
 	BTabView* tabView = new BTabView("tabView", B_WIDTH_AS_USUAL);

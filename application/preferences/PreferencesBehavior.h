@@ -28,6 +28,8 @@ private:
 	BCheckBox*		fPlaySoundOnMessageReceived;
 	BCheckBox*		fMarkUnreadWindow;
 	BCheckBox*		fMarkUnreadReplicant;
+	BStringView*	fGeneral;
+	BCheckBox*		fDisableQuitConfirm;
 
 	BStringView*	fNotifications;
 	BCheckBox*		fNotifyProtocols;

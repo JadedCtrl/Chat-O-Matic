@@ -31,6 +31,7 @@ const uint32 kNotifyContactStatus = 'NTcl';
 const uint32 kNotifyNewMessage = 'NTms';
 const uint32 kMarkUnreadWindow = 'MKuw';
 const uint32 kHideOffline = 'HiOf';
+const uint32 kDisablePrompt = 'DiPr';
 
 
 PreferencesBehavior::PreferencesBehavior()
@@ -85,6 +86,12 @@ PreferencesBehavior::PreferencesBehavior()
 	fNotifyNewMessage = new BCheckBox("EnableMessageNotify",
 		"Enable message notifications", new BMessage(kNotifyNewMessage));
 
+	fGeneral = new BStringView("onGeneral", "General");
+	fGeneral->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+	fGeneral->SetFont(be_bold_font);
+
+	fDisableQuitConfirm = new BCheckBox("DisableQuitConfirm",
+		"Don't ask confirmation at Quit", new BMessage(kDisablePrompt));
 	const float spacing = be_control_look->DefaultItemSpacing();
 
 	SetLayout(new BGroupLayout(B_HORIZONTAL, spacing));
@@ -98,6 +105,11 @@ PreferencesBehavior::PreferencesBehavior()
 			.Add(fMarkUnreadWindow)
 			.Add(fMarkUnreadReplicant)
 			.Add(fPlaySoundOnMessageReceived)
+		.	SetInsets(spacing * 2, spacing, spacing, spacing)
+		.End()
+		.Add(fGeneral)
+		.AddGroup(B_VERTICAL, spacing)
+			.Add(fDisableQuitConfirm)
 		.	SetInsets(spacing * 2, spacing, spacing, spacing)
 		.End()
 		.Add(fNotifications)
@@ -124,6 +136,7 @@ PreferencesBehavior::AttachedToWindow()
 	fNotifyProtocols->SetTarget(this);
 	fNotifyContactStatus->SetTarget(this);
 	fNotifyNewMessage->SetTarget(this);
+	fDisableQuitConfirm->SetTarget(this);
 	
 	fHideOffline->SetValue(
 		CayaPreferences::Item()->HideOffline);
@@ -141,6 +154,8 @@ PreferencesBehavior::AttachedToWindow()
 		CayaPreferences::Item()->NotifyContactStatus);
 	fNotifyNewMessage->SetValue(
 		CayaPreferences::Item()->NotifyNewMessage);
+	fDisableQuitConfirm->SetValue(
+		CayaPreferences::Item()->DisableQuitConfirm);
 }
 
 
@@ -179,6 +194,10 @@ PreferencesBehavior::MessageReceived(BMessage* message)
 		case kMarkUnreadWindow:
 			CayaPreferences::Item()->MarkUnreadWindow
 				= fMarkUnreadWindow->Value();
+			break;
+		case kDisablePrompt:
+			CayaPreferences::Item()->DisableQuitConfirm
+				= fDisableQuitConfirm->Value();
 			break;
 		default:
 			BView::MessageReceived(message);
