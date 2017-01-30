@@ -246,7 +246,7 @@ void
 ReplicantStatusView::MouseDown(BPoint point)
 {
 
-	unsigned long buttons;
+	uint32 buttons;
 	if (LockLooper()) {
 		GetMouse(&point, &buttons, false);
 		UnlockLooper();
