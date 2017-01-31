@@ -121,12 +121,12 @@ RescaleBitmap(const BBitmap* src, float width, float height)
 	void* srcData = src->Bits();
 
 	for (int32 y = 0; y <= height; y++) {
-		void* dstRow = (void*)((uint32)dstData + (uint32)(y * dstYOff));
-		void* srcRow = (void*)((uint32)srcData + ((uint32)(y * dy)
+		void* dstRow = (void*)((uintptr_t)dstData + (uint32)(y * dstYOff));
+		void* srcRow = (void*)((uintptr_t)srcData + ((uint32)(y * dy)
 			* srcYOff));
 
 		for (int32 x = 0; x <= width; x++)
-			memcpy((void*)((uint32)dstRow + (x * bpp)), (void*)((uint32)srcRow
+			memcpy((void*)((uintptr_t)dstRow + (x * bpp)), (void*)((uintptr_t)srcRow
 			+ ((uint32)(x * dx) * bpp)), bpp);
 	}
 
