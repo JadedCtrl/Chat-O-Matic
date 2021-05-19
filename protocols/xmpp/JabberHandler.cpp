@@ -769,7 +769,7 @@ JabberHandler::handleRoster(const gloox::Roster& roster)
 
 	gloox::Roster::const_iterator it = roster.begin();
 	for (; it != roster.end(); ++it) {
-		const char* jid = (*it).second->jid().c_str();
+		const char* jid = (*it).second->jidJID().full().c_str();
 		const char* name = (*it).second->name().c_str();
 		int32 subscription = (*it).second->subscription();
 
@@ -932,7 +932,7 @@ JabberHandler::handleRosterPresence(const gloox::RosterItem& item,
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_SET);
-	msg.AddString("id", item.jid().c_str());
+	msg.AddString("id", item.jidJID().full().c_str());
 	msg.AddInt32("status", _GlooxStatusToCaya(type));
 	msg.AddString("resource", resource.c_str());
 	msg.AddString("message", presenceMsg.c_str());
@@ -948,7 +948,7 @@ JabberHandler::handleSelfPresence(const gloox::RosterItem& item, const std::stri
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_CONTACT_INFO);
 	msg.AddString("protocol", kProtocolSignature);
-	msg.AddString("id", item.jid().c_str());
+	msg.AddString("id", item.jidJID().full().c_str());
 	msg.AddString("name", item.name().c_str());
 	msg.AddInt32("subscription", item.subscription());
 	msg.AddInt32("status", _GlooxStatusToCaya(type));
