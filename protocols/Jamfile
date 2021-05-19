@@ -1,8 +1,0 @@
-SubDir TOP protocols ;
-
-CAYA_INCLUDE_DIR = $(TOP) application ;
-
-# Include all the components.
-SubInclude TOP protocols aim ;
-SubInclude TOP protocols xmpp ;
-SubInclude TOP protocols yahoo ;

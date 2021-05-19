@@ -16,8 +16,8 @@
 
 #include <libsupport/SHA1.h>
 
-#include <libgloox/chatstatefilter.h>
-#include <libgloox/messageeventfilter.h>
+#include <gloox/chatstatefilter.h>
+#include <gloox/messageeventfilter.h>
 
 #include "JabberHandler.h"
 

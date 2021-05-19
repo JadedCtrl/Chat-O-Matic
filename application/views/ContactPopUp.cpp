@@ -6,15 +6,18 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
+#include "ContactPopUp.h"
+
 #include <GroupLayout.h>
 #include <GroupLayoutBuilder.h>
 #include <StringView.h>
 #include <TextControl.h>
 
-#include "BitmapView.h"
+#include <libinterface/BitmapView.h>
+
 #include "ContactLinker.h"
-#include "ContactPopUp.h"
 #include "NotifyMessage.h"
+
 
 const window_feel kMenuWindowFeel = window_feel(B_NORMAL_WINDOW_FEEL);
 

@@ -1,0 +1,5 @@
+LIBPATHS = $(OBJ_DIR)
+PROTOCOL_DIR = $(OBJ_DIR)/protocols/
+
+DEFINES := VERSION="\"0.0.2\"" BUILD_DATE="\"$(shell date +"%Y-%m-%d %H:%M")\""
+

@@ -6,6 +6,8 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
+#include "StatusView.h"
+
 #include <Bitmap.h>
 #include <GroupLayout.h>
 #include <GroupLayoutBuilder.h>
@@ -17,13 +19,13 @@
 
 #include <libinterface/BitmapMenuItem.h>
 #include <libinterface/BitmapUtils.h>
+#include <libinterface/BitmapView.h>
 
 #include "AccountManager.h"
-#include "BitmapView.h"
 #include "CayaUtils.h"
 #include "NicknameTextControl.h"
 #include "StatusMenuItem.h"
-#include "StatusView.h"
+
 
 const int32 kSetNickname = 'stnk';
 

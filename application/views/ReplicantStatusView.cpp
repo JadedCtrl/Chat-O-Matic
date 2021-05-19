@@ -6,6 +6,10 @@
  *		Dario Casalinuovo
  */
 
+#include "ReplicantStatusView.h"
+
+#include <stdio.h>
+
 #include <Application.h>
 #include <AppFileInfo.h>
 #include <Bitmap.h>
@@ -20,19 +24,17 @@
 
 #include <libinterface/BitmapMenuItem.h>
 #include <libinterface/BitmapUtils.h>
+#include <libinterface/BitmapView.h>
 
 #include "AccountManager.h"
-#include "BitmapView.h"
 #include "Caya.h"
 #include "CayaMessages.h"
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
 #include "CayaUtils.h"
 #include "NicknameTextControl.h"
-#include "ReplicantStatusView.h"
 #include "ReplicantMenuItem.h"
 
-#include <stdio.h>
 
 extern "C" _EXPORT BView *instantiate_deskbar_item(void);
 

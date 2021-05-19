@@ -6,6 +6,8 @@
  *		Andrea Anzani, andrea.anzani@gmail.com
  */
 
+#include "ChatWindow.h"
+
 #include <Alert.h>
 #include <Application.h>
 #include <Box.h>
@@ -24,11 +26,11 @@
 #include <String.h>
 #include <Notification.h>
 
-#include "BitmapView.h"
+#include <libinterface/BitmapView.h>
+
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
 #include "CayaPreferences.h"
-#include "ChatWindow.h"
 #include "ContactLinker.h"
 #include "EditingFilter.h"
 #include "CayaConstants.h"

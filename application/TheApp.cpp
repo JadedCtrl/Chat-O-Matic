@@ -8,22 +8,24 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
+#include "TheApp.h"
+
 #include <stdio.h>
 
 #include <Alert.h>
 #include <Path.h>
 #include <Roster.h>
 
+#include <librunview/Emoticor.h>
+
 #include "AboutWindow.h"
 #include "Caya.h"
 #include "CayaMessages.h"
-#include "Emoticor.h"
 #include "FilePanel.h"
 #include "MainWindow.h"
 #include "ProtocolManager.h"
 #include "ReplicantStatusView.h"
 #include "Server.h"
-#include "TheApp.h"
 
 TheApp::TheApp()
 	:

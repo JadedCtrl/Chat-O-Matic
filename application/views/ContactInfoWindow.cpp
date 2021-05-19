@@ -6,6 +6,8 @@
  *		Casalinuovo Dario
  */
 
+#include "ContactInfoWindow.h"
+
 #include <Alert.h>
 #include <Application.h>
 #include <Box.h>
@@ -18,7 +20,8 @@
 #include <SpaceLayoutItem.h>
 #include <String.h>
 
-#include "BitmapView.h"
+#include <libinterface/BitmapView.h>
+
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
 #include "ContactLinker.h"
@@ -27,7 +30,6 @@
 #include "CayaUtils.h"
 #include "NotifyMessage.h"
 
-#include "ContactInfoWindow.h"
 
 ContactInfoWindow::ContactInfoWindow(ContactLinker* linker)
 	:

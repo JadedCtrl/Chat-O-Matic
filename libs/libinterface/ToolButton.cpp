@@ -17,9 +17,9 @@
 
 #include <binary_compatibility/Interface.h>
 
-#include <libinterface/BitmapUtils.h>
-
+#include "BitmapUtils.h"
 #include "ToolButton.h"
+
 
 const float kPopUpMarkerSize	= 5.0f;
 const float kPopUpMarkerTop		= 0.5f;

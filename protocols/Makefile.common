@@ -1,0 +1,2 @@
+$(shell mkdir $(PROTOCOL_DIR) >/dev/null 2>&1)
+

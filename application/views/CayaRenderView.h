@@ -1,11 +1,13 @@
 #ifndef _CayaRenderView_H
 #define _CayaRenderView_H_
 
-#include "RunView.h"
-#include "SmileTextRender.h"
+#include <librunview/RunView.h>
+
+#include <librunview/SmileTextRender.h>
 
 class RunView;
 class Theme;
+
 
 enum CayaRenderViewColors {
 	COL_URL =	 0,
@@ -28,6 +30,7 @@ enum {
 	R_TIMESTAMP_DUMMY,
 	MAX_RENDERS
 };
+
 
 class CayaRenderView : public RunView 
 {

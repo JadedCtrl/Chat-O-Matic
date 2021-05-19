@@ -1,7 +1,9 @@
-#include "CayaPreferences.h"
 #include "CayaRenderView.h"
-#include "Theme.h"
-#include "RunView.h"
+
+#include <librunview/RunView.h>
+#include <librunview/Theme.h>
+
+#include "CayaPreferences.h"
 
 
 CayaRenderView::CayaRenderView(const char *name,  const char* smileyConfig)
