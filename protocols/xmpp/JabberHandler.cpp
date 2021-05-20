@@ -699,6 +699,42 @@ JabberHandler::_GlooxStatusToCaya(gloox::Presence::PresenceType type)
 }
 
 
+BMessage
+JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
+{
+	BMessage stemplate('IMst');
+
+	BMessage usernameText;
+	usernameText.AddString("name", "username");
+	usernameText.AddString("description", username);
+	usernameText.AddInt32("type", 'CSTR');
+	stemplate.AddMessage("setting", &usernameText);
+
+	BMessage passwordText;
+	passwordText.AddString("name", "password");
+	passwordText.AddString("description", "Password");
+	passwordText.AddInt32("type", 'CSTR');
+	passwordText.AddBool("is_secret", true);
+	stemplate.AddMessage("setting", &passwordText);
+
+	BMessage serverText;
+	serverText.AddString("name", "server");
+	serverText.AddString("description", "Server");
+	serverText.AddInt32("type", 'CSTR');
+	if (serverOption == true)
+		stemplate.AddMessage("setting", &serverText);
+
+	BMessage resourceText;
+	resourceText.AddString("name", "resource");
+	resourceText.AddString("description", "Resource");
+	resourceText.AddInt32("type", 'CSTR');
+	resourceText.AddString("default", "Caya");
+	stemplate.AddMessage("setting", &resourceText);
+
+	return stemplate;
+}
+
+
 /***********************************************************************
  * gloox callbacks
  **********************************************************************/

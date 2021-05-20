@@ -400,30 +400,9 @@ ProtocolSettings::Delete(const char* account)
 void
 ProtocolSettings::_Init()
 {
-	// Find protocol add-on
-	BPath dllPath(fAddOn->Path());
-	BFile file(dllPath.Path(), B_READ_ONLY);
-	if (file.InitCheck() < B_OK) {
-		fStatus = file.InitCheck();
-		return;
-	}
-
-	BResources resources(&file);
-	if (resources.InitCheck() != B_OK) {
-		fStatus = resources.InitCheck();
-		return;
-	}
-
-	size_t size;
-	const void* data = resources.LoadResource(B_MESSAGE_TYPE,
-		kProtocolSettingsTemplate, &size);
-	if (!data) {
-		fStatus = B_BAD_VALUE;
-		return;
-	}
-
 	// Load protocol's settings template
-	fTemplate->Unflatten((const char*)data);
+	BMessage settingsTemplate = fAddOn->Protocol()->SettingsTemplate();
+	*fTemplate = settingsTemplate;
 }
 
 

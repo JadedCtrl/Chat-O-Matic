@@ -31,6 +31,13 @@ GoogleTalkProtocol::OverrideSettings()
 }
 
 
+BMessage
+GoogleTalkProtocol::SettingsTemplate()
+{
+	return JabberHandler::_SettingsTemplate("Identifier", false);
+}
+
+
 BString
 GoogleTalkProtocol::ComposeJID() const
 {

@@ -33,6 +33,9 @@ public:
 	//! Change settings
 	virtual status_t UpdateSettings(BMessage*) = 0;
 
+	//! Settings menu template
+	virtual BMessage SettingsTemplate() = 0;
+
 	//! Protocol signature
 	virtual const char* Signature() const = 0;
 

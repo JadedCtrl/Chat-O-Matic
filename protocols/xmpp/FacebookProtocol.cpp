@@ -30,6 +30,13 @@ FacebookProtocol::OverrideSettings()
 }
 
 
+BMessage
+FacebookProtocol::SettingsTemplate()
+{
+	return JabberHandler::_SettingsTemplate("Username", false);
+}
+
+
 BString
 FacebookProtocol::ComposeJID() const
 {

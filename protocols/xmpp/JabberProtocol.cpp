@@ -8,6 +8,7 @@
 
 #include "JabberProtocol.h"
 
+
 const char* kProtocolSignature = "jabber";
 const char* kProtocolName = "Jabber";
 
@@ -26,6 +27,13 @@ JabberProtocol::~JabberProtocol()
 void
 JabberProtocol::OverrideSettings()
 {
+}
+
+
+BMessage
+JabberProtocol::SettingsTemplate()
+{
+	return JabberHandler::_SettingsTemplate("Jabber identifier", true);
 }
 
 

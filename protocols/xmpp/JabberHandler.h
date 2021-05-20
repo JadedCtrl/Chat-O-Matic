@@ -74,6 +74,7 @@ protected:
 			BString					fResource;
 			uint16					fPort;
 
+			BMessage				_SettingsTemplate(const char* username, bool serverOption);
 private:
 			CayaProtocolMessengerInterface*
 									fServerMessenger;

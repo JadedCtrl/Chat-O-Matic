@@ -13,6 +13,7 @@ public:
 	virtual				~JabberProtocol();
 
 	virtual	void		OverrideSettings();
+	virtual BMessage	SettingsTemplate();
 	virtual	BString		ComposeJID() const;
 };
 
