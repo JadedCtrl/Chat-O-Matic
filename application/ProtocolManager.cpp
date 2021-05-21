@@ -42,9 +42,21 @@ ProtocolManager::Init(BDirectory dir, BHandler* target)
 
 		// If add-on's API version fits then load accounts...
 		CayaProtocolAddOn* addOn = new CayaProtocolAddOn(id, path.Path());
-		if (addOn->Protocol()->Version() == CAYA_VERSION) {
-			fAddOnMap.AddItem(addOn->Signature(), addOn);
-			_GetAccounts(addOn, target);
+		if (addOn->Version() != CAYA_VERSION)
+			continue;
+
+		fAddOnMap.AddItem(addOn->Signature(), addOn);
+		_GetAccounts(addOn, addOn->Signature(), target);
+
+		// If add-on has multiple protocols, also load them
+		for (int32 i = 1; i < addOn->CountProtocols(); i++) {
+			CayaProtocolAddOn* subAddOn =
+				new CayaProtocolAddOn(id,path.Path(), i);
+			CayaProtocol* proto = subAddOn->Protocol();
+
+			fAddOnMap.AddItem(proto->Signature(), subAddOn);
+			_GetAccounts(subAddOn, proto->Signature(), target);
+			delete proto;
 		}
 	}
 }
@@ -122,10 +134,11 @@ ProtocolManager::AddAccount(CayaProtocolAddOn* addOn, const char* account,
 
 
 void
-ProtocolManager::_GetAccounts(CayaProtocolAddOn* addOn, BHandler* target)
+ProtocolManager::_GetAccounts(CayaProtocolAddOn* addOn, const char* subProtocol,
+								BHandler* target)
 {
 	// Find accounts path for this protocol
-	BPath path(CayaAccountPath(addOn->Signature()));
+	BPath path(CayaAccountPath(addOn->Signature(), subProtocol));
 	if (path.InitCheck() != B_OK)
 		return;
 
@@ -144,3 +157,5 @@ ProtocolManager::_GetAccounts(CayaProtocolAddOn* addOn, BHandler* target)
 		}
 	}
 }
+
+

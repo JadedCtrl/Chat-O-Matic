@@ -75,9 +75,12 @@ ProtocolSettings::Accounts() const
 {
 	BObjectList<BString> list(true);
 
-	BPath path(CayaAccountPath(fAddOn->Signature()));
+	CayaProtocol* proto = fAddOn->Protocol();
+
+	BPath path(CayaAccountPath(fAddOn->Signature(), proto->Signature()));
 	if (path.InitCheck() != B_OK)
 		return list;
+	delete proto;
 
 	BDirectory dir(path.Path());
 	BEntry entry;

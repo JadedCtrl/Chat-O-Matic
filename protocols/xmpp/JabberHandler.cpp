@@ -142,17 +142,17 @@ JabberHandler::Shutdown()
 }
 
 
-const char*
-JabberHandler::Signature() const
+void
+JabberHandler::SetPath(BPath path)
 {
-	return kProtocolSignature;
+	fPath = path;
 }
 
 
-const char*
-JabberHandler::FriendlySignature() const
+BPath
+JabberHandler::Path()
 {
-	return kProtocolName;
+	return fPath;
 }
 
 
@@ -221,13 +221,6 @@ CayaProtocolMessengerInterface*
 JabberHandler::MessengerInterface() const
 {
 	return fServerMessenger;
-}
-
-
-uint32
-JabberHandler::Version() const
-{
-	return CAYA_VERSION_1_PRE_ALPHA_1;
 }
 
 
@@ -499,7 +492,7 @@ JabberHandler::_SendMessage(BMessage* msg)
 	if (!msg)
 		return;
 
-	msg->AddString("protocol", kProtocolSignature);
+	msg->AddString("protocol", Signature());
 	fServerMessenger->SendMessage(msg);
 }
 
@@ -554,7 +547,7 @@ JabberHandler::_SetupAvatarCache()
 
 	path.Append("Caya");
 	path.Append("Cache");
-	path.Append(kProtocolSignature);
+	path.Append(Signature());
 
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return B_ERROR;
@@ -983,7 +976,7 @@ JabberHandler::handleSelfPresence(const gloox::RosterItem& item, const std::stri
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_CONTACT_INFO);
-	msg.AddString("protocol", kProtocolSignature);
+	msg.AddString("protocol", Signature());
 	msg.AddString("id", item.jidJID().full().c_str());
 	msg.AddString("name", item.name().c_str());
 	msg.AddInt32("subscription", item.subscription());

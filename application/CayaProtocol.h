@@ -8,6 +8,8 @@
 
 #include <Messenger.h>
 
+class BBitmap;
+
 // Caya protocol interface version
 #define CAYA_VERSION_1_PRE_ALPHA_1		0x00000001
 #define CAYA_VERSION_1_ALPHA_1			0x00000100
@@ -42,14 +44,18 @@ public:
 	//! Protocol name
 	virtual const char* FriendlySignature() const = 0;
 
+	//! Protocol icon
+	virtual BBitmap* Icon() const = 0;
+
+	//! Add-on's path
+	virtual void SetPath(BPath path) = 0;
+	virtual BPath Path() = 0;
+
 	//! Preferred encoding of messages
 	virtual uint32 GetEncoding() = 0;
 
 	//! Messenger interface used
 	virtual CayaProtocolMessengerInterface* MessengerInterface() const = 0;
-
-	//! Caya interface version
-	virtual uint32 Version() const = 0;
 };
 
 #endif	// _CAYA_PROTOCOL_H

@@ -8,8 +8,9 @@
 
 #include "FacebookProtocol.h"
 
-const char* kProtocolSignature = "facebook";
-const char* kProtocolName = "Facebook";
+#include <Resources.h>
+
+#include <libinterface/BitmapUtils.h>
 
 
 FacebookProtocol::FacebookProtocol()
@@ -23,10 +24,25 @@ FacebookProtocol::~FacebookProtocol()
 }
 
 
-void
-FacebookProtocol::OverrideSettings()
+const char*
+FacebookProtocol::Signature() const
 {
-	fServer = "chat.facebook.com";
+	return "facebook";
+}
+
+
+const char*
+FacebookProtocol::FriendlySignature() const
+{
+	return "Facebook";
+}
+
+
+BBitmap*
+FacebookProtocol::Icon() const
+{
+	BResources res(fPath.Path());
+	return IconFromResources(&res, 1, B_LARGE_ICON);
 }
 
 
@@ -34,6 +50,13 @@ BMessage
 FacebookProtocol::SettingsTemplate()
 {
 	return JabberHandler::_SettingsTemplate("Username", false);
+}
+
+
+void
+FacebookProtocol::OverrideSettings()
+{
+	fServer = "chat.facebook.com";
 }
 
 

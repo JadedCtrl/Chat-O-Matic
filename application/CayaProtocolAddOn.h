@@ -10,27 +10,36 @@
 #include <String.h>
 
 class BBitmap;
-
 class CayaProtocol;
+
 
 class CayaProtocolAddOn {
 public:
-					CayaProtocolAddOn(image_id image, const char* path);
+					CayaProtocolAddOn(image_id image, const char* path,
+						int32 subProto=0);
 
 	status_t		InitCheck() const;
 
 	const char*		Path() const;
 
 	CayaProtocol*	Protocol() const;
+	CayaProtocol*	ProtocolAt(int32 i) const;
+
+	int32			CountProtocols() const;
 
 	const char*		Signature() const;
 	const char*		FriendlySignature() const;
+	uint32			Version() const;
+
 	BBitmap*		Icon() const;
 
 private:
 	image_id		fImage;
 	BString			fPath;
-	CayaProtocol*	(*fGetProtocol)();
+	CayaProtocol*	(*fGetProtocol)(int32 i);
+	int32			(*fCountProtocols)();
+	int32			fProtoIndex;
+	uint32			fVersion;
 	BString			fSignature;
 	BString			fFriendlySignature;
 	BBitmap*		fIcon;

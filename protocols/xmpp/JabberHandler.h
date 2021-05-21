@@ -47,8 +47,11 @@ public:
 
 	virtual	status_t				Shutdown();
 
-	virtual	const char*				Signature() const;
-	virtual	const char*				FriendlySignature() const;
+	virtual	const char*				Signature() const = 0;
+	virtual	const char*				FriendlySignature() const = 0;
+
+	virtual void							SetPath(BPath path);
+	virtual BPath							Path();
 
 	virtual	status_t				UpdateSettings(BMessage* msg);
 
@@ -56,8 +59,6 @@ public:
 
 	virtual CayaProtocolMessengerInterface*
 									MessengerInterface() const;
-
-	virtual	uint32					Version() const;
 
 			// Functions for gloox
 			gloox::Client*			Client() const;
@@ -73,6 +74,8 @@ protected:
 			BString					fServer;
 			BString					fResource;
 			uint16					fPort;
+
+			BPath					fPath;
 
 			BMessage				_SettingsTemplate(const char* username, bool serverOption);
 private:
@@ -138,8 +141,5 @@ private:
 													  const gloox::JID&,
 													  gloox::StanzaError);
 };
-
-extern const char* kProtocolSignature;
-extern const char* kProtocolName;
 
 #endif	// _JABBER_HANDLER_H

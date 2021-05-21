@@ -42,6 +42,7 @@ private:
 
 								ProtocolManager();
 			void				_GetAccounts(CayaProtocolAddOn* addOn,
+									const char* subProtocol,
 									BHandler* target);
 
 			AddOnMap			fAddOnMap;

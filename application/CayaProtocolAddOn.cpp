@@ -8,6 +8,7 @@
  */
 
 #include <Bitmap.h>
+#include <Path.h>
 
 #include <libinterface/BitmapUtils.h>
 
@@ -15,11 +16,12 @@
 #include "CayaProtocolAddOn.h"
 
 
-CayaProtocolAddOn::CayaProtocolAddOn(image_id image, const char* path)
+CayaProtocolAddOn::CayaProtocolAddOn(image_id image, const char* path, int32 subProto)
 	:
 	fImage(image),
 	fPath(path),
-	fIcon(NULL)
+	fIcon(NULL),
+	fProtoIndex(subProto)
 {
 	_Init();
 }
@@ -42,7 +44,23 @@ CayaProtocolAddOn::Path() const
 CayaProtocol*
 CayaProtocolAddOn::Protocol() const
 {
-	return fGetProtocol();
+	return ProtocolAt(fProtoIndex);
+}
+
+
+CayaProtocol*
+CayaProtocolAddOn::ProtocolAt(int32 i) const
+{
+	CayaProtocol* proto = fGetProtocol(i);
+	proto->SetPath(BPath(fPath.String()));
+	return proto;
+}
+
+
+int32
+CayaProtocolAddOn::CountProtocols() const
+{
+	return fCountProtocols();
 }
 
 
@@ -60,6 +78,13 @@ CayaProtocolAddOn::FriendlySignature() const
 }
 
 
+uint32
+CayaProtocolAddOn::Version() const
+{
+	return fVersion;
+}
+
+
 BBitmap*
 CayaProtocolAddOn::Icon() const
 {
@@ -72,11 +97,19 @@ CayaProtocolAddOn::_Init()
 {
 	const char* (*signature)();
 	const char* (*friendly_signature)();
+	uint32 (*version)();
 
 	fStatus = B_OK;
 
-	if (get_image_symbol(fImage, "protocol", B_SYMBOL_TYPE_TEXT,
+	if (get_image_symbol(fImage, "protocol_at", B_SYMBOL_TYPE_TEXT,
 		(void**)&fGetProtocol) != B_OK) {
+		unload_add_on(fImage);
+		fStatus = B_ERROR;
+		return;
+	}
+
+	if (get_image_symbol(fImage, "protocol_count", B_SYMBOL_TYPE_TEXT,
+		(void**)&fCountProtocols) != B_OK) {
 		unload_add_on(fImage);
 		fStatus = B_ERROR;
 		return;
@@ -96,6 +129,14 @@ CayaProtocolAddOn::_Init()
 		return;
 	}
 
+	if (get_image_symbol(fImage, "version", B_SYMBOL_TYPE_TEXT,
+		(void**)&version) != B_OK) {
+		unload_add_on(fImage);
+		fStatus = B_ERROR;
+		return;
+	}
+
 	fSignature = signature();
 	fFriendlySignature = friendly_signature();
+	fVersion = version();
 }

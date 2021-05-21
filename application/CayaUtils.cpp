@@ -93,6 +93,23 @@ CayaAccountPath(const char* signature)
 }
 
 
+const char*
+CayaAccountPath(const char* signature, const char* subsignature)
+{
+	if (BString(signature) == BString(subsignature)
+		|| BString(subsignature).IsEmpty() == true)
+		return CayaAccountPath(signature);
+
+	BPath path(CayaAccountPath(signature));
+
+	path.Append(subsignature);
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
+
+	return path.Path();
+}
+
+
 extern "C" {
 
 status_t

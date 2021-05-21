@@ -18,6 +18,7 @@ BResources* CayaResources();
 
 const char*	CayaAccountsPath();
 const char*	CayaAccountPath(const char* signature);
+const char*	CayaAccountPath(const char* signature, const char* subsignature);
 
 extern "C" status_t our_image(image_info& image);
 

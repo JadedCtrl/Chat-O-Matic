@@ -8,8 +8,9 @@
 
 #include "GoogleTalkProtocol.h"
 
-const char* kProtocolSignature = "gtalk";
-const char* kProtocolName = "GoogleTalk";
+#include <Resources.h>
+
+#include <libinterface/BitmapUtils.h>
 
 
 GoogleTalkProtocol::GoogleTalkProtocol()
@@ -23,11 +24,25 @@ GoogleTalkProtocol::~GoogleTalkProtocol()
 }
 
 
-void
-GoogleTalkProtocol::OverrideSettings()
+const char*
+GoogleTalkProtocol::Signature() const
 {
-	fServer = "talk.google.com";
-	fPort = 0;
+	return "gtalk";
+}
+
+
+const char*
+GoogleTalkProtocol::FriendlySignature() const
+{
+	return "GTalk";
+}
+
+
+BBitmap*
+GoogleTalkProtocol::Icon() const
+{
+	BResources res(fPath.Path());
+	return IconFromResources(&res, 2, B_LARGE_ICON);
 }
 
 
@@ -35,6 +50,14 @@ BMessage
 GoogleTalkProtocol::SettingsTemplate()
 {
 	return JabberHandler::_SettingsTemplate("Identifier", false);
+}
+
+
+void
+GoogleTalkProtocol::OverrideSettings()
+{
+	fServer = "talk.google.com";
+	fPort = 0;
 }
 
 

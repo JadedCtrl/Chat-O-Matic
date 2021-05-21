@@ -12,7 +12,14 @@ public:
 						FacebookProtocol();
 	virtual				~FacebookProtocol();
 
+	virtual const char*	Signature() const;
+	virtual const char*	FriendlySignature() const;
+
+	virtual BBitmap*	Icon() const;
+
+	virtual BMessage	SettingsTemplate();
 	virtual	void		OverrideSettings();
+
 	virtual	BString		ComposeJID() const;
 };
 

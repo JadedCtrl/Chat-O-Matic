@@ -8,9 +8,9 @@
 
 #include "JabberProtocol.h"
 
+#include <Resources.h>
 
-const char* kProtocolSignature = "jabber";
-const char* kProtocolName = "Jabber";
+#include <libinterface/BitmapUtils.h>
 
 
 JabberProtocol::JabberProtocol()
@@ -24,9 +24,24 @@ JabberProtocol::~JabberProtocol()
 }
 
 
-void
-JabberProtocol::OverrideSettings()
+const char*
+JabberProtocol::Signature() const
 {
+	return "jabber";
+}
+
+
+const char*
+JabberProtocol::FriendlySignature() const
+{
+	return "Jabber";
+}
+
+
+BBitmap*
+JabberProtocol::Icon() const
+{
+	return ReadNodeIcon(fPath.Path(), B_LARGE_ICON, true);
 }
 
 
@@ -34,6 +49,12 @@ BMessage
 JabberProtocol::SettingsTemplate()
 {
 	return JabberHandler::_SettingsTemplate("Jabber identifier", true);
+}
+
+
+void
+JabberProtocol::OverrideSettings()
+{
 }
 
 
