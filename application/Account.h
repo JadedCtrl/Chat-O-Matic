@@ -15,7 +15,8 @@
 class Account : public CayaProtocolMessengerInterface {
 public:
 							Account(bigtime_t instanceId, CayaProtocol* cayap,
-									const char* name, BHandler* target);
+									const char* name, const char* addOnSignature,
+									BHandler* target);
 	virtual					~Account();
 
 			bigtime_t		Identifier() const;

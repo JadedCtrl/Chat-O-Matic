@@ -19,7 +19,7 @@
 
 
 Account::Account(bigtime_t instanceId, CayaProtocol* cayap,
-	const char* name, BHandler* target)
+	const char* name, const char* addOnSignature, BHandler* target)
 	:
 	fIdentifier(instanceId),
 	fName(name),
@@ -30,7 +30,7 @@ Account::Account(bigtime_t instanceId, CayaProtocol* cayap,
 	fProtocol->Init(this);
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fProtocol->Signature()));
+	BPath path(CayaAccountPath(addOnSignature, fProtocol->Signature()));
 	if (path.InitCheck() == B_OK) {
 		path.Append(name);
 
@@ -68,3 +68,5 @@ Account::SendMessage(BMessage* message)
 	message->AddInt64("instance", fIdentifier);
 	return fMessenger.SendMessage(message);
 }
+
+

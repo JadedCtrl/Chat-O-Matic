@@ -78,6 +78,16 @@ CayaProtocolAddOn::FriendlySignature() const
 }
 
 
+const char*
+CayaProtocolAddOn::SubSignature() const
+{
+	CayaProtocol* proto = Protocol();
+	const char* signature = proto->Signature();
+	delete proto;
+	return signature;
+}
+
+
 uint32
 CayaProtocolAddOn::Version() const
 {

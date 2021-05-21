@@ -124,7 +124,7 @@ ProtocolManager::AddAccount(CayaProtocolAddOn* addOn, const char* account,
 {
 	bigtime_t instanceId = system_time();
 	CayaProtocol* cayap = addOn->Protocol();
-	(void)new Account(instanceId, cayap, account, target);
+	(void)new Account(instanceId, cayap, account, addOn->Signature(), target);
 	fProtocolMap.AddItem(instanceId, cayap);
 
 	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
@@ -151,7 +151,7 @@ ProtocolManager::_GetAccounts(CayaProtocolAddOn* addOn, const char* subProtocol,
 		if (msg.Unflatten(&file) == B_OK) {
 			char buffer[B_PATH_NAME_LENGTH];
 			if (entry.GetName(buffer) == B_OK) {
-				printf("Found %s for protocol %s!\n", buffer, addOn->Signature());
+				printf("Found %s for protocol %s!\n", buffer, subProtocol);
 				AddAccount(addOn, buffer, target);
 			}
 		}

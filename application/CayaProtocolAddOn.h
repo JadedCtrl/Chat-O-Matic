@@ -29,6 +29,7 @@ public:
 
 	const char*		Signature() const;
 	const char*		FriendlySignature() const;
+	const char*		SubSignature() const;
 	uint32			Version() const;
 
 	BBitmap*		Icon() const;
