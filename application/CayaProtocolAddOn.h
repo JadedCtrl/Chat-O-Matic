@@ -29,10 +29,13 @@ public:
 
 	const char*		Signature() const;
 	const char*		FriendlySignature() const;
-	const char*		SubSignature() const;
-	uint32			Version() const;
-
 	BBitmap*		Icon() const;
+
+	const char*		ProtoSignature() const;
+	const char*		ProtoFriendlySignature() const;
+	BBitmap*		ProtoIcon() const;
+
+	uint32			Version() const;
 
 private:
 	image_id		fImage;

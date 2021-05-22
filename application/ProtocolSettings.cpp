@@ -75,7 +75,7 @@ ProtocolSettings::Accounts() const
 {
 	BObjectList<BString> list(true);
 
-	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->SubSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 	if (path.InitCheck() != B_OK)
 		return list;
 
@@ -361,7 +361,7 @@ ProtocolSettings::Rename(const char* from, const char* to)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->SubSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
 
@@ -382,7 +382,7 @@ ProtocolSettings::Delete(const char* account)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->SubSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
 
@@ -417,7 +417,7 @@ ProtocolSettings::_Load(const char* account, BMessage** settings)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->SubSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
 
@@ -440,7 +440,7 @@ ProtocolSettings::_Save(const char* account, BMessage* settings)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->SubSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
 

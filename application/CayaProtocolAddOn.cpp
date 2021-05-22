@@ -78,8 +78,15 @@ CayaProtocolAddOn::FriendlySignature() const
 }
 
 
+BBitmap*
+CayaProtocolAddOn::Icon() const
+{
+	return ReadNodeIcon(fPath, B_LARGE_ICON, true);
+}
+
+
 const char*
-CayaProtocolAddOn::SubSignature() const
+CayaProtocolAddOn::ProtoSignature() const
 {
 	CayaProtocol* proto = Protocol();
 	const char* signature = proto->Signature();
@@ -88,17 +95,30 @@ CayaProtocolAddOn::SubSignature() const
 }
 
 
-uint32
-CayaProtocolAddOn::Version() const
+const char*
+CayaProtocolAddOn::ProtoFriendlySignature() const
 {
-	return fVersion;
+	CayaProtocol* proto = Protocol();
+	const char* signature = proto->FriendlySignature();
+	delete proto;
+	return signature;
 }
 
 
 BBitmap*
-CayaProtocolAddOn::Icon() const
+CayaProtocolAddOn::ProtoIcon() const
 {
-	return ReadNodeIcon(fPath, B_LARGE_ICON, true);
+	CayaProtocol* proto = Protocol();
+	BBitmap* icon = proto->Icon();
+	delete proto;
+	return icon;
+}
+
+
+uint32
+CayaProtocolAddOn::Version() const
+{
+	return fVersion;
 }
 
 

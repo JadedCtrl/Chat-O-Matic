@@ -57,7 +57,6 @@ PreferencesAccounts::PreferencesAccounts()
 	fProtosMenu = new BPopUpMenu(NULL, true);
 	for (uint32 i = 0; i < pm->CountProtocolAddOns(); i++) {
 		CayaProtocolAddOn* addOn = pm->ProtocolAddOnAt(i);
-		CayaProtocol* proto = addOn->Protocol();
 		ProtocolSettings* settings = new ProtocolSettings(addOn);
 
 		// Add accounts to list view
@@ -68,9 +67,8 @@ PreferencesAccounts::PreferencesAccounts()
 		msg->AddPointer("settings", settings);
 
 		BitmapMenuItem* item = new BitmapMenuItem(
-			proto->FriendlySignature(), msg, proto->Icon());
+			addOn->ProtoFriendlySignature(), msg, addOn->ProtoIcon());
 		fProtosMenu->AddItem(item);
-		delete proto;
 	}
 
 	ToolButton* proto = new ToolButton("Add", NULL);

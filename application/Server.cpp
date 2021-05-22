@@ -369,7 +369,7 @@ Server::ImMessage(BMessage* msg)
 			BNotification notification(B_PROGRESS_NOTIFICATION);
 			notification.SetGroup(BString("Caya"));
 			notification.SetTitle(title);
-			notification.SetIcon(addOn->Icon());
+			notification.SetIcon(addOn->ProtoIcon());
 			notification.SetContent(message);
 			notification.SetProgress(progress);
 			notification.Send();
@@ -402,7 +402,7 @@ Server::ImMessage(BMessage* msg)
 			BNotification notification((notification_type)type);
 			notification.SetGroup(BString("Caya"));
 			notification.SetTitle(title);
-			notification.SetIcon(addOn->Icon());
+			notification.SetIcon(addOn->ProtoIcon());
 			notification.SetContent(message);
 			notification.Send();
 
