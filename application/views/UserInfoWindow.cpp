@@ -6,7 +6,7 @@
  *		Casalinuovo Dario
  */
 
-#include "ContactInfoWindow.h"
+#include "UserInfoWindow.h"
 
 #include <Alert.h>
 #include <Application.h>
@@ -24,34 +24,34 @@
 
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
-#include "Contact.h"
 #include "CayaConstants.h"
 #include "CayaRenderView.h"
 #include "CayaUtils.h"
 #include "NotifyMessage.h"
+#include "User.h"
 
 
-ContactInfoWindow::ContactInfoWindow(Contact* linker)
+UserInfoWindow::UserInfoWindow(User* user)
 	:
 	BWindow(BRect(200, 200, 500, 400),
-		"Contact Informations", B_FLOATING_WINDOW,
+		"User information", B_FLOATING_WINDOW,
 		B_NOT_ZOOMABLE | B_NOT_RESIZABLE),
-		fContact(linker)
+		fUser(user)
 {
 	fPersonalMessage = new BTextView("personalMessage", B_WILL_DRAW);
 	fPersonalMessage->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT,
 						 B_ALIGN_MIDDLE));
 
-	fPersonalMessage->SetText(fContact->GetNotifyPersonalStatus());
+	fPersonalMessage->SetText(fUser->GetNotifyPersonalStatus());
 	fPersonalMessage->SetExplicitMaxSize(BSize(200, 200));
 	fPersonalMessage->MakeEditable(false);
 	fPersonalMessage->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 
-	BString status(fContact->GetName());
-	status << CayaStatusToString(fContact->GetNotifyStatus());
+	BString status(fUser->GetName());
+	status << CayaStatusToString(fUser->GetNotifyStatus());
 
 	status << "\n\n ID : ";
-	status << fContact->GetId();
+	status << fUser->GetId();
 
 	fStatus = new BTextView("status", B_WILL_DRAW);
 	fStatus->SetText(status);
@@ -60,12 +60,12 @@ ContactInfoWindow::ContactInfoWindow(Contact* linker)
 
 	SetLayout(new BGroupLayout(B_HORIZONTAL));
 
-	fAvatar = new BitmapView("ContactIcon");
+	fAvatar = new BitmapView("UserIcon");
 	fAvatar->SetExplicitMaxSize(BSize(70, 70));
 	fAvatar->SetExplicitMinSize(BSize(50, 50));
 	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
 	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
-	fAvatar->SetBitmap(fContact->AvatarBitmap());
+	fAvatar->SetBitmap(fUser->AvatarBitmap());
 
 	AddChild(BGroupLayoutBuilder(B_VERTICAL, 10)
 		.AddGroup(B_HORIZONTAL)
@@ -83,7 +83,7 @@ ContactInfoWindow::ContactInfoWindow(Contact* linker)
 
 
 void
-ContactInfoWindow::MessageReceived(BMessage* message)
+UserInfoWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		default:

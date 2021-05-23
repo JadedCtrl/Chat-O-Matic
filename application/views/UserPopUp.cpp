@@ -6,7 +6,7 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
-#include "ContactPopUp.h"
+#include "UserPopUp.h"
 
 #include <GroupLayout.h>
 #include <GroupLayoutBuilder.h>
@@ -15,7 +15,7 @@
 
 #include <libinterface/BitmapView.h>
 
-#include "Contact.h"
+#include "User.h"
 #include "NotifyMessage.h"
 
 
@@ -24,23 +24,23 @@ const window_feel kMenuWindowFeel = window_feel(B_NORMAL_WINDOW_FEEL);
 const int32 kNickChanged = 'NICH';
 
 
-ContactPopUp::ContactPopUp(Contact* contact)
-	: BWindow(BRect(0, 0, 1, 1), "ContactPopUp", B_BORDERED_WINDOW_LOOK,
+UserPopUp::UserPopUp(User* user)
+	: BWindow(BRect(0, 0, 1, 1), "UserPopUp", B_BORDERED_WINDOW_LOOK,
 		kMenuWindowFeel, B_NOT_MOVABLE | B_NOT_CLOSABLE | B_NOT_MINIMIZABLE |
 		B_NOT_ZOOMABLE | B_NOT_RESIZABLE | B_ASYNCHRONOUS_CONTROLS |
 		B_AVOID_FOCUS | B_AUTO_UPDATE_SIZE_LIMITS),
 	fCoords(B_ORIGIN)
 {
 	// Box to change nick name
-	fNickBox = new BTextControl("nickBox", NULL, contact->GetName(),
+	fNickBox = new BTextControl("nickBox", NULL, user->GetName(),
 		new BMessage(kNickChanged));
 
 	// Real nick name
-	fLabel = new BStringView("label", contact->GetId());
+	fLabel = new BStringView("label", user->GetId());
 
 	// Avatar bitmap
 	fAvatarView = new BitmapView("avatarView");
-	fAvatarView->SetBitmap(contact->AvatarBitmap());
+	fAvatarView->SetBitmap(user->AvatarBitmap());
 
 	// Layout
 	SetLayout(new BGroupLayout(B_VERTICAL));
@@ -58,7 +58,7 @@ ContactPopUp::ContactPopUp(Contact* contact)
 
 
 void
-ContactPopUp::MessageReceived(BMessage* msg)
+UserPopUp::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
 		case kNickChanged:
@@ -70,7 +70,7 @@ ContactPopUp::MessageReceived(BMessage* msg)
 
 
 void
-ContactPopUp::MoveTo(BPoint where)
+UserPopUp::MoveTo(BPoint where)
 {
 	if (fCoords != where) {
 		if (Lock()) {
@@ -83,7 +83,7 @@ ContactPopUp::MoveTo(BPoint where)
 
 
 void
-ContactPopUp::ObserveString(int32 what, BString str)
+UserPopUp::ObserveString(int32 what, BString str)
 {
 	switch (what) {
 		case STR_CONTACT_NAME:
@@ -97,7 +97,7 @@ ContactPopUp::ObserveString(int32 what, BString str)
 
 
 void
-ContactPopUp::ObservePointer(int32 what, void* ptr)
+UserPopUp::ObservePointer(int32 what, void* ptr)
 {
 	switch (what) {
 		case PTR_AVATAR_BITMAP:
@@ -111,7 +111,7 @@ ContactPopUp::ObservePointer(int32 what, void* ptr)
 
 
 void
-ContactPopUp::ObserveInteger(int32 what, int32 val)
+UserPopUp::ObserveInteger(int32 what, int32 val)
 {
 	switch (what) {
 		case INT_CONTACT_STATUS:

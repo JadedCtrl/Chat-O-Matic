@@ -16,7 +16,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "ContactInfoWindow.h"
+#include "UserInfoWindow.h"
 #include "Contact.h"
 #include "RosterItem.h"
 
@@ -223,6 +223,6 @@ RosterListView::Sort()
 void
 RosterListView::_InfoWindow(Contact* linker)
 {
-	ContactInfoWindow* win = new ContactInfoWindow(linker);
+	UserInfoWindow* win = new UserInfoWindow(linker);
 	win->Show();
 }

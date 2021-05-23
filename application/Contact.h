@@ -10,17 +10,17 @@
 #include <Message.h>
 #include <Messenger.h>
 
-#include "Notifier.h"
 #include "CayaConstants.h"
+#include "User.h"
 
 class BBitmap;
 
 class ChatWindow;
-class ContactPopUp;
 class ProtocolLooper;
 class RosterItem;
 
-class Contact : public Notifier {
+
+class Contact : public User {
 public:
 					Contact(BString id, BMessenger msgn);
 
@@ -30,46 +30,15 @@ public:
 	void			ShowWindow(bool typing = false, bool userAction = false);
 	void			HideWindow();
 
-	void			ShowPopUp(BPoint where);
-	void			DeletePopUp();
-	void			HidePopUp();
-
 	RosterItem*		GetRosterItem() const;
 
-	BString			GetId() const;
-
-	BMessenger		Messenger() const;
-	void			SetMessenger(BMessenger messenger);
-
-	ProtocolLooper*	GetProtocolLooper() const;
-	void			SetProtocolLooper(ProtocolLooper* looper);
-	BBitmap*		ProtocolBitmap() const;
-
-	BString			GetName() const;
-	BBitmap*		AvatarBitmap() const;
-	CayaStatus		GetNotifyStatus() const;
-	BString			GetNotifyPersonalStatus() const;
-
-	void			SetNotifyName(BString name);
 	void			SetNotifyAvatarBitmap(BBitmap* bitmap);
-	void			SetNotifyStatus(CayaStatus status);
-	void			SetNotifyPersonalStatus(BString personalStatus);
 
 private:
-	void			CreateChatWindow();
+	void			_CreateChatWindow();
 
 	RosterItem*		fRosterItem;
 	ChatWindow*		fChatWindow;
-	BMessenger		fMessenger;
-	ProtocolLooper*	fLooper;
-
-	BString			fID;
-	bigtime_t		fInstance;
-	BString			fName;
-	BString			fPersonalStatus;
-	BBitmap*		fAvatarBitmap;
-	CayaStatus		fStatus;
-	ContactPopUp*	fPopUp;
 
 	bool			fNewWindow;
 };

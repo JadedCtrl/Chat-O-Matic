@@ -49,6 +49,7 @@ SRCS = \
 	application/ProtocolSettings.cpp \
 	application/Server.cpp \
 	application/TheApp.cpp \
+	application/User.cpp \
 	application/WindowsManager.cpp \
 	application/preferences/AccountDialog.cpp \
 	application/preferences/AccountListItem.cpp \
@@ -59,17 +60,17 @@ SRCS = \
 	application/preferences/PreferencesBehavior.cpp \
 	application/preferences/PreferencesReplicant.cpp \
 	application/preferences/PreferencesChatWindow.cpp \
-	application/views/ContactPopUp.cpp \
 	application/views/SearchBarTextControl.cpp \
 	application/views/NicknameTextControl.cpp \
 	application/views/RosterItem.cpp \
 	application/views/RosterListView.cpp \
-	application/views/ContactInfoWindow.cpp \
 	application/views/StatusMenuItem.cpp \
 	application/views/StatusView.cpp \
 	application/views/CayaRenderView.cpp \
 	application/views/ReplicantStatusView.cpp \
-	application/views/ReplicantMenuItem.cpp
+	application/views/ReplicantMenuItem.cpp \
+	application/views/UserInfoWindow.cpp \
+	application/views/UserPopUp.cpp
 
 
 #	Specify the resource definition files to use. Full or relative paths can be

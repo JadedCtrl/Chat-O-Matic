@@ -5,8 +5,8 @@
  * Authors:
  *		Casalinuovo Dario
  */
-#ifndef _CONTACT_INFO_WINDOW_H
-#define _CONTACT_INFO_WINDOW_H
+#ifndef _USER_INFO_WINDOW_H
+#define _USER_INFO_WINDOW_H
 
 #include <Window.h>
 #include <TextView.h>
@@ -16,19 +16,22 @@
 #include "CayaConstants.h"
 
 class BitmapView;
-class Contact;
+class User;
 
-class ContactInfoWindow: public BWindow, public Observer {
+
+class UserInfoWindow: public BWindow, public Observer {
 public:
-						ContactInfoWindow(Contact* linker);
+						UserInfoWindow(User* user);
 
 	virtual	void		MessageReceived(BMessage* message);
+
 private:
-		BTextView*	fStatus;
-		Contact*	fContact;
+		BTextView*		fStatus;
+		User*			fUser;
 		BTextView*		fPersonalMessage;
 		BitmapView*		fAvatar;
-
 };
 
-#endif
+
+#endif	// _USER_INFO_WINDOW_H
+

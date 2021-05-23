@@ -2,8 +2,8 @@
  * Copyright 2009, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef _CONTACT_POPUP_H
-#define _CONTACT_POPUP_H
+#ifndef _USER_POPUP_H
+#define _USER_POPUP_H
 
 #include <Window.h>
 
@@ -13,11 +13,11 @@ class BTextControl;
 class BStringView;
 
 class BitmapView;
-class Contact;
+class User;
 
-class ContactPopUp : public BWindow, public Observer {
+class UserPopUp : public BWindow, public Observer {
 public:
-						ContactPopUp(Contact* contact);
+						UserPopUp(User* user);
 
 	virtual	void		MessageReceived(BMessage* msg);
 
@@ -35,4 +35,6 @@ private:
 	BitmapView*			fAvatarView;
 };
 
-#endif	// _CONTACT_POPUP_H
+
+#endif	// _USER_POPUP_H
+

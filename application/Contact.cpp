@@ -9,35 +9,18 @@
  */
 #include "Contact.h"
 
-#include <libinterface/BitmapUtils.h>
-
-#include "CayaUtils.h"
 #include "CayaPreferences.h"
-#include "CayaProtocolAddOn.h"
-#include "CayaResources.h"
 #include "ChatWindow.h"
-#include "ContactPopUp.h"
-#include "NotifyMessage.h"
-#include "ProtocolLooper.h"
-#include "ProtocolManager.h"
 #include "RosterItem.h"
 #include "WindowsManager.h"
-
-#include <stdio.h>
 
 
 Contact::Contact(BString id, BMessenger msgn)
 	:
+	User::User(id, msgn),
 	fChatWindow(NULL),
-	fID(id),
-	fName(id),
-	fMessenger(msgn),
-	fLooper(NULL),
-	fStatus(CAYA_OFFLINE),
-	fPopUp(NULL),
 	fNewWindow(true)
 {
-	// Create the roster item and register it as observer
 	fRosterItem = new RosterItem(id.String(), this);
 	RegisterObserver(fRosterItem);
 }
@@ -47,7 +30,7 @@ ChatWindow*
 Contact::GetChatWindow()
 {
 	if (fChatWindow == NULL)
-		CreateChatWindow();
+		_CreateChatWindow();
 	return fChatWindow;
 }
 
@@ -70,7 +53,7 @@ void
 Contact::ShowWindow(bool typing, bool userAction)
 {
 	if (fChatWindow == NULL)
-		CreateChatWindow();
+		_CreateChatWindow();
 
 	fChatWindow->AvoidFocus(true);
 
@@ -103,41 +86,6 @@ Contact::HideWindow()
 }
 
 
-void
-Contact::ShowPopUp(BPoint where)
-{
-	if (fPopUp == NULL) {
-		fPopUp = new ContactPopUp(this);
-		RegisterObserver(fPopUp);
-	}
-
-	fPopUp->Show();
-	fPopUp->MoveTo(where);
-}
-
-
-void
-Contact::HidePopUp()
-{
-	if ((fPopUp != NULL) && !fPopUp->IsHidden())
-		fPopUp->Hide();
-}
-
-
-void
-Contact::DeletePopUp()
-{
-	if (fPopUp == NULL)
-		return;
-
-	if (fPopUp->Lock()) {
-		UnregisterObserver(fPopUp);
-		fPopUp->Quit();
-		fPopUp = NULL;
-	}
-}
-
-
 RosterItem*
 Contact::GetRosterItem() const
 {
@@ -145,133 +93,17 @@ Contact::GetRosterItem() const
 }
 
 
-BString
-Contact::GetId() const
-{
-	return fID;
-}
-
-
-BMessenger
-Contact::Messenger() const
-{
-	return fMessenger;
-}
-
-
-void
-Contact::SetMessenger(BMessenger messenger)
-{
-	fMessenger = messenger;
-}
-
-
-ProtocolLooper*
-Contact::GetProtocolLooper() const
-{
-	return fLooper;
-}
-
-
-BString
-Contact::GetName() const
-{
-	return fName;
-}
-
-
-BBitmap*
-Contact::AvatarBitmap() const
-{
-	return fAvatarBitmap;
-}
-
-
-BBitmap*
-Contact::ProtocolBitmap() const
-{
-	CayaProtocol* protocol = fLooper->Protocol();
-	CayaProtocolAddOn* addOn
-		= ProtocolManager::Get()->ProtocolAddOn(protocol->Signature());
-
-	return addOn->ProtoIcon();
-}
-
-
-CayaStatus
-Contact::GetNotifyStatus() const
-{
-	return fStatus;
-}
-
-
-BString
-Contact::GetNotifyPersonalStatus() const
-{
-	return fPersonalStatus;
-}
-
-
-void
-Contact::SetProtocolLooper(ProtocolLooper* looper)
-{
-	if (looper) {
-		fLooper = looper;
-
-		// By default we use the Person icon as avatar icon
-		BResources* res = CayaResources();
-		BBitmap* bitmap = IconFromResources(res,
-			kPersonIcon, B_LARGE_ICON);
-
-		SetNotifyAvatarBitmap(bitmap);
-	}
-}
-
-
-void
-Contact::SetNotifyName(BString name)
-{
-	if (fName.Compare(name) != 0) {
-		fName = name;
-		NotifyString(STR_CONTACT_NAME, name);
-	}
-}
-
-
 void
 Contact::SetNotifyAvatarBitmap(BBitmap* bitmap)
 {
-	if ((fAvatarBitmap != bitmap) && (bitmap != NULL)) {
-		fAvatarBitmap = bitmap;
-		NotifyPointer(PTR_AVATAR_BITMAP, (void*)bitmap);
-		if (fChatWindow != NULL)
-			fChatWindow->UpdateAvatar();
-	}
+	User::SetNotifyAvatarBitmap(bitmap);
+	if (fAvatarBitmap != NULL && fChatWindow != NULL)
+		fChatWindow->UpdateAvatar();
 }
 
 
 void
-Contact::SetNotifyStatus(CayaStatus status)
-{
-	if (fStatus != status) {
-		fStatus = status;
-		NotifyInteger(INT_CONTACT_STATUS, (int32)fStatus);
-	}
-}
-
-
-void
-Contact::SetNotifyPersonalStatus(BString personalStatus)
-{
-	if (fPersonalStatus.Compare(personalStatus) != 0) {
-		fPersonalStatus = personalStatus;
-		NotifyString(STR_PERSONAL_STATUS, personalStatus);
-	}
-}
-
-
-void
-Contact::CreateChatWindow()
+Contact::_CreateChatWindow()
 {
 	fChatWindow = new ChatWindow(this);
 	WindowsManager::Get()->RelocateWindow(fChatWindow);
