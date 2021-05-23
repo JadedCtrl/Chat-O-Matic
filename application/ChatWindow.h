@@ -14,12 +14,12 @@
 #include "CayaConstants.h"
 
 class BitmapView;
-class ContactLinker;
+class Contact;
 class CayaRenderView;
 
 class ChatWindow : public BWindow, public Observer {
 public:
-						ChatWindow(ContactLinker* cl);
+						ChatWindow(Contact* cl);
 
 	virtual void		ShowWindow();
 
@@ -39,7 +39,7 @@ public:
 			void		AvoidFocus(bool avoid);
 private:
 		BTextView*		fSendView;
-		ContactLinker*	fContactLinker;
+		Contact*	fContact;
 		CayaRenderView*	fReceiveView;
 		BStringView*	fStatus;
 		BTextView*		fPersonalMessage;

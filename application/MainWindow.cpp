@@ -163,7 +163,7 @@ MainWindow::MessageReceived(BMessage* message)
 
 			RosterMap map = fServer->RosterItems();
 			for (uint32 i = 0; i < map.CountItems(); i++) {
-				ContactLinker* linker = map.ValueAt(i);
+				Contact* linker = map.ValueAt(i);
 				RosterItem* item = linker->GetRosterItem();
 
 				// If the search filter has been deleted show all the items,
@@ -190,7 +190,7 @@ MainWindow::MessageReceived(BMessage* message)
 			int index = message->FindInt32("index");
 			RosterItem* ritem = ItemAt(index);
 			if (ritem != NULL)
-				ritem->GetContactLinker()->ShowWindow(false, true);
+				ritem->GetContact()->ShowWindow(false, true);
 			break;
 		}
 
@@ -319,7 +319,7 @@ MainWindow::ImMessage(BMessage* msg)
 						// Notify when contact is online or offline
 						if (status == CAYA_ONLINE) {
 							BString message;
-							message << rosterItem->GetContactLinker()->GetName();
+							message << rosterItem->GetContact()->GetName();
 
 							if (status == CAYA_ONLINE)
 								message << " is available!";

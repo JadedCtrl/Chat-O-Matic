@@ -24,34 +24,34 @@
 
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
-#include "ContactLinker.h"
+#include "Contact.h"
 #include "CayaConstants.h"
 #include "CayaRenderView.h"
 #include "CayaUtils.h"
 #include "NotifyMessage.h"
 
 
-ContactInfoWindow::ContactInfoWindow(ContactLinker* linker)
+ContactInfoWindow::ContactInfoWindow(Contact* linker)
 	:
 	BWindow(BRect(200, 200, 500, 400),
 		"Contact Informations", B_FLOATING_WINDOW,
 		B_NOT_ZOOMABLE | B_NOT_RESIZABLE),
-		fContactLinker(linker)
+		fContact(linker)
 {
 	fPersonalMessage = new BTextView("personalMessage", B_WILL_DRAW);
 	fPersonalMessage->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT,
 						 B_ALIGN_MIDDLE));
 
-	fPersonalMessage->SetText(fContactLinker->GetNotifyPersonalStatus());
+	fPersonalMessage->SetText(fContact->GetNotifyPersonalStatus());
 	fPersonalMessage->SetExplicitMaxSize(BSize(200, 200));
 	fPersonalMessage->MakeEditable(false);
 	fPersonalMessage->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 
-	BString status(fContactLinker->GetName());
-	status << CayaStatusToString(fContactLinker->GetNotifyStatus());
+	BString status(fContact->GetName());
+	status << CayaStatusToString(fContact->GetNotifyStatus());
 
 	status << "\n\n ID : ";
-	status << fContactLinker->GetId();
+	status << fContact->GetId();
 
 	fStatus = new BTextView("status", B_WILL_DRAW);
 	fStatus->SetText(status);
@@ -65,7 +65,7 @@ ContactInfoWindow::ContactInfoWindow(ContactLinker* linker)
 	fAvatar->SetExplicitMinSize(BSize(50, 50));
 	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
 	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
-	fAvatar->SetBitmap(fContactLinker->AvatarBitmap());
+	fAvatar->SetBitmap(fContact->AvatarBitmap());
 
 	AddChild(BGroupLayoutBuilder(B_VERTICAL, 10)
 		.AddGroup(B_HORIZONTAL)

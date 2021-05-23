@@ -7,7 +7,7 @@
  *		Andrea Anzani, andrea.anzani@gmail.com
  *		Dario Casalinuovo
  */
-#include "ContactLinker.h"
+#include "Contact.h"
 
 #include <libinterface/BitmapUtils.h>
 
@@ -26,7 +26,7 @@
 #include <stdio.h>
 
 
-ContactLinker::ContactLinker(BString id, BMessenger msgn)
+Contact::Contact(BString id, BMessenger msgn)
 	:
 	fChatWindow(NULL),
 	fID(id),
@@ -44,7 +44,7 @@ ContactLinker::ContactLinker(BString id, BMessenger msgn)
 
 
 ChatWindow*
-ContactLinker::GetChatWindow()
+Contact::GetChatWindow()
 {
 	if (fChatWindow == NULL)
 		CreateChatWindow();
@@ -53,7 +53,7 @@ ContactLinker::GetChatWindow()
 
 
 void
-ContactLinker::DeleteWindow()
+Contact::DeleteWindow()
 {
 	if (fChatWindow != NULL) {
 		if (fChatWindow->Lock()) {
@@ -67,7 +67,7 @@ ContactLinker::DeleteWindow()
 
 
 void
-ContactLinker::ShowWindow(bool typing, bool userAction)
+Contact::ShowWindow(bool typing, bool userAction)
 {
 	if (fChatWindow == NULL)
 		CreateChatWindow();
@@ -96,7 +96,7 @@ ContactLinker::ShowWindow(bool typing, bool userAction)
 
 
 void
-ContactLinker::HideWindow()
+Contact::HideWindow()
 {
 	if ((fChatWindow != NULL) && !fChatWindow->IsHidden())
 		fChatWindow->Hide();
@@ -104,7 +104,7 @@ ContactLinker::HideWindow()
 
 
 void
-ContactLinker::ShowPopUp(BPoint where)
+Contact::ShowPopUp(BPoint where)
 {
 	if (fPopUp == NULL) {
 		fPopUp = new ContactPopUp(this);
@@ -117,7 +117,7 @@ ContactLinker::ShowPopUp(BPoint where)
 
 
 void
-ContactLinker::HidePopUp()
+Contact::HidePopUp()
 {
 	if ((fPopUp != NULL) && !fPopUp->IsHidden())
 		fPopUp->Hide();
@@ -125,7 +125,7 @@ ContactLinker::HidePopUp()
 
 
 void
-ContactLinker::DeletePopUp()
+Contact::DeletePopUp()
 {
 	if (fPopUp == NULL)
 		return;
@@ -139,81 +139,81 @@ ContactLinker::DeletePopUp()
 
 
 RosterItem*
-ContactLinker::GetRosterItem() const
+Contact::GetRosterItem() const
 {
 	return fRosterItem;
 }
 
 
 BString
-ContactLinker::GetId() const
+Contact::GetId() const
 {
 	return fID;
 }
 
 
 BMessenger
-ContactLinker::Messenger() const
+Contact::Messenger() const
 {
 	return fMessenger;
 }
 
 
 void
-ContactLinker::SetMessenger(BMessenger messenger)
+Contact::SetMessenger(BMessenger messenger)
 {
 	fMessenger = messenger;
 }
 
 
 ProtocolLooper*
-ContactLinker::GetProtocolLooper() const
+Contact::GetProtocolLooper() const
 {
 	return fLooper;
 }
 
 
 BString
-ContactLinker::GetName() const
+Contact::GetName() const
 {
 	return fName;
 }
 
 
 BBitmap*
-ContactLinker::AvatarBitmap() const
+Contact::AvatarBitmap() const
 {
 	return fAvatarBitmap;
 }
 
 
 BBitmap*
-ContactLinker::ProtocolBitmap() const
+Contact::ProtocolBitmap() const
 {
 	CayaProtocol* protocol = fLooper->Protocol();
 	CayaProtocolAddOn* addOn
 		= ProtocolManager::Get()->ProtocolAddOn(protocol->Signature());
 
-	return addOn->Icon();
+	return addOn->ProtoIcon();
 }
 
 
 CayaStatus
-ContactLinker::GetNotifyStatus() const
+Contact::GetNotifyStatus() const
 {
 	return fStatus;
 }
 
 
 BString
-ContactLinker::GetNotifyPersonalStatus() const
+Contact::GetNotifyPersonalStatus() const
 {
 	return fPersonalStatus;
 }
 
 
 void
-ContactLinker::SetProtocolLooper(ProtocolLooper* looper)
+Contact::SetProtocolLooper(ProtocolLooper* looper)
 {
 	if (looper) {
 		fLooper = looper;
@@ -229,7 +229,7 @@ ContactLinker::SetProtocolLooper(ProtocolLooper* looper)
 
 
 void
-ContactLinker::SetNotifyName(BString name)
+Contact::SetNotifyName(BString name)
 {
 	if (fName.Compare(name) != 0) {
 		fName = name;
@@ -239,7 +239,7 @@ ContactLinker::SetNotifyName(BString name)
 
 
 void
-ContactLinker::SetNotifyAvatarBitmap(BBitmap* bitmap)
+Contact::SetNotifyAvatarBitmap(BBitmap* bitmap)
 {
 	if ((fAvatarBitmap != bitmap) && (bitmap != NULL)) {
 		fAvatarBitmap = bitmap;
@@ -251,7 +251,7 @@ ContactLinker::SetNotifyAvatarBitmap(BBitmap* bitmap)
 
 
 void
-ContactLinker::SetNotifyStatus(CayaStatus status)
+Contact::SetNotifyStatus(CayaStatus status)
 {
 	if (fStatus != status) {
 		fStatus = status;
@@ -261,7 +261,7 @@ ContactLinker::SetNotifyStatus(CayaStatus status)
 
 
 void
-ContactLinker::SetNotifyPersonalStatus(BString personalStatus)
+Contact::SetNotifyPersonalStatus(BString personalStatus)
 {
 	if (fPersonalStatus.Compare(personalStatus) != 0) {
 		fPersonalStatus = personalStatus;
@@ -271,7 +271,7 @@ ContactLinker::SetNotifyPersonalStatus(BString personalStatus)
 
 
 void
-ContactLinker::CreateChatWindow()
+Contact::CreateChatWindow()
 {
 	fChatWindow = new ChatWindow(this);
 	WindowsManager::Get()->RelocateWindow(fChatWindow);

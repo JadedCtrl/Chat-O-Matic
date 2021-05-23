@@ -9,7 +9,7 @@
 
 class BPopUpMenu;
 
-class ContactLinker;
+class Contact;
 class RosterItem;
 
 class RosterListView : public BOutlineListView
@@ -26,7 +26,7 @@ public:
 
 private:
 
-			void	_InfoWindow(ContactLinker* linker);
+			void	_InfoWindow(Contact* linker);
 
 	BPopUpMenu*		fPopUp;
 	RosterItem*		fPrevItem;

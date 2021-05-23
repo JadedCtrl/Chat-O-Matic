@@ -16,16 +16,16 @@
 #include "CayaConstants.h"
 
 class BitmapView;
-class ContactLinker;
+class Contact;
 
 class ContactInfoWindow: public BWindow, public Observer {
 public:
-						ContactInfoWindow(ContactLinker* linker);
+						ContactInfoWindow(Contact* linker);
 
 	virtual	void		MessageReceived(BMessage* message);
 private:
 		BTextView*	fStatus;
-		ContactLinker*	fContactLinker;
+		Contact*	fContact;
 		BTextView*		fPersonalMessage;
 		BitmapView*		fAvatar;
 

@@ -13,11 +13,11 @@ class BTextControl;
 class BStringView;
 
 class BitmapView;
-class ContactLinker;
+class Contact;
 
 class ContactPopUp : public BWindow, public Observer {
 public:
-						ContactPopUp(ContactLinker* contact);
+						ContactPopUp(Contact* contact);
 
 	virtual	void		MessageReceived(BMessage* msg);
 

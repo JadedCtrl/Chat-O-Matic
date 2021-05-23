@@ -42,7 +42,7 @@ Server::Server()
 void
 Server::Quit()
 {
-	ContactLinker* linker = NULL;
+	Contact* linker = NULL;
 
 	while ((linker = fRosterMap.ValueAt(0))) {
 		linker->DeleteWindow();
@@ -126,7 +126,7 @@ Server::Filter(BMessage* message, BHandler **target)
 			BString id = message->FindString("id");
 			if (id.Length() > 0) {
 				bool found = false;
-				ContactLinker* item = fRosterMap.ValueFor(id, &found);
+				Contact* item = fRosterMap.ValueFor(id, &found);
 				if (found) {
 					ChatWindow* win = item->GetChatWindow();
 					item->ShowWindow();
@@ -141,7 +141,7 @@ Server::Filter(BMessage* message, BHandler **target)
 			BString id = message->FindString("id");
 			if (id.Length() > 0) {
 				bool found = false;
-				ContactLinker* item = fRosterMap.ValueFor(id, &found);
+				Contact* item = fRosterMap.ValueFor(id, &found);
 
 				if (found)
 					item->HideWindow();
@@ -191,7 +191,7 @@ RosterItem*
 Server::RosterItemForId(BString id)
 {
 	bool found = false;
-	ContactLinker* item = fRosterMap.ValueFor(id, &found);
+	Contact* item = fRosterMap.ValueFor(id, &found);
 	return item ? item->GetRosterItem() : NULL;
 }
 
@@ -209,12 +209,12 @@ Server::ImMessage(BMessage* msg)
 			BString id;
 			while (msg->FindString("id", i++, &id) == B_OK) {
 				bool found = false;
-				ContactLinker* item = fRosterMap.ValueFor(id, &found);
+				Contact* item = fRosterMap.ValueFor(id, &found);
 
 				if (found)
 					continue;
 
-				item = new ContactLinker(id.String(), Looper());
+				item = new Contact(id.String(), Looper());
 				item->SetProtocolLooper(_LooperFromMessage(msg));
 				fRosterMap.AddItem(id, item);
 			}
@@ -243,7 +243,7 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindInt32("status", &status) != B_OK)
 				return B_SKIP_MESSAGE;
 
-			ContactLinker* linker = _EnsureContactLinker(msg);
+			Contact* linker = _EnsureContact(msg);
 			if (!linker)
 				break;
 
@@ -257,7 +257,7 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_CONTACT_INFO:
 		{
-			ContactLinker* linker = _EnsureContactLinker(msg);
+			Contact* linker = _EnsureContact(msg);
 			if (!linker)
 				break;
 
@@ -276,7 +276,7 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_EXTENDED_CONTACT_INFO:
 		{
-			ContactLinker* linker = _EnsureContactLinker(msg);
+			Contact* linker = _EnsureContact(msg);
 			if (!linker)
 				break;
 
@@ -292,7 +292,7 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_AVATAR_SET:
 		{
-			ContactLinker* linker = _EnsureContactLinker(msg);
+			Contact* linker = _EnsureContact(msg);
 			if (!linker)
 				break;
 
@@ -308,7 +308,7 @@ Server::ImMessage(BMessage* msg)
 		case IM_SEND_MESSAGE:
 		{
 			// Route this message through the appropriate ProtocolLooper
-			ContactLinker* linker = _EnsureContactLinker(msg);
+			Contact* linker = _EnsureContact(msg);
 			if (linker->GetProtocolLooper())
 				linker->GetProtocolLooper()->PostMessage(msg);
 			break;
@@ -318,7 +318,7 @@ Server::ImMessage(BMessage* msg)
 			BString id = msg->FindString("id");
 			if (id.Length() > 0) {
 				bool found = false;
-				ContactLinker* item = fRosterMap.ValueFor(id, &found);
+				Contact* item = fRosterMap.ValueFor(id, &found);
 				if (found) {
 					ChatWindow* win = item->GetChatWindow();
 					item->ShowWindow();
@@ -334,7 +334,7 @@ Server::ImMessage(BMessage* msg)
 			BString id = msg->FindString("id");
 			if (id.Length() > 0) {
 				bool found = false;
-				ContactLinker* item = fRosterMap.ValueFor(id, &found);
+				Contact* item = fRosterMap.ValueFor(id, &found);
 				if (found) {
 					ChatWindow* win = item->GetChatWindow();
 					item->ShowWindow(true);
@@ -398,7 +398,6 @@ Server::ImMessage(BMessage* msg)
 			CayaProtocolAddOn* addOn
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
 
-
 			BNotification notification((notification_type)type);
 			notification.SetGroup(BString("Caya"));
 			notification.SetTitle(title);
@@ -417,7 +416,7 @@ Server::ImMessage(BMessage* msg)
 }
 
 
-ContactLinker*
+Contact*
 Server::GetOwnContact()
 {
 	return fMySelf;
@@ -444,21 +443,21 @@ Server::_LooperFromMessage(BMessage* message)
 }
 
 
-ContactLinker*
-Server::_EnsureContactLinker(BMessage* message)
+Contact*
+Server::_EnsureContact(BMessage* message)
 {
 	if (!message)
 		return NULL;
 
 	BString id = message->FindString("id");
-	ContactLinker* item = NULL;
+	Contact* item = NULL;
 
 	if (id.Length() > 0) {
 		bool found = false;
 		item = fRosterMap.ValueFor(id, &found);
 
 		if (!found) {
-			item = new ContactLinker(id.String(), Looper());
+			item = new Contact(id.String(), Looper());
 			item->SetProtocolLooper(_LooperFromMessage(message));
 			fRosterMap.AddItem(id, item);
 		}
@@ -466,3 +465,5 @@ Server::_EnsureContactLinker(BMessage* message)
 
 	return item;
 }
+
+

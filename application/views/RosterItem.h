@@ -12,12 +12,12 @@
 #include <String.h>
 
 #include "CayaConstants.h"
-#include "ContactLinker.h"
+#include "Contact.h"
 #include "Observer.h"
 
 class RosterItem : public BStringItem, public Observer {
 public:
-					RosterItem(const char* name, ContactLinker* contact);
+					RosterItem(const char* name, Contact* contact);
 					~RosterItem();
 
 	bool			IsVisible() const { return fVisible; }
@@ -28,7 +28,7 @@ public:
 
 	void			Update(BView *owner, const BFont *font);
 
-	ContactLinker*	GetContactLinker() { return contactLinker;}
+	Contact*	GetContact() { return contactLinker;}
 
 	CayaStatus		Status() const { return fStatus; }
 	void			SetStatus(CayaStatus status);
@@ -45,7 +45,7 @@ protected:
 	void			ObserveInteger(int32 what, int32 val);
 
 private:
-	ContactLinker*	contactLinker;
+	Contact*	contactLinker;
 	float			fBaselineOffset;
 	BString			fPersonalStatus;
 	CayaStatus		fStatus;

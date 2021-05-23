@@ -17,7 +17,7 @@
 #include <stdio.h>
 
 #include "ContactInfoWindow.h"
-#include "ContactLinker.h"
+#include "Contact.h"
 #include "RosterItem.h"
 
 const int32 kAddPeople	= 'ADPL';
@@ -33,8 +33,8 @@ compare_by_name(const void* _item1, const void* _item2)
 	RosterItem* item1 = *(RosterItem**)_item1;
 	RosterItem* item2 = *(RosterItem**)_item2;
 
-	return strcasecmp(item1->GetContactLinker()->GetName().String(),
-		item2->GetContactLinker()->GetName().String());
+	return strcasecmp(item1->GetContact()->GetName().String(),
+		item2->GetContact()->GetName().String());
 }
 
 
@@ -108,7 +108,7 @@ RosterListView::MessageReceived(BMessage* msg)
 			if (ritem == NULL)
 				return;
 
-			_InfoWindow(ritem->GetContactLinker());
+			_InfoWindow(ritem->GetContact());
 			break;
 		}
 
@@ -116,7 +116,7 @@ RosterListView::MessageReceived(BMessage* msg)
 		{
 			if (ritem == NULL)
 				return;
-			ContactLinker* link = ritem->GetContactLinker();
+			Contact* link = ritem->GetContact();
 			link->ShowWindow(false, true);
 			break;
 		}
@@ -146,10 +146,10 @@ RosterListView::MouseMoved(BPoint where, uint32 code, const BMessage* msg)
 
 			// Hide previous item's popup
 			if ((fPrevItem != NULL) && (fPrevItem != ritem))
-				fPrevItem->GetContactLinker()->HidePopUp();
+				fPrevItem->GetContact()->HidePopUp();
 
 			// Show current item's popup
-			ritem->GetContactLinker()->ShowPopUp(ConvertToScreen(where));
+			ritem->GetContact()->ShowPopUp(ConvertToScreen(where));
 
 			// This will be the previous item
 			fPrevItem = ritem;
@@ -158,7 +158,7 @@ RosterListView::MouseMoved(BPoint where, uint32 code, const BMessage* msg)
 		case B_EXITED_VIEW:
 			// Mouse cursor leaved this view, hide last item's popup
 			if (fPrevItem != NULL)
-				fPrevItem->GetContactLinker()->HidePopUp();
+				fPrevItem->GetContact()->HidePopUp();
 			break;
 	}
 }
@@ -221,7 +221,7 @@ RosterListView::Sort()
 
 
 void
-RosterListView::_InfoWindow(ContactLinker* linker)
+RosterListView::_InfoWindow(Contact* linker)
 {
 	ContactInfoWindow* win = new ContactInfoWindow(linker);
 	win->Show();

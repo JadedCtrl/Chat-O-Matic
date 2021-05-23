@@ -13,12 +13,12 @@
 
 #include "CayaUtils.h"
 #include "CayaResources.h"
-#include "ContactLinker.h"
+#include "Contact.h"
 #include "NotifyMessage.h"
 #include "RosterItem.h"
 
 
-RosterItem::RosterItem(const char*  name, ContactLinker* contact)
+RosterItem::RosterItem(const char*  name, Contact* contact)
 	: BStringItem(name),
 	fBitmap(NULL),
 	fStatus(CAYA_OFFLINE),

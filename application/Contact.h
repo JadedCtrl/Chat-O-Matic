@@ -20,9 +20,9 @@ class ContactPopUp;
 class ProtocolLooper;
 class RosterItem;
 
-class ContactLinker : public Notifier {
+class Contact : public Notifier {
 public:
-					ContactLinker(BString id, BMessenger msgn);
+					Contact(BString id, BMessenger msgn);
 
 	ChatWindow*		GetChatWindow();
 	void 			DeleteWindow();

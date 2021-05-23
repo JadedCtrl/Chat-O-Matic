@@ -31,18 +31,18 @@
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
 #include "CayaPreferences.h"
-#include "ContactLinker.h"
+#include "Contact.h"
 #include "EditingFilter.h"
 #include "CayaConstants.h"
 #include "CayaRenderView.h"
 #include "NotifyMessage.h"
 
 
-ChatWindow::ChatWindow(ContactLinker* cl)
+ChatWindow::ChatWindow(Contact* cl)
 	:
 	BWindow(BRect(200, 200, 500, 500),
 		cl->GetName().String(), B_TITLED_WINDOW, 0),
-		fContactLinker(cl)
+		fContact(cl)
 {
 	fMessageCount = 0;
 	
@@ -63,7 +63,7 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 	fPersonalMessage->SetExplicitAlignment(
 		BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 
-	fPersonalMessage->SetText(fContactLinker->GetNotifyPersonalStatus());
+	fPersonalMessage->SetText(fContact->GetNotifyPersonalStatus());
 	fPersonalMessage->SetExplicitMaxSize(BSize(400, 200));
 	fPersonalMessage->MakeEditable(false);
 	fPersonalMessage->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
@@ -77,9 +77,9 @@ ChatWindow::ChatWindow(ContactLinker* cl)
 	fAvatar->SetExplicitMinSize(BSize(50, 50));
 	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
 	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
-	fAvatar->SetBitmap(fContactLinker->AvatarBitmap());
+	fAvatar->SetBitmap(fContact->AvatarBitmap());
 
-	BBitmap* protocolBitmap = fContactLinker->ProtocolBitmap();
+	BBitmap* protocolBitmap = fContact->ProtocolBitmap();
 	BitmapView* protocolView = new BitmapView("protocolView");
 	protocolView->SetBitmap(protocolBitmap);
 
@@ -120,8 +120,8 @@ bool
 ChatWindow::QuitRequested()
 {
 	BMessage msg(CAYA_CLOSE_CHAT_WINDOW);
-	msg.AddString("id", fContactLinker->GetId());
-	fContactLinker->Messenger().SendMessage(&msg);
+	msg.AddString("id", fContact->GetId());
+	fContact->Messenger().SendMessage(&msg);
 	return false;
 }
 
@@ -129,9 +129,9 @@ ChatWindow::QuitRequested()
 void
 ChatWindow::UpdateAvatar()
 {
-	if (fContactLinker->AvatarBitmap() != NULL) {
+	if (fContact->AvatarBitmap() != NULL) {
 		LockLooper();
-		fAvatar->SetBitmap(fContactLinker->AvatarBitmap());
+		fAvatar->SetBitmap(fContact->AvatarBitmap());
 		UnlockLooper();
 	}
 }
@@ -141,9 +141,9 @@ void
 ChatWindow::UpdatePersonalMessage()
 {
 
-	if (fContactLinker->GetNotifyPersonalStatus() != NULL) {
+	if (fContact->GetNotifyPersonalStatus() != NULL) {
 		LockLooper();
-		fPersonalMessage->SetText(fContactLinker->GetNotifyPersonalStatus());
+		fPersonalMessage->SetText(fContact->GetNotifyPersonalStatus());
 		UnlockLooper();
 	}
 }
@@ -163,9 +163,9 @@ ChatWindow::MessageReceived(BMessage* message)
 
 			BMessage msg(IM_MESSAGE);
 			msg.AddInt32("im_what", IM_SEND_MESSAGE);
-			msg.AddString("id", fContactLinker->GetId());
+			msg.AddString("id", fContact->GetId());
 			msg.AddString("body", message);
-			fContactLinker->Messenger().SendMessage(&msg);
+			fContact->Messenger().SendMessage(&msg);
 
 			fSendView->SetText("");
 			break;
@@ -204,7 +204,7 @@ ChatWindow::ImMessage(BMessage* msg)
 				BString title = "[";
 				title<<fMessageCount;
 				title<<"] ";
-				title<<fContactLinker->GetName();
+				title<<fContact->GetName();
 				SetTitle(title);
 			}
 			
@@ -220,14 +220,14 @@ ChatWindow::ImMessage(BMessage* msg)
 			} else {
 				notify_message << " new messages from ";
 			};
-			notify_message << fContactLinker->GetName().String();
+			notify_message << fContact->GetName().String();
 
 			BNotification notification(B_INFORMATION_NOTIFICATION);
 			notification.SetGroup(BString("Caya"));
 			notification.SetTitle(BString("New message"));
 			notification.SetIcon(fAvatar->Bitmap());
 			notification.SetContent(notify_message);
-			notification.SetMessageID(fContactLinker->GetName());
+			notification.SetMessageID(fContact->GetName());
 			notification.Send();
 			
 			break;
@@ -251,7 +251,7 @@ ChatWindow::ImMessage(BMessage* msg)
 void
 ChatWindow::WindowActivated(bool active)
 {
-	SetTitle(fContactLinker->GetName());
+	SetTitle(fContact->GetName());
 	fMessageCount=0;
 }
 
@@ -299,7 +299,7 @@ ChatWindow::ObserveInteger(int32 what, int32 val)
 void
 ChatWindow::AppendStatus(CayaStatus status)
 {
-	BString message(fContactLinker->GetName());
+	BString message(fContact->GetName());
 
 	switch (status) {
 		case CAYA_ONLINE:

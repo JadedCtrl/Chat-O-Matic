@@ -15,7 +15,7 @@
 
 #include <libinterface/BitmapView.h>
 
-#include "ContactLinker.h"
+#include "Contact.h"
 #include "NotifyMessage.h"
 
 
@@ -24,7 +24,7 @@ const window_feel kMenuWindowFeel = window_feel(B_NORMAL_WINDOW_FEEL);
 const int32 kNickChanged = 'NICH';
 
 
-ContactPopUp::ContactPopUp(ContactLinker* contact)
+ContactPopUp::ContactPopUp(Contact* contact)
 	: BWindow(BRect(0, 0, 1, 1), "ContactPopUp", B_BORDERED_WINDOW_LOOK,
 		kMenuWindowFeel, B_NOT_MOVABLE | B_NOT_CLOSABLE | B_NOT_MINIMIZABLE |
 		B_NOT_ZOOMABLE | B_NOT_RESIZABLE | B_ASYNCHRONOUS_CONTROLS |

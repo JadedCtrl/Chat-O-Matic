@@ -12,13 +12,13 @@
 #include <libsupport/KeyMap.h>
 
 #include "CayaConstants.h"
-#include "ContactLinker.h"
+#include "Contact.h"
 
 class CayaProtocol;
 class RosterItem;
 class ProtocolLooper;
 
-typedef KeyMap<BString, ContactLinker*> RosterMap;
+typedef KeyMap<BString, Contact*> RosterMap;
 typedef KeyMap<bigtime_t, ProtocolLooper*> ProtocolLoopers;
 
 class Server: public BMessageFilter {
@@ -43,16 +43,16 @@ public:
 			RosterItem*		RosterItemForId(BString id);
 
 			// TODO: there should be a contact for each account.
-			ContactLinker*	GetOwnContact();
+			Contact*	GetOwnContact();
 
 private:
 			ProtocolLooper*	_LooperFromMessage(BMessage* message);
-			ContactLinker*	_EnsureContactLinker(BMessage* message);
+			Contact*	_EnsureContact(BMessage* message);
 			void			_ReplicantStatusNotify(CayaStatus status);
 
 			RosterMap		fRosterMap;
 			ProtocolLoopers	fLoopers;
-			ContactLinker*	fMySelf;
+			Contact*	fMySelf;
 };
 
 #endif	// _SERVER_H
