@@ -110,6 +110,41 @@ CayaAccountPath(const char* signature, const char* subsignature)
 }
 
 
+const char*
+CayaCachePath()
+{
+	BPath path;
+	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
+		return NULL;
+
+	path.Append("Caya/Cache");
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
+
+	return path.Path();
+}
+
+
+const char*
+CayaLogPath(const char* signature, const char* subsignature)
+{
+	BPath path(CayaCachePath());
+	path.Append("Logs");
+	path.Append(signature);
+
+	if (BString(signature) != BString(subsignature)
+		|| BString(subsignature).IsEmpty() == false)
+	{
+		path.Append(subsignature);
+	}
+
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
+
+	return path.Path();
+}
+
+
 extern "C" {
 
 status_t

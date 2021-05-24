@@ -6,6 +6,7 @@
 #define CONVERSATION_H
 
 #include <Messenger.h>
+#include <Path.h>
 
 #include <libsupport/KeyMap.h>
 
@@ -54,6 +55,9 @@ public:
 	void				AddUser(User* user);
 
 private:
+	void				_LogChatMessage(BMessage* msg);
+	void				_EnsureLogPath();
+
 	void				_CreateChatWindow();
 	Contact*			_EnsureUser(BMessage* msg);
 	Server*				_GetServer();
@@ -65,6 +69,8 @@ private:
 
 	BString fID;
 	BString fName;
+
+	BPath fLogPath;
 
 	UserMap fUsers;
 };

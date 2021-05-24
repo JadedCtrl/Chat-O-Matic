@@ -7,8 +7,11 @@
 
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
+#include "CayaUtils.h"
 #include "ChatWindow.h"
 #include "MainWindow.h"
+#include "ProtocolLooper.h"
+#include "ProtocolManager.h"
 #include "Server.h"
 #include "TheApp.h"
 #include "WindowsManager.h"
@@ -44,9 +47,16 @@ Conversation::ImMessage(BMessage* msg)
 		{
 			_EnsureUser(msg);
 
+			_LogChatMessage(msg);
 			ChatWindow* win = GetChatWindow();
 			ShowWindow();
 			win->PostMessage(msg);
+			break;
+		}
+		case IM_SEND_MESSAGE:
+		{
+			_LogChatMessage(msg);
+			fMessenger.SendMessage(msg);
 			break;
 		}
 		default:
@@ -202,6 +212,44 @@ Conversation::_CreateChatWindow()
 {
 	fChatWindow = new ChatWindow(this);
 	WindowsManager::Get()->RelocateWindow(fChatWindow);
+}
+
+
+void
+Conversation::_LogChatMessage(BMessage* msg)
+{
+	_EnsureLogPath();
+
+	BString id = msg->FindString("user_id");
+	BString uname;
+
+	if (id.IsEmpty() == false)
+		uname = UserById(id)->GetName();
+	else
+		uname = "You";
+
+	BString logLine = uname;
+	logLine << ": ";
+	logLine << msg->FindString("body");
+	logLine << "\n";
+
+
+	BFile log(fLogPath.Path(), B_WRITE_ONLY | B_OPEN_AT_END | B_CREATE_FILE);
+	log.Write(logLine.String(), logLine.Length());
+}
+
+
+void
+Conversation::_EnsureLogPath()
+{
+	if (fLogPath.InitCheck() == B_OK)
+		return;
+
+	const char* sig = fLooper->Protocol()->Signature();
+	CayaProtocolAddOn* protoAdd = ProtocolManager::Get()->ProtocolAddOn(sig);
+
+	fLogPath.SetTo(CayaLogPath(protoAdd->Signature(), protoAdd->ProtoSignature()));
+	fLogPath.Append(fID);
 }
 
 

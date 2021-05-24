@@ -165,7 +165,7 @@ ChatWindow::MessageReceived(BMessage* message)
 			msg.AddInt32("im_what", IM_SEND_MESSAGE);
 			msg.AddString("chat_id", fConversation->GetId());
 			msg.AddString("body", message);
-			fConversation->Messenger().SendMessage(&msg);
+			fConversation->ImMessage(&msg);
 
 			fSendView->SetText("");
 			break;
