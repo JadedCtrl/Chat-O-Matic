@@ -18,8 +18,8 @@ public:
 
 	TYPE		ValueFor(KEY, bool* found = NULL) const;
 
-	void		RemoveItemAt(int32 position);
-	void		RemoveItemFor(KEY);
+	TYPE		RemoveItemAt(int32 position);
+	TYPE		RemoveItemFor(KEY);
 
 	KEY			KeyAt(uint32 position) const;
 	TYPE		ValueAt(uint32 position) const;
@@ -69,20 +69,24 @@ KeyMap<KEY, TYPE>::ValueFor(KEY k, bool* found) const
 
 
 template<class KEY, class TYPE>
-inline void
+inline TYPE
 KeyMap<KEY, TYPE>::RemoveItemAt(int32 position)
 {
+	TYPE value = ValueAt(position);
 	fIter i = fMap.begin();
 	std::advance(i, position);
 	fMap.erase(i->first);
+	return value;
 }
 
 
 template<class KEY, class TYPE>
-inline void
+inline TYPE
 KeyMap<KEY, TYPE>::RemoveItemFor(KEY k)
 {
+	TYPE value = ValueFor(k);
 	fMap.erase(k);
+	return value;
 }
 
 

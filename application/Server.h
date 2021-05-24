@@ -13,12 +13,14 @@
 
 #include "CayaConstants.h"
 #include "Contact.h"
+#include "Conversation.h"
 
 class CayaProtocol;
 class RosterItem;
 class ProtocolLooper;
 
 typedef KeyMap<BString, Contact*> RosterMap;
+typedef KeyMap<BString, Conversation*> ChatMap;
 typedef KeyMap<bigtime_t, ProtocolLooper*> ProtocolLoopers;
 
 class Server: public BMessageFilter {
@@ -39,20 +41,28 @@ public:
 			void			SendProtocolMessage(BMessage* msg);
 			void			SendAllProtocolMessage(BMessage* msg);
 
-			RosterMap		RosterItems() const;
-			RosterItem*		RosterItemForId(BString id);
+			RosterMap		Contacts() const;
+			Contact*		ContactById(BString id);
+			void			AddContact(Contact* contact);
+
+			ChatMap			Conversations() const;
+			Conversation*	ConversationById(BString id);
+			void			AddConversation(Conversation* chat);
 
 			// TODO: there should be a contact for each account.
 			Contact*	GetOwnContact();
 
 private:
 			ProtocolLooper*	_LooperFromMessage(BMessage* message);
-			Contact*	_EnsureContact(BMessage* message);
+			Contact*		_GetContact(BMessage* message);
+			Contact*		_EnsureContact(BMessage* message);
+			Conversation*	_EnsureConversation(BMessage* message);
 			void			_ReplicantStatusNotify(CayaStatus status);
 
 			RosterMap		fRosterMap;
+			ChatMap			fChatMap;
 			ProtocolLoopers	fLoopers;
-			Contact*	fMySelf;
+			Contact*		fMySelf;
 };
 
 #endif	// _SERVER_H

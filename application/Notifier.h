@@ -2,19 +2,18 @@
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef Notifier_h_
-#define Notifier_h_
+#ifndef NOTIFIER_H
+#define NOTIFIER_H
 
 #include <String.h>
-
 #include <ObjectList.h>
 
 #include "Observer.h"
 
+
 class Notifier
 {
 	public:
-		
 		void	RegisterObserver(Observer*);
 		void	UnregisterObserver(Observer*);
 		
@@ -23,8 +22,9 @@ class Notifier
 		void NotifyPointer(int32 what, void* ptr);
 		
 	private:
-	
 		BObjectList<Observer>	fObserverList;	
-		
 };
-#endif
+
+
+#endif // NOTIFIER_H
+

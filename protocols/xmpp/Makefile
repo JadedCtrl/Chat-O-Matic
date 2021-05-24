@@ -32,9 +32,11 @@ APP_MIME_SIG =
 #	same name (source.c or source.cpp) are included from different directories.
 #	Also note that spaces in folder names do not work well with this Makefile.
 SRCS = \
+	protocols/xmpp/FacebookProtocol.cpp \
+	protocols/xmpp/GoogleTalkProtocol.cpp \
+	protocols/xmpp/JabberHandler.cpp \
 	protocols/xmpp/JabberMain.cpp \
-	protocols/xmpp/JabberProtocol.cpp \
-	protocols/xmpp/JabberHandler.cpp
+	protocols/xmpp/JabberProtocol.cpp
 
 
 #	Specify the resource definition files to use. Full or relative paths can be

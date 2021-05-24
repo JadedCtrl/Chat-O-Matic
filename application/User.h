@@ -3,12 +3,15 @@
  * Copyright 2012, Dario Casalinuovo. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef _USER_H_
-#define _USER_H_
+#ifndef USER_H
+#define USER_H
 
 #include <String.h>
 #include <Message.h>
 #include <Messenger.h>
+#include <ObjectList.h>
+
+#include <libsupport/KeyMap.h>
 
 #include "Notifier.h"
 #include "CayaConstants.h"
@@ -16,13 +19,23 @@
 class BBitmap;
 
 class ChatWindow;
+class Conversation;
 class UserPopUp;
 class ProtocolLooper;
 class RosterItem;
 
+
+typedef KeyMap<BString, Conversation*> ChatMap;
+
+
 class User : public Notifier {
 public:
 					User(BString id, BMessenger msgn);
+
+	void			RegisterObserver(Conversation* chat);
+	void			RegisterObserver(Observer* obs) { Notifier::RegisterObserver(obs); }
+	void			UnregisterObserver(Conversation* chat);
+	void			UnregisterObserver(Observer* obs) { Notifier::UnregisterObserver(obs); }
 
 	void			ShowPopUp(BPoint where);
 	void			DeletePopUp();
@@ -47,6 +60,8 @@ public:
 	void			SetNotifyStatus(CayaStatus status);
 	void			SetNotifyPersonalStatus(BString personalStatus);
 
+	ChatMap			Conversations();
+
 protected:
 	BMessenger		fMessenger;
 	ProtocolLooper*	fLooper;
@@ -58,6 +73,9 @@ protected:
 	BBitmap*		fAvatarBitmap;
 	CayaStatus		fStatus;
 	UserPopUp*		fPopUp;
+	ChatMap			fConversations;
 };
 
-#endif	// _USER_H_
+
+#endif	// USER_H
+

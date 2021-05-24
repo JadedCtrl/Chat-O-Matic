@@ -103,7 +103,7 @@ JabberHandler::Process(BMessage* msg)
 			break;
 		}
 		case IM_SEND_MESSAGE: {
-			const char* id = msg->FindString("id");
+			const char* id = msg->FindString("chat_id");
 			const char* subject = msg->FindString("subject");
 			const char* body = msg->FindString("body");
 
@@ -527,7 +527,8 @@ JabberHandler::_MessageSent(const char* id, const char* subject,
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_MESSAGE_SENT);
-	msg.AddString("id", id);
+	msg.AddString("user_id", id);
+	msg.AddString("chat_id", id);
 	msg.AddString("subject", subject);
 	msg.AddString("body", body);
 	_SendMessage(&msg);
@@ -662,7 +663,7 @@ JabberHandler::_AvatarChanged(const char* id, const char* filename)
 		msg.AddInt32("im_what", IM_OWN_AVATAR_SET);
 	else {
 		msg.AddInt32("im_what", IM_AVATAR_SET);
-		msg.AddString("id", id);
+		msg.AddString("user_id", id);
 	}
 	msg.AddRef("ref", &ref);
 	_SendMessage(&msg);
@@ -803,12 +804,12 @@ JabberHandler::handleRoster(const gloox::Roster& roster)
 		int32 subscription = (*it).second->subscription();
 
 		// Add jid to the server based contact list message
-		contactListMsg.AddString("id", jid);
+		contactListMsg.AddString("user_id", jid);
 
 		// Contact information message
 		BMessage infoMsg(IM_MESSAGE);
 		infoMsg.AddInt32("im_what", IM_CONTACT_INFO);
-		infoMsg.AddString("id", jid);
+		infoMsg.AddString("user_id", jid);
 		infoMsg.AddString("name", name);
 		infoMsg.AddInt32("subscription", subscription);
 		infoMsg.AddInt32("status", CAYA_OFFLINE);
@@ -836,7 +837,7 @@ JabberHandler::handleRoster(const gloox::Roster& roster)
 	std::list<BMessage>::iterator msgsIt;
 	for (msgsIt = msgs.begin(); msgsIt != msgs.end(); ++msgsIt) {
 		BMessage msg = (*msgsIt);
-		const char* jid = msg.FindString("id");
+		const char* jid = msg.FindString("user_id");
 		_SendMessage(&msg);
 		fVCardManager->fetchVCard(gloox::JID(jid), this);
 	}
@@ -879,7 +880,8 @@ JabberHandler::handleMessage(const gloox::Message& m, gloox::MessageSession*)
 
 	// Notify that a chat message was received
 	BMessage msg(IM_MESSAGE);
-	msg.AddString("id", m.from().bare().c_str());
+	msg.AddString("user_id", m.from().bare().c_str());
+	msg.AddString("chat_id", m.from().bare().c_str());
 	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
 		if (m.subject() != "")
 		msg.AddString("subject", m.subject().c_str());
@@ -903,7 +905,8 @@ printf("------ %d\n", state);
 		return;
 
 	BMessage msg(IM_MESSAGE);
-	msg.AddString("id", from.bare().c_str());
+	msg.AddString("user_id", from.bare().c_str());
+	msg.AddString("chat_id", from.bare().c_str());
 
 	switch (state) {
 		case gloox::ChatStateComposing:
@@ -961,7 +964,7 @@ JabberHandler::handleRosterPresence(const gloox::RosterItem& item,
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_SET);
-	msg.AddString("id", item.jidJID().full().c_str());
+	msg.AddString("user_id", item.jidJID().full().c_str());
 	msg.AddInt32("status", _GlooxStatusToCaya(type));
 	msg.AddString("resource", resource.c_str());
 	msg.AddString("message", presenceMsg.c_str());
@@ -977,7 +980,7 @@ JabberHandler::handleSelfPresence(const gloox::RosterItem& item, const std::stri
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_CONTACT_INFO);
 	msg.AddString("protocol", Signature());
-	msg.AddString("id", item.jidJID().full().c_str());
+	msg.AddString("user_id", item.jidJID().full().c_str());
 	msg.AddString("name", item.name().c_str());
 	msg.AddInt32("subscription", item.subscription());
 	msg.AddInt32("status", _GlooxStatusToCaya(type));
@@ -1047,7 +1050,7 @@ JabberHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
 
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_EXTENDED_CONTACT_INFO);
-	msg.AddString("id", jid.bare().c_str());
+	msg.AddString("user_id", jid.bare().c_str());
 	msg.AddString("nick", card->nickname().c_str());
 	msg.AddString("family name", name.family.c_str());
 	msg.AddString("given name", name.given.c_str());

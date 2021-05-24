@@ -14,6 +14,7 @@
 #include "CayaProtocolAddOn.h"
 #include "CayaResources.h"
 #include "CayaUtils.h"
+#include "Conversation.h"
 #include "NotifyMessage.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
@@ -29,6 +30,22 @@ User::User(BString id, BMessenger msgn)
 	fStatus(CAYA_OFFLINE),
 	fPopUp(NULL)
 {
+}
+
+
+void
+User::RegisterObserver(Conversation* chat)
+{
+	Notifier::RegisterObserver(chat);
+	fConversations.AddItem(chat->GetId(), chat);
+}
+
+
+void
+User::UnregisterObserver(Conversation* chat)
+{
+	Notifier::UnregisterObserver(chat);
+	fConversations.RemoveItemFor(chat->GetId());
 }
 
 
@@ -187,6 +204,13 @@ User::SetNotifyPersonalStatus(BString personalStatus)
 		fPersonalStatus = personalStatus;
 		NotifyString(STR_PERSONAL_STATUS, personalStatus);
 	}
+}
+
+
+ChatMap
+User::Conversations()
+{
+	return fConversations;
 }
 
 

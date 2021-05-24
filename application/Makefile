@@ -39,6 +39,7 @@ SRCS = \
 	application/CayaUtils.cpp \
 	application/ChatWindow.cpp \
 	application/Contact.cpp \
+	application/Conversation.cpp \
 	application/EditingFilter.cpp \
 	application/ImageCache.cpp \
 	application/Main.cpp \

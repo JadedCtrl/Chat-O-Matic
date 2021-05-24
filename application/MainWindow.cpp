@@ -161,7 +161,7 @@ MainWindow::MessageReceived(BMessage* message)
 			if (searchBox == NULL)
 				return;
 
-			RosterMap map = fServer->RosterItems();
+			RosterMap map = fServer->Contacts();
 			for (uint32 i = 0; i < map.CountItems(); i++) {
 				Contact* linker = map.ValueAt(i);
 				RosterItem* item = linker->GetRosterItem();
@@ -187,10 +187,29 @@ MainWindow::MessageReceived(BMessage* message)
 		}
 		case CAYA_OPEN_CHAT_WINDOW:
 		{
+			// This is only used by RosterList, so try to open a one-on-one chat
+			// if there is one― otherwise, creawte one.
 			int index = message->FindInt32("index");
 			RosterItem* ritem = ItemAt(index);
+			User* user = ritem->GetContact();
 			if (ritem != NULL)
-				ritem->GetContact()->ShowWindow(false, true);
+				User* user = ritem->GetContact();
+				ChatMap chats = user->Conversations();
+				Conversation* chat;
+
+				// TODO: Poor way of creating necessary chatroom
+				if (chats.CountItems() == 0) {
+					chat = new Conversation(user->GetId(), fServer->Looper());
+					chat->SetProtocolLooper(user->GetProtocolLooper());
+					chat->AddUser(user);
+					chat->ShowWindow(false, true);
+
+					fServer->AddConversation(chat);
+				}					
+				else
+					while (chat = chats.RemoveItemAt(0))
+						if (chat->Users().CountItems() == 1)
+							chat->ShowWindow(false, true);
 			break;
 		}
 
@@ -283,7 +302,7 @@ MainWindow::ImMessage(BMessage* msg)
 			if (msg->FindInt32("status", &status) != B_OK)
 				return;
 
-			RosterItem*	rosterItem = fServer->RosterItemForId(msg->FindString("id"));
+			RosterItem*	rosterItem = fServer->ContactById(msg->FindString("user_id"))->GetRosterItem();
 
 			if (rosterItem) {
 				UpdateListItem(rosterItem);
@@ -345,7 +364,7 @@ MainWindow::ImMessage(BMessage* msg)
 		case IM_EXTENDED_CONTACT_INFO:
 		{
 			RosterItem*	rosterItem
-				= fServer->RosterItemForId(msg->FindString("id"));
+				= fServer->ContactById(msg->FindString("user_id"))->GetRosterItem();
 			if (rosterItem)
 				UpdateListItem(rosterItem);
 			break;

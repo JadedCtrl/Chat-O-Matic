@@ -116,8 +116,8 @@ RosterListView::MessageReceived(BMessage* msg)
 		{
 			if (ritem == NULL)
 				return;
-			Contact* link = ritem->GetContact();
-			link->ShowWindow(false, true);
+//			Contact* link = ritem->GetContact();
+//			link->ShowWindow(false, true);
 			break;
 		}
 

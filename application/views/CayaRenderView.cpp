@@ -26,20 +26,22 @@ CayaRenderView::CayaRenderView(const char *name,  const char* smileyConfig)
 	ScrollToBottom();
 }
 
+
 void
-CayaRenderView::AppendOtherMessage(const char* message)
+CayaRenderView::AppendOtherMessage(const char* otherNick, const char* message)
 {
-	Append(fOtherNick.String(), COL_OTHERNICK, COL_OTHERNICK, R_TEXT);
+	Append(otherNick, COL_OTHERNICK, COL_OTHERNICK, R_TEXT);
 	Append(": ", COL_OTHERNICK, COL_OTHERNICK, R_TEXT);
 	AddEmoticText(message, COL_TEXT, R_TEXT, COL_TEXT,R_EMOTICON);
 	Append("\n", COL_TEXT, COL_TEXT, R_TEXT);
 	ScrollToSelection();
 }
 
+
 void
 CayaRenderView::AppendOwnMessage(const char* message)
 {
-	Append("You say: ", COL_OWNNICK, COL_OWNNICK, R_TEXT);
+	Append("You: ", COL_OWNNICK, COL_OWNNICK, R_TEXT);
 	AddEmoticText(message, COL_TEXT, R_TEXT,COL_TEXT,R_EMOTICON);
 	Append("\n", COL_TEXT, COL_TEXT, R_TEXT);
 	ScrollToSelection();
@@ -54,6 +56,7 @@ CayaRenderView::AddEmoticText(const char * txt,  int16 cols , int16 font , int16
 	else
 		Emoticor::Get()->AddText(this, txt, cols, font, cols2, font2);
 }
+
 
 void
 CayaRenderView::PrepareTheme(Theme *fTheme)
@@ -97,5 +100,6 @@ CayaRenderView::PrepareTheme(Theme *fTheme)
 	fTheme->SetTextMargin(5.0);
 
 	fTheme->WriteUnlock();
-
 }
+
+

@@ -42,12 +42,17 @@ Server::Server()
 void
 Server::Quit()
 {
-	Contact* linker = NULL;
+	Contact* contact = NULL;
+	Conversation* conversation = NULL;
 
-	while ((linker = fRosterMap.ValueAt(0))) {
-		linker->DeleteWindow();
-		linker->DeletePopUp();
+	while (contact = fRosterMap.ValueAt(0)) {
+		contact->DeletePopUp();
 		fRosterMap.RemoveItemAt(0);
+	}
+
+	while (conversation = fChatMap.ValueAt(0)) {
+		conversation->DeleteWindow();
+		fChatMap.RemoveItemAt(0);
 	}
 }
 
@@ -121,27 +126,12 @@ Server::Filter(BMessage* message, BHandler **target)
 	filter_result result = B_DISPATCH_MESSAGE;
 
 	switch (message->what) {
-		case IM_MESSAGE_RECEIVED:
-		{
-			BString id = message->FindString("id");
-			if (id.Length() > 0) {
-				bool found = false;
-				Contact* item = fRosterMap.ValueFor(id, &found);
-				if (found) {
-					ChatWindow* win = item->GetChatWindow();
-					item->ShowWindow();
-					win->PostMessage(message);
-				}
-			}
-			result = B_SKIP_MESSAGE;
-			break;
-		}
 		case CAYA_CLOSE_CHAT_WINDOW:
 		{
-			BString id = message->FindString("id");
+			BString id = message->FindString("chat_id");
 			if (id.Length() > 0) {
 				bool found = false;
-				Contact* item = fRosterMap.ValueFor(id, &found);
+				Conversation* item = fChatMap.ValueFor(id, &found);
 
 				if (found)
 					item->HideWindow();
@@ -181,18 +171,46 @@ Server::Filter(BMessage* message, BHandler **target)
 
 
 RosterMap
-Server::RosterItems() const
+Server::Contacts() const
 {
 	return fRosterMap;
 }
 
 
-RosterItem*
-Server::RosterItemForId(BString id)
+Contact*
+Server::ContactById(BString id)
 {
 	bool found = false;
-	Contact* item = fRosterMap.ValueFor(id, &found);
-	return item ? item->GetRosterItem() : NULL;
+	return fRosterMap.ValueFor(id, &found);
+}
+
+
+void
+Server::AddContact(Contact* contact)
+{
+	fRosterMap.AddItem(contact->GetId(), contact);
+}
+
+
+ChatMap
+Server::Conversations() const
+{
+	return fChatMap;
+}
+
+
+Conversation*
+Server::ConversationById(BString id)
+{
+	bool found = false;
+	return fChatMap.ValueFor(id, &found);
+}
+
+
+void
+Server::AddConversation(Conversation* chat)
+{
+	fChatMap.AddItem(chat->GetId(), chat);
 }
 
 
@@ -207,7 +225,7 @@ Server::ImMessage(BMessage* msg)
 		{
 			int i = 0;
 			BString id;
-			while (msg->FindString("id", i++, &id) == B_OK) {
+			while (msg->FindString("user_id", i++, &id) == B_OK) {
 				bool found = false;
 				Contact* item = fRosterMap.ValueFor(id, &found);
 
@@ -223,7 +241,6 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_OWN_STATUS_SET:
 		{
-			//msg->PrintToStream();
 			int32 status;
 			const char* protocol;
 			if (msg->FindInt32("status", &status) != B_OK)
@@ -243,104 +260,90 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindInt32("status", &status) != B_OK)
 				return B_SKIP_MESSAGE;
 
-			Contact* linker = _EnsureContact(msg);
-			if (!linker)
+			Contact* contact = _EnsureContact(msg);
+			if (!contact)
 				break;
 
-			linker->SetNotifyStatus((CayaStatus)status);
+			contact->SetNotifyStatus((CayaStatus)status);
 			BString statusMsg;
 			if (msg->FindString("message", &statusMsg) == B_OK) {
-				linker->SetNotifyPersonalStatus(statusMsg);
-				linker->GetChatWindow()->UpdatePersonalMessage();
+				contact->SetNotifyPersonalStatus(statusMsg);
+//				contact->GetChatWindow()->UpdatePersonalMessage();
 			}
 			break;
 		}
 		case IM_CONTACT_INFO:
 		{
-			Contact* linker = _EnsureContact(msg);
-			if (!linker)
+			Contact* contact = _EnsureContact(msg);
+			if (!contact)
 				break;
 
 			const char* name = NULL;
 
 			if ((msg->FindString("name", &name) == B_OK)
 				&& (strcmp(name, "") != 0))
-				linker->SetNotifyName(name);
+				contact->SetNotifyName(name);
 
 			BString status;
 			if (msg->FindString("message", &status) == B_OK) {
-				linker->SetNotifyPersonalStatus(status);
-				linker->GetChatWindow()->UpdatePersonalMessage();
+				contact->SetNotifyPersonalStatus(status);
+//				contact->GetChatWindow()->UpdatePersonalMessage();
 			}
 			break;
 		}
 		case IM_EXTENDED_CONTACT_INFO:
 		{
-			Contact* linker = _EnsureContact(msg);
-			if (!linker)
+			Contact* contact = _EnsureContact(msg);
+			if (!contact)
 				break;
 
-			if (linker->GetName().Length() > 0)
+			if (contact->GetName().Length() > 0)
 				break;
 
 			const char* name = NULL;
 
 			if ((msg->FindString("full name", &name) == B_OK)
 				&& (strcmp(name, "") != 0))
-				linker->SetNotifyName(name);
+				contact->SetNotifyName(name);
 			break;
 		}
 		case IM_AVATAR_SET:
 		{
-			Contact* linker = _EnsureContact(msg);
-			if (!linker)
+			Contact* contact = _EnsureContact(msg);
+			if (!contact)
 				break;
 
 			entry_ref ref;
 
 			if (msg->FindRef("ref", &ref) == B_OK) {
 				BBitmap* bitmap = BTranslationUtils::GetBitmap(&ref);
-				linker->SetNotifyAvatarBitmap(bitmap);
+				contact->SetNotifyAvatarBitmap(bitmap);
 			} else
-				linker->SetNotifyAvatarBitmap(NULL);
+				contact->SetNotifyAvatarBitmap(NULL);
 			break;
 		}
 		case IM_SEND_MESSAGE:
 		{
 			// Route this message through the appropriate ProtocolLooper
-			Contact* linker = _EnsureContact(msg);
-			if (linker->GetProtocolLooper())
-				linker->GetProtocolLooper()->PostMessage(msg);
+			Conversation* conversation = _EnsureConversation(msg);
+			if (conversation->GetProtocolLooper())
+				conversation->GetProtocolLooper()->PostMessage(msg);
 			break;
 		}
 		case IM_MESSAGE_RECEIVED:
 		{
-			BString id = msg->FindString("id");
-			if (id.Length() > 0) {
-				bool found = false;
-				Contact* item = fRosterMap.ValueFor(id, &found);
-				if (found) {
-					ChatWindow* win = item->GetChatWindow();
-					item->ShowWindow();
-					win->PostMessage(msg);
-				}
-			}
+			Conversation* item = _EnsureConversation(msg);
+			item->ImMessage(msg);
 			result = B_SKIP_MESSAGE;
 			break;
 		}
 		case IM_CONTACT_STARTED_TYPING:
 		case IM_CONTACT_STOPPED_TYPING:
 		{
-			BString id = msg->FindString("id");
-			if (id.Length() > 0) {
-				bool found = false;
-				Contact* item = fRosterMap.ValueFor(id, &found);
-				if (found) {
-					ChatWindow* win = item->GetChatWindow();
-					item->ShowWindow(true);
-					win->PostMessage(msg);
-				}
-			}
+			BString id = msg->FindString("chat_id");
+			Conversation* item = _EnsureConversation(msg);
+			item->ImMessage(msg);
+
 			result = B_SKIP_MESSAGE;
 			break;
 		}
@@ -444,25 +447,58 @@ Server::_LooperFromMessage(BMessage* message)
 
 
 Contact*
-Server::_EnsureContact(BMessage* message)
+Server::_GetContact(BMessage* message)
 {
 	if (!message)
 		return NULL;
 
-	BString id = message->FindString("id");
+	BString id = message->FindString("user_id");
 	Contact* item = NULL;
 
-	if (id.Length() > 0) {
+	if (id.IsEmpty() == false) {
 		bool found = false;
 		item = fRosterMap.ValueFor(id, &found);
-
-		if (!found) {
-			item = new Contact(id.String(), Looper());
-			item->SetProtocolLooper(_LooperFromMessage(message));
-			fRosterMap.AddItem(id, item);
-		}
 	}
 
+	return item;
+}
+
+
+Contact*
+Server::_EnsureContact(BMessage* message)
+{
+	Contact* contact = _GetContact(message);
+	BString id = message->FindString("user_id");
+
+	if (contact == NULL && id.IsEmpty() == false) {
+		contact = new Contact(id, Looper());
+		contact->SetProtocolLooper(_LooperFromMessage(message));
+		fRosterMap.AddItem(id, contact);
+	}
+
+	return contact;
+}
+
+
+Conversation*
+Server::_EnsureConversation(BMessage* message)
+{
+	if (!message)
+		return NULL;
+
+	BString chat_id = message->FindString("chat_id");
+	Conversation* item = NULL;
+
+	if (chat_id.IsEmpty() == false) {
+		bool found = false;
+		item = fChatMap.ValueFor(chat_id, &found);
+
+		if (!found) {
+			item = new Conversation(chat_id, Looper());
+			item->SetProtocolLooper(_LooperFromMessage(message));
+			fChatMap.AddItem(chat_id, item);
+		}
+	}
 	return item;
 }
 

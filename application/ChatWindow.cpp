@@ -31,6 +31,7 @@
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
 #include "CayaPreferences.h"
+#include "Conversation.h"
 #include "Contact.h"
 #include "EditingFilter.h"
 #include "CayaConstants.h"
@@ -38,16 +39,16 @@
 #include "NotifyMessage.h"
 
 
-ChatWindow::ChatWindow(Contact* cl)
+ChatWindow::ChatWindow(Conversation* cl)
 	:
 	BWindow(BRect(200, 200, 500, 500),
 		cl->GetName().String(), B_TITLED_WINDOW, 0),
-		fContact(cl)
+		fConversation(cl),
+		fContact(cl->Users().ValueAt(0))
 {
 	fMessageCount = 0;
 	
 	fReceiveView = new CayaRenderView("fReceiveView");
-	fReceiveView->SetOtherNick(cl->GetName());
 	BScrollView* scrollViewReceive = new BScrollView("scrollviewR",
 		fReceiveView, B_WILL_DRAW, false, true);
 
@@ -120,8 +121,8 @@ bool
 ChatWindow::QuitRequested()
 {
 	BMessage msg(CAYA_CLOSE_CHAT_WINDOW);
-	msg.AddString("id", fContact->GetId());
-	fContact->Messenger().SendMessage(&msg);
+	msg.AddString("chat_id", fConversation->GetId());
+	fConversation->Messenger().SendMessage(&msg);
 	return false;
 }
 
@@ -140,7 +141,6 @@ ChatWindow::UpdateAvatar()
 void
 ChatWindow::UpdatePersonalMessage()
 {
-
 	if (fContact->GetNotifyPersonalStatus() != NULL) {
 		LockLooper();
 		fPersonalMessage->SetText(fContact->GetNotifyPersonalStatus());
@@ -163,9 +163,9 @@ ChatWindow::MessageReceived(BMessage* message)
 
 			BMessage msg(IM_MESSAGE);
 			msg.AddInt32("im_what", IM_SEND_MESSAGE);
-			msg.AddString("id", fContact->GetId());
+			msg.AddString("chat_id", fConversation->GetId());
 			msg.AddString("body", message);
-			fContact->Messenger().SendMessage(&msg);
+			fConversation->Messenger().SendMessage(&msg);
 
 			fSendView->SetText("");
 			break;
@@ -190,7 +190,11 @@ ChatWindow::ImMessage(BMessage* msg)
 		case IM_MESSAGE_RECEIVED:
 		{
 			BString message = msg->FindString("body");
-			fReceiveView->AppendOtherMessage(message.String());
+			BString id = msg->FindString("user_id");
+			User* sender = fConversation->UserById(id);
+			BString uname = sender->GetName();
+
+			fReceiveView->AppendOtherMessage(uname.String(), message.String());
 
 			// Message received, clear status anyway
 			fStatus->SetText("");
@@ -202,9 +206,9 @@ ChatWindow::ImMessage(BMessage* msg)
 			// Mark unread window			
 			if (CayaPreferences::Item()->MarkUnreadWindow) { 
 				BString title = "[";
-				title<<fMessageCount;
-				title<<"] ";
-				title<<fContact->GetName();
+				title << fMessageCount;
+				title << "] ";
+				title << uname;
 				SetTitle(title);
 			}
 			
@@ -220,14 +224,14 @@ ChatWindow::ImMessage(BMessage* msg)
 			} else {
 				notify_message << " new messages from ";
 			};
-			notify_message << fContact->GetName().String();
+			notify_message << uname;
 
 			BNotification notification(B_INFORMATION_NOTIFICATION);
 			notification.SetGroup(BString("Caya"));
 			notification.SetTitle(BString("New message"));
-			notification.SetIcon(fAvatar->Bitmap());
+			notification.SetIcon(sender->AvatarBitmap());
 			notification.SetContent(notify_message);
-			notification.SetMessageID(fContact->GetName());
+			notification.SetMessageID(uname);
 			notification.Send();
 			
 			break;
@@ -248,12 +252,14 @@ ChatWindow::ImMessage(BMessage* msg)
 	}
 }
 
+
 void
 ChatWindow::WindowActivated(bool active)
 {
 	SetTitle(fContact->GetName());
 	fMessageCount=0;
 }
+
 
 void
 ChatWindow::ObserveString(int32 what, BString str)
@@ -262,7 +268,6 @@ ChatWindow::ObserveString(int32 what, BString str)
 		case STR_CONTACT_NAME:
 			if (Lock()) {
 				SetTitle(str);
-				fReceiveView->SetOtherNick(str);
 				Unlock();
 			}
 			break;

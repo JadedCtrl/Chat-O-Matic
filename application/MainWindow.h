@@ -18,6 +18,7 @@ class StatusView;
 class RosterListView;
 class RosterItem;
 
+
 class MainWindow: public BWindow, public Observer {
 public:
 						MainWindow();

@@ -15,7 +15,6 @@
 
 class BBitmap;
 
-class ChatWindow;
 class ProtocolLooper;
 class RosterItem;
 
@@ -24,23 +23,12 @@ class Contact : public User {
 public:
 					Contact(BString id, BMessenger msgn);
 
-	ChatWindow*		GetChatWindow();
-	void 			DeleteWindow();
-
-	void			ShowWindow(bool typing = false, bool userAction = false);
-	void			HideWindow();
-
 	RosterItem*		GetRosterItem() const;
 
 	void			SetNotifyAvatarBitmap(BBitmap* bitmap);
 
 private:
-	void			_CreateChatWindow();
-
 	RosterItem*		fRosterItem;
-	ChatWindow*		fChatWindow;
-
-	bool			fNewWindow;
 };
 
 #endif	// _CONTACT_LINKER_H_
