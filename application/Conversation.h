@@ -5,6 +5,7 @@
 #ifndef CONVERSATION_H
 #define CONVERSATION_H
 
+#include <DateTimeFormat.h>
 #include <Messenger.h>
 #include <Path.h>
 
@@ -71,6 +72,7 @@ private:
 	BString fName;
 
 	BPath fLogPath;
+	BDateTimeFormat fDateFormatter;
 
 	UserMap fUsers;
 };

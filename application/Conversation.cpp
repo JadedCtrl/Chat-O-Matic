@@ -5,6 +5,9 @@
 
 #include "Conversation.h"
 
+#include <DateTimeFormat.h>
+#include <Locale.h>
+
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
 #include "CayaUtils.h"
@@ -24,7 +27,8 @@ Conversation::Conversation(BString id, BMessenger msgn)
 	fMessenger(msgn),
 	fChatWindow(NULL),
 	fNewWindow(true),
-	fLooper(NULL)
+	fLooper(NULL),
+	fDateFormatter()
 {
 }
 
@@ -215,10 +219,14 @@ Conversation::_CreateChatWindow()
 }
 
 
+#include <iostream>
 void
 Conversation::_LogChatMessage(BMessage* msg)
 {
 	_EnsureLogPath();
+
+	BString date;
+	fDateFormatter.Format(date, time(0), B_SHORT_DATE_FORMAT, B_MEDIUM_TIME_FORMAT);
 
 	BString id = msg->FindString("user_id");
 	BString uname;
@@ -228,7 +236,11 @@ Conversation::_LogChatMessage(BMessage* msg)
 	else
 		uname = "You";
 
-	BString logLine = uname;
+
+	BString logLine("[");
+	logLine << date;
+	logLine << "] ";
+	logLine << uname;
 	logLine << ": ";
 	logLine << msg->FindString("body");
 	logLine << "\n";
