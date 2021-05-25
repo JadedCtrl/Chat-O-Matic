@@ -68,6 +68,9 @@ enum im_what_code {
 	//! User stopped typing
 	IM_USER_STOPPED_TYPING				= 27,
 
+	//! Logs received
+	IM_LOGS_RECEIVED					= 28,
+
 	/*
 	 * Messages related to contact changes.
 	 */

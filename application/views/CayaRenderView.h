@@ -39,6 +39,7 @@ class CayaRenderView : public RunView
 		
 		void	AppendOtherMessage(const char* otherNick, const char* message);
 		void	AppendOwnMessage(const char* message);
+		void	AppendGenericMessage(const char* message);
 		void 	AddEmoticText(const char * txt,  int16 cols , int16 font , int16 cols2 , int16 font2);
 		
 	protected:

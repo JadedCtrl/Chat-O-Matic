@@ -57,6 +57,8 @@ public:
 
 	virtual	uint32					GetEncoding();
 
+	virtual bool					SaveLogs() const { return true; }
+
 	virtual CayaProtocolMessengerInterface*
 									MessengerInterface() const;
 

@@ -7,6 +7,7 @@
 
 #include <DateTimeFormat.h>
 #include <Locale.h>
+#include <StringList.h>
 
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
@@ -216,15 +217,21 @@ Conversation::_CreateChatWindow()
 {
 	fChatWindow = new ChatWindow(this);
 	WindowsManager::Get()->RelocateWindow(fChatWindow);
+
+	if (fLooper->Protocol()->SaveLogs() == false)
+		return;
+
+	BStringList logs = _GetChatLogs();
+	BMessage logMsg(IM_MESSAGE);
+	logMsg.AddInt32("im_what", IM_LOGS_RECEIVED);
+	logMsg.AddStrings("log", logs);
+	fChatWindow->ImMessage(&logMsg);
 }
 
 
-#include <iostream>
 void
 Conversation::_LogChatMessage(BMessage* msg)
 {
-	_EnsureLogPath();
-
 	BString date;
 	fDateFormatter.Format(date, time(0), B_SHORT_DATE_FORMAT, B_MEDIUM_TIME_FORMAT);
 
@@ -236,7 +243,6 @@ Conversation::_LogChatMessage(BMessage* msg)
 	else
 		uname = "You";
 
-
 	BString logLine("[");
 	logLine << date;
 	logLine << "] ";
@@ -246,8 +252,33 @@ Conversation::_LogChatMessage(BMessage* msg)
 	logLine << "\n";
 
 
-	BFile log(fLogPath.Path(), B_WRITE_ONLY | B_OPEN_AT_END | B_CREATE_FILE);
-	log.Write(logLine.String(), logLine.Length());
+	// TODO: Don't hardcode 21, expose maximum as a setting
+	BStringList logs = _GetChatLogs();
+	logs.Remove(21);
+	logs.Add(logLine, 0);
+
+	BMessage newLogMsg;
+	newLogMsg.AddStrings("log", logs);
+
+	BFile logFile(fLogPath.Path(), B_READ_WRITE | B_CREATE_FILE);
+	newLogMsg.Flatten(&logFile);
+}
+
+
+BStringList
+Conversation::_GetChatLogs()
+{
+	_EnsureLogPath();
+
+	BFile logFile(fLogPath.Path(), B_READ_WRITE | B_CREATE_FILE);
+	BMessage logMsg;
+	BStringList logs;
+
+	if (logMsg.Unflatten(&logFile) == B_OK) {
+		logMsg.FindStrings("log", &logs);
+	}
+
+	return logs;
 }
 
 

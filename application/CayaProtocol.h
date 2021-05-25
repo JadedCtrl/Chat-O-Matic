@@ -47,6 +47,9 @@ public:
 	//! Protocol icon
 	virtual BBitmap* Icon() const = 0;
 
+	//! Use local logs to populate chat
+	virtual bool SaveLogs() const = 0;
+
 	//! Add-on's path
 	virtual void SetPath(BPath path) = 0;
 	virtual BPath Path() = 0;

@@ -57,6 +57,7 @@ public:
 
 private:
 	void				_LogChatMessage(BMessage* msg);
+	BStringList			_GetChatLogs();
 	void				_EnsureLogPath();
 
 	void				_CreateChatWindow();

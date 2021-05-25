@@ -24,6 +24,7 @@
 #include <SpaceLayoutItem.h>
 #include <ScrollView.h>
 #include <String.h>
+#include <StringList.h>
 #include <Notification.h>
 
 #include <libinterface/BitmapView.h>
@@ -234,6 +235,17 @@ ChatWindow::ImMessage(BMessage* msg)
 			notification.SetMessageID(uname);
 			notification.Send();
 			
+			break;
+		}
+		case IM_LOGS_RECEIVED:
+		{
+			BStringList logs;
+			if (msg->FindStrings("log", &logs) != B_OK)
+				return;
+
+			for (int i = logs.CountStrings(); i >= 0; i--)
+				fReceiveView->AppendGenericMessage(logs.StringAt(i).String());
+
 			break;
 		}
 		case IM_CONTACT_STARTED_TYPING:

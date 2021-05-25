@@ -49,6 +49,14 @@ CayaRenderView::AppendOwnMessage(const char* message)
 
 
 void
+CayaRenderView::AppendGenericMessage(const char* message)
+{
+	Append(message, COL_TEXT, COL_TEXT, R_TEXT);
+	ScrollToSelection();
+}
+
+
+void
 CayaRenderView::AddEmoticText(const char * txt,  int16 cols , int16 font , int16 cols2 , int16 font2)
 {
 	if (CayaPreferences::Item()->IgnoreEmoticons)
