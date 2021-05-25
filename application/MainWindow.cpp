@@ -10,35 +10,22 @@
 
 #include <Application.h>
 #include <Alert.h>
-#include <Button.h>
-#include <CardLayout.h>
-#include <ListView.h>
-#include <Box.h>
-#include <CheckBox.h>
-#include <Entry.h>
-#include <GridLayout.h>
-#include <GridLayoutBuilder.h>
-#include <GroupLayout.h>
-#include <GroupLayoutBuilder.h>
+#include <LayoutBuilder.h>
+#include <MenuBar.h>
 #include <MenuItem.h>
 #include <Notification.h>
-#include <PopUpMenu.h>
-#include <SpaceLayoutItem.h>
 #include <ScrollView.h>
 #include <StringView.h>
 #include <TextControl.h>
 #include <TranslationUtils.h>
 
 #include <libinterface/BitmapUtils.h>
-#include <libinterface/ToolButton.h>
 
 #include "AccountManager.h"
 #include "CayaConstants.h"
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
 #include "CayaPreferences.h"
-#include "CayaResources.h"
-#include "CayaUtils.h"
 #include "NotifyMessage.h"
 #include "MainWindow.h"
 #include "PreferencesDialog.h"
@@ -69,39 +56,30 @@ MainWindow::MainWindow()
 	BScrollView* scrollView = new BScrollView("scrollview", fListView,
 		B_WILL_DRAW, false, true);
 
-	// Wrench menu
-	BPopUpMenu* wrenchMenu = new BPopUpMenu("Wrench");
-	(void)wrenchMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
+	// Menubar
+	BMenuBar* menuBar = new BMenuBar("MenuBar");
+
+	BMenu* programMenu = new BMenu("Program");
+	programMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
 		new BMessage(B_ABOUT_REQUESTED)));
-	(void)wrenchMenu->AddItem(new BSeparatorItem());
-	(void)wrenchMenu->AddItem(new BMenuItem("Preferences" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_SHOW_SETTINGS)));
-	(void)wrenchMenu->AddItem(new BSeparatorItem());
-	(void)wrenchMenu->AddItem(new BMenuItem("Quit",
-		new BMessage(B_QUIT_REQUESTED)));
-	wrenchMenu->SetTargetForItems(this);
+	programMenu->AddItem(new BMenuItem("Preferences" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_SHOW_SETTINGS), ',', B_COMMAND_KEY));
+	programMenu->AddItem(new BSeparatorItem());
+	programMenu->AddItem(new BMenuItem("Quit",
+		new BMessage(B_QUIT_REQUESTED), 'Q', B_COMMAND_KEY));
+	programMenu->SetTargetForItems(this);
 
-	// Tool icon
-	BResources* res = CayaResources();
-	BBitmap* toolIcon = IconFromResources(res, kToolIcon);
-	delete res;
+	menuBar->AddItem(programMenu);
 
-	// Wrench tool button
-	ToolButton* wrench = new ToolButton(NULL, NULL);
-	wrench->SetBitmap(toolIcon);
-	wrench->SetMenu(wrenchMenu);
-
-	SetLayout(new BGridLayout(1, 2));
-	AddChild(BGridLayoutBuilder(1, 2)
-		.Add(searchBox, 0, 0)
-		.Add(wrench, 1, 0)
-		.Add(scrollView, 0, 1, 2)
-		.Add(fStatusView, 0, 2, 2)
-		.SetInsets(5, 5, 5, 10)
-	);
-
-	AddShortcut('a', B_COMMAND_KEY, new BMessage(B_ABOUT_REQUESTED));
-	MoveTo(BAlert::AlertPosition(Bounds().Width(), Bounds().Height() / 2));
+	BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
+		.Add(menuBar)
+		.AddGroup(B_VERTICAL)
+			.SetInsets(5, 5, 5, 10)
+			.Add(searchBox)
+			.Add(scrollView)
+			.Add(fStatusView)
+		.End()
+	.End();
 
 	// Filter messages using Server
 	fServer = new Server();
