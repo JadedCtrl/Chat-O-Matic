@@ -99,9 +99,11 @@ private:
 			BList*					fAvatars;
 
 			void					_SendMessage(BMessage* msg);
-
 			void					_MessageSent(const char* id, const char* subject,
 												const char* body);
+
+			void					_ChatCreated(const char* id);
+
 
 			void					_Notify(notification_type type, const char* title, const char* message);
 			void					_NotifyProgress(const char* title, const char* message, float progress);

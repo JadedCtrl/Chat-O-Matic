@@ -30,15 +30,13 @@
 #include "MainWindow.h"
 #include "PreferencesDialog.h"
 #include "ReplicantStatusView.h"
-#include "RosterItem.h"
-#include "RosterListView.h"
-#include "SearchBarTextControl.h"
+#include "RosterWindow.h"
 #include "Server.h"
 #include "StatusView.h"
 
 
 const uint32 kLogin			= 'LOGI';
-const uint32 kSearchContact = 'SRCH';
+const uint32 CAYA_NEW_CHAT = 'CRCH';
 
 
 MainWindow::MainWindow()
@@ -47,14 +45,6 @@ MainWindow::MainWindow()
 	fWorkspaceChanged(false)
 {
 	fStatusView = new StatusView("statusView");
-
-	SearchBarTextControl* searchBox = 
-		new SearchBarTextControl(new BMessage(kSearchContact));
-
-	fListView = new RosterListView("buddyView");
-	fListView->SetInvocationMessage(new BMessage(CAYA_OPEN_CHAT_WINDOW));
-	BScrollView* scrollView = new BScrollView("scrollview", fListView,
-		B_WILL_DRAW, false, true);
 
 	// Menubar
 	BMenuBar* menuBar = new BMenuBar("MenuBar");
@@ -69,14 +59,18 @@ MainWindow::MainWindow()
 		new BMessage(B_QUIT_REQUESTED), 'Q', B_COMMAND_KEY));
 	programMenu->SetTargetForItems(this);
 
+	BMenu* chatMenu = new BMenu("Chat");
+	chatMenu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_NEW_CHAT)));
+	chatMenu->SetTargetForItems(this);
+
 	menuBar->AddItem(programMenu);
+	menuBar->AddItem(chatMenu);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.Add(menuBar)
 		.AddGroup(B_VERTICAL)
 			.SetInsets(5, 5, 5, 10)
-			.Add(searchBox)
-			.Add(scrollView)
 			.Add(fStatusView)
 		.End()
 	.End();
@@ -106,13 +100,14 @@ MainWindow::QuitRequested()
 	int32 button_index = 0;
 	if(!CayaPreferences::Item()->DisableQuitConfirm)
 	{
-		BAlert* alert = new BAlert("Closing", "Are you sure you wan to quit?", "Yes", "No", NULL, B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
+		BAlert* alert = new BAlert("Closing", "Are you sure you want to quit?",
+			"Yes", "No", NULL, B_WIDTH_AS_USUAL, B_OFFSET_SPACING,
+			B_WARNING_ALERT);
 		alert->SetShortcut(0, B_ESCAPE);
 		button_index = alert->Go();
 	}
 
 	if(button_index == 0) {
-		fListView->MakeEmpty();
 		fServer->Quit();
 		CayaPreferences::Get()->Save();
 		ReplicantStatusView::RemoveReplicant();
@@ -128,66 +123,18 @@ void
 MainWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case kSearchContact:
-		{
-			void* control = NULL;
-			if (message->FindPointer("source", &control) != B_OK)
-				return;
-
-			SearchBarTextControl* searchBox 
-				= static_cast<SearchBarTextControl*>(control);
-			if (searchBox == NULL)
-				return;
-
-			RosterMap map = fServer->Contacts();
-			for (uint32 i = 0; i < map.CountItems(); i++) {
-				Contact* linker = map.ValueAt(i);
-				RosterItem* item = linker->GetRosterItem();
-
-				// If the search filter has been deleted show all the items,
-				// otherwise remove the item in order to show only items
-				// that matches the search criteria
-				if (strcmp(searchBox->Text(), "") == 0)
-					AddItem(item);
-				else if (linker->GetName().IFindFirst(searchBox->Text()) == B_ERROR)
-					RemoveItem(item);
-				else
-					AddItem(item);
-				UpdateListItem(item);
-			}
-			break;
-		}
 		case CAYA_SHOW_SETTINGS:
 		{
 			PreferencesDialog* dialog = new PreferencesDialog();
 			dialog->Show();
 			break;
 		}
-		case CAYA_OPEN_CHAT_WINDOW:
+
+		case CAYA_NEW_CHAT:
 		{
-			// This is only used by RosterList, so try to open a one-on-one chat
-			// if there is one― otherwise, creawte one.
-			int index = message->FindInt32("index");
-			RosterItem* ritem = ItemAt(index);
-			User* user = ritem->GetContact();
-			if (ritem != NULL)
-				User* user = ritem->GetContact();
-				ChatMap chats = user->Conversations();
-				Conversation* chat;
-
-				// TODO: Poor way of creating necessary chatroom
-				if (chats.CountItems() == 0) {
-					chat = new Conversation(user->GetId(), fServer->Looper());
-					chat->SetProtocolLooper(user->GetProtocolLooper());
-					chat->AddUser(user);
-					chat->ShowWindow(false, true);
-
-					fServer->AddConversation(chat);
-				}					
-				else
-					while (chat = chats.RemoveItemAt(0))
-						if (chat->Users().CountItems() == 1)
-							chat->ShowWindow(false, true);
+			RosterWindow* roster = new RosterWindow("Invite contact to chat"
+			B_UTF8_ELLIPSIS, IM_CREATE_CHAT, new BMessenger(this), fServer);
+			roster->Show();
 			break;
 		}
 
@@ -273,80 +220,6 @@ MainWindow::ImMessage(BMessage* msg)
 			}
 			break;
 		}
-		case IM_STATUS_SET:
-		{
-			int32 status;
-
-			if (msg->FindInt32("status", &status) != B_OK)
-				return;
-
-			RosterItem*	rosterItem = fServer->ContactById(msg->FindString("user_id"))->GetRosterItem();
-
-			if (rosterItem) {
-				UpdateListItem(rosterItem);
-
-				// Add or remove item
-				switch (status) {
-					/*case CAYA_OFFLINE:
-						// By default offline contacts are hidden
-						if (!CayaPreferences::Item()->HideOffline)
-							break;
-						if (HasItem(rosterItem))
-							RemoveItem(rosterItem);
-						return;*/
-					default:
-						// Add item because it has a non-offline status
-						if (!HasItem(rosterItem))
-							AddItem(rosterItem);
-						break;
-				}
-
-				UpdateListItem(rosterItem);
-
-				// Sort list view again
-				fListView->Sort();
-
-				// Check if the user want the notification
-				if (!CayaPreferences::Item()->NotifyContactStatus)
-					break;
-
-				switch (status) {
-					case CAYA_ONLINE:
-					case CAYA_OFFLINE:
-						// Notify when contact is online or offline
-						if (status == CAYA_ONLINE) {
-							BString message;
-							message << rosterItem->GetContact()->GetName();
-
-							if (status == CAYA_ONLINE)
-								message << " is available!";
-							else
-								message << " is offline!";
-
-							BNotification notification(B_INFORMATION_NOTIFICATION);
-							notification.SetGroup(BString("Caya"));
-							notification.SetTitle(BString("Presence"));
-							notification.SetIcon(rosterItem->Bitmap());
-							notification.SetContent(message);
-							notification.Send();
-						}
-						break;
-					default:
-						break;
-				}
-			}
-			break;
-		}
-		case IM_AVATAR_SET:
-		case IM_CONTACT_INFO:
-		case IM_EXTENDED_CONTACT_INFO:
-		{
-			RosterItem*	rosterItem
-				= fServer->ContactById(msg->FindString("user_id"))->GetRosterItem();
-			if (rosterItem)
-				UpdateListItem(rosterItem);
-			break;
-		}
 	}
 }
 
@@ -363,61 +236,6 @@ MainWindow::ObserveInteger(int32 what, int32 val)
 
 
 void
-MainWindow::UpdateListItem(RosterItem* item)
-{
-	if (fListView->HasItem(item))
-		fListView->InvalidateItem(fListView->IndexOf(item));
-}
-
-
-int32
-MainWindow::CountItems() const
-{
-	return fListView->CountItems();
-}
-
-
-RosterItem*
-MainWindow::ItemAt(int index)
-{
-	return dynamic_cast<RosterItem*>(fListView->ItemAt(index));
-}
-
-
-void
-MainWindow::AddItem(RosterItem* item)
-{
-	// Don't add offline items and avoid duplicates
-	if ((item->Status() == CAYA_OFFLINE) 
-		&& CayaPreferences::Item()->HideOffline)
-		return;
-	
-	if (HasItem(item))
-		return;
-
-	// Add item and sort
-	fListView->AddItem(item);
-	fListView->Sort();
-}
-
-
-bool
-MainWindow::HasItem(RosterItem* item)
-{
-	return fListView->HasItem(item);
-}
-
-
-void
-MainWindow::RemoveItem(RosterItem* item)
-{
-	// Remove item and sort
-	fListView->RemoveItem(item);
-	fListView->Sort();
-}
-
-
-void
 MainWindow::WorkspaceActivated(int32 workspace, bool active)
 {
 	if (active)
@@ -425,3 +243,5 @@ MainWindow::WorkspaceActivated(int32 workspace, bool active)
 	else
 		fWorkspaceChanged = true;
 }
+
+

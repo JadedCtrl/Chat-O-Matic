@@ -71,6 +71,12 @@ enum im_what_code {
 	//! Logs received
 	IM_LOGS_RECEIVED					= 28,
 
+	//! Create an individual chat
+	IM_CREATE_CHAT						= 29,
+
+	//! Chat has been created
+	IM_CHAT_CREATED						= 30,
+
 	/*
 	 * Messages related to contact changes.
 	 */

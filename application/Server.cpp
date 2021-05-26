@@ -322,6 +322,26 @@ Server::ImMessage(BMessage* msg)
 				contact->SetNotifyAvatarBitmap(NULL);
 			break;
 		}
+		case IM_CREATE_CHAT:
+		{
+			BString user_id = msg->FindString("user_id");
+			if (user_id.IsEmpty() == false) {
+				User* user = ContactById(user_id);
+				user->GetProtocolLooper()->PostMessage(msg);
+			}
+			break;
+		}
+		case IM_CHAT_CREATED:
+		{
+			Conversation* chat = _EnsureConversation(msg);
+			User* user = _EnsureContact(msg);
+
+			if (chat != NULL && user != NULL) {
+				chat->AddUser(user);
+				chat->ShowWindow(false, true);
+			}
+			break;
+		}
 		case IM_SEND_MESSAGE:
 		{
 			// Route this message through the appropriate ProtocolLooper

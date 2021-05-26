@@ -102,6 +102,7 @@ JabberHandler::Process(BMessage* msg)
 			}
 			break;
 		}
+
 		case IM_SEND_MESSAGE: {
 			const char* id = msg->FindString("chat_id");
 			const char* subject = msg->FindString("subject");
@@ -119,6 +120,19 @@ JabberHandler::Process(BMessage* msg)
 			_MessageSent(id, subject, body);
 			break;
 		}
+
+		case IM_CREATE_CHAT: {
+			const char* invite_id = msg->FindString("user_id");
+
+			// TODO: Contact validation, make sure permssion is granted
+
+			if (!invite_id)
+				return B_ERROR;
+
+			_ChatCreated(invite_id);
+			break;
+		}
+
 		default:
 			return B_ERROR;
 	}
@@ -531,6 +545,17 @@ JabberHandler::_MessageSent(const char* id, const char* subject,
 	msg.AddString("chat_id", id);
 	msg.AddString("subject", subject);
 	msg.AddString("body", body);
+	_SendMessage(&msg);
+}
+
+
+void
+JabberHandler::_ChatCreated(const char* id)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_CHAT_CREATED);
+	msg.AddString("chat_id", id);
+	msg.AddString("user_id", id);
 	_SendMessage(&msg);
 }
 
