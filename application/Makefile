@@ -62,15 +62,17 @@ SRCS = \
 	application/preferences/PreferencesBehavior.cpp \
 	application/preferences/PreferencesReplicant.cpp \
 	application/preferences/PreferencesChatWindow.cpp \
-	application/views/SearchBarTextControl.cpp \
-	application/views/NicknameTextControl.cpp \
-	application/views/RosterItem.cpp \
-	application/views/RosterListView.cpp \
-	application/views/StatusMenuItem.cpp \
-	application/views/StatusView.cpp \
 	application/views/CayaRenderView.cpp \
+	application/views/ConversationItem.cpp \
+	application/views/ConversationListView.cpp \
+	application/views/NicknameTextControl.cpp \
 	application/views/ReplicantStatusView.cpp \
 	application/views/ReplicantMenuItem.cpp \
+	application/views/RosterItem.cpp \
+	application/views/RosterListView.cpp \
+	application/views/SearchBarTextControl.cpp \
+	application/views/StatusMenuItem.cpp \
+	application/views/StatusView.cpp \
 	application/views/UserInfoWindow.cpp \
 	application/views/UserPopUp.cpp
 

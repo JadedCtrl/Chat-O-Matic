@@ -340,6 +340,7 @@ Server::ImMessage(BMessage* msg)
 				chat->AddUser(user);
 				chat->ShowWindow(false, true);
 			}
+
 			break;
 		}
 		case IM_SEND_MESSAGE:
@@ -354,7 +355,7 @@ Server::ImMessage(BMessage* msg)
 		{
 			Conversation* item = _EnsureConversation(msg);
 			item->ImMessage(msg);
-			result = B_SKIP_MESSAGE;
+
 			break;
 		}
 		case IM_CONTACT_STARTED_TYPING:

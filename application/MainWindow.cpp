@@ -26,6 +26,8 @@
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
 #include "CayaPreferences.h"
+#include "ConversationItem.h"
+#include "ConversationListView.h"
 #include "NotifyMessage.h"
 #include "MainWindow.h"
 #include "PreferencesDialog.h"
@@ -36,7 +38,6 @@
 
 
 const uint32 kLogin			= 'LOGI';
-const uint32 CAYA_NEW_CHAT = 'CRCH';
 
 
 MainWindow::MainWindow()
@@ -67,8 +68,11 @@ MainWindow::MainWindow()
 	menuBar->AddItem(programMenu);
 	menuBar->AddItem(chatMenu);
 
+	fListView = new ConversationListView("roomList");
+
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.Add(menuBar)
+		.Add(fListView)
 		.AddGroup(B_VERTICAL)
 			.SetInsets(5, 5, 5, 10)
 			.Add(fStatusView)
@@ -220,6 +224,13 @@ MainWindow::ImMessage(BMessage* msg)
 			}
 			break;
 		}
+		case IM_MESSAGE_RECEIVED:
+		case IM_MESSAGE_SENT:
+		case IM_CHAT_CREATED:
+		{
+			_EnsureConversationItem(msg);
+			break;
+		}
 	}
 }
 
@@ -236,12 +247,45 @@ MainWindow::ObserveInteger(int32 what, int32 val)
 
 
 void
+MainWindow::UpdateListItem(ConversationItem* item)
+{
+	if (fListView->HasItem(item) == true)
+		fListView->InvalidateItem(fListView->IndexOf(item));
+	else
+		fListView->AddItem(item);
+}
+
+
+void
 MainWindow::WorkspaceActivated(int32 workspace, bool active)
 {
 	if (active)
 		fWorkspaceChanged = false;
 	else
 		fWorkspaceChanged = true;
+}
+
+
+ConversationItem*
+MainWindow::_EnsureConversationItem(BMessage* msg)
+{
+	ChatMap chats = fServer->Conversations();
+
+	BString chat_id = msg->FindString("chat_id");
+	Conversation* chat = fServer->ConversationById(chat_id);
+
+	if (chat != NULL) {
+		ConversationItem* item = chat->GetConversationItem();
+		if (fListView->HasItem(item)) {
+			UpdateListItem(item);
+		}
+		else if (item != NULL) {
+			fListView->AddItem(item);
+		}
+		return item;
+	}
+
+	return NULL;
 }
 
 

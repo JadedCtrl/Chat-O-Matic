@@ -13,9 +13,10 @@
 class BCardLayout;
 class BTextControl;
 
+class ConversationItem;
+class ConversationListView;
 class Server;
 class StatusView;
-class RosterListView;
 class RosterItem;
 
 
@@ -37,17 +38,16 @@ public:
 
 			Server*		GetServer() const { return fServer; }
 
-			void		UpdateListItem(RosterItem* item);		
+			void		UpdateListItem(ConversationItem* item);	
 
 			int32		CountItems() const;
 			RosterItem*	ItemAt(int index);
-			void		AddItem(RosterItem*);
-			bool		HasItem(RosterItem*);
-			void		RemoveItem(RosterItem*);
 
 private:
+			ConversationItem*		_EnsureConversationItem(BMessage* msg);
+
+	ConversationListView* fListView;
 	StatusView*			fStatusView;
-	RosterListView*		fListView;
 	Server*				fServer;
 	bool				fWorkspaceChanged;
 };

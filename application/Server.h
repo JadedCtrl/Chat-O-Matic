@@ -19,9 +19,11 @@ class CayaProtocol;
 class RosterItem;
 class ProtocolLooper;
 
+
 typedef KeyMap<BString, Contact*> RosterMap;
 typedef KeyMap<BString, Conversation*> ChatMap;
 typedef KeyMap<bigtime_t, ProtocolLooper*> ProtocolLoopers;
+
 
 class Server: public BMessageFilter {
 public:
@@ -65,4 +67,6 @@ private:
 			Contact*		fMySelf;
 };
 
+
 #endif	// _SERVER_H
+

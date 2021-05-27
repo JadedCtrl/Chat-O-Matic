@@ -17,6 +17,9 @@ const uint32 CAYA_CLOSE_CHAT_WINDOW = 'CYcw';
 //! Chat messages
 const uint32 CAYA_CHAT = 'CYch';
 
+//! Create a new chat
+const uint32 CAYA_NEW_CHAT = 'CYnc';
+
 //! Send replicant's messenger to Caya
 const uint32 CAYA_REPLICANT_MESSENGER = 'RPme';
 

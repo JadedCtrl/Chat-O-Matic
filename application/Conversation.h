@@ -11,11 +11,12 @@
 
 #include <libsupport/KeyMap.h>
 
-#include "Notifier.h"
+#include "Observer.h"
 #include "User.h"
 
 class ChatWindow;
 class Contact;
+class ConversationItem;
 class ProtocolLooper;
 class Server;
 
@@ -49,6 +50,8 @@ public:
 	ProtocolLooper*		GetProtocolLooper() const;
 	void				SetProtocolLooper(ProtocolLooper* looper);
 
+	ConversationItem*	GetConversationItem();
+
 	BString				GetName() const;
 
 	UserMap				Users();
@@ -68,6 +71,7 @@ private:
 	ProtocolLooper*	fLooper;
 	ChatWindow* fChatWindow;
 	bool fNewWindow;
+	ConversationItem* fConversationItem;
 
 	BString fID;
 	BString fName;

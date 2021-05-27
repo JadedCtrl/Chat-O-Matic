@@ -13,6 +13,7 @@
 #include "CayaProtocolMessages.h"
 #include "CayaUtils.h"
 #include "ChatWindow.h"
+#include "ConversationItem.h"
 #include "MainWindow.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
@@ -31,6 +32,7 @@ Conversation::Conversation(BString id, BMessenger msgn)
 	fLooper(NULL),
 	fDateFormatter()
 {
+	fConversationItem = new ConversationItem(fName.String(), this);
 }
 
 
@@ -178,6 +180,13 @@ void
 Conversation::SetProtocolLooper(ProtocolLooper* looper)
 {
 	fLooper = looper;
+}
+
+
+ConversationItem*
+Conversation::GetConversationItem()
+{
+	return fConversationItem;
 }
 
 
