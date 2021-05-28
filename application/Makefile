@@ -37,9 +37,9 @@ SRCS = \
 	application/AccountManager.cpp \
 	application/CayaProtocolAddOn.cpp \
 	application/CayaUtils.cpp \
-	application/ChatWindow.cpp \
 	application/Contact.cpp \
 	application/Conversation.cpp \
+	application/ChatWindow.cpp \
 	application/EditingFilter.cpp \
 	application/ImageCache.cpp \
 	application/Main.cpp \
@@ -65,6 +65,7 @@ SRCS = \
 	application/views/CayaRenderView.cpp \
 	application/views/ConversationItem.cpp \
 	application/views/ConversationListView.cpp \
+	application/views/ConversationView.cpp \
 	application/views/NicknameTextControl.cpp \
 	application/views/ReplicantStatusView.cpp \
 	application/views/ReplicantMenuItem.cpp \
