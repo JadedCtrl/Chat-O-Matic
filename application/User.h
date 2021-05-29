@@ -18,7 +18,6 @@
 
 class BBitmap;
 
-class ChatWindow;
 class Conversation;
 class UserPopUp;
 class ProtocolLooper;

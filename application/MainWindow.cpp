@@ -26,10 +26,10 @@
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
 #include "CayaPreferences.h"
-#include "ChatWindow.h"
 #include "ConversationItem.h"
 #include "ConversationListView.h"
 #include "ConversationView.h"
+#include "EditingFilter.h"
 #include "NotifyMessage.h"
 #include "MainWindow.h"
 #include "PreferencesDialog.h"
@@ -48,9 +48,6 @@ MainWindow::MainWindow()
 	fWorkspaceChanged(false)
 {
 	fStatusView = new StatusView("statusView");
-
-	fChatWindow = new ChatWindow();
-	fChatWindow->Show();
 
 	// Menubar
 	BMenuBar* menuBar = new BMenuBar("MenuBar");
@@ -75,12 +72,31 @@ MainWindow::MainWindow()
 
 	fListView = new ConversationListView("roomList");
 
-	BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
+	fChatView = new ConversationView();
+
+	fSendView = new BTextView("fSendView");
+	fSendScroll = new BScrollView("fSendScroll", fSendView,
+		B_WILL_DRAW, false, true);
+	fSendView->SetWordWrap(true);
+	AddCommonFilter(new EditingFilter(fSendView));
+	fSendView->MakeFocus(true);
+
+	fRightView = new BGroupView("rightView", B_VERTICAL);
+	fRightView->AddChild(fChatView);
+	fRightView->AddChild(fSendScroll);
+
+
+	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.Add(menuBar)
-		.Add(fListView)
-		.AddGroup(B_VERTICAL)
+
+		.AddGroup(B_HORIZONTAL)
 			.SetInsets(5, 5, 5, 10)
-			.Add(fStatusView)
+			.AddGroup(B_VERTICAL)
+				.Add(fListView)
+				.Add(fStatusView)
+			.End()
+
+			.Add(fRightView)
 		.End()
 	.End();
 
@@ -175,6 +191,15 @@ MainWindow::MessageReceived(BMessage* message)
 			break;
 		}
 
+		case CAYA_CHAT:
+		{
+			message->AddString("body", fSendView->Text());
+			fChatView->MessageReceived(message);
+			fSendView->SetText("");
+
+			break;
+		}
+
 		case IM_MESSAGE:
 			ImMessage(message);
 			break;
@@ -232,7 +257,6 @@ MainWindow::ImMessage(BMessage* msg)
 		case IM_MESSAGE_RECEIVED:
 		{
 			_EnsureConversationItem(msg);
-//			fChatWindow->PostMessage(msg);
 			break;
 		}
 		case IM_MESSAGE_SENT:
@@ -242,6 +266,20 @@ MainWindow::ImMessage(BMessage* msg)
 			break;
 		}
 	}
+}
+
+
+void
+MainWindow::SetConversation(Conversation* chat)
+{
+	BView* current = fRightView->FindView("chatView");
+	fRightView->RemoveChild(fRightView->FindView("chatView"));
+	fRightView->RemoveChild(fRightView->FindView("fSendScroll"));
+
+	fChatView = chat->GetView();
+
+	fRightView->AddChild(fChatView);
+	fRightView->AddChild(fSendScroll);
 }
 
 

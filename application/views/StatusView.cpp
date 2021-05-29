@@ -9,8 +9,7 @@
 #include "StatusView.h"
 
 #include <Bitmap.h>
-#include <GroupLayout.h>
-#include <GroupLayoutBuilder.h>
+#include <LayoutBuilder.h>
 #include <Message.h>
 #include <MenuField.h>
 #include <MenuItem.h>
@@ -75,8 +74,7 @@ StatusView::StatusView(const char* name)
 	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
 
 	// Set layout
-	SetLayout(new BGroupLayout(B_VERTICAL));
-	AddChild(BGroupLayoutBuilder(B_HORIZONTAL, 5)
+	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
 		.AddGroup(B_VERTICAL)
 			.Add(statusField)
 			.AddGroup(B_HORIZONTAL)
@@ -85,8 +83,7 @@ StatusView::StatusView(const char* name)
 			.End()
 		.End()
 		.Add(fAvatar)
-//		.TopView()
-	);
+	.End();
 }
 
 

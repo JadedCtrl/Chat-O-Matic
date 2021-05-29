@@ -13,7 +13,6 @@
 #include "CayaProtocolMessages.h"
 #include "CayaRenderView.h"
 #include "CayaUtils.h"
-#include "ChatWindow.h"
 #include "ConversationItem.h"
 #include "ConversationView.h"
 #include "MainWindow.h"
@@ -97,8 +96,7 @@ Conversation::ObserveInteger(int32 what, int32 val)
 void
 Conversation::ShowView(bool typing, bool userAction)
 {
-	((TheApp*)be_app)->GetMainWindow()->GetChatWindow()->SetConversation(this);
-	((TheApp*)be_app)->GetMainWindow()->GetChatWindow()->ShowWindow();
+	((TheApp*)be_app)->GetMainWindow()->SetConversation(this);
 }
 
 

@@ -25,7 +25,6 @@
 #include "CayaProtocol.h"
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
-#include "ChatWindow.h"
 #include "ImageCache.h"
 #include "ProtocolManager.h"
 #include "RosterItem.h"

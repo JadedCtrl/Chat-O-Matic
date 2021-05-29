@@ -10,13 +10,14 @@
 
 #include "Observer.h"
 
-class BCardLayout;
+class BGroupView;
 class BTextControl;
+class BTextView;
 
+class Conversation;
 class ConversationItem;
 class ConversationListView;
 class ConversationView;
-class ChatWindow;
 class Server;
 class StatusView;
 class RosterItem;
@@ -38,7 +39,7 @@ public:
 
 			void		ObserveInteger(int32 what, int32 val);
 
-			ChatWindow*	GetChatWindow() { return fChatWindow; }
+			void		SetConversation(Conversation* chat);
 			Server*		GetServer() const { return fServer; }
 
 			void		UpdateListItem(ConversationItem* item);	
@@ -49,11 +50,19 @@ public:
 private:
 			ConversationItem*		_EnsureConversationItem(BMessage* msg);
 
-	ChatWindow* fChatWindow;
-	ConversationListView* fListView;
-	StatusView*			fStatusView;
 	Server*				fServer;
 	bool				fWorkspaceChanged;
+
+	// Left panel, chat list
+	ConversationListView* fListView;
+	StatusView*			fStatusView;
+
+	// Right panel, chat
+	BGroupView*			fRightView;
+	BScrollView*		fSendScroll;
+	BTextView*			fSendView;
+	ConversationView*	fChatView;
+
 };
 
 #endif	// _MAIN_WINDOW_H
