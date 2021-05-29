@@ -5,32 +5,33 @@
 #ifndef _CHAT_VIEW_H
 #define _CHAT_VIEW_H
 
-#include <Window.h>
-#include <TextView.h>
-#include <StringView.h>
 #include <GroupView.h>
-#include <Notification.h>
-#include "Observer.h"
+#include <ObjectList.h>
+#include <StringView.h>
+#include <TextView.h>
 
 #include "CayaConstants.h"
 
+class BMessageQueue;
+
 class BitmapView;
-class Conversation;
 class CayaRenderView;
 class Contact;
+class Conversation;
 
 
 class ConversationView : public BGroupView {
 public:
+						ConversationView();
 						ConversationView(Conversation* chat);
 
-//	virtual void		ShowWindow();
-
 	virtual	void		MessageReceived(BMessage* message);
-//			void		WindowActivated(bool active);
 	virtual	bool		QuitRequested();
 
 			Conversation* GetConversation();
+			void		SetConversation(Conversation* chat);
+
+			void		AttachedToWindow();
 
 			void		UpdateAvatar();
 			void		UpdatePersonalMessage();
@@ -39,9 +40,11 @@ public:
 			void		ObserveString(int32 what, BString str);
 			void		ObservePointer(int32 what, void* ptr);
 			void		ObserveInteger(int32 what, int32 val);
+
 			void		AppendStatus(CayaStatus status);
 
 			void		AvoidFocus(bool avoid);
+
 private:
 		Conversation*	fConversation;
 		Contact*		fContact;
@@ -51,7 +54,7 @@ private:
 		BitmapView*		fProtocolView;
 		BitmapView*		fAvatar;
 		int32			fMessageCount;
-
+		BObjectList<BMessage>	fMessageQueue;
 };
 
 

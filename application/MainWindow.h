@@ -15,6 +15,8 @@ class BTextControl;
 
 class ConversationItem;
 class ConversationListView;
+class ConversationView;
+class ChatWindow;
 class Server;
 class StatusView;
 class RosterItem;
@@ -36,6 +38,7 @@ public:
 
 			void		ObserveInteger(int32 what, int32 val);
 
+			ChatWindow*	GetChatWindow() { return fChatWindow; }
 			Server*		GetServer() const { return fServer; }
 
 			void		UpdateListItem(ConversationItem* item);	
@@ -46,6 +49,7 @@ public:
 private:
 			ConversationItem*		_EnsureConversationItem(BMessage* msg);
 
+	ChatWindow* fChatWindow;
 	ConversationListView* fListView;
 	StatusView*			fStatusView;
 	Server*				fServer;

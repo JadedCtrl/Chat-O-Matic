@@ -26,8 +26,10 @@
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
 #include "CayaPreferences.h"
+#include "ChatWindow.h"
 #include "ConversationItem.h"
 #include "ConversationListView.h"
+#include "ConversationView.h"
 #include "NotifyMessage.h"
 #include "MainWindow.h"
 #include "PreferencesDialog.h"
@@ -46,6 +48,9 @@ MainWindow::MainWindow()
 	fWorkspaceChanged(false)
 {
 	fStatusView = new StatusView("statusView");
+
+	fChatWindow = new ChatWindow();
+	fChatWindow->Show();
 
 	// Menubar
 	BMenuBar* menuBar = new BMenuBar("MenuBar");
@@ -225,6 +230,11 @@ MainWindow::ImMessage(BMessage* msg)
 			break;
 		}
 		case IM_MESSAGE_RECEIVED:
+		{
+			_EnsureConversationItem(msg);
+//			fChatWindow->PostMessage(msg);
+			break;
+		}
 		case IM_MESSAGE_SENT:
 		case IM_CHAT_CREATED:
 		{

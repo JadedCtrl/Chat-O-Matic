@@ -8,43 +8,26 @@
 
 #include "ConversationView.h"
 
-#include <Alert.h>
-#include <Application.h>
-#include <Box.h>
-#include <Button.h>
-#include <CheckBox.h>
-#include <GridLayout.h>
-#include <GridLayoutBuilder.h>
-#include <GroupLayout.h>
-#include <GroupLayoutBuilder.h>
-#include <Layout.h>
 #include <LayoutBuilder.h>
-#include <ListView.h>
-#include <Message.h>
-#include <SpaceLayoutItem.h>
-#include <ScrollView.h>
-#include <String.h>
-#include <StringList.h>
 #include <Notification.h>
+#include <ScrollView.h>
+#include <StringList.h>
 
 #include <libinterface/BitmapView.h>
 
-#include "CayaConstants.h"
 #include "CayaMessages.h"
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
 #include "CayaRenderView.h"
 #include "Contact.h"
 #include "Conversation.h"
-#include "EditingFilter.h"
 #include "NotifyMessage.h"
 
 
-ConversationView::ConversationView(Conversation* chat)
+ConversationView::ConversationView()
 	:
 	BGroupView("chatView", B_VERTICAL, B_USE_DEFAULT_SPACING),
-	fConversation(chat),
-	fContact(chat->Users().ValueAt(0))
+	fMessageQueue()
 {
 	fMessageCount = 0;
 	
@@ -85,6 +68,13 @@ ConversationView::ConversationView(Conversation* chat)
 }
 
 
+ConversationView::ConversationView(Conversation* chat)
+	: ConversationView()
+{
+	SetConversation(chat);
+}
+
+
 bool
 ConversationView::QuitRequested()
 {
@@ -99,6 +89,15 @@ Conversation*
 ConversationView::GetConversation()
 {
 	return fConversation;
+}
+
+
+void
+ConversationView::SetConversation(Conversation* chat)
+{
+	fConversation =  chat;
+	fContact = chat->Users().ValueAt(0);
+	fPersonalMessage->SetText(chat->GetName());
 }
 
 
@@ -149,6 +148,16 @@ ConversationView::MessageReceived(BMessage* message)
 
 
 void
+ConversationView::AttachedToWindow()
+{
+	while (fMessageQueue.IsEmpty() == false) {
+		BMessage* msg = fMessageQueue.RemoveItemAt(0);
+		ImMessage(msg);
+	}
+}
+
+
+void
 ConversationView::ImMessage(BMessage* msg)
 {
 	int32 im_what = msg->FindInt32("im_what");
@@ -161,34 +170,47 @@ ConversationView::ImMessage(BMessage* msg)
 			User* sender = fConversation->UserById(id);
 			BString uname = sender->GetName();
 
+			// Send a notification, if it's appropriate
+			if ((Window() == NULL || Window()->IsActive() == false)
+				&& (!CayaPreferences::Item()->NotifyNewMessage))
+			{
+				fMessageCount++;
+				BString notify_message;
+				notify_message << "You've got ";
+				notify_message << fMessageCount;
+				if (fMessageCount==1)
+					notify_message << " new message from ";
+				else
+					notify_message << " new messages from ";
+				notify_message << uname;
+
+				BNotification notification(B_INFORMATION_NOTIFICATION);
+				notification.SetGroup(BString("Caya"));
+				notification.SetTitle(BString("New message"));
+				notification.SetIcon(sender->AvatarBitmap());
+				notification.SetContent(notify_message);
+				notification.SetMessageID(uname);
+				notification.Send();
+				// Check if the user want the notification
+				if (!CayaPreferences::Item()->NotifyNewMessage)
+					break;
+			}
+
+			// If not attached to the chat window, then re-handle this message
+			// later [AttachedToWindow()], since that's required to append to
+			// fReceiveview.
+			if (Window() == NULL) {
+				fMessageQueue.AddItem(new BMessage(*msg));
+				return;
+			}
+
+			// Now we're free to append!
+			Window()->LockLooper();
 			fReceiveView->AppendOtherMessage(uname.String(), message.String());
+			Window()->UnlockLooper();
 
 			// Message received, clear status anyway
 			fStatus->SetText("");
-			
-			fMessageCount++;
-			
-			// Check if the user want the notification
-			if (!CayaPreferences::Item()->NotifyNewMessage)
-				break;
-
-			BString notify_message;
-			notify_message << "You've got ";
-			notify_message << fMessageCount;
-			if (fMessageCount==1) {
-				notify_message << " new message from ";
-			} else {
-				notify_message << " new messages from ";
-			};
-			notify_message << uname;
-
-			BNotification notification(B_INFORMATION_NOTIFICATION);
-			notification.SetGroup(BString("Caya"));
-			notification.SetTitle(BString("New message"));
-			notification.SetIcon(sender->AvatarBitmap());
-			notification.SetContent(notify_message);
-			notification.SetMessageID(uname);
-			notification.Send();
 			
 			break;
 		}

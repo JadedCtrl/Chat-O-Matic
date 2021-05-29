@@ -5,15 +5,16 @@
 #ifndef _CHAT_WINDOW_H
 #define _CHAT_WINDOW_H
 
-#include <Window.h>
-#include <TextView.h>
-#include <StringView.h>
 #include <Notification.h>
-#include "Observer.h"
+#include <StringView.h>
+#include <TextView.h>
+#include <Window.h>
 
 #include "CayaConstants.h"
+#include "Observer.h"
 
 class BitmapView;
+class BScrollVie;
 class Conversation;
 class ConversationView;
 class CayaRenderView;
@@ -22,7 +23,9 @@ class Contact;
 
 class ChatWindow : public BWindow, public Observer {
 public:
+						ChatWindow();
 						ChatWindow(Conversation* cl);
+			void		SetConversation(Conversation* chat);
 
 	virtual void		ShowWindow();
 
@@ -37,6 +40,7 @@ public:
 
 			void		AvoidFocus(bool avoid);
 private:
+		BScrollView*	fSendScroll;
 		BTextView*		fSendView;
 		ConversationView*	fChatView;
 };

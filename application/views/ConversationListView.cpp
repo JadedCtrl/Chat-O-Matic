@@ -34,7 +34,7 @@ ConversationListView::MessageReceived(BMessage* msg)
 			int32 selIndex = CurrentSelection();
 
 			if ((item = (ConversationItem*)ItemAt(selIndex)) != NULL)
-				item->GetConversation()->ShowWindow(false, true);
+				item->GetConversation()->ShowView(false, true);
 			break;
 		}
 

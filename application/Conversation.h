@@ -17,6 +17,7 @@
 class ChatWindow;
 class Contact;
 class ConversationItem;
+class ConversationView;
 class ProtocolLooper;
 class Server;
 
@@ -38,11 +39,9 @@ public:
 	void				ObserveInteger(int32 what, int32 value);
 	void				ObservePointer(int32 what, void* ptr);
 
-	ChatWindow*			GetChatWindow();
-	void 				DeleteWindow();
+	ConversationView*	GetView();
 
-	void				ShowWindow(bool typing = false, bool userAction = false);
-	void				HideWindow();
+	void				ShowView(bool typing, bool userAction);
 
 	BMessenger			Messenger() const;
 	void				SetMessenger(BMessenger messenger);
@@ -63,14 +62,12 @@ private:
 	BStringList			_GetChatLogs();
 	void				_EnsureLogPath();
 
-	void				_CreateChatWindow();
 	Contact*			_EnsureUser(BMessage* msg);
 	Server*				_GetServer();
 
 	BMessenger	fMessenger;
 	ProtocolLooper*	fLooper;
-	ChatWindow* fChatWindow;
-	bool fNewWindow;
+	ConversationView* fChatView;
 	ConversationItem* fConversationItem;
 
 	BString fID;

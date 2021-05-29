@@ -40,15 +40,14 @@
 #include "CayaRenderView.h"
 #include "NotifyMessage.h"
 
-
-ChatWindow::ChatWindow(Conversation* cl)
+ChatWindow::ChatWindow()
 	:
 	BWindow(BRect(200, 200, 500, 500), "Chat", B_TITLED_WINDOW, 0)
 {
-	fChatView = new ConversationView(cl);
+	fChatView = new ConversationView();
 
-	fSendView = new BTextView("fReceiveView");
-	BScrollView* scrollViewSend = new BScrollView("scrollviewS", fSendView,
+	fSendView = new BTextView("fSendView");
+	fSendScroll = new BScrollView("fSendScroll", fSendView,
 		B_WILL_DRAW, false, true);
 	fSendView->SetWordWrap(true);
 
@@ -57,8 +56,31 @@ ChatWindow::ChatWindow(Conversation* cl)
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.Add(fChatView)
-		.Add(scrollViewSend)
+		.Add(fSendScroll)
 	.End();
+}
+
+
+ChatWindow::ChatWindow(Conversation* cl)
+	:
+	ChatWindow()
+{
+	fChatView = new ConversationView(cl);
+	SetConversation(cl);
+}
+
+
+void
+ChatWindow::SetConversation(Conversation* chat)
+{
+	BView* current = FindView("chatView");
+	RemoveChild(FindView("chatView"));
+	RemoveChild(FindView("fSendScroll"));
+
+	fChatView = chat->GetView();
+
+	AddChild(fChatView);
+	AddChild(fSendScroll);
 }
 
 

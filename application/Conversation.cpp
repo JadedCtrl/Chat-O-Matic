@@ -11,9 +11,11 @@
 
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
+#include "CayaRenderView.h"
 #include "CayaUtils.h"
 #include "ChatWindow.h"
 #include "ConversationItem.h"
+#include "ConversationView.h"
 #include "MainWindow.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
@@ -27,8 +29,7 @@ Conversation::Conversation(BString id, BMessenger msgn)
 	fID(id),
 	fName(id),
 	fMessenger(msgn),
-	fChatWindow(NULL),
-	fNewWindow(true),
+	fChatView(NULL),
 	fLooper(NULL),
 	fDateFormatter()
 {
@@ -53,11 +54,8 @@ Conversation::ImMessage(BMessage* msg)
 		case IM_MESSAGE_RECEIVED:
 		{
 			_EnsureUser(msg);
-
 			_LogChatMessage(msg);
-			ChatWindow* win = GetChatWindow();
-			ShowWindow();
-			win->PostMessage(msg);
+			GetView()->MessageReceived(msg);
 			break;
 		}
 		case IM_SEND_MESSAGE:
@@ -67,7 +65,7 @@ Conversation::ImMessage(BMessage* msg)
 			break;
 		}
 		default:
-			GetChatWindow()->PostMessage(msg);
+			GetView()->MessageReceived(msg);
 	}
 }
 
@@ -75,83 +73,32 @@ Conversation::ImMessage(BMessage* msg)
 void
 Conversation::ObserveString(int32 what, BString str)
 {
-	if (fChatWindow != NULL)
-		fChatWindow->ObserveString(what, str);
+	if (fChatView != NULL)
+		fChatView->ObserveString(what, str);
 }
 
 
 void
 Conversation::ObservePointer(int32 what, void* ptr)
 {
-	if (fChatWindow != NULL)
-		fChatWindow->ObservePointer(what, ptr);
+	if (fChatView != NULL)
+		fChatView->ObservePointer(what, ptr);
 }
 
 
 void
 Conversation::ObserveInteger(int32 what, int32 val)
 {
-	if (fChatWindow != NULL)
-		fChatWindow->ObserveInteger(what, val);
-}
-
-
-ChatWindow*
-Conversation::GetChatWindow()
-{
-	if (fChatWindow == NULL)
-		_CreateChatWindow();
-	return fChatWindow;
+	if (fChatView != NULL)
+		fChatView->ObserveInteger(what, val);
 }
 
 
 void
-Conversation::DeleteWindow()
+Conversation::ShowView(bool typing, bool userAction)
 {
-	if (fChatWindow != NULL) {
-		if (fChatWindow->Lock()) {
-			fChatWindow->Quit();
-			fChatWindow = NULL;
-			fNewWindow = true;
-		}
-	}
-}
-
-
-void
-Conversation::ShowWindow(bool typing, bool userAction)
-{
-	if (fChatWindow == NULL)
-		_CreateChatWindow();
-
-	fChatWindow->AvoidFocus(true);
-
-	if (CayaPreferences::Item()->MoveToCurrentWorkspace)
-		fChatWindow->SetWorkspaces(B_CURRENT_WORKSPACE);
-
-	if (fNewWindow || userAction) {
-		fChatWindow->AvoidFocus(false);
-		fChatWindow->ShowWindow();
-		fNewWindow = false;
-	} else {
-		if (typing) {
-			if (CayaPreferences::Item()->RaiseUserIsTyping)
-				fChatWindow->ShowWindow();
-		} else {
-			if (CayaPreferences::Item()->RaiseOnMessageReceived
-			|| fChatWindow->IsHidden())
-				fChatWindow->ShowWindow();
-		}
-	}
-	fChatWindow->AvoidFocus(false);
-}
-
-
-void
-Conversation::HideWindow()
-{
-	if ((fChatWindow != NULL) && !fChatWindow->IsHidden())
-		fChatWindow->Hide();
+	((TheApp*)be_app)->GetMainWindow()->GetChatWindow()->SetConversation(this);
+	((TheApp*)be_app)->GetMainWindow()->GetChatWindow()->ShowWindow();
 }
 
 
@@ -221,20 +168,12 @@ Conversation::AddUser(User* user)
 }
 
 
-void
-Conversation::_CreateChatWindow()
+ConversationView*
+Conversation::GetView()
 {
-	fChatWindow = new ChatWindow(this);
-	WindowsManager::Get()->RelocateWindow(fChatWindow);
-
-	if (fLooper->Protocol()->SaveLogs() == false)
-		return;
-
-	BStringList logs = _GetChatLogs();
-	BMessage logMsg(IM_MESSAGE);
-	logMsg.AddInt32("im_what", IM_LOGS_RECEIVED);
-	logMsg.AddStrings("log", logs);
-	fChatWindow->ImMessage(&logMsg);
+	if (fChatView == NULL)
+		fChatView = new ConversationView(this);
+	return fChatView;
 }
 
 

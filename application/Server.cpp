@@ -51,8 +51,8 @@ Server::Quit()
 	}
 
 	while (conversation = fChatMap.ValueAt(0)) {
-		conversation->DeleteWindow();
 		fChatMap.RemoveItemAt(0);
+		delete conversation;
 	}
 }
 
@@ -132,9 +132,6 @@ Server::Filter(BMessage* message, BHandler **target)
 			if (id.Length() > 0) {
 				bool found = false;
 				Conversation* item = fChatMap.ValueFor(id, &found);
-
-				if (found)
-					item->HideWindow();
 			}
 			result = B_SKIP_MESSAGE;
 			break;
@@ -268,7 +265,7 @@ Server::ImMessage(BMessage* msg)
 			BString statusMsg;
 			if (msg->FindString("message", &statusMsg) == B_OK) {
 				contact->SetNotifyPersonalStatus(statusMsg);
-//				contact->GetChatWindow()->UpdatePersonalMessage();
+//				contact->GetView()->UpdatePersonalMessage();
 			}
 			break;
 		}
@@ -338,7 +335,7 @@ Server::ImMessage(BMessage* msg)
 
 			if (chat != NULL && user != NULL) {
 				chat->AddUser(user);
-				chat->ShowWindow(false, true);
+				chat->ShowView(false, true);
 			}
 
 			break;
