@@ -18,6 +18,7 @@ class ConversationItem;
 class ConversationListView;
 class ConversationView;
 class RosterItem;
+class RosterWindow;
 class Server;
 class StatusView;
 
@@ -51,6 +52,7 @@ private:
 			void		_UpdateListItem(ConversationItem* item);	
 
 	Server*				fServer;
+	RosterWindow*		fRosterWindow;
 	bool				fWorkspaceChanged;
 
 	// Left panel, chat list

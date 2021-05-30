@@ -110,6 +110,10 @@ RosterWindow::MessageReceived(BMessage* message)
 			break;
 		}
 
+		case IM_MESSAGE:
+			ImMessage(message);
+			break;
+
 		default:
 			BWindow::MessageReceived(message);
 	}

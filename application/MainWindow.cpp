@@ -38,7 +38,8 @@ const uint32 kLogin			= 'LOGI';
 MainWindow::MainWindow()
 	:
 	BWindow(BRect(0, 0, 300, 400), "Caya", B_TITLED_WINDOW, 0),
-	fWorkspaceChanged(false)
+	fWorkspaceChanged(false),
+	fRosterWindow(NULL)
 {
 	_InitInterface();
 
@@ -103,9 +104,9 @@ MainWindow::MessageReceived(BMessage* message)
 
 		case CAYA_NEW_CHAT:
 		{
-			RosterWindow* roster = new RosterWindow("Invite contact to chat"
+			fRosterWindow = new RosterWindow("Invite contact to chat"
 			B_UTF8_ELLIPSIS, IM_CREATE_CHAT, new BMessenger(this), fServer);
-			roster->Show();
+			fRosterWindow->Show();
 			break;
 		}
 
@@ -189,6 +190,15 @@ MainWindow::ImMessage(BMessage* msg)
 		case IM_CHAT_CREATED:
 		{
 			_EnsureConversationItem(msg);
+			break;
+		}
+		case IM_AVATAR_SET:
+		case IM_CONTACT_INFO:
+		case IM_EXTENDED_CONTACT_INFO:
+		case IM_STATUS_SET:
+		{
+			if (fRosterWindow != NULL)
+				fRosterWindow->PostMessage(msg);
 			break;
 		}
 	}
@@ -310,7 +320,7 @@ MainWindow::_CreateMenuBar()
 
 	BMenu* chatMenu = new BMenu("Chat");
 	chatMenu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_NEW_CHAT)));
+		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY));
 	chatMenu->SetTargetForItems(this);
 
 	menuBar->AddItem(programMenu);
