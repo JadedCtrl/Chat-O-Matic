@@ -37,9 +37,6 @@ StatusView::StatusView(const char* name)
 	fNickname = new NicknameTextControl("Nickname",
 		new BMessage(kSetNickname));
 
-	BStringView* nicknameLabel = new BStringView("Nickname",
-		"Nickname:", B_WILL_DRAW);
-
 	// Status menu
 	fStatusMenu = new BPopUpMenu("-");
 
@@ -78,11 +75,10 @@ StatusView::StatusView(const char* name)
 		.AddGroup(B_VERTICAL)
 			.Add(statusField)
 			.AddGroup(B_HORIZONTAL)
-				.Add(nicknameLabel)
 				.Add(fNickname)
+				.Add(fAvatar)
 			.End()
 		.End()
-		.Add(fAvatar)
 	.End();
 }
 

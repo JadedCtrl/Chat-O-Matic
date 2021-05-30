@@ -41,15 +41,12 @@ ConversationView::ConversationView()
 		BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 
 	fPersonalMessage->SetText("");
-	fPersonalMessage->SetExplicitMaxSize(BSize(400, 200));
 	fPersonalMessage->MakeEditable(false);
 	fPersonalMessage->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 
 	fStatus = new BStringView("status", "");
-	fStatus->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 
 	fAvatar = new BitmapView("ContactIcon");
-	fAvatar->SetExplicitMaxSize(BSize(50, 50));
 	fAvatar->SetExplicitMinSize(BSize(50, 50));
 	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
 	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
@@ -62,9 +59,8 @@ ConversationView::ConversationView()
 			.Add(fPersonalMessage)
 			.Add(fAvatar)
 		.End()
-		.Add(scrollViewReceive, 3)
-		.Add(fStatus, 4)
-		.SetInsets(5, 5, 5, 5);
+		.Add(scrollViewReceive, 3);
+//		.Add(fStatus, 4)
 }
 
 

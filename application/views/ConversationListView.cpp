@@ -19,7 +19,7 @@ const uint32 kLeaveSelectedChat = 'CVcs';
 
 
 ConversationListView::ConversationListView(const char* name)
-	: BOutlineListView(name)
+	: BListView(name)
 {
 }
 
@@ -39,7 +39,7 @@ ConversationListView::MessageReceived(BMessage* msg)
 		}
 
 		default:
-			BOutlineListView::MessageReceived(msg);
+			BListView::MessageReceived(msg);
 	}
 }
 
@@ -69,7 +69,8 @@ BPopUpMenu*
 ConversationListView::_ConversationPopUp()
 {
 	BPopUpMenu* menu = new BPopUpMenu("chatPopUp");
-	menu->AddItem(new BMenuItem("Open chat…", new BMessage(kOpenSelectedChat)));
+	menu->AddItem(new BMenuItem("Open chat" B_UTF8_ELLIPSIS,
+		new BMessage(kOpenSelectedChat)));
 	menu->AddItem(new BMenuItem("Leave chat", new BMessage(kLeaveSelectedChat)));
 	menu->SetTargetForItems(this);
 

@@ -10,7 +10,7 @@
 class BPopUpMenu;
 
 
-class ConversationListView : public BOutlineListView {
+class ConversationListView : public BListView {
 public:
 	ConversationListView(const char* name);
 

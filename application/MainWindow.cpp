@@ -12,26 +12,19 @@
 #include <Alert.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
-#include <MenuItem.h>
-#include <Notification.h>
 #include <ScrollView.h>
-#include <StringView.h>
-#include <TextControl.h>
 #include <TranslationUtils.h>
 
-#include <libinterface/BitmapUtils.h>
-
 #include "AccountManager.h"
-#include "CayaConstants.h"
 #include "CayaMessages.h"
-#include "CayaProtocolMessages.h"
 #include "CayaPreferences.h"
+#include "CayaProtocolMessages.h"
 #include "ConversationItem.h"
 #include "ConversationListView.h"
 #include "ConversationView.h"
 #include "EditingFilter.h"
-#include "NotifyMessage.h"
 #include "MainWindow.h"
+#include "NotifyMessage.h"
 #include "PreferencesDialog.h"
 #include "ReplicantStatusView.h"
 #include "RosterWindow.h"
@@ -47,62 +40,15 @@ MainWindow::MainWindow()
 	BWindow(BRect(0, 0, 300, 400), "Caya", B_TITLED_WINDOW, 0),
 	fWorkspaceChanged(false)
 {
-	fStatusView = new StatusView("statusView");
-
-	// Menubar
-	BMenuBar* menuBar = new BMenuBar("MenuBar");
-
-	BMenu* programMenu = new BMenu("Program");
-	programMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
-		new BMessage(B_ABOUT_REQUESTED)));
-	programMenu->AddItem(new BMenuItem("Preferences" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_SHOW_SETTINGS), ',', B_COMMAND_KEY));
-	programMenu->AddItem(new BSeparatorItem());
-	programMenu->AddItem(new BMenuItem("Quit",
-		new BMessage(B_QUIT_REQUESTED), 'Q', B_COMMAND_KEY));
-	programMenu->SetTargetForItems(this);
-
-	BMenu* chatMenu = new BMenu("Chat");
-	chatMenu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_NEW_CHAT)));
-	chatMenu->SetTargetForItems(this);
-
-	menuBar->AddItem(programMenu);
-	menuBar->AddItem(chatMenu);
-
-	fListView = new ConversationListView("roomList");
-
-	fChatView = new ConversationView();
-
-	fSendView = new BTextView("fSendView");
-	fSendScroll = new BScrollView("fSendScroll", fSendView,
-		B_WILL_DRAW, false, true);
-	fSendView->SetWordWrap(true);
-	AddCommonFilter(new EditingFilter(fSendView));
-	fSendView->MakeFocus(true);
-
-	fRightView = new BGroupView("rightView", B_VERTICAL);
-	fRightView->AddChild(fChatView);
-	fRightView->AddChild(fSendScroll);
-
-
-	BLayoutBuilder::Group<>(this, B_VERTICAL)
-		.Add(menuBar)
-
-		.AddGroup(B_HORIZONTAL)
-			.SetInsets(5, 5, 5, 10)
-			.AddGroup(B_VERTICAL)
-				.Add(fListView)
-				.Add(fStatusView)
-			.End()
-
-			.Add(fRightView)
-		.End()
-	.End();
+	_InitInterface();
 
 	// Filter messages using Server
 	fServer = new Server();
 	AddFilter(fServer);
+
+	// Also through the editing filter (enter to send)
+	AddCommonFilter(new EditingFilter(fSendView));
+	fSendView->MakeFocus(true);
 
 	CenterOnScreen();
 
@@ -217,26 +163,6 @@ MainWindow::MessageReceived(BMessage* message)
 
 
 void
-MainWindow::ImError(BMessage* msg)
-{
-	const char* error = NULL;
-	const char* detail = msg->FindString("detail");
-
-	if (msg->FindString("error", &error) != B_OK)
-		return;
-
-	// Format error message
-	BString errMsg(error);
-	if (detail)
-		errMsg << "\n" << detail;
-
-	BAlert* alert = new BAlert("Error", errMsg.String(), "OK", NULL, NULL,
-		B_WIDTH_AS_USUAL, B_STOP_ALERT);
-	alert->Go();
-}
-
-
-void
 MainWindow::ImMessage(BMessage* msg)
 {
 	int32 im_what = msg->FindInt32("im_what");
@@ -270,16 +196,22 @@ MainWindow::ImMessage(BMessage* msg)
 
 
 void
-MainWindow::SetConversation(Conversation* chat)
+MainWindow::ImError(BMessage* msg)
 {
-	BView* current = fRightView->FindView("chatView");
-	fRightView->RemoveChild(fRightView->FindView("chatView"));
-	fRightView->RemoveChild(fRightView->FindView("fSendScroll"));
+	const char* error = NULL;
+	const char* detail = msg->FindString("detail");
 
-	fChatView = chat->GetView();
+	if (msg->FindString("error", &error) != B_OK)
+		return;
 
-	fRightView->AddChild(fChatView);
-	fRightView->AddChild(fSendScroll);
+	// Format error message
+	BString errMsg(error);
+	if (detail)
+		errMsg << "\n" << detail;
+
+	BAlert* alert = new BAlert("Error", errMsg.String(), "OK", NULL, NULL,
+		B_WIDTH_AS_USUAL, B_STOP_ALERT);
+	alert->Go();
 }
 
 
@@ -295,22 +227,85 @@ MainWindow::ObserveInteger(int32 what, int32 val)
 
 
 void
-MainWindow::UpdateListItem(ConversationItem* item)
-{
-	if (fListView->HasItem(item) == true)
-		fListView->InvalidateItem(fListView->IndexOf(item));
-	else
-		fListView->AddItem(item);
-}
-
-
-void
 MainWindow::WorkspaceActivated(int32 workspace, bool active)
 {
 	if (active)
 		fWorkspaceChanged = false;
 	else
 		fWorkspaceChanged = true;
+}
+
+
+void
+MainWindow::SetConversation(Conversation* chat)
+{
+	fRightView->RemoveChild(fRightView->FindView("chatView"));
+	fRightView->RemoveChild(fRightView->FindView("fSendScroll"));
+
+	if (chat != NULL)
+		fChatView = chat->GetView();
+
+	fRightView->AddChild(fChatView, 9);
+	fRightView->AddChild(fSendScroll, 1);
+}
+
+
+void
+MainWindow::_InitInterface()
+{
+	// Left side of window, Roomlist + Status
+	fListView = new ConversationListView("roomList");
+	fStatusView = new StatusView("statusView");
+
+	// Right-side of window, Chat + Textbox
+	fRightView = new BSplitView(B_VERTICAL, 0);
+	fChatView = new ConversationView();
+	fSendView = new BTextView("fSendView");
+	fSendScroll = new BScrollView("fSendScroll", fSendView,
+		B_WILL_DRAW, false, true);
+	fSendView->SetWordWrap(true);
+
+	BLayoutBuilder::Group<>(this, B_VERTICAL)
+		.Add(_CreateMenuBar())
+		.AddGroup(B_HORIZONTAL)
+			.SetInsets(5, 5, 0, 10)
+			.AddSplit(B_HORIZONTAL, 0)
+				.AddGroup(B_VERTICAL)
+					.Add(fListView, 1)
+					.Add(fStatusView)
+				.End()
+				.Add(fRightView, 5)
+			.End()
+		.End()
+	.End();
+
+	SetConversation(NULL);
+}
+
+
+BMenuBar*
+MainWindow::_CreateMenuBar()
+{
+	BMenuBar* menuBar = new BMenuBar("MenuBar");
+
+	BMenu* programMenu = new BMenu("Program");
+	programMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
+		new BMessage(B_ABOUT_REQUESTED)));
+	programMenu->AddItem(new BMenuItem("Preferences" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_SHOW_SETTINGS), ',', B_COMMAND_KEY));
+	programMenu->AddItem(new BSeparatorItem());
+	programMenu->AddItem(new BMenuItem("Quit",
+		new BMessage(B_QUIT_REQUESTED), 'Q', B_COMMAND_KEY));
+	programMenu->SetTargetForItems(this);
+
+	BMenu* chatMenu = new BMenu("Chat");
+	chatMenu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_NEW_CHAT)));
+	chatMenu->SetTargetForItems(this);
+
+	menuBar->AddItem(programMenu);
+	menuBar->AddItem(chatMenu);
+	return menuBar;
 }
 
 
@@ -325,7 +320,7 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 	if (chat != NULL) {
 		ConversationItem* item = chat->GetConversationItem();
 		if (fListView->HasItem(item)) {
-			UpdateListItem(item);
+			_UpdateListItem(item);
 		}
 		else if (item != NULL) {
 			fListView->AddItem(item);
@@ -334,6 +329,16 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 	}
 
 	return NULL;
+}
+
+
+void
+MainWindow::_UpdateListItem(ConversationItem* item)
+{
+	if (fListView->HasItem(item) == true)
+		fListView->InvalidateItem(fListView->IndexOf(item));
+	else
+		fListView->AddItem(item);
 }
 
 
