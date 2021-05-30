@@ -239,6 +239,10 @@ MainWindow::WorkspaceActivated(int32 workspace, bool active)
 void
 MainWindow::SetConversation(Conversation* chat)
 {
+	// Save current size of chat and textbox
+	float weightChat = fRightView->ItemWeight(0);
+	float weightSend = fRightView->ItemWeight(1);
+
 	fRightView->RemoveChild(fRightView->FindView("chatView"));
 	fRightView->RemoveChild(fRightView->FindView("fSendScroll"));
 
@@ -247,6 +251,12 @@ MainWindow::SetConversation(Conversation* chat)
 
 	fRightView->AddChild(fChatView, 9);
 	fRightView->AddChild(fSendScroll, 1);
+
+	// Apply saved chat and textbox size to new views
+	if (weightChat * weightSend != 0) {
+		fRightView->SetItemWeight(0, weightChat, true);
+		fRightView->SetItemWeight(1, weightSend, true);
+	}
 }
 
 
