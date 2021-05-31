@@ -57,20 +57,6 @@ Server::Quit()
 
 
 void
-Server::AddProtocolLooper(bigtime_t instanceId, CayaProtocol* cayap)
-{
-	ProtocolLooper* looper = new ProtocolLooper(cayap);
-	fLoopers.AddItem(instanceId, looper);
-}
-
-
-void
-Server::RemoveProtocolLooper(bigtime_t instanceId)
-{
-}
-
-
-void
 Server::LoginAll()
 {
 	for (uint32 i = 0; i < fLoopers.CountItems(); i++) {
@@ -79,41 +65,6 @@ Server::LoginAll()
 		BMessage* msg = new BMessage(IM_MESSAGE);
 		msg->AddInt32("im_what", IM_SET_OWN_STATUS);
 		msg->AddInt32("status", CAYA_ONLINE);
-		looper->PostMessage(msg);
-	}
-}
-
-
-void
-Server::SendProtocolMessage(BMessage* msg)
-{
-	// Skip null messages
-	if (!msg)
-		return;
-
-	// Check if message contains the instance field
-	bigtime_t id;
-	if (msg->FindInt64("instance", &id) == B_OK) {
-		bool found = false;
-		ProtocolLooper* looper
-			= fLoopers.ValueFor(id, &found);
-
-		if (found)
-			looper->PostMessage(msg);
-	}
-}
- 
-
-void
-Server::SendAllProtocolMessage(BMessage* msg)
-{
-	// Skip null messages
-	if (!msg)
-		return;
-
-	// Send message to all protocols
-	for (uint32 i = 0; i < fLoopers.CountItems(); i++) {
-		ProtocolLooper* looper = fLoopers.ValueAt(i);
 		looper->PostMessage(msg);
 	}
 }
@@ -166,82 +117,6 @@ Server::Filter(BMessage* message, BHandler **target)
 }
 
 
-RosterMap
-Server::Contacts() const
-{
-	return fRosterMap;
-}
-
-
-Contact*
-Server::ContactById(BString id)
-{
-	bool found = false;
-	return fRosterMap.ValueFor(id, &found);
-}
-
-
-void
-Server::AddContact(Contact* contact)
-{
-	fRosterMap.AddItem(contact->GetId(), contact);
-}
-
-
-UserMap
-Server::Users() const
-{
-	UserMap users = fUserMap;
-
-	for (int i = 0; i < fRosterMap.CountItems(); i++) {
-		User* user = (User*)fRosterMap.ValueAt(i);
-		users.AddItem(user->GetId(), user);
-	}
-	return users;
-}
-
-
-User*
-Server::UserById(BString id)
-{
-	bool found = false;
-	User* user = ContactById(id);
-	if (user == NULL)
-		user = fUserMap.ValueFor(id, &found);
-
-	return user;
-}
-
-
-void
-Server::AddUser(User* user)
-{
-	fUserMap.AddItem(user->GetId(), user);
-}
-
-
-ChatMap
-Server::Conversations() const
-{
-	return fChatMap;
-}
-
-
-Conversation*
-Server::ConversationById(BString id)
-{
-	bool found = false;
-	return fChatMap.ValueFor(id, &found);
-}
-
-
-void
-Server::AddConversation(Conversation* chat)
-{
-	fChatMap.AddItem(chat->GetId(), chat);
-}
-
-
 filter_result
 Server::ImMessage(BMessage* msg)
 {
@@ -253,17 +128,8 @@ Server::ImMessage(BMessage* msg)
 		{
 			int i = 0;
 			BString id;
-			while (msg->FindString("user_id", i++, &id) == B_OK) {
-				bool found = false;
-				Contact* item = fRosterMap.ValueFor(id, &found);
-
-				if (found)
-					continue;
-
-				item = new Contact(id.String(), Looper());
-				item->SetProtocolLooper(_LooperFromMessage(msg));
-				fRosterMap.AddItem(id, item);
-			}
+			while (msg->FindString("user_id", i++, &id) == B_OK)
+				_EnsureContact(msg);
 			result = B_SKIP_MESSAGE;
 			break;
 		}
@@ -297,6 +163,14 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindString("message", &statusMsg) == B_OK) {
 				contact->SetNotifyPersonalStatus(statusMsg);
 //				contact->GetView()->UpdatePersonalMessage();
+			}
+			break;
+		}
+		case IM_OWN_CONTACT_INFO:
+		{
+			Contact* contact = _EnsureContact(msg);
+			if (contact != NULL) {
+				fMySelf = contact->GetId();
 			}
 			break;
 		}
@@ -469,7 +343,133 @@ Server::ImMessage(BMessage* msg)
 }
 
 
+void
+Server::AddProtocolLooper(bigtime_t instanceId, CayaProtocol* cayap)
+{
+	ProtocolLooper* looper = new ProtocolLooper(cayap);
+	fLoopers.AddItem(instanceId, looper);
+}
+
+
+void
+Server::RemoveProtocolLooper(bigtime_t instanceId)
+{
+}
+
+
+void
+Server::SendProtocolMessage(BMessage* msg)
+{
+	// Skip null messages
+	if (!msg)
+		return;
+
+	// Check if message contains the instance field
+	bigtime_t id;
+	if (msg->FindInt64("instance", &id) == B_OK) {
+		bool found = false;
+		ProtocolLooper* looper
+			= fLoopers.ValueFor(id, &found);
+
+		if (found)
+			looper->PostMessage(msg);
+	}
+}
+ 
+
+void
+Server::SendAllProtocolMessage(BMessage* msg)
+{
+	// Skip null messages
+	if (!msg)
+		return;
+
+	// Send message to all protocols
+	for (uint32 i = 0; i < fLoopers.CountItems(); i++) {
+		ProtocolLooper* looper = fLoopers.ValueAt(i);
+		looper->PostMessage(msg);
+	}
+}
+
+
+RosterMap
+Server::Contacts() const
+{
+	return fRosterMap;
+}
+
+
 Contact*
+Server::ContactById(BString id)
+{
+	bool found = false;
+	return fRosterMap.ValueFor(id, &found);
+}
+
+
+void
+Server::AddContact(Contact* contact)
+{
+	fRosterMap.AddItem(contact->GetId(), contact);
+}
+
+
+UserMap
+Server::Users() const
+{
+	UserMap users = fUserMap;
+
+	for (int i = 0; i < fRosterMap.CountItems(); i++) {
+		User* user = (User*)fRosterMap.ValueAt(i);
+		users.AddItem(user->GetId(), user);
+	}
+
+	return users;
+}
+
+
+User*
+Server::UserById(BString id)
+{
+	bool found = false;
+	User* user = ContactById(id);
+	if (user == NULL)
+		user = fUserMap.ValueFor(id, &found);
+
+	return user;
+}
+
+
+void
+Server::AddUser(User* user)
+{
+	fUserMap.AddItem(user->GetId(), user);
+}
+
+
+ChatMap
+Server::Conversations() const
+{
+	return fChatMap;
+}
+
+
+Conversation*
+Server::ConversationById(BString id)
+{
+	bool found = false;
+	return fChatMap.ValueFor(id, &found);
+}
+
+
+void
+Server::AddConversation(Conversation* chat)
+{
+	fChatMap.AddItem(chat->GetId(), chat);
+}
+
+
+BString
 Server::GetOwnContact()
 {
 	return fMySelf;
@@ -505,7 +505,7 @@ Server::_EnsureContact(BMessage* message)
 	if (contact == NULL && id.IsEmpty() == false) {
 		contact = new Contact(id, Looper());
 		contact->SetProtocolLooper(_LooperFromMessage(message));
-		fRosterMap.AddItem(id, contact);
+		AddContact(contact);
 	}
 
 	return contact;
@@ -521,7 +521,7 @@ Server::_EnsureUser(BMessage* message)
 	if (user == NULL && id.IsEmpty() == false) {
 		user = new User(id, Looper());
 		user->SetProtocolLooper(_LooperFromMessage(message));
-		fUserMap.AddItem(id, user);
+		AddUser(user);
 	}
 
 	return user;
@@ -544,6 +544,7 @@ Server::_EnsureConversation(BMessage* message)
 		if (!found) {
 			item = new Conversation(chat_id, Looper());
 			item->SetProtocolLooper(_LooperFromMessage(message));
+			item->AddUser(ContactById(fMySelf));
 			fChatMap.AddItem(chat_id, item);
 		}
 	}

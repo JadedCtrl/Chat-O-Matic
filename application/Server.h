@@ -30,17 +30,15 @@ typedef KeyMap<bigtime_t, ProtocolLooper*> ProtocolLoopers;
 class Server: public BMessageFilter {
 public:
 							Server();
+			void			Quit();
+			void			LoginAll();
 
 	virtual	filter_result	Filter(BMessage* message, BHandler** target);
 			filter_result	ImMessage(BMessage* msg);
 
-			void			Quit();
-
 			void			AddProtocolLooper(bigtime_t instanceId,
 								CayaProtocol* cayap);
 			void			RemoveProtocolLooper(bigtime_t instanceId);
-
-			void			LoginAll();
 
 			void			SendProtocolMessage(BMessage* msg);
 			void			SendAllProtocolMessage(BMessage* msg);
@@ -58,7 +56,7 @@ public:
 			void			AddConversation(Conversation* chat);
 
 			// TODO: there should be a contact for each account.
-			Contact*	GetOwnContact();
+			BString			GetOwnContact();
 
 private:
 			ProtocolLooper*	_LooperFromMessage(BMessage* message);
@@ -73,7 +71,7 @@ private:
 			UserMap			fUserMap;
 			ChatMap			fChatMap;
 			ProtocolLoopers	fLoopers;
-			Contact*		fMySelf;
+			BString			fMySelf;
 };
 
 
