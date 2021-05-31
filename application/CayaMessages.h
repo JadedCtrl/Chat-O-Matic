@@ -32,4 +32,10 @@ const uint32 CAYA_REPLICANT_EXIT = 'RPEX';
 //! Show main window replicant notification
 const uint32 CAYA_REPLICANT_SHOW_WINDOW = 'CYSW';
 
+//! Select the upward conversation
+const uint32 CAYA_MOVE_UP = 'CYmu';
+
+//! Select the downward conversation
+const uint32 CAYA_MOVE_DOWN = 'CYmd';
+
 #endif	// _CAYA_MESSAGES_H

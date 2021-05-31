@@ -39,6 +39,7 @@ MainWindow::MainWindow()
 	:
 	BWindow(BRect(0, 0, 300, 400), "Caya", B_TITLED_WINDOW, 0),
 	fWorkspaceChanged(false),
+	fConversation(NULL),
 	fRosterWindow(NULL)
 {
 	_InitInterface();
@@ -107,6 +108,29 @@ MainWindow::MessageReceived(BMessage* message)
 			fRosterWindow = new RosterWindow("Invite contact to chat"
 			B_UTF8_ELLIPSIS, IM_CREATE_CHAT, new BMessenger(this), fServer);
 			fRosterWindow->Show();
+			break;
+		}
+
+		case CAYA_MOVE_UP:
+		{
+			if (fConversation == NULL)
+				return;
+
+			int32 index = fListView->IndexOf(fConversation->GetListItem());
+			if (index > 0)
+				fListView->Select(index - 1);
+			break;
+		}
+
+		case CAYA_MOVE_DOWN:
+		{
+			if (fConversation == NULL)
+				return;
+
+			int32 index = fListView->IndexOf(fConversation->GetListItem());
+			int32 count = fListView->CountItems();
+			if (index < (count - 1))
+				fListView->Select(index + 1);
 			break;
 		}
 
@@ -256,8 +280,10 @@ MainWindow::SetConversation(Conversation* chat)
 	fRightView->RemoveChild(fRightView->FindView("chatView"));
 	fRightView->RemoveChild(fRightView->FindView("fSendScroll"));
 
-	if (chat != NULL)
+	if (chat != NULL) {
 		fChatView = chat->GetView();
+		fConversation = chat;
+	}
 
 	fRightView->AddChild(fChatView, 9);
 	fRightView->AddChild(fSendScroll, 1);
@@ -323,8 +349,15 @@ MainWindow::_CreateMenuBar()
 		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY));
 	chatMenu->SetTargetForItems(this);
 
+	BMenu* windowMenu = new BMenu("Window");
+	windowMenu->AddItem(new BMenuItem("Up",
+		new BMessage(CAYA_MOVE_UP), B_UP_ARROW, B_COMMAND_KEY));
+	windowMenu->AddItem(new BMenuItem("Down",
+		new BMessage(CAYA_MOVE_DOWN), B_DOWN_ARROW, B_COMMAND_KEY));
+
 	menuBar->AddItem(programMenu);
 	menuBar->AddItem(chatMenu);
+	menuBar->AddItem(windowMenu);
 	return menuBar;
 }
 
@@ -338,13 +371,16 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 	Conversation* chat = fServer->ConversationById(chat_id);
 
 	if (chat != NULL) {
-		ConversationItem* item = chat->GetConversationItem();
+		ConversationItem* item = chat->GetListItem();
 		if (fListView->HasItem(item)) {
 			_UpdateListItem(item);
 		}
 		else if (item != NULL) {
 			fListView->AddItem(item);
 		}
+
+		if (fListView->CountItems() == 1)
+			fListView->Select(0);
 		return item;
 	}
 

@@ -64,6 +64,7 @@ private:
 	BScrollView*		fSendScroll;
 	BTextView*			fSendView;
 	ConversationView*	fChatView;
+	Conversation*		fConversation;
 };
 
 

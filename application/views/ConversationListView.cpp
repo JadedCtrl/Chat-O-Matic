@@ -52,9 +52,6 @@ ConversationListView::MouseDown(BPoint where)
 	uint32 buttons = 0;
 	Window()->CurrentMessage()->FindInt32("buttons", (int32*)&buttons);
 
-	if (buttons & B_PRIMARY_MOUSE_BUTTON)
-		MessageReceived(new BMessage(kOpenSelectedChat));
-
 	if (!(buttons & B_SECONDARY_MOUSE_BUTTON))
 		return;
 
@@ -62,6 +59,13 @@ ConversationListView::MouseDown(BPoint where)
 		_ConversationPopUp()->Go(ConvertToScreen(where), true, false);
 	else
 		_BlankPopUp()->Go(ConvertToScreen(where), true, false);
+}
+
+
+void
+ConversationListView::SelectionChanged()
+{
+	MessageReceived(new BMessage(kOpenSelectedChat));
 }
 
 

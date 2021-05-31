@@ -99,13 +99,6 @@ Conversation::ObserveInteger(int32 what, int32 val)
 }
 
 
-void
-Conversation::ShowView(bool typing, bool userAction)
-{
-	((TheApp*)be_app)->GetMainWindow()->SetConversation(this);
-}
-
-
 BMessenger
 Conversation::Messenger() const
 {
@@ -131,13 +124,6 @@ void
 Conversation::SetProtocolLooper(ProtocolLooper* looper)
 {
 	fLooper = looper;
-}
-
-
-ConversationItem*
-Conversation::GetConversationItem()
-{
-	return fConversationItem;
 }
 
 
@@ -172,6 +158,13 @@ Conversation::AddUser(User* user)
 }
 
 
+void
+Conversation::ShowView(bool typing, bool userAction)
+{
+	((TheApp*)be_app)->GetMainWindow()->SetConversation(this);
+}
+
+
 ConversationView*
 Conversation::GetView()
 {
@@ -190,6 +183,13 @@ Conversation::GetView()
 	fChatView->MessageReceived(&logMsg);
 
 	return fChatView;
+}
+
+
+ConversationItem*
+Conversation::GetListItem()
+{
+	return fConversationItem;
 }
 
 

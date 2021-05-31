@@ -39,17 +39,16 @@ public:
 	void				ObserveInteger(int32 what, int32 value);
 	void				ObservePointer(int32 what, void* ptr);
 
-	ConversationView*	GetView();
-
-	void				ShowView(bool typing, bool userAction);
-
 	BMessenger			Messenger() const;
 	void				SetMessenger(BMessenger messenger);
 
 	ProtocolLooper*		GetProtocolLooper() const;
 	void				SetProtocolLooper(ProtocolLooper* looper);
 
-	ConversationItem*	GetConversationItem();
+	void				ShowView(bool typing, bool userAction);
+
+	ConversationView*	GetView();
+	ConversationItem*	GetListItem();
 
 	BString				GetName() const;
 

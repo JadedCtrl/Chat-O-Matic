@@ -15,6 +15,7 @@ public:
 	ConversationListView(const char* name);
 
 	void MessageReceived(BMessage* msg);
+	void SelectionChanged();
 	void MouseDown(BPoint where);
 
 private:
