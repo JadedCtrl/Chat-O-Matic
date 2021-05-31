@@ -141,7 +141,7 @@ Conversation::Users()
 }
 
 
-Contact*
+User*
 Conversation::UserById(BString id)
 {
 	bool found = false;
@@ -260,14 +260,14 @@ Conversation::_EnsureLogPath()
 }
 
 
-Contact*
+User*
 Conversation::_EnsureUser(BMessage* msg)
 {
 	BString id = msg->FindString("user_id");
 	if (id.IsEmpty() == true) return NULL;
 
-	Contact* user = UserById(id);
-	Contact* serverUser = _GetServer()->ContactById(id);
+	User* user = UserById(id);
+	User* serverUser = _GetServer()->UserById(id);
 
 	if (user == NULL && serverUser != NULL) {
 		fUsers.AddItem(id, serverUser);
@@ -275,10 +275,10 @@ Conversation::_EnsureUser(BMessage* msg)
 		GetView()->UpdateUserList(fUsers);
 	}
 	else if (user == NULL) {
-		user = new Contact(id, _GetServer()->Looper());
+		user = new User(id, _GetServer()->Looper());
 		user->SetProtocolLooper(fLooper);
 
-		_GetServer()->AddContact(user);
+		_GetServer()->AddUser(user);
 		fUsers.AddItem(id, user);
 		GetView()->UpdateUserList(fUsers);
 	}

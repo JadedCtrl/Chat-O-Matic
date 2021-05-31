@@ -14,6 +14,7 @@
 #include "CayaConstants.h"
 #include "Contact.h"
 #include "Conversation.h"
+#include "User.h"
 
 class CayaProtocol;
 class RosterItem;
@@ -21,6 +22,7 @@ class ProtocolLooper;
 
 
 typedef KeyMap<BString, Contact*> RosterMap;
+typedef KeyMap<BString, User*> UserMap;
 typedef KeyMap<BString, Conversation*> ChatMap;
 typedef KeyMap<bigtime_t, ProtocolLooper*> ProtocolLoopers;
 
@@ -47,6 +49,10 @@ public:
 			Contact*		ContactById(BString id);
 			void			AddContact(Contact* contact);
 
+			UserMap			Users() const;
+			User*			UserById(BString id);
+			void			AddUser(User* user);
+
 			ChatMap			Conversations() const;
 			Conversation*	ConversationById(BString id);
 			void			AddConversation(Conversation* chat);
@@ -56,12 +62,15 @@ public:
 
 private:
 			ProtocolLooper*	_LooperFromMessage(BMessage* message);
-			Contact*		_GetContact(BMessage* message);
+
 			Contact*		_EnsureContact(BMessage* message);
+			User*			_EnsureUser(BMessage* message);
 			Conversation*	_EnsureConversation(BMessage* message);
+
 			void			_ReplicantStatusNotify(CayaStatus status);
 
 			RosterMap		fRosterMap;
+			UserMap			fUserMap;
 			ChatMap			fChatMap;
 			ProtocolLoopers	fLoopers;
 			Contact*		fMySelf;

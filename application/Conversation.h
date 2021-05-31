@@ -12,17 +12,16 @@
 #include <libsupport/KeyMap.h>
 
 #include "Observer.h"
+#include "Server.h"
 #include "User.h"
 
-class ChatWindow;
-class Contact;
 class ConversationItem;
 class ConversationView;
 class ProtocolLooper;
 class Server;
 
 
-typedef KeyMap<BString, Contact*> UserMap;
+typedef KeyMap<BString, User*> UserMap;
 
 
 class Conversation : public Observer {
@@ -53,7 +52,7 @@ public:
 	BString				GetName() const;
 
 	UserMap				Users();
-	Contact*			UserById(BString id);
+	User*				UserById(BString id);
 	void				AddUser(User* user);
 
 private:
@@ -61,7 +60,7 @@ private:
 	BStringList			_GetChatLogs();
 	void				_EnsureLogPath();
 
-	Contact*			_EnsureUser(BMessage* msg);
+	User*			_EnsureUser(BMessage* msg);
 	Server*				_GetServer();
 
 	BMessenger	fMessenger;

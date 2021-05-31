@@ -188,6 +188,38 @@ Server::AddContact(Contact* contact)
 }
 
 
+UserMap
+Server::Users() const
+{
+	UserMap users = fUserMap;
+
+	for (int i = 0; i < fRosterMap.CountItems(); i++) {
+		User* user = (User*)fRosterMap.ValueAt(i);
+		users.AddItem(user->GetId(), user);
+	}
+	return users;
+}
+
+
+User*
+Server::UserById(BString id)
+{
+	bool found = false;
+	User* user = ContactById(id);
+	if (user == NULL)
+		user = fUserMap.ValueFor(id, &found);
+
+	return user;
+}
+
+
+void
+Server::AddUser(User* user)
+{
+	fUserMap.AddItem(user->GetId(), user);
+}
+
+
 ChatMap
 Server::Conversations() const
 {
@@ -305,17 +337,17 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_AVATAR_SET:
 		{
-			Contact* contact = _EnsureContact(msg);
-			if (!contact)
+			User* user = _EnsureUser(msg);
+			if (!user)
 				break;
 
 			entry_ref ref;
 
 			if (msg->FindRef("ref", &ref) == B_OK) {
 				BBitmap* bitmap = BTranslationUtils::GetBitmap(&ref);
-				contact->SetNotifyAvatarBitmap(bitmap);
+				user->SetNotifyAvatarBitmap(bitmap);
 			} else
-				contact->SetNotifyAvatarBitmap(NULL);
+				user->SetNotifyAvatarBitmap(NULL);
 			break;
 		}
 		case IM_CREATE_CHAT:
@@ -330,7 +362,7 @@ Server::ImMessage(BMessage* msg)
 		case IM_CHAT_CREATED:
 		{
 			Conversation* chat = _EnsureConversation(msg);
-			User* user = _EnsureContact(msg);
+			User* user = _EnsureUser(msg);
 
 			if (chat != NULL && user != NULL) {
 				chat->AddUser(user);
@@ -465,28 +497,10 @@ Server::_LooperFromMessage(BMessage* message)
 
 
 Contact*
-Server::_GetContact(BMessage* message)
-{
-	if (!message)
-		return NULL;
-
-	BString id = message->FindString("user_id");
-	Contact* item = NULL;
-
-	if (id.IsEmpty() == false) {
-		bool found = false;
-		item = fRosterMap.ValueFor(id, &found);
-	}
-
-	return item;
-}
-
-
-Contact*
 Server::_EnsureContact(BMessage* message)
 {
-	Contact* contact = _GetContact(message);
 	BString id = message->FindString("user_id");
+	Contact* contact = ContactById(id);
 
 	if (contact == NULL && id.IsEmpty() == false) {
 		contact = new Contact(id, Looper());
@@ -495,6 +509,22 @@ Server::_EnsureContact(BMessage* message)
 	}
 
 	return contact;
+}
+
+
+User*
+Server::_EnsureUser(BMessage* message)
+{
+	BString id = message->FindString("user_id");
+	User* user = UserById(id);
+
+	if (user == NULL && id.IsEmpty() == false) {
+		user = new User(id, Looper());
+		user->SetProtocolLooper(_LooperFromMessage(message));
+		fUserMap.AddItem(id, user);
+	}
+
+	return user;
 }
 
 

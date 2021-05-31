@@ -21,9 +21,9 @@
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
 #include "CayaRenderView.h"
-#include "Contact.h"
 #include "Conversation.h"
 #include "NotifyMessage.h"
+#include "User.h"
 #include "UserItem.h"
 #include "UserListView.h"
 

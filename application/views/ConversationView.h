@@ -16,7 +16,7 @@ class BTextView;
 
 class BitmapView;
 class CayaRenderView;
-class Contact;
+class User;
 class UserListView;
 
 
@@ -54,7 +54,7 @@ private:
 			void		_AppendMessage(BMessage* msg);
 
 		Conversation*	fConversation;
-		Contact*		fContact;
+		User*			fContact;
 		int32			fMessageCount;
 		BObjectList<BMessage>	fMessageQueue;
 
