@@ -347,6 +347,7 @@ Server::ImMessage(BMessage* msg)
 				conversation->GetProtocolLooper()->PostMessage(msg);
 			break;
 		}
+		case IM_MESSAGE_SENT:
 		case IM_MESSAGE_RECEIVED:
 		{
 			Conversation* item = _EnsureConversation(msg);

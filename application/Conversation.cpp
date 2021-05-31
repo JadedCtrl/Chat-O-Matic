@@ -57,12 +57,18 @@ Conversation::ImMessage(BMessage* msg)
 			GetView()->MessageReceived(msg);
 			break;
 		}
-		case IM_SEND_MESSAGE:
+		case IM_MESSAGE_SENT:
 		{
 			_LogChatMessage(msg);
+			GetView()->MessageReceived(msg);
+			break;
+		}
+		case IM_SEND_MESSAGE:
+		{
 			fMessenger.SendMessage(msg);
 			break;
 		}
+		case IM_LOGS_RECEIVED:
 		default:
 			GetView()->MessageReceived(msg);
 	}
@@ -169,8 +175,20 @@ Conversation::AddUser(User* user)
 ConversationView*
 Conversation::GetView()
 {
-	if (fChatView == NULL)
-		fChatView = new ConversationView(this);
+	if (fChatView != NULL)
+		return fChatView;
+
+	fChatView = new ConversationView(this);
+
+	if (fLooper->Protocol()->SaveLogs() == false)
+		return fChatView;
+
+	BStringList logs = _GetChatLogs();
+	BMessage logMsg(IM_MESSAGE);
+	logMsg.AddInt32("im_what", IM_LOGS_RECEIVED);
+	logMsg.AddStrings("body", logs);
+	fChatView->MessageReceived(&logMsg);
+
 	return fChatView;
 }
 

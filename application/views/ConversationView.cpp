@@ -123,8 +123,6 @@ ConversationView::MessageReceived(BMessage* message)
 			if (text == "")
 				return;
 
-			fReceiveView->AppendOwnMessage(text.String());
-
 			BMessage msg(IM_MESSAGE);
 			msg.AddInt32("im_what", IM_SEND_MESSAGE);
 			msg.AddString("chat_id", fConversation->GetId());
@@ -192,33 +190,17 @@ ConversationView::ImMessage(BMessage* msg)
 					break;
 			}
 
-			// If not attached to the chat window, then re-handle this message
-			// later [AttachedToWindow()], since that's required to append to
-			// fReceiveview.
-			if (Window() == NULL) {
-				fMessageQueue.AddItem(new BMessage(*msg));
-				return;
-			}
-
-			// Now we're free to append!
-			Window()->LockLooper();
-			fReceiveView->AppendOtherMessage(uname.String(), message.String());
-			Window()->UnlockLooper();
+			_AppendOrEnqueueMessage(msg);
 
 			// Message received, clear status anyway
-			fStatus->SetText("");
-			
+//			fStatus->SetText("");
+
 			break;
 		}
+		case IM_MESSAGE_SENT:
 		case IM_LOGS_RECEIVED:
 		{
-			BStringList logs;
-			if (msg->FindStrings("log", &logs) != B_OK)
-				return;
-
-			for (int i = logs.CountStrings(); i >= 0; i--)
-				fReceiveView->AppendGenericMessage(logs.StringAt(i).String());
-
+			_AppendOrEnqueueMessage(msg);
 			break;
 		}
 		case IM_CONTACT_STARTED_TYPING:
@@ -306,6 +288,55 @@ ConversationView::AppendStatus(CayaStatus status)
 	fReceiveView->Append(message.String(), COL_TEXT, COL_TEXT, R_TEXT);
  	fReceiveView->Append("\n", COL_TEXT, COL_TEXT, R_TEXT);
 	fReceiveView->ScrollToSelection();
+}
+
+
+bool
+ConversationView::_AppendOrEnqueueMessage(BMessage* msg)
+{
+	// If not attached to the chat window, then re-handle this message
+	// later [AttachedToWindow()], since you can't edit an unattached 
+	// RenderView.
+	if (Window() == NULL) {
+		fMessageQueue.AddItem(new BMessage(*msg));
+		return false;
+	}
+
+	// Alright, we're good to append!
+	_AppendMessage(msg);
+	return true;
+}
+
+
+void
+ConversationView::_AppendMessage(BMessage* msg)
+{
+
+	BString message = msg->FindString("body");
+	BString id = msg->FindString("user_id");
+	BString uname = "";
+
+	if (id.IsEmpty() == false) {
+		User* sender = fConversation->UserById(id);
+
+		if (sender == NULL || (uname = sender->GetName()) == NULL)
+			uname = id;
+	}
+
+	if (msg->FindInt32("im_what") == IM_MESSAGE_SENT)
+		fReceiveView->AppendOwnMessage(message.String());
+
+	else if (uname.IsEmpty() == false)
+		fReceiveView->AppendOtherMessage(uname.String(), message.String());
+
+	else {
+		BStringList bodies;
+		if (msg->FindStrings("body", &bodies) != B_OK)
+			return;
+
+		for (int i = bodies.CountStrings(); i >= 0; i--)
+			fReceiveView->AppendGenericMessage(bodies.StringAt(i).String());
+	}
 }
 
 

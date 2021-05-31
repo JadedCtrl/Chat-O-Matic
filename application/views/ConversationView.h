@@ -46,6 +46,9 @@ public:
 			void		AvoidFocus(bool avoid);
 
 private:
+			bool		_AppendOrEnqueueMessage(BMessage* msg);
+			void		_AppendMessage(BMessage* msg);
+
 		Conversation*	fConversation;
 		Contact*		fContact;
 		CayaRenderView*	fReceiveView;
