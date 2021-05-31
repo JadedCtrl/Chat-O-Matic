@@ -16,9 +16,12 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "UserInfoWindow.h"
+#include "CayaProtocolMessages.h"
 #include "Contact.h"
+#include "ProtocolLooper.h"
 #include "RosterItem.h"
+#include "TheApp.h"
+#include "UserInfoWindow.h"
 
 const int32 kAddPeople	= 'ADPL';
 const int32 kSendFile	= 'SDFL';
@@ -62,24 +65,15 @@ RosterListView::RosterListView(const char* name)
 	fPopUp = new BPopUpMenu("contextMenu", false, false);
 	BMenuItem* item = NULL;
 
-	fPopUp->AddItem(new BMenuItem("Start a Conversation", new BMessage(kStartConv)));
-	item = new BMenuItem("Send a File", new BMessage(kSendFile));
+	fPopUp->AddItem(new BMenuItem("Start a chat", new BMessage(kStartConv)));
+	item = new BMenuItem("Send a file" B_UTF8_ELLIPSIS, new BMessage(kSendFile));
 	item->SetEnabled(false);
 	fPopUp->AddItem(item);
 
 	fPopUp->AddItem(new BSeparatorItem());
 
-	fPopUp->AddItem(new BMenuItem("Get Informations", new BMessage(kGetInfo)));
-
-	item = new BMenuItem("Show Logs", new BMessage(kShowLogs));
-	item->SetEnabled(false);
-	fPopUp->AddItem(item);
-
-	fPopUp->AddItem(new BSeparatorItem());
-
-	item = new BMenuItem("Add to Address Book", new BMessage(kAddPeople));
-	item->SetEnabled(false);
-	fPopUp->AddItem(item);
+	fPopUp->AddItem(new BMenuItem("User info" B_UTF8_ELLIPSIS,
+		new BMessage(kGetInfo)));
 
 	fPopUp->SetTargetForItems(this);
 }
@@ -114,10 +108,15 @@ RosterListView::MessageReceived(BMessage* msg)
 
 		case kStartConv:
 		{
-			if (ritem == NULL)
+			User* user;
+			if (ritem == NULL || (user = ritem->GetContact()) == NULL)
 				return;
-//			Contact* link = ritem->GetContact();
-//			link->ShowWindow(false, true);
+
+			BMessage* start = new BMessage(IM_MESSAGE);
+			start->AddInt32("im_what", IM_CREATE_CHAT);
+			start->AddString("user_id", user->GetId());
+
+			user->GetProtocolLooper()->PostMessage(start);
 			break;
 		}
 

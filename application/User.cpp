@@ -18,6 +18,7 @@
 #include "NotifyMessage.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
+#include "UserItem.h"
 #include "UserPopUp.h"
 
 
@@ -27,6 +28,7 @@ User::User(BString id, BMessenger msgn)
 	fName(id),
 	fMessenger(msgn),
 	fLooper(NULL),
+	fListItem(NULL),
 	fStatus(CAYA_OFFLINE),
 	fPopUp(NULL)
 {
@@ -134,6 +136,15 @@ User::ProtocolBitmap() const
 		= ProtocolManager::Get()->ProtocolAddOn(protocol->Signature());
 
 	return addOn->ProtoIcon();
+}
+
+
+UserItem*
+User::GetListItem()
+{
+	if (fListItem == NULL)
+		fListItem = new UserItem(fName, this);
+	return fListItem;
 }
 
 

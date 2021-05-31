@@ -19,9 +19,9 @@
 class BBitmap;
 
 class Conversation;
-class UserPopUp;
 class ProtocolLooper;
-class RosterItem;
+class UserItem;
+class UserPopUp;
 
 
 typedef KeyMap<BString, Conversation*> ChatMap;
@@ -49,6 +49,8 @@ public:
 	void			SetProtocolLooper(ProtocolLooper* looper);
 	BBitmap*		ProtocolBitmap() const;
 
+	UserItem*		GetListItem();
+
 	BString			GetName() const;
 	BBitmap*		AvatarBitmap() const;
 	CayaStatus		GetNotifyStatus() const;
@@ -64,6 +66,8 @@ public:
 protected:
 	BMessenger		fMessenger;
 	ProtocolLooper*	fLooper;
+
+	UserItem*		fListItem;
 
 	BString			fID;
 	bigtime_t		fInstance;

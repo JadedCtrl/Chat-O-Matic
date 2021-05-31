@@ -9,9 +9,11 @@
 #include "ConversationView.h"
 
 #include <LayoutBuilder.h>
+#include <ListView.h>
 #include <Notification.h>
 #include <ScrollView.h>
 #include <StringList.h>
+#include <StringView.h>
 
 #include <libinterface/BitmapView.h>
 
@@ -22,6 +24,8 @@
 #include "Contact.h"
 #include "Conversation.h"
 #include "NotifyMessage.h"
+#include "UserItem.h"
+#include "UserListView.h"
 
 
 ConversationView::ConversationView()
@@ -30,37 +34,7 @@ ConversationView::ConversationView()
 	fMessageQueue()
 {
 	fMessageCount = 0;
-	
-	fReceiveView = new CayaRenderView("fReceiveView");
-	BScrollView* scrollViewReceive = new BScrollView("scrollviewR",
-		fReceiveView, B_WILL_DRAW, false, true);
-
-
-	fPersonalMessage = new BTextView("personalMessage", B_WILL_DRAW);
-	fPersonalMessage->SetExplicitAlignment(
-		BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
-
-	fPersonalMessage->SetText("");
-	fPersonalMessage->MakeEditable(false);
-	fPersonalMessage->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
-
-	fStatus = new BStringView("status", "");
-
-	fAvatar = new BitmapView("ContactIcon");
-	fAvatar->SetExplicitMinSize(BSize(50, 50));
-	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
-	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
-
-	fProtocolView = new BitmapView("protocolView");
-
-	BLayoutBuilder::Group<>(this, B_VERTICAL)
-		.AddGroup(B_HORIZONTAL)
-			.Add(fProtocolView)
-			.Add(fPersonalMessage)
-			.Add(fAvatar)
-		.End()
-		.Add(scrollViewReceive, 3);
-//		.Add(fStatus, 4)
+	_InitInterface();
 }
 
 
@@ -81,35 +55,13 @@ ConversationView::QuitRequested()
 }
 
 
-Conversation*
-ConversationView::GetConversation()
-{
-	return fConversation;
-}
-
-
 void
-ConversationView::SetConversation(Conversation* chat)
+ConversationView::AttachedToWindow()
 {
-	fConversation =  chat;
-	fContact = chat->Users().ValueAt(0);
-	fPersonalMessage->SetText(chat->GetName());
-}
-
-
-void
-ConversationView::UpdateAvatar()
-{
-	if (fContact->AvatarBitmap() != NULL)
-		fAvatar->SetBitmap(fContact->AvatarBitmap());
-}
-
-
-void
-ConversationView::UpdatePersonalMessage()
-{
-	if (fContact->GetNotifyPersonalStatus() != NULL)
-		fPersonalMessage->SetText(fContact->GetNotifyPersonalStatus());
+	while (fMessageQueue.IsEmpty() == false) {
+		BMessage* msg = fMessageQueue.RemoveItemAt(0);
+		ImMessage(msg);
+	}
 }
 
 
@@ -137,16 +89,6 @@ ConversationView::MessageReceived(BMessage* message)
 		default:
 			BGroupView::MessageReceived(message);
 			break;
-	}
-}
-
-
-void
-ConversationView::AttachedToWindow()
-{
-	while (fMessageQueue.IsEmpty() == false) {
-		BMessage* msg = fMessageQueue.RemoveItemAt(0);
-		ImMessage(msg);
 	}
 }
 
@@ -220,6 +162,50 @@ ConversationView::ImMessage(BMessage* msg)
 }
 
 
+Conversation*
+ConversationView::GetConversation()
+{
+	return fConversation;
+}
+
+
+void
+ConversationView::SetConversation(Conversation* chat)
+{
+	fConversation =  chat;
+	fContact = chat->Users().ValueAt(0);
+	fPersonalMessage->SetText(chat->GetName());
+}
+
+
+void
+ConversationView::UpdateAvatar()
+{
+	if (fContact->AvatarBitmap() != NULL)
+		fAvatar->SetBitmap(fContact->AvatarBitmap());
+}
+
+
+void
+ConversationView::UpdatePersonalMessage()
+{
+	if (fContact->GetNotifyPersonalStatus() != NULL)
+		fPersonalMessage->SetText(fContact->GetNotifyPersonalStatus());
+}
+
+
+void
+ConversationView::UpdateUserList(UserMap users)
+{
+	fUserList->MakeEmpty();
+	for (int i = 0; i < users.CountItems(); i++) {
+		User* user = users.ValueAt(i);
+		if (fUserList->HasItem(user->GetListItem()) == false)
+			fUserList->AddItem(user->GetListItem());
+	}
+}
+
+
 void
 ConversationView::ObserveString(int32 what, BString str)
 {
@@ -288,6 +274,48 @@ ConversationView::AppendStatus(CayaStatus status)
 	fReceiveView->Append(message.String(), COL_TEXT, COL_TEXT, R_TEXT);
  	fReceiveView->Append("\n", COL_TEXT, COL_TEXT, R_TEXT);
 	fReceiveView->ScrollToSelection();
+}
+
+
+void
+ConversationView::_InitInterface()
+{
+	fReceiveView = new CayaRenderView("fReceiveView");
+	BScrollView* scrollViewReceive = new BScrollView("receiveScrollView",
+		fReceiveView, B_WILL_DRAW, false, true);
+
+	fPersonalMessage = new BTextView("personalMessage", B_WILL_DRAW);
+	fPersonalMessage->SetExplicitAlignment(
+		BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+
+	fPersonalMessage->SetText("");
+	fPersonalMessage->MakeEditable(false);
+	fPersonalMessage->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
+
+	fStatus = new BStringView("status", "");
+
+	fAvatar = new BitmapView("ContactIcon");
+	fAvatar->SetExplicitMinSize(BSize(50, 50));
+	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
+	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
+
+	fProtocolView = new BitmapView("protocolView");
+
+	fUserList = new UserListView("userList");
+	BScrollView* scrollViewUsers = new BScrollView("userScrollView",
+		fUserList, B_WILL_DRAW, false, true);
+
+	BLayoutBuilder::Group<>(this, B_VERTICAL)
+		.AddGroup(B_HORIZONTAL)
+			.Add(fProtocolView)
+			.Add(fPersonalMessage)
+			.Add(fAvatar)
+		.End()
+		.AddSplit(B_HORIZONTAL, 0)
+			.Add(scrollViewReceive, 5)
+			.Add(scrollViewUsers, 1)
+		.End();
+//		.Add(fStatus, 4)
 }
 
 

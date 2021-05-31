@@ -7,17 +7,17 @@
 
 #include <GroupView.h>
 #include <ObjectList.h>
-#include <StringView.h>
-#include <TextView.h>
 
 #include "CayaConstants.h"
+#include "Conversation.h"
 
-class BMessageQueue;
+class BStringView;
+class BTextView;
 
 class BitmapView;
 class CayaRenderView;
 class Contact;
-class Conversation;
+class UserListView;
 
 
 class ConversationView : public BGroupView {
@@ -25,17 +25,19 @@ public:
 						ConversationView();
 						ConversationView(Conversation* chat);
 
-	virtual	void		MessageReceived(BMessage* message);
 	virtual	bool		QuitRequested();
+	virtual void		AttachedToWindow();
+
+	virtual	void		MessageReceived(BMessage* message);
+			void		ImMessage(BMessage* msg);
 
 			Conversation* GetConversation();
 			void		SetConversation(Conversation* chat);
 
-			void		AttachedToWindow();
 
 			void		UpdateAvatar();
 			void		UpdatePersonalMessage();
-			void		ImMessage(BMessage* msg);
+			void		UpdateUserList(UserMap users);
 
 			void		ObserveString(int32 what, BString str);
 			void		ObservePointer(int32 what, void* ptr);
@@ -46,18 +48,22 @@ public:
 			void		AvoidFocus(bool avoid);
 
 private:
+			void		_InitInterface();
+
 			bool		_AppendOrEnqueueMessage(BMessage* msg);
 			void		_AppendMessage(BMessage* msg);
 
 		Conversation*	fConversation;
 		Contact*		fContact;
+		int32			fMessageCount;
+		BObjectList<BMessage>	fMessageQueue;
+
 		CayaRenderView*	fReceiveView;
 		BStringView*	fStatus;
 		BTextView*		fPersonalMessage;
 		BitmapView*		fProtocolView;
 		BitmapView*		fAvatar;
-		int32			fMessageCount;
-		BObjectList<BMessage>	fMessageQueue;
+		UserListView*	fUserList;
 };
 
 

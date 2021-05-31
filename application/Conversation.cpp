@@ -272,6 +272,7 @@ Conversation::_EnsureUser(BMessage* msg)
 	if (user == NULL && serverUser != NULL) {
 		fUsers.AddItem(id, serverUser);
 		user = serverUser;
+		GetView()->UpdateUserList(fUsers);
 	}
 	else if (user == NULL) {
 		user = new Contact(id, _GetServer()->Looper());
@@ -279,6 +280,7 @@ Conversation::_EnsureUser(BMessage* msg)
 
 		_GetServer()->AddContact(user);
 		fUsers.AddItem(id, user);
+		GetView()->UpdateUserList(fUsers);
 	}
 
 	user->RegisterObserver(this);

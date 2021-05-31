@@ -74,6 +74,8 @@ SRCS = \
 	application/views/StatusMenuItem.cpp \
 	application/views/StatusView.cpp \
 	application/views/UserInfoWindow.cpp \
+	application/views/UserItem.cpp \
+	application/views/UserListView.cpp \
 	application/views/UserPopUp.cpp
 
 

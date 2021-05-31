@@ -20,6 +20,9 @@ const uint32 CAYA_CHAT = 'CYch';
 //! Create a new chat
 const uint32 CAYA_NEW_CHAT = 'CYnc';
 
+//! Invite user to current chat
+const uint32 CAYA_SEND_INVITE = 'CYin';
+
 //! Send replicant's messenger to Caya
 const uint32 CAYA_REPLICANT_MESSENGER = 'RPme';
 

@@ -334,6 +334,7 @@ MainWindow::_CreateMenuBar()
 {
 	BMenuBar* menuBar = new BMenuBar("MenuBar");
 
+	// Program
 	BMenu* programMenu = new BMenu("Program");
 	programMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
 		new BMessage(B_ABOUT_REQUESTED)));
@@ -344,16 +345,25 @@ MainWindow::_CreateMenuBar()
 		new BMessage(B_QUIT_REQUESTED), 'Q', B_COMMAND_KEY));
 	programMenu->SetTargetForItems(this);
 
+	// Chat
 	BMenu* chatMenu = new BMenu("Chat");
+	BMenuItem* invite = new BMenuItem("Invite user" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_SEND_INVITE), 'I', B_COMMAND_KEY);
+	invite->SetEnabled(false);
+
 	chatMenu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
 		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY));
+	chatMenu->AddSeparatorItem();
+	chatMenu->AddItem(invite);
 	chatMenu->SetTargetForItems(this);
 
+	// Window
 	BMenu* windowMenu = new BMenu("Window");
 	windowMenu->AddItem(new BMenuItem("Up",
 		new BMessage(CAYA_MOVE_UP), B_UP_ARROW, B_COMMAND_KEY));
 	windowMenu->AddItem(new BMenuItem("Down",
 		new BMessage(CAYA_MOVE_DOWN), B_DOWN_ARROW, B_COMMAND_KEY));
+	windowMenu->SetTargetForItems(this);
 
 	menuBar->AddItem(programMenu);
 	menuBar->AddItem(chatMenu);

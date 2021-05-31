@@ -88,7 +88,7 @@ ConversationListView::_BlankPopUp()
 {
 	BPopUpMenu* menu = new BPopUpMenu("blankPopUp");
 	menu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_NEW_CHAT)));
+		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY));
 	menu->SetTargetForItems(Window());
 	
 	return menu;
