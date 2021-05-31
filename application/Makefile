@@ -51,7 +51,6 @@ SRCS = \
 	application/Server.cpp \
 	application/TheApp.cpp \
 	application/User.cpp \
-	application/WindowsManager.cpp \
 	application/preferences/AccountDialog.cpp \
 	application/preferences/AccountListItem.cpp \
 	application/preferences/AccountView.cpp \

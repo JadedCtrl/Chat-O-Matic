@@ -20,7 +20,6 @@
 #include "ProtocolManager.h"
 #include "Server.h"
 #include "TheApp.h"
-#include "WindowsManager.h"
 
 
 Conversation::Conversation(BString id, BMessenger msgn)
