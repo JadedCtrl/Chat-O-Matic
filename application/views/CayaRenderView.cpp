@@ -81,26 +81,29 @@ CayaRenderView::PrepareTheme(Theme *fTheme)
 	Theme::SelectionBack = COL_SELECTION;
 
 	fTheme->WriteLock();
-	fTheme->SetForeground(COL_URL, 5, 5, 150);
-	fTheme->SetBackground(COL_URL, 255, 255, 255);
+	rgb_color bg = ui_color(B_PANEL_BACKGROUND_COLOR);
+	rgb_color fg = ui_color(B_PANEL_TEXT_COLOR);
 
-	fTheme->SetForeground(COL_TIMESTAMP, 130, 130, 130);
-	fTheme->SetBackground(COL_TIMESTAMP, 255, 255, 255);
+	fTheme->SetForeground(COL_URL, ui_color(B_LINK_TEXT_COLOR));
+	fTheme->SetBackground(COL_URL, bg);
 
-	fTheme->SetForeground(COL_TEXT, 0, 0, 0);
-	fTheme->SetBackground(COL_TEXT, 255, 255, 255);
+	fTheme->SetForeground(COL_TIMESTAMP, fg);
+	fTheme->SetBackground(COL_TIMESTAMP, bg);
 
-	fTheme->SetForeground(COL_ACTION, 0, 0, 0);
-	fTheme->SetBackground(COL_ACTION, 255, 255, 255);
+	fTheme->SetForeground(COL_TEXT, fg);
+	fTheme->SetBackground(COL_TEXT, bg);
 
-	fTheme->SetForeground(COL_SELECTION, 255, 255, 255);
-	fTheme->SetBackground(COL_SELECTION, 0, 0, 0);
+	fTheme->SetForeground(COL_ACTION, fg);
+	fTheme->SetBackground(COL_ACTION, bg);
+
+	fTheme->SetForeground(COL_SELECTION, ui_color(B_MENU_SELECTED_ITEM_TEXT_COLOR));
+	fTheme->SetBackground(COL_SELECTION, ui_color(B_MENU_SELECTED_BACKGROUND_COLOR));
 
 	fTheme->SetForeground(COL_OWNNICK, 0, 0, 255);
-	fTheme->SetBackground(COL_OWNNICK, 255, 255, 255);
+	fTheme->SetBackground(COL_OWNNICK, bg);
 
 	fTheme->SetForeground(COL_OTHERNICK, 255, 0, 0);
-	fTheme->SetBackground(COL_OTHERNICK, 255, 255, 255);
+	fTheme->SetBackground(COL_OTHERNICK, bg);
 
 	fTheme->SetTextRender(R_EMOTICON, &str);
 
