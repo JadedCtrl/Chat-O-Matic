@@ -24,8 +24,8 @@ public:
 private:
 	BListView*		fListView;
 	BPopUpMenu*		fProtosMenu;
-	ToolButton*		fDelButton;
-	ToolButton*		fEditButton;
+	BButton*		fDelButton;
+	BButton*		fEditButton;
 
 
 	void			_LoadListView(ProtocolSettings* settings);

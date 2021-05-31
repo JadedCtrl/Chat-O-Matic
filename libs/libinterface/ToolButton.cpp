@@ -37,7 +37,6 @@ ToolButton::ToolButton(const char* name, const char* label,
 		fMenu(NULL),
 		fPreferredSize(-1, -1)
 {
-	SetFontSize(be_plain_font->Size() * 0.85f);
 }
 
 
@@ -49,7 +48,6 @@ ToolButton::ToolButton(const char* label, BMessage* message)
 		fMenu(NULL), 
 		fPreferredSize(-1, -1)
 {
-	SetFontSize(be_plain_font->Size() * 0.85f);
 }
 
 
@@ -60,7 +58,6 @@ ToolButton::ToolButton(BMessage* archive)
 		fMenu(NULL),
 		fPreferredSize(-1, -1)
 {
-	SetFontSize(be_plain_font->Size() * 0.85f);
 }
 
 

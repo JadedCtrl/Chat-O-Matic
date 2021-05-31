@@ -8,8 +8,7 @@
 
 #include <Button.h>
 #include <ControlLook.h>
-#include <GroupLayout.h>
-#include <GroupLayoutBuilder.h>
+#include <LayoutBuilder.h>
 #include <ListView.h>
 #include <PopUpMenu.h>
 #include <ScrollView.h>
@@ -73,24 +72,22 @@ PreferencesAccounts::PreferencesAccounts()
 
 	ToolButton* proto = new ToolButton("Add", NULL);
 	proto->SetMenu(fProtosMenu);
-	fDelButton = new ToolButton("Del", new BMessage(kDelAccount));
-	fEditButton = new ToolButton("Edit...", new BMessage(kEditAccount));
+	fDelButton = new BButton("Del", new BMessage(kDelAccount));
+	fEditButton = new BButton("Edit" B_UTF8_ELLIPSIS, new BMessage(kEditAccount));
 	fDelButton->SetEnabled(false);
 	fEditButton->SetEnabled(false);
 
-	const float spacing = be_control_look->DefaultItemSpacing();
-
-	SetLayout(new BGroupLayout(B_HORIZONTAL, spacing));
-	AddChild(BGroupLayoutBuilder(B_VERTICAL)
+	BLayoutBuilder::Group<>(this, B_VERTICAL)
+		.SetInsets(B_USE_DEFAULT_SPACING)
 		.Add(scrollView)
-		.AddGroup(B_HORIZONTAL, spacing)
+		.AddGroup(B_HORIZONTAL)
+			.SetInsets(0, 0, 0, 15)
 			.Add(proto)
 			.Add(fDelButton)
 			.AddGlue()
 			.Add(fEditButton)
 		.End()
-		.SetInsets(spacing, spacing, spacing, spacing)
-	);
+	.End();
 }
 
 

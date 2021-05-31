@@ -32,15 +32,12 @@ PreferencesDialog::PreferencesDialog()
 
 	BButton* ok = new BButton("OK", new BMessage(kApply));
 
-	const float spacing = be_control_look->DefaultItemSpacing();
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.Add(tabView)
 		.AddGroup(B_HORIZONTAL)
 			.AddGlue()
 			.Add(ok)
-			.SetInsets(spacing, spacing, 0, 0)
-		.End()
-		.SetInsets(spacing, spacing, spacing, spacing);
+		.End();
 
 	CenterOnScreen();
 }
@@ -57,3 +54,5 @@ PreferencesDialog::MessageReceived(BMessage* msg)
 			BWindow::MessageReceived(msg);
 	}
 }
+
+
