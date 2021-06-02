@@ -136,10 +136,15 @@ JabberHandler::Process(BMessage* msg)
 
 		case IM_JOIN_ROOM: {
 			BString chat_id = msg->FindString("chat_id");
-			chat_id << "/" << fUsername;
+			BString join_id = chat_id;
+			join_id << "/" << fUsername;
 
-			gloox::MUCRoom room(fClient, gloox::JID(chat_id.String()), this, this);
-			room.join();
+			gloox::MUCRoom* room =
+				new gloox::MUCRoom(fClient, gloox::JID(join_id.String()),
+								   this, this);
+			room->join();
+
+			fRooms.AddItem(chat_id, room);
 			break;
 		}
 
@@ -1074,9 +1079,25 @@ JabberHandler::handleMUCParticipantPresence(gloox::MUCRoom *room,
 
 
 void
-JabberHandler::handleMUCMessage(gloox::MUCRoom *room, const gloox::Message &msg,
+JabberHandler::handleMUCMessage(gloox::MUCRoom *room, const gloox::Message &m,
 								bool priv)
 {
+	// We need a body
+	if (m.body() == "")
+		return;
+
+	BString chat_id(room->name().c_str());
+	chat_id << "@" << room->service().c_str();
+
+	// Notify that a chat message was received
+	BMessage msg(IM_MESSAGE);
+	msg.AddString("user_id", m.from().resource().c_str());
+	msg.AddString("chat_id", chat_id);
+	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+		if (m.subject() != "")
+		msg.AddString("subject", m.subject().c_str());
+	msg.AddString("body", m.body().c_str());
+	_SendMessage(&msg);
 }
 
 

@@ -31,8 +31,13 @@
 
 #include <CayaProtocol.h>
 #include <CayaConstants.h>
+#include <libsupport/KeyMap.h>
 
 class BList;
+
+
+typedef KeyMap<BString, gloox::MUCRoom*> RoomMap;
+
 
 class JabberHandler : public CayaProtocol, gloox::RosterListener, gloox::ConnectionListener,
 								gloox::LogHandler, gloox::MessageSessionHandler,
@@ -100,6 +105,7 @@ private:
 
 			gloox::JID				fJid;
 			thread_id				fRecvThread;
+			RoomMap					fRooms;
 
 			BPath					fCachePath;
 			BPath					fAvatarCachePath;
@@ -136,7 +142,7 @@ private:
 	virtual void					handleMUCParticipantPresence(gloox::MUCRoom* room,
 																 const gloox::MUCRoomParticipant participant,
 																 const gloox::Presence &presence);
-	virtual void					handleMUCMessage(gloox::MUCRoom* room, const gloox::Message &msg, bool priv);
+	virtual void					handleMUCMessage(gloox::MUCRoom* room, const gloox::Message &m, bool priv);
 	virtual bool					handleMUCRoomCreation(gloox::MUCRoom* room);
 	virtual void 					handleMUCSubject(gloox::MUCRoom* room, const std::string &nick,
 													 const std::string &subject);
