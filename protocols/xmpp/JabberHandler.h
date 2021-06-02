@@ -18,11 +18,13 @@
 #include <gloox/rostermanager.h>
 #include <gloox/loghandler.h>
 #include <gloox/logsink.h>
+#include <gloox/message.h>
 #include <gloox/messagehandler.h>
 #include <gloox/messagesession.h>
 #include <gloox/messagesessionhandler.h>
 #include <gloox/messageeventhandler.h>
-#include <gloox/message.h>
+#include <gloox/mucroomhandler.h>
+#include <gloox/mucroomconfighandler.h>
 #include <gloox/presence.h>
 #include <gloox/vcardhandler.h>
 #include <gloox/vcardmanager.h>
@@ -35,7 +37,8 @@ class BList;
 class JabberHandler : public CayaProtocol, gloox::RosterListener, gloox::ConnectionListener,
 								gloox::LogHandler, gloox::MessageSessionHandler,
 								gloox::MessageHandler, gloox::MessageEventHandler,
-								gloox::ChatStateHandler, gloox::VCardHandler {
+								gloox::ChatStateHandler, gloox::VCardHandler,
+								gloox::MUCRoomHandler, gloox::MUCRoomConfigHandler {
 public:
 									JabberHandler();
 	virtual							~JabberHandler();
@@ -50,8 +53,11 @@ public:
 	virtual	const char*				Signature() const = 0;
 	virtual	const char*				FriendlySignature() const = 0;
 
-	virtual void							SetPath(BPath path);
-	virtual BPath							Path();
+	virtual void					SetAddOnPath(BPath path);
+	virtual BPath					AddOnPath();
+
+	virtual void					SetName(const char* name);
+	virtual const char*				GetName();
 
 	virtual	status_t				UpdateSettings(BMessage* msg);
 
@@ -64,7 +70,8 @@ public:
 
 			// Functions for gloox
 			gloox::Client*			Client() const;
-			void					HandleError(gloox::ConnectionError& e);
+			void					HandleConnectionError(gloox::ConnectionError& e);
+			void					HandleStanzaError(gloox::StanzaError error);
 
 			// Callbacks for protocols
 	virtual	void					OverrideSettings() = 0;
@@ -78,6 +85,7 @@ protected:
 			uint16					fPort;
 
 			BPath					fPath;
+			BString					fName;
 
 			BMessage				_SettingsTemplate(const char* username, bool serverOption);
 private:
@@ -125,6 +133,28 @@ private:
 	virtual	void					handleMessageEvent(const gloox::JID& from, gloox::MessageEventType event);
 	virtual	void					handleChatState(const gloox::JID& from, gloox::ChatStateType state);
 
+	virtual void					handleMUCParticipantPresence(gloox::MUCRoom* room,
+																 const gloox::MUCRoomParticipant participant,
+																 const gloox::Presence &presence);
+	virtual void					handleMUCMessage(gloox::MUCRoom* room, const gloox::Message &msg, bool priv);
+	virtual bool					handleMUCRoomCreation(gloox::MUCRoom* room);
+	virtual void 					handleMUCSubject(gloox::MUCRoom* room, const std::string &nick,
+													 const std::string &subject);
+	virtual void					handleMUCInviteDecline(gloox::MUCRoom* room, const gloox::JID &invitee,
+														   const std::string &reason);
+	virtual void					handleMUCError(gloox::MUCRoom* room, gloox::StanzaError error);
+	virtual void					handleMUCInfo(gloox::MUCRoom* room, int features, const std::string &name,
+												  const gloox::DataForm* infoForm);
+	virtual void					handleMUCItems(gloox::MUCRoom* room, const gloox::Disco::ItemList &items);
+
+	virtual void					handleMUCConfigList(gloox::MUCRoom* room,
+														const gloox::MUCListItemList &items,
+														gloox::MUCOperation operation);
+	virtual void 					handleMUCConfigForm(gloox::MUCRoom* room, const gloox::DataForm &form);
+	virtual void 					handleMUCConfigResult(gloox::MUCRoom* room, bool success,
+														  gloox::MUCOperation operation);
+	virtual void				 	handleMUCRequest(gloox::MUCRoom* room, const gloox::DataForm &form);
+
 	virtual	void					handleItemAdded(const gloox::JID&);
 	virtual	void					handleItemSubscribed(const gloox::JID&);
 	virtual	void					handleItemUnsubscribed(const gloox::JID&);
@@ -142,8 +172,7 @@ private:
 	virtual	void					handleLog(gloox::LogLevel, gloox::LogArea, const std::string&);
 	virtual	void					handleVCard(const gloox::JID&, const gloox::VCard*);
 	virtual	void					handleVCardResult(gloox::VCardHandler::VCardContext,
-													  const gloox::JID&,
-													  gloox::StanzaError);
+													  const gloox::JID&, gloox::StanzaError);
 };
 
 #endif	// _JABBER_HANDLER_H

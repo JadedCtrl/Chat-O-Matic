@@ -18,6 +18,7 @@
 
 #include <gloox/chatstatefilter.h>
 #include <gloox/messageeventfilter.h>
+#include <gloox/mucroom.h>
 
 #include "JabberHandler.h"
 
@@ -38,7 +39,7 @@ connect_thread(void* data)
 	while ((e = client->recv(10000000)) == gloox::ConnNoError);
 
 	if (e != gloox::ConnUserDisconnected)
-		handler->HandleError(e);
+		handler->HandleConnectionError(e);
 
 	return B_OK;
 }
@@ -133,6 +134,15 @@ JabberHandler::Process(BMessage* msg)
 			break;
 		}
 
+		case IM_JOIN_ROOM: {
+			BString chat_id = msg->FindString("chat_id");
+			chat_id << "/" << fUsername;
+
+			gloox::MUCRoom room(fClient, gloox::JID(chat_id.String()), this, this);
+			room.join();
+			break;
+		}
+
 		default:
 			return B_ERROR;
 	}
@@ -157,16 +167,30 @@ JabberHandler::Shutdown()
 
 
 void
-JabberHandler::SetPath(BPath path)
+JabberHandler::SetAddOnPath(BPath path)
 {
 	fPath = path;
 }
 
 
 BPath
-JabberHandler::Path()
+JabberHandler::AddOnPath()
 {
 	return fPath;
+}
+
+
+void
+JabberHandler::SetName(const char* name)
+{
+	fName = name;
+}
+
+
+const char*
+JabberHandler::GetName()
+{
+	return fName.String();
 }
 
 
@@ -246,7 +270,7 @@ JabberHandler::Client() const
 
 
 void
-JabberHandler::HandleError(gloox::ConnectionError& e)
+JabberHandler::HandleConnectionError(gloox::ConnectionError& e)
 {
 	// Handle error
 	BMessage errMsg(IM_ERROR);
@@ -495,6 +519,96 @@ JabberHandler::HandleError(gloox::ConnectionError& e)
 			break;
 	}
 
+	_SendMessage(&errMsg);
+}
+
+
+void
+JabberHandler::HandleStanzaError(gloox::StanzaError error)
+{
+	BMessage errMsg(IM_ERROR);
+	errMsg.AddString("error", "Stanza-related error");
+	BString detail;
+
+	switch (error)
+	{
+		case gloox::StanzaErrorBadRequest:
+			detail = "The sender has sent XML that is malformed or that cannot "
+			"be processed.";
+			break;
+		case gloox::StanzaErrorConflict:
+			detail = "Access cannot be granted because an existing resource or "
+			"session exists with the same name or address.";
+			break;
+		case gloox::StanzaErrorFeatureNotImplemented:
+			detail = "This feature hasn't been implemented by the recipient or "
+			"by the server.";
+			break;
+		case gloox::StanzaErrorForbidden:
+			detail = "You don't have permssion to do this.";
+			break;
+		case gloox::StanzaErrorGone:
+			detail = "The recipient or server can no longer be contacted at "
+			"this address. Try again later, or with a different address.";
+			break;
+		case gloox::StanzaErrorInternalServerError:
+			detail = "The server could not process the stanza because of a "
+			"misconfiguration or an otherwise-undefined internal server error.";
+			break;
+		case gloox::StanzaErrorItemNotFound:
+			detail = "The addressed JID or item requested cannot be found.";
+			break;
+		case gloox::StanzaErrorJidMalformed:
+			detail = "An invalid XMPP address or identifier was given. If you "
+			"can, please try a different one.";
+			break;
+		case gloox::StanzaErrorNotAcceptable:
+			detail = "The server or user refuses to accept this, because some "
+			"criteria hasn't been met (e.g., a local policy regarding "
+			"acceptable words in messages).";
+			break;
+		case gloox::StanzaErrorNotAllowed:
+			detail = "You aren't allowed to do this by the server or recepient.";
+			break;
+		case gloox::StanzaErrorNotAuthorized:
+			detail = "You need to be properily authenticated before doing this.";
+		case gloox::StanzaErrorNotModified:
+			detail = "The item requested has not changed since it was last "
+			"requested.";
+		case gloox::StanzaErrorPaymentRequired:
+			detail = "The server refuses to offer service, because payment is "
+			"required.";
+			break;
+		case gloox::StanzaErrorRecipientUnavailable:
+			detail = "The recipient is temporarily unavailable.";
+			break;
+		case gloox::StanzaErrorRedirect:
+			detail = "The recipient or server is redirecting requests for this "
+			"information to another entity, usually temporarily.";
+			break;
+		case gloox::StanzaErrorRegistrationRequired:
+			detail = "You can't do this before registration! Be sure your "
+			"finished registering for your account.";
+			break;
+		case gloox::StanzaErrorRemoteServerNotFound:
+			detail = "That user's server doesn't exist.";
+			break;
+		case gloox::StanzaErrorRemoteServerTimeout:
+			detail = "Connection to that user's server has timed out.";
+			break;
+		case gloox::StanzaErrorResourceConstraint:
+			detail = "The server or recipient are too busy right now; try "
+			"again later.";
+			break;
+		case gloox::StanzaErrorServiceUnavailable:
+			detail = "The server or recipient don't provide this service.";
+			break;
+		case gloox::StanzaErrorSubscribtionRequired:
+			detail = "You can't access this unless you are subscribed.";
+			break;
+	}
+
+	errMsg.AddString("detail", detail);
 	_SendMessage(&errMsg);
 }
 
@@ -797,7 +911,7 @@ JabberHandler::onDisconnect(gloox::ConnectionError e)
 	}
 
 	// Handle error
-	HandleError(e);
+	HandleConnectionError(e);
 }
 
 
@@ -948,6 +1062,90 @@ printf("------ %d\n", state);
 	}
 
 	_SendMessage(&msg);
+}
+
+
+void
+JabberHandler::handleMUCParticipantPresence(gloox::MUCRoom *room,
+											const gloox::MUCRoomParticipant participant,
+											const gloox::Presence &presence)
+{
+}
+
+
+void
+JabberHandler::handleMUCMessage(gloox::MUCRoom *room, const gloox::Message &msg,
+								bool priv)
+{
+}
+
+
+bool
+JabberHandler::handleMUCRoomCreation(gloox::MUCRoom *room)
+{
+	return true;
+}
+
+
+void
+JabberHandler::handleMUCSubject(gloox::MUCRoom *room, const std::string &nick,
+								const std::string &subject)
+{
+}
+
+
+void
+JabberHandler::handleMUCInviteDecline(gloox::MUCRoom *room, const gloox::JID &invitee,
+									  const std::string &reason)
+{
+}
+
+
+
+
+void
+JabberHandler::handleMUCError(gloox::MUCRoom *room, gloox::StanzaError error)
+{
+	HandleStanzaError(error);
+}
+
+
+void
+JabberHandler::handleMUCInfo(gloox::MUCRoom *room, int features,
+							 const std::string &name, const gloox::DataForm *infoForm)
+{
+}
+
+
+void
+JabberHandler::handleMUCItems(gloox::MUCRoom *room, const gloox::Disco::ItemList &items)
+{
+}
+
+
+void
+JabberHandler::handleMUCConfigList(gloox::MUCRoom* room, const gloox::MUCListItemList &items,
+								   gloox::MUCOperation operation)
+{
+}
+
+
+void
+JabberHandler::handleMUCConfigForm(gloox::MUCRoom* room, const gloox::DataForm &form)
+{
+}
+
+
+void
+JabberHandler::handleMUCConfigResult(gloox::MUCRoom* room, bool success,
+									 gloox::MUCOperation operation)
+{
+}
+
+
+void
+JabberHandler::handleMUCRequest(gloox::MUCRoom* room, const gloox::DataForm &form)
+{
 }
 
 
