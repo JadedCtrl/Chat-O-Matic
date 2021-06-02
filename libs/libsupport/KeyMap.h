@@ -94,7 +94,7 @@ template<class KEY, class TYPE>
 inline KEY
 KeyMap<KEY, TYPE>::KeyAt(uint32 position) const
 {
-	fIter i = fMap.begin();
+	fConstIter i = fMap.begin();
 	std::advance(i, position); 	
 	if (i == fMap.end())
 		return NULL;
