@@ -38,7 +38,7 @@ const uint32 kLogin			= 'LOGI';
 
 MainWindow::MainWindow()
 	:
-	BWindow(BRect(0, 0, 300, 400), "Caya", B_TITLED_WINDOW, 0),
+	BWindow(BRect(0, 0, 600, 400), "Caya", B_TITLED_WINDOW, 0),
 	fWorkspaceChanged(false),
 	fConversation(NULL),
 	fRosterWindow(NULL)
