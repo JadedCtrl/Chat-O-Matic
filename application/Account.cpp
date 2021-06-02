@@ -34,6 +34,8 @@ Account::Account(bigtime_t instanceId, CayaProtocol* cayap,
 	if (path.InitCheck() == B_OK) {
 		path.Append(name);
 
+		fProtocol->SetName(name);
+
 		// Load settings file
 		BFile file(path.Path(), B_READ_ONLY);
 		if (fSettings->Unflatten(&file) == B_OK)

@@ -40,17 +40,18 @@ enum im_what_code {
 	//! Contact(s) removed from the server-side list
 	IM_CONTACT_LIST_REMOVED_CONTACT		= 4,
 
+
 	/*
 	 * Messages related to text chat.
 	 */
 
-	//! Send a chat message to a contact
+	//! Send a chat message
 	IM_SEND_MESSAGE						= 20,
 
-	//! Chat message has been sent to contact
+	//! Chat message has been sent
 	IM_MESSAGE_SENT						= 21,
 
-	//! Chat message received from contact
+	//! Chat message received
 	IM_MESSAGE_RECEIVED					= 22,
 
 	//! Contact started typing
@@ -71,11 +72,23 @@ enum im_what_code {
 	//! Logs received
 	IM_LOGS_RECEIVED					= 28,
 
+
+	/*
+	 * Messages related to rooms
+	 */
+
 	//! Create an individual chat
-	IM_CREATE_CHAT						= 29,
+	IM_CREATE_CHAT						= 30,
 
 	//! Chat has been created
-	IM_CHAT_CREATED						= 30,
+	IM_CHAT_CREATED						= 31,
+
+	//! Join a room
+	IM_JOIN_ROOM						= 32,
+
+	//! Confirm the room's been joined
+	IM_ROOM_JOINED						= 33,
+
 
 	/*
 	 * Messages related to contact changes.
@@ -86,6 +99,7 @@ enum im_what_code {
 
 	//! Contact's status has changed
 	IM_NICKNAME_SET						= 41,
+
 
 	/*
 	 * Messages related to contact's information received from protocols.
@@ -108,6 +122,7 @@ enum im_what_code {
 
 	//! Received extended contact information
 	IM_EXTENDED_CONTACT_INFO			= 65,
+
 
 	/*
 	 * Messages that involve changing own information.
@@ -134,6 +149,7 @@ enum im_what_code {
 	//! Own avatar icon was changed
 	IM_OWN_AVATAR_SET					= 86,
 
+
 	/*
 	 * Contacts registration.
 	 */
@@ -143,6 +159,7 @@ enum im_what_code {
 
 	//! Stop listening to status changes from these contacts
 	IM_UNREGISTER_CONTACTS				= 101,
+
 
 	/*
 	 * Authorization.
@@ -162,6 +179,7 @@ enum im_what_code {
 
 	//! Contact has been authorized
 	IM_CONTACT_AUTHORIZED				= 124,
+
 
 	/*
 	 * Miscellaneous.

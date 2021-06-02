@@ -23,6 +23,7 @@
 #include "ConversationListView.h"
 #include "ConversationView.h"
 #include "EditingFilter.h"
+#include "JoinWindow.h"
 #include "MainWindow.h"
 #include "NotifyMessage.h"
 #include "PreferencesDialog.h"
@@ -108,6 +109,14 @@ MainWindow::MessageReceived(BMessage* message)
 			fRosterWindow = new RosterWindow("Invite contact to chat"
 			B_UTF8_ELLIPSIS, IM_CREATE_CHAT, new BMessenger(this), fServer);
 			fRosterWindow->Show();
+			break;
+		}
+
+		case CAYA_JOIN_CHAT:
+		{
+			JoinWindow* win = new JoinWindow(new BMessenger(this),
+											 fServer->GetAccounts());
+			win->Show();
 			break;
 		}
 
@@ -350,9 +359,16 @@ MainWindow::_CreateMenuBar()
 	BMenuItem* invite = new BMenuItem("Invite user" B_UTF8_ELLIPSIS,
 		new BMessage(CAYA_SEND_INVITE), 'I', B_COMMAND_KEY);
 	invite->SetEnabled(false);
+	BMenuItem* newRoom = new BMenuItem("New room" B_UTF8_ELLIPSIS,
+		new BMessage(), 'N', B_COMMAND_KEY);
+	newRoom->SetEnabled(false);
 
+	chatMenu->AddItem(new BMenuItem("Join room" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_JOIN_CHAT), 'J', B_COMMAND_KEY));
+	chatMenu->AddSeparatorItem();
 	chatMenu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
 		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY));
+	chatMenu->AddItem(newRoom);
 	chatMenu->AddSeparatorItem();
 	chatMenu->AddItem(invite);
 	chatMenu->SetTargetForItems(this);

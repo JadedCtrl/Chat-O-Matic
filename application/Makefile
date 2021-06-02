@@ -41,6 +41,7 @@ SRCS = \
 	application/Conversation.cpp \
 	application/EditingFilter.cpp \
 	application/ImageCache.cpp \
+	application/JoinWindow.cpp \
 	application/Main.cpp \
 	application/MainWindow.cpp \
 	application/Notifier.cpp \

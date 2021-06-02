@@ -25,6 +25,7 @@ typedef KeyMap<BString, Contact*> RosterMap;
 typedef KeyMap<BString, User*> UserMap;
 typedef KeyMap<BString, Conversation*> ChatMap;
 typedef KeyMap<bigtime_t, ProtocolLooper*> ProtocolLoopers;
+typedef KeyMap<BString, bigtime_t> AccountInstances;
 
 
 class Server: public BMessageFilter {
@@ -39,6 +40,10 @@ public:
 			void			AddProtocolLooper(bigtime_t instanceId,
 								CayaProtocol* cayap);
 			void			RemoveProtocolLooper(bigtime_t instanceId);
+			ProtocolLooper*	GetProtocolLooper(bigtime_t instanceId);
+
+			AccountInstances
+							GetAccounts();
 
 			void			SendProtocolMessage(BMessage* msg);
 			void			SendAllProtocolMessage(BMessage* msg);
@@ -71,6 +76,8 @@ private:
 			UserMap			fUserMap;
 			ChatMap			fChatMap;
 			ProtocolLoopers	fLoopers;
+			AccountInstances
+							fAccounts;
 			BString			fMySelf;
 };
 

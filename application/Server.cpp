@@ -245,6 +245,15 @@ Server::ImMessage(BMessage* msg)
 
 			break;
 		}
+		case IM_JOIN_ROOM:
+		{
+			SendProtocolMessage(msg);
+			break;
+		}
+		case IM_ROOM_JOINED:
+		{
+			break;
+		}
 		case IM_SEND_MESSAGE:
 		{
 			// Route this message through the appropriate ProtocolLooper
@@ -348,12 +357,28 @@ Server::AddProtocolLooper(bigtime_t instanceId, CayaProtocol* cayap)
 {
 	ProtocolLooper* looper = new ProtocolLooper(cayap);
 	fLoopers.AddItem(instanceId, looper);
+	fAccounts.AddItem(cayap->GetName(), instanceId);
 }
 
 
 void
 Server::RemoveProtocolLooper(bigtime_t instanceId)
 {
+}
+
+
+ProtocolLooper*
+Server::GetProtocolLooper(bigtime_t instanceId)
+{
+	bool found = false;
+	return fLoopers.ValueFor(instanceId, &found);
+}
+
+
+AccountInstances
+Server::GetAccounts()
+{
+	return fAccounts;
 }
 
 

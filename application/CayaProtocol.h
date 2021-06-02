@@ -51,8 +51,12 @@ public:
 	virtual bool SaveLogs() const = 0;
 
 	//! Add-on's path
-	virtual void SetPath(BPath path) = 0;
-	virtual BPath Path() = 0;
+	virtual void SetAddOnPath(BPath path) = 0;
+	virtual BPath AddOnPath() = 0;
+
+	//! Name of account file (leaf)
+	virtual const char* GetName() = 0;
+	virtual void SetName(const char* name) = 0;
 
 	//! Preferred encoding of messages
 	virtual uint32 GetEncoding() = 0;

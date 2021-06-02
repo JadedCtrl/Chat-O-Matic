@@ -52,7 +52,7 @@ CayaProtocol*
 CayaProtocolAddOn::ProtocolAt(int32 i) const
 {
 	CayaProtocol* proto = fGetProtocol(i);
-	proto->SetPath(BPath(fPath.String()));
+	proto->SetAddOnPath(BPath(fPath.String()));
 	return proto;
 }
 
