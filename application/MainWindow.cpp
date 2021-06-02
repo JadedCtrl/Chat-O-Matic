@@ -214,11 +214,8 @@ MainWindow::ImMessage(BMessage* msg)
 			}
 			break;
 		}
+		case IM_ROOM_PARTICIPANTS:
 		case IM_MESSAGE_RECEIVED:
-		{
-			_EnsureConversationItem(msg);
-			break;
-		}
 		case IM_MESSAGE_SENT:
 		case IM_CHAT_CREATED:
 		{
@@ -230,8 +227,9 @@ MainWindow::ImMessage(BMessage* msg)
 		case IM_EXTENDED_CONTACT_INFO:
 		case IM_STATUS_SET:
 		{
-			if (fRosterWindow != NULL)
-				fRosterWindow->PostMessage(msg);
+			if (fServer->ContactById(msg->FindString("user_id")) != NULL)
+				if (fRosterWindow != NULL)
+					fRosterWindow->PostMessage(msg);
 			break;
 		}
 	}

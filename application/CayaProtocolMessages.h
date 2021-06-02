@@ -89,6 +89,12 @@ enum im_what_code {
 	//! Confirm the room's been joined
 	IM_ROOM_JOINED						= 33,
 
+	//! Returning a (not necessarily complete) list of room users
+	IM_ROOM_PARTICIPANTS				= 34,
+
+	//! A user left the room
+	IM_ROOM_PARTICIPANT_LEFT				= 35,
+
 
 	/*
 	 * Messages related to contact changes.

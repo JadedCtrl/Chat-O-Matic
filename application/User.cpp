@@ -142,8 +142,10 @@ User::ProtocolBitmap() const
 UserItem*
 User::GetListItem()
 {
-	if (fListItem == NULL)
+	if (fListItem == NULL) {
 		fListItem = new UserItem(fName, this);
+		RegisterObserver(fListItem);
+	}
 	return fListItem;
 }
 

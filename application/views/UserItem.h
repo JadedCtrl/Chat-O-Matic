@@ -20,8 +20,6 @@ public:
 
 protected:
 	void ObserveString(int32 what, BString str);
-	void ObservePointer(int32 what, void* ptr);
-	void ObserveInteger(int32 what, int32 val);
 
 private:
 	User* fUser;

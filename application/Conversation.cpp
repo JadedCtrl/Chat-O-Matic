@@ -153,7 +153,16 @@ Conversation::AddUser(User* user)
 {
 	BMessage msg;
 	msg.AddString("user_id", user->GetId());
+	msg.AddString("user_name", user->GetName());
 	_EnsureUser(&msg);
+}
+
+
+void
+Conversation::RemoveUser(User* user)
+{
+	fUsers.RemoveItemFor(user->GetId());
+	GetView()->UpdateUserList(fUsers);
 }
 
 

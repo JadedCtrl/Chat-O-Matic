@@ -53,7 +53,9 @@ public:
 
 	UserMap				Users();
 	User*				UserById(BString id);
+
 	void				AddUser(User* user);
+	void				RemoveUser(User* user);
 
 private:
 	void				_LogChatMessage(BMessage* msg);

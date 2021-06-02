@@ -5,6 +5,7 @@
 
 #include "UserItem.h"
 
+#include "NotifyMessage.h"
 #include "User.h"
 
 
@@ -26,18 +27,11 @@ UserItem::GetUser()
 void 
 UserItem::ObserveString(int32 what, BString str)
 {
-}
-
-
-void 
-UserItem::ObservePointer(int32 what, void* ptr)
-{
-}
-
-
-void 
-UserItem::ObserveInteger(int32 what, int32 val)
-{
+	switch (what) {
+		case STR_CONTACT_NAME:
+			SetText(str);
+			break;
+	}
 }
 
 

@@ -16,6 +16,7 @@
 #include <Entry.h>
 #include <Notification.h>
 #include <Path.h>
+#include <StringList.h>
 #include <TranslationUtils.h>
 
 #include "Account.h"
@@ -154,14 +155,14 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindInt32("status", &status) != B_OK)
 				return B_SKIP_MESSAGE;
 
-			Contact* contact = _EnsureContact(msg);
-			if (!contact)
+			User* user = _EnsureUser(msg);
+			if (!user)
 				break;
 
-			contact->SetNotifyStatus((CayaStatus)status);
+			user->SetNotifyStatus((CayaStatus)status);
 			BString statusMsg;
 			if (msg->FindString("message", &statusMsg) == B_OK) {
-				contact->SetNotifyPersonalStatus(statusMsg);
+				user->SetNotifyPersonalStatus(statusMsg);
 //				contact->GetView()->UpdatePersonalMessage();
 			}
 			break;
@@ -252,6 +253,38 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_ROOM_JOINED:
 		{
+			break;
+		}
+		case IM_ROOM_PARTICIPANTS:
+		{
+			Conversation* chat = _EnsureConversation(msg);
+			BStringList ids;
+			BStringList name;
+
+			msg->FindStrings("user_name", &name);
+			if (msg->FindStrings("user_id", &ids) != B_OK)
+				break;
+
+			ProtocolLooper* protoLooper = _LooperFromMessage(msg);
+
+			for (int i = 0; i < ids.CountStrings(); i++) {
+				User* user = _EnsureUser(ids.StringAt(i), protoLooper);
+
+				if (name.CountStrings() >= i) {
+					user->SetNotifyName(name.StringAt(i));
+				}
+				chat->AddUser(user);
+			}
+			break;
+		}
+		case IM_ROOM_PARTICIPANT_LEFT:
+		{
+			Conversation* chat = _EnsureConversation(msg);
+			User* user = _EnsureUser(msg);
+
+			if (user == NULL || chat == NULL)
+				break;
+			chat->RemoveUser(user);
 			break;
 		}
 		case IM_SEND_MESSAGE:
@@ -541,11 +574,18 @@ User*
 Server::_EnsureUser(BMessage* message)
 {
 	BString id = message->FindString("user_id");
+	return _EnsureUser(id, _LooperFromMessage(message));
+}
+
+
+User*
+Server::_EnsureUser(BString id, ProtocolLooper* protoLooper)
+{
 	User* user = UserById(id);
 
 	if (user == NULL && id.IsEmpty() == false) {
 		user = new User(id, Looper());
-		user->SetProtocolLooper(_LooperFromMessage(message));
+		user->SetProtocolLooper(protoLooper);
 		AddUser(user);
 	}
 
