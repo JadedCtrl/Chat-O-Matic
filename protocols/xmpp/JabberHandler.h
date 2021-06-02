@@ -84,6 +84,7 @@ public:
 
 protected:
 			BString					fUsername;
+			BString					fNick;
 			BString					fPassword;
 			BString					fServer;
 			BString					fResource;

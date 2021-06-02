@@ -11,6 +11,7 @@
 #include <File.h>
 #include <FindDirectory.h>
 #include <List.h>
+#include <StringList.h>
 
 #include <CayaProtocolMessages.h>
 
@@ -137,12 +138,13 @@ JabberHandler::Process(BMessage* msg)
 		case IM_JOIN_ROOM: {
 			BString chat_id = msg->FindString("chat_id");
 			BString join_id = chat_id;
-			join_id << "/" << fUsername;
+			join_id << "/" << fNick;
 
 			gloox::MUCRoom* room =
 				new gloox::MUCRoom(fClient, gloox::JID(join_id.String()),
 								   this, this);
 			room->join();
+			room->getRoomItems();
 
 			fRooms.AddItem(chat_id, room);
 			break;
@@ -213,6 +215,7 @@ JabberHandler::UpdateSettings(BMessage* msg)
 
 	// Store settings
 	fUsername = username;
+	fNick = username;
 	fPassword = password;
 	fServer = server;
 	fResource = resource;
@@ -1075,6 +1078,43 @@ JabberHandler::handleMUCParticipantPresence(gloox::MUCRoom *room,
 											const gloox::MUCRoomParticipant participant,
 											const gloox::Presence &presence)
 {
+	BString chat_id(room->name().c_str());
+	chat_id << "@" << room->service().c_str();
+
+	BString nick = participant.nick->resource().c_str();
+	BString user_id(chat_id);
+	user_id << "/" << nick;
+
+	if (nick == fNick) {
+		BMessage joinedMsg(IM_MESSAGE);
+		joinedMsg.AddInt32("im_what", IM_ROOM_JOINED);
+		joinedMsg.AddString("chat_id", chat_id);
+		_SendMessage(&joinedMsg);
+		return;
+	}
+
+	BMessage statusMsg(IM_MESSAGE);
+	statusMsg.AddInt32("im_what", IM_STATUS_SET);
+	statusMsg.AddString("user_id", user_id);
+	statusMsg.AddInt32("status", _GlooxStatusToCaya(presence.presence()));
+	_SendMessage(&statusMsg);
+
+	// If unavailable (disconnected/left chat)
+	if (presence.presence() == 5) {
+		BMessage leftMsg(IM_MESSAGE);
+		leftMsg.AddInt32("im_what", IM_ROOM_PARTICIPANT_LEFT);
+		leftMsg.AddString("user_id", user_id);
+		leftMsg.AddString("chat_id", chat_id);
+		_SendMessage(&leftMsg);
+		return;
+	}
+
+	BMessage joinMsg(IM_MESSAGE);
+	joinMsg.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
+	joinMsg.AddString("user_id", user_id);
+	joinMsg.AddString("user_name", nick);
+	joinMsg.AddString("chat_id", chat_id);
+	_SendMessage(&joinMsg);
 }
 
 
@@ -1086,14 +1126,21 @@ JabberHandler::handleMUCMessage(gloox::MUCRoom *room, const gloox::Message &m,
 	if (m.body() == "")
 		return;
 
+	int32 im_what = IM_MESSAGE_RECEIVED;
+	if (m.when() != 0)
+		im_what = IM_LOGS_RECEIVED;
+
 	BString chat_id(room->name().c_str());
 	chat_id << "@" << room->service().c_str();
 
+	BString user_id(chat_id);
+	user_id << "/" << m.from().resource().c_str();
+
 	// Notify that a chat message was received
 	BMessage msg(IM_MESSAGE);
-	msg.AddString("user_id", m.from().resource().c_str());
+	msg.AddInt32("im_what", im_what);
+	msg.AddString("user_id", user_id);
 	msg.AddString("chat_id", chat_id);
-	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
 		if (m.subject() != "")
 		msg.AddString("subject", m.subject().c_str());
 	msg.AddString("body", m.body().c_str());
@@ -1141,6 +1188,33 @@ JabberHandler::handleMUCInfo(gloox::MUCRoom *room, int features,
 void
 JabberHandler::handleMUCItems(gloox::MUCRoom *room, const gloox::Disco::ItemList &items)
 {
+	BStringList nicks;
+	BStringList ids;
+
+	BString chat_id(room->name().c_str());
+	chat_id << "@" << room->service().c_str();
+
+	for (auto item: items) {
+		BString nick = item->jid().resource().c_str();
+		nicks.Add(nick);
+
+		// Unless it's the user, derive ID from room resource
+		if (fNick != nick) {
+			BString user_id(chat_id);
+			user_id << "/" << nick;
+			ids.Add(user_id);
+		}
+		else
+			ids.Add(BString(fJid.bare().c_str()));
+	}
+
+	BMessage msg(IM_MESSAGE);
+	msg.AddStrings("user_id", ids);
+	msg.AddStrings("user_name", nicks);
+	msg.AddString("chat_id", chat_id);
+	msg.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
+
+	_SendMessage(&msg);
 }
 
 
