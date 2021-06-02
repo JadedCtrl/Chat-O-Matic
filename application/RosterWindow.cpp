@@ -31,7 +31,7 @@ const uint32 kSendMessage = 'RWSM';
 RosterWindow::RosterWindow(const char* title, int32 selectMsg,
 	BMessenger* messenger, Server* server)
 	:
-	BWindow(BRect(0, 0, 300, 400), title, B_TITLED_WINDOW, 0),
+	BWindow(BRect(0, 0, 300, 400), title, B_FLOATING_WINDOW, 0),
 	fTarget(messenger),
 	fServer(server)
 {
