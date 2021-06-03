@@ -130,6 +130,9 @@ private:
 
 			CayaStatus				_GlooxStatusToCaya(gloox::Presence::PresenceType type);
 
+			const char*				_MUCChatId(gloox::MUCRoom* room);
+			bool					_MUCUserId(const char* chat_id, const char* nick, BString* id);
+
 	virtual	void					onConnect();
 	virtual	void					onDisconnect(gloox::ConnectionError);
 	virtual	bool					onTLSConnect(const gloox::CertInfo&);

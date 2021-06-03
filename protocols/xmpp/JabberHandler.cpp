@@ -109,6 +109,7 @@ JabberHandler::Process(BMessage* msg)
 			const char* id = msg->FindString("chat_id");
 			const char* subject = msg->FindString("subject");
 			const char* body = msg->FindString("body");
+			gloox::MUCRoom* room = fRooms.ValueFor(id);
 
 			if (!id || !body)
 				return B_ERROR;
@@ -116,9 +117,16 @@ JabberHandler::Process(BMessage* msg)
 			// Send JabberHandler message
 			gloox::Message jm(gloox::Message::Chat, gloox::JID(id),
 				body, (subject ? subject : gloox::EmptyString));
-			fClient->send(jm);
+			if (room != NULL) {
+				room->send(body);
+				break;
+			}
+			else
+				fClient->send(jm);
 
-			// Tell Caya we actually sent the message
+			// If non-MUC, tell Caya we actually sent the message
+			// (An MUC should echo the message back to us later, see
+			// handleMUCMessage)
 			_MessageSent(id, subject, body);
 			break;
 		}
@@ -840,6 +848,33 @@ JabberHandler::_GlooxStatusToCaya(gloox::Presence::PresenceType type)
 }
 
 
+const char*
+JabberHandler::_MUCChatId(gloox::MUCRoom* room)
+{
+	BString chat_id(room->name().c_str());
+	chat_id << "@" << room->service().c_str();
+
+	return chat_id.String();
+}
+
+
+bool
+JabberHandler::_MUCUserId(const char* chat_id, const char* nick, BString* id)
+{
+	BString chat(chat_id);
+	chat << "/" << nick;
+
+	// If sent from own user, use normal ID
+	if (nick == fNick) {
+		*id = fJid.bare().c_str();
+		return true;
+	}
+
+	*id = chat;
+	return false;
+}
+
+
 BMessage
 JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 {
@@ -1078,14 +1113,13 @@ JabberHandler::handleMUCParticipantPresence(gloox::MUCRoom *room,
 											const gloox::MUCRoomParticipant participant,
 											const gloox::Presence &presence)
 {
-	BString chat_id(room->name().c_str());
-	chat_id << "@" << room->service().c_str();
+	const char* chat_id = _MUCChatId(room);
+	const char* nick = participant.nick->resource().c_str();
 
-	BString nick = participant.nick->resource().c_str();
-	BString user_id(chat_id);
-	user_id << "/" << nick;
+	BString user_id;
+	bool isSelf = _MUCUserId(chat_id, nick, &user_id);
 
-	if (nick == fNick) {
+	if (isSelf == true) {
 		BMessage joinedMsg(IM_MESSAGE);
 		joinedMsg.AddInt32("im_what", IM_ROOM_JOINED);
 		joinedMsg.AddString("chat_id", chat_id);
@@ -1122,19 +1156,24 @@ void
 JabberHandler::handleMUCMessage(gloox::MUCRoom *room, const gloox::Message &m,
 								bool priv)
 {
+	const char* chat_id = _MUCChatId(room);
+	BString user_id;
+	bool isSelf = _MUCUserId(chat_id, m.from().resource().c_str(), &user_id);
+
+	int32 im_what = IM_MESSAGE_RECEIVED;
+
 	// We need a body
 	if (m.body() == "")
 		return;
 
-	int32 im_what = IM_MESSAGE_RECEIVED;
+
+	// If sent from own user, then IM_MESSAGE_SENT
+	if (isSelf == true)
+		im_what = IM_MESSAGE_SENT;
+
+	// when() is only nonzero when sending backdated messages (logs)
 	if (m.when() != 0)
-		im_what = IM_LOGS_RECEIVED;
-
-	BString chat_id(room->name().c_str());
-	chat_id << "@" << room->service().c_str();
-
-	BString user_id(chat_id);
-	user_id << "/" << m.from().resource().c_str();
+	im_what = IM_LOGS_RECEIVED;
 
 	// Notify that a chat message was received
 	BMessage msg(IM_MESSAGE);
@@ -1191,8 +1230,7 @@ JabberHandler::handleMUCItems(gloox::MUCRoom *room, const gloox::Disco::ItemList
 	BStringList nicks;
 	BStringList ids;
 
-	BString chat_id(room->name().c_str());
-	chat_id << "@" << room->service().c_str();
+	const char* chat_id = _MUCChatId(room);
 
 	for (auto item: items) {
 		BString nick = item->jid().resource().c_str();
