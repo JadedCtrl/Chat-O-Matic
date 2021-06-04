@@ -290,8 +290,6 @@ Conversation::_EnsureUser(BMessage* msg)
 		fUsers.AddItem(id, user);
 		GetView()->UpdateUserList(fUsers);
 	}
-
-	user->RegisterObserver(this);
 	return user;
 }
 

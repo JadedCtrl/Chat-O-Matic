@@ -99,7 +99,6 @@ Server::Filter(BMessage* message, BHandler **target)
 				"messenger", messenger);
 
 			if (ret != B_OK || !messenger->IsValid()) {
-				message->PrintToStream();
 				printf("err %s\n", strerror(ret));
 				break;
 			}
@@ -306,9 +305,9 @@ Server::ImMessage(BMessage* msg)
 		case IM_CONTACT_STARTED_TYPING:
 		case IM_CONTACT_STOPPED_TYPING:
 		{
-			BString id = msg->FindString("chat_id");
-			Conversation* item = _EnsureConversation(msg);
-			item->ImMessage(msg);
+//			BString id = msg->FindString("chat_id");
+//			Conversation* item = _EnsureConversation(msg);
+//			item->ImMessage(msg);
 
 			result = B_SKIP_MESSAGE;
 			break;

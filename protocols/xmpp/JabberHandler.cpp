@@ -848,18 +848,21 @@ JabberHandler::_GlooxStatusToCaya(gloox::Presence::PresenceType type)
 }
 
 
-const char*
+BString
 JabberHandler::_MUCChatId(gloox::MUCRoom* room)
 {
 	BString chat_id(room->name().c_str());
 	chat_id << "@" << room->service().c_str();
 
-	return chat_id.String();
+	BStringList parts;
+	chat_id.Split("/", false, parts);
+
+	return parts.StringAt(0);
 }
 
 
 bool
-JabberHandler::_MUCUserId(const char* chat_id, const char* nick, BString* id)
+JabberHandler::_MUCUserId(BString chat_id, const char* nick, BString* id)
 {
 	BString chat(chat_id);
 	chat << "/" << nick;
@@ -1113,11 +1116,14 @@ JabberHandler::handleMUCParticipantPresence(gloox::MUCRoom *room,
 											const gloox::MUCRoomParticipant participant,
 											const gloox::Presence &presence)
 {
-	const char* chat_id = _MUCChatId(room);
 	const char* nick = participant.nick->resource().c_str();
 
 	BString user_id;
+	BString chat_id = _MUCChatId(room);
 	bool isSelf = _MUCUserId(chat_id, nick, &user_id);
+
+	if (chat_id.IsEmpty() == true || user_id.IsEmpty() == true)
+		return;
 
 	if (isSelf == true) {
 		BMessage joinedMsg(IM_MESSAGE);
@@ -1156,9 +1162,12 @@ void
 JabberHandler::handleMUCMessage(gloox::MUCRoom *room, const gloox::Message &m,
 								bool priv)
 {
-	const char* chat_id = _MUCChatId(room);
 	BString user_id;
+	BString chat_id = _MUCChatId(room);
 	bool isSelf = _MUCUserId(chat_id, m.from().resource().c_str(), &user_id);
+
+	if (chat_id.IsEmpty() == true || user_id.IsEmpty() == true)
+		return;
 
 	int32 im_what = IM_MESSAGE_RECEIVED;
 
@@ -1173,7 +1182,7 @@ JabberHandler::handleMUCMessage(gloox::MUCRoom *room, const gloox::Message &m,
 
 	// when() is only nonzero when sending backdated messages (logs)
 	if (m.when() != 0)
-	im_what = IM_LOGS_RECEIVED;
+		im_what = IM_LOGS_RECEIVED;
 
 	// Notify that a chat message was received
 	BMessage msg(IM_MESSAGE);
@@ -1227,10 +1236,12 @@ JabberHandler::handleMUCInfo(gloox::MUCRoom *room, int features,
 void
 JabberHandler::handleMUCItems(gloox::MUCRoom *room, const gloox::Disco::ItemList &items)
 {
+	BString chat_id = _MUCChatId(room);
 	BStringList nicks;
 	BStringList ids;
 
-	const char* chat_id = _MUCChatId(room);
+	if (chat_id.IsEmpty() == true)
+		return;
 
 	for (auto item: items) {
 		BString nick = item->jid().resource().c_str();

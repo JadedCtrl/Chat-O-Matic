@@ -237,7 +237,8 @@ ConversationView::ObserveInteger(int32 what, int32 val)
 {
 	switch (what) {
 		case INT_CONTACT_STATUS:
-			AppendStatus((CayaStatus)val);
+			if (fUserList->CountItems() <= 2)
+				AppendStatus((CayaStatus)val);
 			break;
 	}
 }
