@@ -47,7 +47,13 @@ ConversationListView::MessageReceived(BMessage* msg)
 void
 ConversationListView::MouseDown(BPoint where)
 {
+	int32 selection = CurrentSelection();
+
 	BListView::MouseDown(where);
+
+	// Don't allow deselcting a room
+	if (CurrentSelection() < 0 && selection >= 0)
+		Select(selection);
 
 	uint32 buttons = 0;
 	Window()->CurrentMessage()->FindInt32("buttons", (int32*)&buttons);
