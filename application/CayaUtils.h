@@ -7,6 +7,7 @@
 
 #include <image.h>
 
+#include <GraphicsDefs.h>
 #include <Mime.h>
 #include <Resources.h>
 
@@ -23,6 +24,11 @@ const char*	CayaAccountPath(const char* signature, const char* subsignature);
 const char* CayaCachePath();
 const char* CayaLogPath(const char* signature, const char* subsignature);
 
+// Will return a tinted color― light or dark― based on brightness.
+rgb_color	CayaTintColor(rgb_color color, int severity);
+
 extern "C" status_t our_image(image_info& image);
 
+
 #endif	// _CAYA_UTILS_H
+

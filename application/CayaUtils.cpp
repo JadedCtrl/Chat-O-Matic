@@ -9,6 +9,7 @@
 #include <memory.h>
 
 #include <Bitmap.h>
+#include <InterfaceDefs.h>
 #include <Directory.h>
 #include <FindDirectory.h>
 #include <IconUtils.h>
@@ -142,6 +143,35 @@ CayaLogPath(const char* signature, const char* subsignature)
 		return NULL;
 
 	return path.Path();
+}
+
+
+rgb_color
+CayaTintColor(rgb_color color, int severity)
+{
+	bool dark = false;
+	if (color.Brightness() < 127)
+		dark = true;
+
+	switch (severity)
+	{
+		case 1:
+			if (dark == true)
+				return tint_color(color, B_LIGHTEN_1_TINT + 0.2f);
+			else
+				return tint_color(color, B_DARKEN_1_TINT);
+		case 2:
+			if (dark == true)
+				return tint_color(color, B_LIGHTEN_1_TINT);
+			else
+				return tint_color(color, B_DARKEN_2_TINT);
+		case 3:
+			if (dark == true)
+				return tint_color(color, B_LIGHTEN_2_TINT + 0.1f);
+			else
+				return tint_color(color, B_DARKEN_3_TINT);
+	}
+	return color;
 }
 
 

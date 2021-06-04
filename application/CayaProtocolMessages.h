@@ -74,29 +74,6 @@ enum im_what_code {
 
 
 	/*
-	 * Messages related to rooms
-	 */
-
-	//! Create an individual chat
-	IM_CREATE_CHAT						= 30,
-
-	//! Chat has been created
-	IM_CHAT_CREATED						= 31,
-
-	//! Join a room
-	IM_JOIN_ROOM						= 32,
-
-	//! Confirm the room's been joined
-	IM_ROOM_JOINED						= 33,
-
-	//! Returning a (not necessarily complete) list of room users
-	IM_ROOM_PARTICIPANTS				= 34,
-
-	//! A user left the room
-	IM_ROOM_PARTICIPANT_LEFT				= 35,
-
-
-	/*
 	 * Messages related to contact changes.
 	 */
 
@@ -196,6 +173,44 @@ enum im_what_code {
 
 	//! Notifications
 	IM_NOTIFICATION						= 141,
+
+
+	/*
+	 * Room membership
+	 */
+
+	//! Create an individual chat
+	IM_CREATE_CHAT						= 150,
+
+	//! Chat has been created
+	IM_CHAT_CREATED						= 151,
+
+	//! Join a room
+	IM_JOIN_ROOM						= 152,
+
+	//! Confirm the room's been joined
+	IM_ROOM_JOINED						= 153,
+
+	//! Quietly add a user(s) to the chat
+	IM_ROOM_PARTICIPANTS				= 154,
+
+	//! User has newly and explicitly joined
+	IM_ROOM_PARTICIPANT_JOINED			= 155,
+
+	//! A user left the room
+	IM_ROOM_PARTICIPANT_LEFT			= 156,
+
+
+	/*
+	 * Room metadata
+	 */
+
+	//! Room name
+	IM_ROOM_NAME						= 160,
+
+	//! Room subject
+	IM_ROOM_SUBJECT						= 161,
+
 
 	/*
 	 * Special messages

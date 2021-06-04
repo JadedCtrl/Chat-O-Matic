@@ -16,6 +16,7 @@
 #include "ConversationItem.h"
 #include "ConversationView.h"
 #include "MainWindow.h"
+#include "NotifyMessage.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
 #include "Server.h"
@@ -29,6 +30,7 @@ Conversation::Conversation(BString id, BMessenger msgn)
 	fMessenger(msgn),
 	fChatView(NULL),
 	fLooper(NULL),
+	fIcon(NULL),
 	fDateFormatter()
 {
 	fConversationItem = new ConversationItem(fName.String(), this);
@@ -96,6 +98,16 @@ Conversation::ObservePointer(int32 what, void* ptr)
 }
 
 
+void
+Conversation::SetNotifySubject(const char* subject)
+{
+	if (BString(subject) == fSubject)
+		return;
+
+	fSubject = subject;
+	NotifyString(STR_ROOM_SUBJECT, fSubject.String());
+}
+
 
 BMessenger
 Conversation::Messenger() const
@@ -122,6 +134,24 @@ void
 Conversation::SetProtocolLooper(ProtocolLooper* looper)
 {
 	fLooper = looper;
+}
+
+
+BBitmap*
+Conversation::ProtocolBitmap() const
+{
+	CayaProtocol* protocol = fLooper->Protocol();
+	CayaProtocolAddOn* addOn
+		= ProtocolManager::Get()->ProtocolAddOn(protocol->Signature());
+
+	return addOn->ProtoIcon();
+}
+
+
+BBitmap*
+Conversation::IconBitmap() const
+{
+	return fIcon;
 }
 
 

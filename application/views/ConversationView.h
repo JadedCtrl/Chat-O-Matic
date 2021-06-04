@@ -35,15 +35,12 @@ public:
 			Conversation* GetConversation();
 			void		SetConversation(Conversation* chat);
 
-			void		UpdateAvatar();
-			void		UpdatePersonalMessage();
+			void		UpdateIcon();
 
 			void		UpdateUserList(UserMap users);
 			void		InvalidateUserList();
 
 			void		ObserveString(int32 what, BString str);
-			void		ObservePointer(int32 what, void* ptr);
-			void		ObserveInteger(int32 what, int32 val);
 
 			void		AvoidFocus(bool avoid);
 
@@ -54,15 +51,15 @@ private:
 			void		_AppendMessage(BMessage* msg);
 
 		Conversation*	fConversation;
-		User*			fContact;
 		int32			fMessageCount;
 		BObjectList<BMessage>	fMessageQueue;
 
-		CayaRenderView*	fReceiveView;
-		BStringView*	fStatus;
-		BTextView*		fPersonalMessage;
+		BTextView*		fNameTextView;
+		BTextView*		fSubjectTextView;
 		BitmapView*		fProtocolView;
-		BitmapView*		fAvatar;
+		BitmapView*		fIcon;
+
+		CayaRenderView*	fReceiveView;
 		UserListView*	fUserList;
 };
 

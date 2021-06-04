@@ -285,6 +285,16 @@ Server::ImMessage(BMessage* msg)
 			chat->RemoveUser(user);
 			break;
 		}
+		case IM_ROOM_SUBJECT:
+		{
+			BString subject;
+			Conversation* chat = _EnsureConversation(msg);
+			if (msg->FindString("subject", &subject) != B_OK || chat == NULL)
+				break;
+
+			chat->SetNotifySubject(subject.String());
+			break;
+		}
 		case IM_SEND_MESSAGE:
 		{
 			// Route this message through the appropriate ProtocolLooper

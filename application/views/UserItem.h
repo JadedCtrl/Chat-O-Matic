@@ -25,12 +25,11 @@ public:
 	User* GetUser();
 
 protected:
-	void _UpdateColor(int32 status);
-	rgb_color _TintColor(rgb_color color, int severity);
+	rgb_color _GetTextColor(rgb_color highColor);
 
 private:
-	rgb_color fTextColor;
 	User* fUser;
+	int fStatus;
 };
 
 

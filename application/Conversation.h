@@ -15,6 +15,7 @@
 #include "Server.h"
 #include "User.h"
 
+class BBitmap;
 class ConversationItem;
 class ConversationView;
 class ProtocolLooper;
@@ -37,11 +38,16 @@ public:
 	void				ObserveInteger(int32 what, int32 value);
 	void				ObservePointer(int32 what, void* ptr);
 
+	void				SetNotifySubject(const char* subject);
+
 	BMessenger			Messenger() const;
 	void				SetMessenger(BMessenger messenger);
 
 	ProtocolLooper*		GetProtocolLooper() const;
 	void				SetProtocolLooper(ProtocolLooper* looper);
+
+	BBitmap*			ProtocolBitmap() const;
+	BBitmap*			IconBitmap() const;
 
 	void				ShowView(bool typing, bool userAction);
 
@@ -71,6 +77,9 @@ private:
 
 	BString fID;
 	BString fName;
+	BString fSubject;
+
+	BBitmap* fIcon;
 
 	BPath fLogPath;
 	BDateTimeFormat fDateFormatter;

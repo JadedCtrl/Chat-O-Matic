@@ -1207,6 +1207,20 @@ void
 JabberHandler::handleMUCSubject(gloox::MUCRoom *room, const std::string &nick,
 								const std::string &subject)
 {
+	BString user_id;
+	BString chat_id = _MUCChatId(room);
+	bool isSelf = _MUCUserId(chat_id, nick.c_str(), &user_id);
+
+	if (chat_id.IsEmpty() == true)
+		return;
+
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_ROOM_SUBJECT);
+	msg.AddString("subject", subject.c_str());
+	msg.AddString("chat_id", chat_id);
+	if (user_id.IsEmpty() == false)
+		msg.AddString("user_id", user_id);
+	_SendMessage(&msg);
 }
 
 

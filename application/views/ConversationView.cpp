@@ -21,6 +21,7 @@
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
 #include "CayaRenderView.h"
+#include "CayaUtils.h"
 #include "Conversation.h"
 #include "NotifyMessage.h"
 #include "User.h"
@@ -133,10 +134,6 @@ ConversationView::ImMessage(BMessage* msg)
 			}
 
 			_AppendOrEnqueueMessage(msg);
-
-			// Message received, clear status anyway
-//			fStatus->SetText("");
-
 			break;
 		}
 		case IM_MESSAGE_SENT:
@@ -145,17 +142,6 @@ ConversationView::ImMessage(BMessage* msg)
 			_AppendOrEnqueueMessage(msg);
 			break;
 		}
-		case IM_CONTACT_STARTED_TYPING:
-			fStatus->SetText("Contact is typing...");
-			break;
-		case IM_CONTACT_STOPPED_TYPING:
-			fStatus->SetText("");
-			break;
-		case IM_CONTACT_GONE:
-			fStatus->SetText("Contact closed the chat window!");
-			snooze(10000);
-			fStatus->SetText("");
-			break;
 		default:
 			break;
 	}
@@ -173,24 +159,16 @@ void
 ConversationView::SetConversation(Conversation* chat)
 {
 	fConversation =  chat;
-	fContact = chat->Users().ValueAt(0);
-	fPersonalMessage->SetText(chat->GetName());
+	fNameTextView->SetText(chat->GetName());
+	fProtocolView->SetBitmap(chat->ProtocolBitmap());
 }
 
 
 void
-ConversationView::UpdateAvatar()
+ConversationView::UpdateIcon()
 {
-	if (fContact->AvatarBitmap() != NULL)
-		fAvatar->SetBitmap(fContact->AvatarBitmap());
-}
-
-
-void
-ConversationView::UpdatePersonalMessage()
-{
-	if (fContact->GetNotifyPersonalStatus() != NULL)
-		fPersonalMessage->SetText(fContact->GetNotifyPersonalStatus());
+	if (fConversation->IconBitmap() != NULL)
+		fIcon->SetBitmap(fConversation->IconBitmap());
 }
 
 
@@ -217,18 +195,14 @@ ConversationView::InvalidateUserList()
 void
 ConversationView::ObserveString(int32 what, BString str)
 {
-}
-
-
-void
-ConversationView::ObservePointer(int32 what, void* ptr)
-{
-}
-
-
-void
-ConversationView::ObserveInteger(int32 what, int32 val)
-{
+	switch (what)
+	{
+		case STR_ROOM_SUBJECT:
+		{
+			fSubjectTextView->SetText(str);
+			break;
+		}
+	}
 }
 
 
@@ -239,20 +213,18 @@ ConversationView::_InitInterface()
 	BScrollView* scrollViewReceive = new BScrollView("receiveScrollView",
 		fReceiveView, B_WILL_DRAW, false, true);
 
-	fPersonalMessage = new BTextView("personalMessage", B_WILL_DRAW);
-	fPersonalMessage->SetExplicitAlignment(
-		BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
+	fNameTextView = new BTextView("roomName", B_WILL_DRAW);
+	fNameTextView->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
+	fNameTextView->MakeEditable(false);
 
-	fPersonalMessage->SetText("");
-	fPersonalMessage->MakeEditable(false);
-	fPersonalMessage->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
+	fSubjectTextView = new BTextView("roomSubject", B_WILL_DRAW);
+	fSubjectTextView->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
+	fSubjectTextView->MakeEditable(false);
 
-	fStatus = new BStringView("status", "");
-
-	fAvatar = new BitmapView("ContactIcon");
-	fAvatar->SetExplicitMinSize(BSize(50, 50));
-	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
-	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
+	fIcon = new BitmapView("ContactIcon");
+	fIcon->SetExplicitMinSize(BSize(50, 50));
+	fIcon->SetExplicitPreferredSize(BSize(50, 50));
+	fIcon->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
 
 	fProtocolView = new BitmapView("protocolView");
 
@@ -262,15 +234,17 @@ ConversationView::_InitInterface()
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.AddGroup(B_HORIZONTAL)
+			.Add(fIcon)
+			.AddGroup(B_VERTICAL)
+				.Add(fNameTextView)
+				.Add(fSubjectTextView)
+			.End()
 			.Add(fProtocolView)
-			.Add(fPersonalMessage)
-			.Add(fAvatar)
 		.End()
 		.AddSplit(B_HORIZONTAL, 0)
 			.Add(scrollViewReceive, 5)
 			.Add(scrollViewUsers, 1)
 		.End();
-//		.Add(fStatus, 4)
 }
 
 

@@ -9,6 +9,7 @@
 #include <View.h>
 
 #include "CayaConstants.h"
+#include "CayaUtils.h"
 #include "NotifyMessage.h"
 #include "User.h"
 
@@ -17,9 +18,8 @@ UserItem::UserItem(const char* name, User* user, int32 status)
 	:
 	BStringItem(name),
 	fUser(user),
-	fTextColor(ui_color(B_LIST_ITEM_TEXT_COLOR))
+	fStatus(status)
 {
-	_UpdateColor(status);
 }
 
 
@@ -27,7 +27,7 @@ void
 UserItem::DrawItem(BView* owner, BRect frame, bool complete)
 {
 	rgb_color highColor = owner->HighColor();
-	owner->SetHighColor(fTextColor);
+	owner->SetHighColor(_GetTextColor(highColor));
 
 	BStringItem::DrawItem(owner, frame, complete);
 
@@ -52,7 +52,7 @@ UserItem::ObserveInteger(int32 what, int32 value)
 	switch (what) {
 		case INT_CONTACT_STATUS:
 		{
-			_UpdateColor(value);
+			fStatus = value;
 			break;
 		}
 	}
@@ -66,54 +66,20 @@ UserItem::GetUser()
 }
 
 
-void
-UserItem::_UpdateColor(int32 status)
+rgb_color
+UserItem::_GetTextColor(rgb_color highColor)
 {
-	switch (status)
+	switch (fStatus)
 	{
 		case CAYA_AWAY:
-			fTextColor = _TintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 1);
-			break;
+			return CayaTintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 1);
 		case CAYA_INVISIBLE:
 		case CAYA_DO_NOT_DISTURB:
-			fTextColor = _TintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 2);
-			break;
+			return CayaTintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 2);
 		case CAYA_OFFLINE:
-			fTextColor = _TintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 3);
-			break;
-		default:
-			fTextColor = ui_color(B_LIST_ITEM_TEXT_COLOR);
+			return CayaTintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 3);
 	}
-}
-
-
-rgb_color
-UserItem::_TintColor(rgb_color color, int severity)
-{
-	bool dark = false;
-	if (color.Brightness() < 127)
-		dark = true;
-
-	switch (severity)
-	{
-		case 0:
-			return color;
-		case 1:
-			if (dark == true)
-				return tint_color(color, B_LIGHTEN_1_TINT + 0.2f);
-			else
-				return tint_color(color, B_DARKEN_1_TINT);
-		case 2:
-			if (dark == true)
-				return tint_color(color, B_LIGHTEN_1_TINT);
-			else
-				return tint_color(color, B_DARKEN_2_TINT);
-		case 3:
-			if (dark == true)
-				return tint_color(color, B_LIGHTEN_2_TINT + 0.1f);
-			else
-				return tint_color(color, B_DARKEN_3_TINT);
-	}
+	return highColor;
 }
 
 
