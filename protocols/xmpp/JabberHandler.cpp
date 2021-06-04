@@ -158,6 +158,22 @@ JabberHandler::Process(BMessage* msg)
 			break;
 		}
 
+		case IM_LEAVE_ROOM: {
+			BString chat_id = msg->FindString("chat_id");
+			gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
+
+			// MUCs are special, one-on-ones we can just drop
+			if (room != NULL)
+				room->leave();
+
+			// We've gotta let Caya know!
+			BMessage left(IM_MESSAGE);
+			left.AddInt32("im_what", IM_ROOM_LEFT);
+			left.AddString("chat_id", chat_id);
+			_SendMessage(&left);
+			break;
+		}
+
 		default:
 			return B_ERROR;
 	}
@@ -1126,8 +1142,12 @@ JabberHandler::handleMUCParticipantPresence(gloox::MUCRoom *room,
 		return;
 
 	if (isSelf == true) {
+		int im_what = IM_ROOM_JOINED;
+		if (presence.presence() == 5)
+			im_what = IM_ROOM_LEFT;
+
 		BMessage joinedMsg(IM_MESSAGE);
-		joinedMsg.AddInt32("im_what", IM_ROOM_JOINED);
+		joinedMsg.AddInt32("im_what", im_what);
 		joinedMsg.AddString("chat_id", chat_id);
 		_SendMessage(&joinedMsg);
 		return;
