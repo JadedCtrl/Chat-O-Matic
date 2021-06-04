@@ -162,7 +162,6 @@ Server::ImMessage(BMessage* msg)
 			BString statusMsg;
 			if (msg->FindString("message", &statusMsg) == B_OK) {
 				user->SetNotifyPersonalStatus(statusMsg);
-//				contact->GetView()->UpdatePersonalMessage();
 			}
 			break;
 		}

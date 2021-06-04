@@ -207,74 +207,28 @@ ConversationView::UpdateUserList(UserMap users)
 
 
 void
+ConversationView::InvalidateUserList()
+{
+	for (int i = 0; i < fUserList->CountItems(); i++)
+		fUserList->InvalidateItem(i);
+}
+
+
+void
 ConversationView::ObserveString(int32 what, BString str)
 {
-//	switch (what) {
-//		case STR_CONTACT_NAME:
-//			if (Lock()) {
-//				SetTitle(str);
-//				Unlock();
-//			}
-//			break;
-//		case STR_PERSONAL_STATUS:
-//			break;
-//	}
 }
 
 
 void
 ConversationView::ObservePointer(int32 what, void* ptr)
 {
-//	switch (what) {
-//		case PTR_AVATAR_BITMAP:
-//			break;
-//	}
 }
 
 
 void
 ConversationView::ObserveInteger(int32 what, int32 val)
 {
-	switch (what) {
-		case INT_CONTACT_STATUS:
-			if (fUserList->CountItems() <= 2)
-				AppendStatus((CayaStatus)val);
-			break;
-	}
-}
-
-
-void
-ConversationView::AppendStatus(CayaStatus status)
-{
-	BString message(fContact->GetName());
-
-	switch (status) {
-		case CAYA_ONLINE:
-			message << " is available";
-			break;
-		case CAYA_AWAY:
-			message << " is away";
-			break;
-		case CAYA_DO_NOT_DISTURB:
-			message << " is busy, please do not disturb!";
-			break;
-		case CAYA_CUSTOM_STATUS:
-			message << " has set a custom status.";
-			break;
-		case CAYA_INVISIBLE:
-			message << " is invisible.";
-			break;
-		case CAYA_OFFLINE:
-			message << " is offline";
-			break;
-		default:
-			break;
-	}
-
-	fReceiveView->Append(message.String(), COL_TEXT, COL_TEXT, R_TEXT);
- 	fReceiveView->Append("\n", COL_TEXT, COL_TEXT, R_TEXT);
-	fReceiveView->ScrollToSelection();
 }
 
 

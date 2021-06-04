@@ -143,7 +143,7 @@ UserItem*
 User::GetListItem()
 {
 	if (fListItem == NULL) {
-		fListItem = new UserItem(fName, this);
+		fListItem = new UserItem(fName, this, (int32)fStatus);
 		RegisterObserver(fListItem);
 	}
 	return fListItem;

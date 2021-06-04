@@ -24,16 +24,15 @@ class Server;
 typedef KeyMap<BString, User*> UserMap;
 
 
-class Conversation : public Observer {
+class Conversation : public Notifier, public Observer {
 public:
 						Conversation(BString id, BMessenger msgn);
 
 	BString				GetId() const;
 
-	// Handles required state changes from an IM message; forwards to ChatWindow
 	void				ImMessage(BMessage* msg);
 
-	// Observer inherits; just forwards to ChatWindow
+	// Tell the ConversationView to invalidate user list
 	void				ObserveString(int32 what, BString str);
 	void				ObserveInteger(int32 what, int32 value);
 	void				ObservePointer(int32 what, void* ptr);

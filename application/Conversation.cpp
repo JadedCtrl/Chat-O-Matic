@@ -32,6 +32,7 @@ Conversation::Conversation(BString id, BMessenger msgn)
 	fDateFormatter()
 {
 	fConversationItem = new ConversationItem(fName.String(), this);
+	RegisterObserver(fConversationItem);
 }
 
 
@@ -77,25 +78,23 @@ Conversation::ImMessage(BMessage* msg)
 void
 Conversation::ObserveString(int32 what, BString str)
 {
-	if (fChatView != NULL)
-		fChatView->ObserveString(what, str);
+	GetView()->InvalidateUserList();
+}
+
+
+void
+Conversation::ObserveInteger(int32 what, int32 value)
+{
+	GetView()->InvalidateUserList();
 }
 
 
 void
 Conversation::ObservePointer(int32 what, void* ptr)
 {
-	if (fChatView != NULL)
-		fChatView->ObservePointer(what, ptr);
+	GetView()->InvalidateUserList();
 }
 
-
-void
-Conversation::ObserveInteger(int32 what, int32 val)
-{
-	if (fChatView != NULL)
-		fChatView->ObserveInteger(what, val);
-}
 
 
 BMessenger
@@ -162,6 +161,7 @@ void
 Conversation::RemoveUser(User* user)
 {
 	fUsers.RemoveItemFor(user->GetId());
+	user->UnregisterObserver(this);
 	GetView()->UpdateUserList(fUsers);
 }
 
@@ -190,6 +190,7 @@ Conversation::GetView()
 	logMsg.AddStrings("body", logs);
 	fChatView->MessageReceived(&logMsg);
 
+	RegisterObserver(fChatView);
 	return fChatView;
 }
 
@@ -290,6 +291,7 @@ Conversation::_EnsureUser(BMessage* msg)
 		fUsers.AddItem(id, user);
 		GetView()->UpdateUserList(fUsers);
 	}
+	user->RegisterObserver(this);
 	return user;
 }
 

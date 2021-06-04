@@ -10,6 +10,7 @@
 
 #include "CayaConstants.h"
 #include "Conversation.h"
+#include "Observer.h"
 
 class BStringView;
 class BTextView;
@@ -20,7 +21,7 @@ class User;
 class UserListView;
 
 
-class ConversationView : public BGroupView {
+class ConversationView : public BGroupView, public Observer {
 public:
 						ConversationView();
 						ConversationView(Conversation* chat);
@@ -34,16 +35,15 @@ public:
 			Conversation* GetConversation();
 			void		SetConversation(Conversation* chat);
 
-
 			void		UpdateAvatar();
 			void		UpdatePersonalMessage();
+
 			void		UpdateUserList(UserMap users);
+			void		InvalidateUserList();
 
 			void		ObserveString(int32 what, BString str);
 			void		ObservePointer(int32 what, void* ptr);
 			void		ObserveInteger(int32 what, int32 val);
-
-			void		AppendStatus(CayaStatus status);
 
 			void		AvoidFocus(bool avoid);
 
