@@ -10,8 +10,10 @@
 #include <Window.h>
 
 #include "CayaMessages.h"
+#include "CayaProtocolMessages.h"
 #include "Conversation.h"
 #include "ConversationItem.h"
+#include "ProtocolLooper.h"
 
 
 const uint32 kOpenSelectedChat = 'CVos';
@@ -35,6 +37,21 @@ ConversationListView::MessageReceived(BMessage* msg)
 
 			if ((item = (ConversationItem*)ItemAt(selIndex)) != NULL)
 				item->GetConversation()->ShowView(false, true);
+			break;
+		}
+
+		case kLeaveSelectedChat:
+		{
+			ConversationItem* item;
+			int32 selIndex = CurrentSelection();
+
+			if ((item = (ConversationItem*)ItemAt(selIndex)) == NULL)
+				break;
+
+			BMessage leave(IM_MESSAGE);
+			leave.AddInt32("im_what", IM_LEAVE_ROOM);
+			leave.AddString("chat_id", item->GetConversation()->GetId());
+			item->GetConversation()->GetProtocolLooper()->MessageReceived(&leave);
 			break;
 		}
 

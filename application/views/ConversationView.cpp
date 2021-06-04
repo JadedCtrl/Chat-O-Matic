@@ -100,6 +100,12 @@ ConversationView::ImMessage(BMessage* msg)
 	int32 im_what = msg->FindInt32("im_what");
 
 	switch (im_what) {
+		case IM_ROOM_LEFT:
+		{
+			delete fConversation;
+			delete this;
+			break;
+		}
 		case IM_MESSAGE_RECEIVED:
 		{
 			BString message = msg->FindString("body");

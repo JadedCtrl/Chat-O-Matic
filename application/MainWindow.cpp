@@ -176,7 +176,6 @@ MainWindow::MessageReceived(BMessage* message)
 			message->AddString("body", fSendView->Text());
 			fChatView->MessageReceived(message);
 			fSendView->SetText("");
-
 			break;
 		}
 
@@ -214,12 +213,23 @@ MainWindow::ImMessage(BMessage* msg)
 			}
 			break;
 		}
+		case IM_ROOM_JOINED:
 		case IM_ROOM_PARTICIPANTS:
 		case IM_MESSAGE_RECEIVED:
 		case IM_MESSAGE_SENT:
 		case IM_CHAT_CREATED:
 		{
 			_EnsureConversationItem(msg);
+			break;
+		}
+		case IM_ROOM_LEFT:
+		{
+			ConversationItem* item = _EnsureConversationItem(msg);
+			if (item == NULL)
+				break;
+
+			_RemoveListItem(item);
+			item->GetConversation()->GetView()->MessageReceived(msg);
 			break;
 		}
 		case IM_AVATAR_SET:
@@ -419,6 +429,25 @@ MainWindow::_UpdateListItem(ConversationItem* item)
 		fListView->InvalidateItem(fListView->IndexOf(item));
 	else
 		fListView->AddItem(item);
+}
+
+
+void
+MainWindow::_RemoveListItem(ConversationItem* item)
+{
+	int32 index = fListView->IndexOf(item);
+	if (index > 0)
+		index--;
+
+	fListView->RemoveItem(item);
+	fServer->RemoveConversation(item->GetConversation());
+
+	if (fListView->CountItems() == 0) {
+		fChatView = new ConversationView();
+		SetConversation(NULL);
+	}
+	else
+		fListView->Select(index);
 }
 
 

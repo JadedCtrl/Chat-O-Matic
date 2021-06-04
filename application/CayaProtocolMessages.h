@@ -191,14 +191,20 @@ enum im_what_code {
 	//! Confirm the room's been joined
 	IM_ROOM_JOINED						= 153,
 
+	//! User left the room
+	IM_LEAVE_ROOM						= 154,
+
+	//! User left the room
+	IM_ROOM_LEFT						= 155,
+
 	//! Quietly add a user(s) to the chat
-	IM_ROOM_PARTICIPANTS				= 154,
+	IM_ROOM_PARTICIPANTS				= 156,
 
 	//! User has newly and explicitly joined
-	IM_ROOM_PARTICIPANT_JOINED			= 155,
+	IM_ROOM_PARTICIPANT_JOINED			= 157,
 
 	//! A user left the room
-	IM_ROOM_PARTICIPANT_LEFT			= 156,
+	IM_ROOM_PARTICIPANT_LEFT			= 158,
 
 
 	/*
@@ -210,6 +216,17 @@ enum im_what_code {
 
 	//! Room subject
 	IM_ROOM_SUBJECT						= 161,
+
+
+	/*
+	 * Room moderation
+	 */
+
+	//! Ban user
+	IM_ROOM_BAN_PARTICIPANT				= 170,
+
+	//! Kick user
+	IM_ROOM_KICK_PARTICIPANT			= 171,
 
 
 	/*

@@ -59,6 +59,7 @@ public:
 			ChatMap			Conversations() const;
 			Conversation*	ConversationById(BString id);
 			void			AddConversation(Conversation* chat);
+			void			RemoveConversation(Conversation* chat);
 
 			// TODO: there should be a contact for each account.
 			BString			GetOwnContact();

@@ -251,6 +251,7 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_ROOM_JOINED:
 		{
+			_EnsureConversation(msg);
 			break;
 		}
 		case IM_ROOM_PARTICIPANTS:
@@ -532,6 +533,13 @@ void
 Server::AddConversation(Conversation* chat)
 {
 	fChatMap.AddItem(chat->GetId(), chat);
+}
+
+
+void
+Server::RemoveConversation(Conversation* chat)
+{
+	fChatMap.RemoveItemFor(chat->GetId());
 }
 
 

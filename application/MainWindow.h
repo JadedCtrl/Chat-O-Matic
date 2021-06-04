@@ -48,8 +48,11 @@ private:
 			void		_InitInterface();
 			BMenuBar*	_CreateMenuBar();
 
-			ConversationItem* _EnsureConversationItem(BMessage* msg);
+			ConversationItem*
+						_EnsureConversationItem(BMessage* msg);
 			void		_UpdateListItem(ConversationItem* item);	
+			void		_RemoveListItem(ConversationItem* item);
+
 
 	Server*				fServer;
 	RosterWindow*		fRosterWindow;
