@@ -11,6 +11,18 @@ class BPopUpMenu;
 class Conversation;
 
 
+enum
+{
+	kUserInfo = 'ULui',
+	kDeafenUser = 'UMdu',
+	kUndeafenUser = 'UMud',
+	kMuteUser = 'UMmu',
+	kUnmuteUser = 'UMum',
+	kKickUser = 'UMku',
+	kBanUser = 'UMbu'
+};
+
+
 class UserListView : public BListView {
 public:
 	UserListView(const char* name);
@@ -24,6 +36,8 @@ public:
 private:
 	BPopUpMenu* _UserPopUp();
 	BPopUpMenu* _BlankPopUp();
+
+	void		_ModerationAction(int32 im_what);
 
 	Conversation* fChat;
 };

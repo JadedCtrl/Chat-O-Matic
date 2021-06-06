@@ -225,11 +225,26 @@ enum im_what_code {
 	//! A user's role has been changed
 	IM_ROOM_ROLECHANGE					= 170,
 
-	//! Ban user
-	IM_ROOM_BAN_PARTICIPANT				= 171,
-
 	//! Kick user
-	IM_ROOM_KICK_PARTICIPANT			= 172,
+	IM_ROOM_KICK_PARTICIPANT			= 171,
+
+	//! Ban user
+	IM_ROOM_BAN_PARTICIPANT				= 172,
+
+	//! Unban user
+	IM_ROOM_UNBAN_PARTICIPANT			= 173,
+
+	//! Mute user
+	IM_ROOM_MUTE_PARTICIPANT			= 174,
+
+	//! Unmute user
+	IM_ROOM_UNMUTE_PARTICIPANT			= 175,
+
+	//! Deafen
+	IM_ROOM_DEAFEN_PARTICIPANT			= 176,
+
+	//! Allow to read messages
+	IM_ROOM_UNDEAFEN_PARTICIPANT		= 177,
 
 
 	/*

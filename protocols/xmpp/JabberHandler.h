@@ -133,6 +133,7 @@ private:
 
 			BString					_MUCChatId(gloox::MUCRoom* room);
 			bool					_MUCUserId(BString chat_id, const char* nick, BString* id);
+			void					_MUCModeration(BMessage* msg);
 
 			const char*				_RoleTitle(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
 			int32					_RolePerms(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);

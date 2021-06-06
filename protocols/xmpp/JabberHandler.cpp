@@ -175,6 +175,14 @@ JabberHandler::Process(BMessage* msg)
 			break;
 		}
 
+		case IM_ROOM_KICK_PARTICIPANT:
+		case IM_ROOM_BAN_PARTICIPANT:
+		case IM_ROOM_UNBAN_PARTICIPANT:
+		case IM_ROOM_MUTE_PARTICIPANT:
+		case IM_ROOM_UNMUTE_PARTICIPANT:
+			_MUCModeration(msg);
+			break;
+
 		default:
 			return B_ERROR;
 	}
@@ -895,6 +903,37 @@ JabberHandler::_MUCUserId(BString chat_id, const char* nick, BString* id)
 }
 
 
+void
+JabberHandler::_MUCModeration(BMessage* msg)
+{
+	BString chat_id = msg->FindString("chat_id");
+	BString user_id;
+	BString body = msg->FindString("body");
+	gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
+
+	if (room == NULL || msg->FindString("user_id", &user_id) != B_OK)
+		return;
+
+	std::string nick = gloox::JID(user_id.String()).resource();
+
+	switch (msg->FindInt32("im_what"))
+	{
+		case IM_ROOM_KICK_PARTICIPANT:
+			room->kick(nick, body.String());
+			break;
+		case IM_ROOM_BAN_PARTICIPANT:
+			room->ban(nick, body.String());
+			break;
+		case IM_ROOM_MUTE_PARTICIPANT: 
+			room->revokeVoice(nick, body.String());
+			break;
+		case IM_ROOM_UNMUTE_PARTICIPANT:
+			room->grantVoice(nick, body.String());
+			break;
+	}
+}
+
+
 const char*
 JabberHandler::_RoleTitle(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff)
 {
@@ -922,10 +961,13 @@ JabberHandler::_RolePerms(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff
 			return 0 | PERM_READ | PERM_NICK;
 		case gloox::RoleParticipant:
 			return 0 | PERM_READ | PERM_WRITE | PERM_ROOM_SUBJECT;
-		case gloox::RoleModerator:
+		case gloox::RoleModerator: {
+			int32 perm = 0 | PERM_READ | PERM_WRITE | PERM_ROOM_SUBJECT
+						   | PERM_KICK | PERM_MUTE;
 			if (aff == gloox::AffiliationOwner)
-				return PERM_ALL;
-			return PERM_ALL;
+				perm = perm | PERM_ROLECHANGE | PERM_BAN;
+			return perm;
+		}
 	}
 	return 0;
 }

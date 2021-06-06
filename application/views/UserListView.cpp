@@ -10,18 +10,14 @@
 #include <Window.h>
 
 #include "CayaMessages.h"
+#include "CayaProtocolMessages.h"
 #include "Conversation.h"
+#include "ProtocolLooper.h"
 #include "Role.h"
 #include "User.h"
 #include "UserInfoWindow.h"
 #include "UserItem.h"
 
-
-const uint32 kUserInfo = 'ULui';
-const uint32 kDeafenUser = 'UMdu';
-const uint32 kMuteUser = 'UMmu';
-const uint32 kKickUser = 'UMku';
-const uint32 kBanUser = 'UMbu';
 
 
 UserListView::UserListView(const char* name)
@@ -45,7 +41,24 @@ UserListView::MessageReceived(BMessage* msg)
 			win->Show();
 			break;
 		}
-
+		case kKickUser:
+			_ModerationAction(IM_ROOM_KICK_PARTICIPANT);
+			break;
+		case kBanUser:
+			_ModerationAction(IM_ROOM_BAN_PARTICIPANT);
+			break;
+		case kMuteUser:
+			_ModerationAction(IM_ROOM_MUTE_PARTICIPANT);
+			break;
+		case kUnmuteUser:
+			_ModerationAction(IM_ROOM_UNMUTE_PARTICIPANT);
+			break;
+		case kDeafenUser:
+			_ModerationAction(IM_ROOM_DEAFEN_PARTICIPANT);
+			break;
+		case kUndeafenUser:
+			_ModerationAction(IM_ROOM_UNDEAFEN_PARTICIPANT);
+			break;
 		default:
 			BListView::MessageReceived(msg);
 	}
@@ -80,6 +93,7 @@ UserListView::_UserPopUp()
 
 	// Now for the moderation items
 	Role* role = fChat->GetRole(fChat->OwnUserId());
+	if (role == NULL)	return menu;
 	int32 perms = role->fPerms;
 	UserItem* item = (UserItem*)ItemAt(CurrentSelection());
 	User* selected_user;
@@ -87,7 +101,10 @@ UserListView::_UserPopUp()
 	if (item == NULL || (selected_user = item->GetUser()) == NULL)
 		return menu;
 
-	int32 selected_priority = fChat->GetRole(selected_user->GetId())->fPriority;
+	Role* selected_role = fChat->GetRole(selected_user->GetId());
+	if (selected_role == NULL)	return menu;
+	int32 selected_priority = selected_role->fPriority;
+	int32 selected_perms = selected_role->fPerms;
 	if (selected_priority > role->fPriority)
 		return menu;
 
@@ -95,16 +112,22 @@ UserListView::_UserPopUp()
 		|| (perms & PERM_BAN))
 		menu->AddSeparatorItem();
 
-	if (perms & PERM_DEAFEN)
+	if ((perms & PERM_DEAFEN) && (selected_perms & PERM_READ))
 		menu->AddItem(new BMenuItem("Deafen user", new BMessage(kDeafenUser)));
-	if (perms & PERM_MUTE)
+	if ((perms & PERM_DEAFEN) && !(selected_perms & PERM_READ))
+		menu->AddItem(new BMenuItem("Undeafen user", new BMessage(kUndeafenUser)));
+
+	if ((perms & PERM_MUTE) && (selected_perms & PERM_WRITE))
 		menu->AddItem(new BMenuItem("Mute user", new BMessage(kMuteUser)));
+	if ((perms & PERM_MUTE) && !(selected_perms & PERM_WRITE))
+		menu->AddItem(new BMenuItem("Unmute user", new BMessage(kUnmuteUser)));
+
 	if (perms & PERM_KICK)
 		menu->AddItem(new BMenuItem("Kick user", new BMessage(kKickUser)));
 	if (perms & PERM_BAN)
 		menu->AddItem(new BMenuItem("Ban user", new BMessage(kBanUser)));
 
-
+	menu->SetTargetForItems(this);
 	return menu;
 }
 
@@ -122,6 +145,23 @@ UserListView::_BlankPopUp()
 	menu->SetTargetForItems(Window());
 	
 	return menu;
+}
+
+
+void
+UserListView::_ModerationAction(int32 im_what)
+{
+	Role* role = fChat->GetRole(fChat->OwnUserId());
+	int32 perms = role->fPerms;
+	UserItem* item = (UserItem*)ItemAt(CurrentSelection());
+	if (item == NULL)
+		return;
+
+	BMessage modMsg(IM_MESSAGE);
+	modMsg.AddInt32("im_what", im_what);
+	modMsg.AddString("user_id", item->GetUser()->GetId());
+	modMsg.AddString("chat_id", fChat->GetId());
+	fChat->GetProtocolLooper()->PostMessage(&modMsg);
 }
 
 
