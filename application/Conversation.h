@@ -68,7 +68,7 @@ public:
 
 private:
 	void				_LogChatMessage(BMessage* msg);
-	BStringList			_GetChatLogs();
+	status_t			_GetChatLogs(BMessage* msg);
 	void				_EnsureLogPath();
 
 	User*			_EnsureUser(BMessage* msg);

@@ -275,31 +275,25 @@ ConversationView::_AppendOrEnqueueMessage(BMessage* msg)
 void
 ConversationView::_AppendMessage(BMessage* msg)
 {
+	BStringList users, bodies;
+	if (msg->FindStrings("body", &bodies) != B_OK
+		|| msg->FindStrings("user_id", &users) != B_OK)
+		return;
 
-	BString message = msg->FindString("body");
-	BString id = msg->FindString("user_id");
-	BString uname = "";
+	for (int i = bodies.CountStrings(); i >= 0; i--) {
+		User* sender = fConversation->UserById(users.StringAt(i));
+		BString sender_name;
+		BString body = bodies.StringAt(i);
 
-	if (id.IsEmpty() == false) {
-		User* sender = fConversation->UserById(id);
+		if (sender != NULL)
+			sender_name = sender->GetName();
 
-		if (sender == NULL || (uname = sender->GetName()) == NULL)
-			uname = id;
-	}
+		if (sender_name.IsEmpty() == true) {
+			fReceiveView->AppendGenericMessage(body.String());
+			continue;
+		}
 
-	if (msg->FindInt32("im_what") == IM_MESSAGE_SENT)
-		fReceiveView->AppendOwnMessage(message.String());
-
-	else if (uname.IsEmpty() == false)
-		fReceiveView->AppendOtherMessage(uname.String(), message.String());
-
-	else {
-		BStringList bodies;
-		if (msg->FindStrings("body", &bodies) != B_OK)
-			return;
-
-		for (int i = bodies.CountStrings(); i >= 0; i--)
-			fReceiveView->AppendGenericMessage(bodies.StringAt(i).String());
+		fReceiveView->AppendOtherMessage(sender_name.String(), body.String());
 	}
 }
 

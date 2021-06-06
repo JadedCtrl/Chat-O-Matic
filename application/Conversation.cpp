@@ -173,11 +173,9 @@ Conversation::GetView()
 	if (fLooper->Protocol()->SaveLogs() == false)
 		return fChatView;
 
-	BStringList logs = _GetChatLogs();
-	BMessage logMsg(IM_MESSAGE);
-	logMsg.AddInt32("im_what", IM_LOGS_RECEIVED);
-	logMsg.AddStrings("body", logs);
-	fChatView->MessageReceived(&logMsg);
+	BMessage logMsg;
+	if (_GetChatLogs(&logMsg) == B_OK)
+		fChatView->MessageReceived(&logMsg);
 
 	RegisterObserver(fChatView);
 	return fChatView;
@@ -266,8 +264,32 @@ Conversation::_LogChatMessage(BMessage* msg)
 	fDateFormatter.Format(date, time(0), B_SHORT_DATE_FORMAT, B_MEDIUM_TIME_FORMAT);
 
 	BString id = msg->FindString("user_id");
-	BString uname;
+	BString body = msg->FindString("body");
 
+	// Binary logs
+	// TODO: Don't hardcode 21, expose maximum as a setting
+	BStringList users, bodies;
+
+	BMessage logMsg;
+	if (_GetChatLogs(&logMsg) == B_OK) {
+		logMsg.FindStrings("body", &bodies);
+		logMsg.FindStrings("user_id", &users);
+		bodies.Remove(21);
+		users.Remove(21);
+		bodies.Add(body, 0);
+		users.Add(id, 0);
+	}
+
+	BMessage newLogMsg(IM_MESSAGE);
+	newLogMsg.AddInt32("im_what", IM_LOGS_RECEIVED);
+	newLogMsg.AddStrings("body", bodies);
+	newLogMsg.AddStrings("user_id", users);
+
+	BFile logFile(fLogPath.Path(), B_READ_WRITE | B_OPEN_AT_END | B_CREATE_FILE);
+	WriteAttributeMessage(&logFile, "logs", &newLogMsg);
+
+	// Plain-text logs
+	BString uname;
 	if (id.IsEmpty() == false)
 		uname = UserById(id)->GetName();
 	else
@@ -278,37 +300,21 @@ Conversation::_LogChatMessage(BMessage* msg)
 	logLine << "] ";
 	logLine << uname;
 	logLine << ": ";
-	logLine << msg->FindString("body");
+	logLine << body;
 	logLine << "\n";
 
-
-	// TODO: Don't hardcode 21, expose maximum as a setting
-	BStringList logs = _GetChatLogs();
-	logs.Remove(21);
-	logs.Add(logLine, 0);
-
-	BMessage newLogMsg;
-	newLogMsg.AddStrings("log", logs);
-
-	BFile logFile(fLogPath.Path(), B_READ_WRITE | B_CREATE_FILE);
-	newLogMsg.Flatten(&logFile);
+	logFile.Write(logLine.String(), logLine.Length());
 }
 
 
-BStringList
-Conversation::_GetChatLogs()
+status_t
+Conversation::_GetChatLogs(BMessage* msg)
 {
 	_EnsureLogPath();
 
 	BFile logFile(fLogPath.Path(), B_READ_WRITE | B_CREATE_FILE);
-	BMessage logMsg;
-	BStringList logs;
 
-	if (logMsg.Unflatten(&logFile) == B_OK) {
-		logMsg.FindStrings("log", &logs);
-	}
-
-	return logs;
+	return ReadAttributeMessage(&logFile, "logs", msg);
 }
 
 

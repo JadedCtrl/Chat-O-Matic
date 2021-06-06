@@ -688,7 +688,7 @@ JabberHandler::_MessageSent(const char* id, const char* subject,
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_MESSAGE_SENT);
-	msg.AddString("user_id", id);
+	msg.AddString("user_id", fJid.bare().c_str());
 	msg.AddString("chat_id", id);
 	msg.AddString("subject", subject);
 	msg.AddString("body", body);

@@ -1,11 +1,8 @@
 /*
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2014, Funky Idea Software
  * Distributed under the terms of the MIT License.
- *
- * Authors:
- *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
-
 #include <memory.h>
 
 #include <Bitmap.h>
@@ -14,6 +11,8 @@
 #include <FindDirectory.h>
 #include <IconUtils.h>
 #include <Path.h>
+
+#include <kernel/fs_attr.h>
 
 #include "CayaUtils.h"
 
@@ -129,8 +128,11 @@ CayaCachePath()
 const char*
 CayaLogPath(const char* signature, const char* subsignature)
 {
-	BPath path(CayaCachePath());
-	path.Append("Logs");
+	BPath path;
+	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
+		return NULL;
+
+	path.Append("Caya/Logs");
 	path.Append(signature);
 
 	if (BString(signature) != BString(subsignature)
@@ -172,6 +174,62 @@ CayaTintColor(rgb_color color, int severity)
 				return tint_color(color, B_DARKEN_3_TINT);
 	}
 	return color;
+}
+
+
+status_t
+ReadAttributeData(BNode* node, const char* name, char** buffer, int32 *size) {
+		attr_info info;
+		status_t ret = node->GetAttrInfo(name, &info);
+
+		if (ret == B_OK) {
+			*buffer = (char *)calloc(info.size, sizeof(char));
+			ret = node->ReadAttr(name, info.type, 0, *buffer, info.size);
+
+			if (ret > B_OK) {
+				*size = ret;
+				ret = B_OK;
+			}
+			else
+				free(*buffer);
+		}
+
+	return ret;
+}
+
+
+status_t
+WriteAttributeMessage(BNode* node, const char* name, BMessage* data)
+{
+	BMallocIO	malloc;
+	status_t ret=data->Flatten(&malloc);
+
+	if(	ret == B_OK)	{
+		ret = node->WriteAttr(name,B_ANY_TYPE,0,malloc.Buffer(),malloc.BufferLength());
+
+		if(ret > B_OK)
+			ret=B_OK;
+	}
+
+	return ret;
+}
+
+
+status_t
+ReadAttributeMessage(BNode* node, const char* name, BMessage* data)
+{
+	char *buffer = NULL;
+	int32 size = 0;
+
+	status_t ret = ReadAttributeData(node,name,&buffer,&size);
+
+	if(size>0 && buffer!=NULL) {
+		BMemoryIO mem(buffer,size);
+		ret = data->Unflatten(&mem);
+		free(buffer);
+	}
+
+	return ret;
 }
 
 

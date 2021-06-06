@@ -24,8 +24,12 @@ const char*	CayaAccountPath(const char* signature, const char* subsignature);
 const char* CayaCachePath();
 const char* CayaLogPath(const char* signature, const char* subsignature);
 
-// Will return a tinted color― light or dark― based on brightness.
 rgb_color	CayaTintColor(rgb_color color, int severity);
+
+// Borrowed from BePodder's own libfunky
+status_t	ReadAttributeData(BNode* node, const char* name, char** buffer, int32 *size);
+status_t	WriteAttributeMessage(BNode* node, const char* name, BMessage* data);
+status_t	ReadAttributeMessage(BNode* node, const char* name, BMessage* data);
 
 extern "C" status_t our_image(image_info& image);
 
