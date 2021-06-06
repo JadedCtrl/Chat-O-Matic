@@ -299,6 +299,16 @@ Server::ImMessage(BMessage* msg)
 			chat->SetRole(user_id, role);
 			break;
 		}
+		case IM_ROOM_NAME:
+		{
+			BString name;
+			Conversation* chat = _EnsureConversation(msg);
+			if (msg->FindString("chat_name", &name) != B_OK || chat == NULL)
+				break;
+
+			chat->SetNotifyName(name.String());
+			break;
+		}
 		case IM_ROOM_SUBJECT:
 		{
 			BString subject;

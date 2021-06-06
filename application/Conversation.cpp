@@ -99,6 +99,17 @@ Conversation::ObservePointer(int32 what, void* ptr)
 
 
 void
+Conversation::SetNotifyName(const char* name)
+{
+	if (BString(name) == fName)
+		return;
+
+	fName = name;
+	NotifyString(STR_ROOM_NAME, fName.String());
+}
+
+
+void
 Conversation::SetNotifySubject(const char* subject)
 {
 	if (BString(subject) == fSubject)

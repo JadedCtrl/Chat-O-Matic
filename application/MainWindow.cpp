@@ -300,7 +300,13 @@ MainWindow::SetConversation(Conversation* chat)
 	if (chat != NULL) {
 		fChatView = chat->GetView();
 		fConversation = chat;
+
+		BString title(chat->GetName());
+		title << " ― Caya";
+		SetTitle(title.String());
 	}
+	else
+		SetTitle("Caya");
 
 	fRightView->AddChild(fChatView, 9);
 	fRightView->AddChild(fSendScroll, 1);

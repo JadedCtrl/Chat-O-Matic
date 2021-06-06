@@ -6,6 +6,7 @@
 #include "ConversationItem.h"
 
 #include "Conversation.h"
+#include "NotifyMessage.h"
 
 
 ConversationItem::ConversationItem(const char* name, Conversation* chat)
@@ -26,18 +27,12 @@ ConversationItem::GetConversation()
 void 
 ConversationItem::ObserveString(int32 what, BString str)
 {
-}
-
-
-void 
-ConversationItem::ObservePointer(int32 what, void* ptr)
-{
-}
-
-
-void 
-ConversationItem::ObserveInteger(int32 what, int32 val)
-{
+	switch (what)
+	{
+		case STR_ROOM_NAME:
+			SetText(str.String());
+			break;
+	}
 }
 
 

@@ -40,6 +40,7 @@ public:
 	void				ObserveInteger(int32 what, int32 value);
 	void				ObservePointer(int32 what, void* ptr);
 
+	void				SetNotifyName(const char* name);
 	void				SetNotifySubject(const char* subject);
 
 	BMessenger			Messenger() const;
