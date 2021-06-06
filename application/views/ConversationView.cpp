@@ -43,6 +43,7 @@ ConversationView::ConversationView(Conversation* chat)
 	: ConversationView()
 {
 	SetConversation(chat);
+	fUserList->SetConversation(chat);
 }
 
 

@@ -10,17 +10,23 @@
 #include <Window.h>
 
 #include "CayaMessages.h"
+#include "Conversation.h"
+#include "Role.h"
 #include "User.h"
 #include "UserInfoWindow.h"
 #include "UserItem.h"
 
 
 const uint32 kUserInfo = 'ULui';
-//const uint32 kLeaveSelectedChat = 'CVcs';
+const uint32 kDeafenUser = 'UMdu';
+const uint32 kMuteUser = 'UMmu';
+const uint32 kKickUser = 'UMku';
+const uint32 kBanUser = 'UMbu';
 
 
 UserListView::UserListView(const char* name)
-	: BListView(name)
+	: BListView(name),
+	fChat(NULL)
 {
 }
 
@@ -68,12 +74,38 @@ BPopUpMenu*
 UserListView::_UserPopUp()
 {
 	BPopUpMenu* menu = new BPopUpMenu("userPopUp");
-	menu->AddItem(new BMenuItem("User info…" B_UTF8_ELLIPSIS,
+	menu->AddItem(new BMenuItem("User info" B_UTF8_ELLIPSIS,
 		new BMessage(kUserInfo)));
 	menu->SetTargetForItems(this);
 
-	return menu;
+	// Now for the moderation items
+	Role* role = fChat->GetRole(fChat->OwnUserId());
+	int32 perms = role->fPerms;
+	UserItem* item = (UserItem*)ItemAt(CurrentSelection());
+	User* selected_user;
 
+	if (item == NULL || (selected_user = item->GetUser()) == NULL)
+		return menu;
+
+	int32 selected_priority = fChat->GetRole(selected_user->GetId())->fPriority;
+	if (selected_priority > role->fPriority)
+		return menu;
+
+	if ((perms & PERM_DEAFEN) || (perms & PERM_MUTE) || (perms & PERM_KICK)
+		|| (perms & PERM_BAN))
+		menu->AddSeparatorItem();
+
+	if (perms & PERM_DEAFEN)
+		menu->AddItem(new BMenuItem("Deafen user", new BMessage(kDeafenUser)));
+	if (perms & PERM_MUTE)
+		menu->AddItem(new BMenuItem("Mute user", new BMessage(kMuteUser)));
+	if (perms & PERM_KICK)
+		menu->AddItem(new BMenuItem("Kick user", new BMessage(kKickUser)));
+	if (perms & PERM_BAN)
+		menu->AddItem(new BMenuItem("Ban user", new BMessage(kBanUser)));
+
+
+	return menu;
 }
 
 

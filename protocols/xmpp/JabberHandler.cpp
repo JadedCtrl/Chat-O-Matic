@@ -913,7 +913,7 @@ JabberHandler::_RoleTitle(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff
 }
 
 
-uint32
+int32
 JabberHandler::_RolePerms(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff)
 {
 	switch (role)
@@ -931,7 +931,7 @@ JabberHandler::_RolePerms(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff
 }
 
 
-uint32
+int32
 JabberHandler::_RolePriority(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff)
 {
 	switch (role)
@@ -1249,8 +1249,8 @@ JabberHandler::_RoleChanged(BString chat_id, BString user_id,
 	roleMsg.AddString("user_id", user_id);
 	roleMsg.AddString("chat_id", chat_id);
 	roleMsg.AddString("role_title", _RoleTitle(role, aff));
-	roleMsg.AddUInt32("role_perms", _RolePerms(role, aff));
-	roleMsg.AddUInt32("role_priority", _RolePriority(role, aff));
+	roleMsg.AddInt32("role_perms", _RolePerms(role, aff));
+	roleMsg.AddInt32("role_priority", _RolePriority(role, aff));
 	_SendMessage(&roleMsg);
 }
 

@@ -653,12 +653,12 @@ Server::_GetRole(BMessage* msg)
 		return NULL;
 
 	BString title;
-	uint32 perms;
-	uint32 priority;
+	int32 perms;
+	int32 priority;
 
 	if (msg->FindString("role_title", &title) != B_OK
-		|| msg->FindUInt32("role_perms", &perms) != B_OK
-		|| msg->FindUInt32("role_priority", &priority) != B_OK)
+		|| msg->FindInt32("role_perms", &perms) != B_OK
+		|| msg->FindInt32("role_priority", &priority) != B_OK)
 		return NULL;
 
 	return new Role(title, perms, priority);

@@ -8,6 +8,7 @@
 #include <ListView.h>
 
 class BPopUpMenu;
+class Conversation;
 
 
 class UserListView : public BListView {
@@ -18,9 +19,13 @@ public:
 
 	void MouseDown(BPoint where);
 
+	void SetConversation(Conversation* chat) { fChat = chat; }
+
 private:
 	BPopUpMenu* _UserPopUp();
 	BPopUpMenu* _BlankPopUp();
+
+	Conversation* fChat;
 };
 
 

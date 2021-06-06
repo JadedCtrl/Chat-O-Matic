@@ -135,8 +135,8 @@ private:
 			bool					_MUCUserId(BString chat_id, const char* nick, BString* id);
 
 			const char*				_RoleTitle(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
-			uint32					_RolePerms(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
-			uint32					_RolePriority(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
+			int32					_RolePerms(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
+			int32					_RolePriority(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
 
 	virtual	void					onConnect();
 	virtual	void					onDisconnect(gloox::ConnectionError);
