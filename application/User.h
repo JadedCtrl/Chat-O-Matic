@@ -13,8 +13,8 @@
 
 #include <libsupport/KeyMap.h>
 
-#include "Notifier.h"
 #include "CayaConstants.h"
+#include "Notifier.h"
 
 class BBitmap;
 

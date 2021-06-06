@@ -12,6 +12,7 @@
 #include <libsupport/KeyMap.h>
 
 #include "Observer.h"
+#include "Role.h"
 #include "Server.h"
 #include "User.h"
 
@@ -23,6 +24,7 @@ class Server;
 
 
 typedef KeyMap<BString, User*> UserMap;
+typedef KeyMap<BString, Role*> RoleMap;
 
 
 class Conversation : public Notifier, public Observer {
@@ -48,19 +50,21 @@ public:
 
 	BBitmap*			ProtocolBitmap() const;
 	BBitmap*			IconBitmap() const;
-
-	void				ShowView(bool typing, bool userAction);
+	BString				GetName() const;
 
 	ConversationView*	GetView();
+	void				ShowView(bool typing, bool userAction);
 	ConversationItem*	GetListItem();
-
-	BString				GetName() const;
 
 	UserMap				Users();
 	User*				UserById(BString id);
+	BString				OwnUserId();
 
 	void				AddUser(User* user);
 	void				RemoveUser(User* user);
+
+	void				SetRole(BString id, Role* role);
+	Role*				GetRole(BString id);
 
 private:
 	void				_LogChatMessage(BMessage* msg);
@@ -85,6 +89,7 @@ private:
 	BDateTimeFormat fDateFormatter;
 
 	UserMap fUsers;
+	RoleMap fRoles;
 };
 
 

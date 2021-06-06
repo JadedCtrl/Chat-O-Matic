@@ -72,6 +72,8 @@ private:
 			User*			_EnsureUser(BString id, ProtocolLooper* protoLooper);
 			Conversation*	_EnsureConversation(BMessage* message);
 
+			Role*			_GetRole(BMessage* msg);
+
 			void			_ReplicantStatusNotify(CayaStatus status);
 
 			RosterMap		fRosterMap;

@@ -118,7 +118,8 @@ private:
 												const char* body);
 
 			void					_ChatCreated(const char* id);
-
+			void					_RoleChanged(BString chat_id, BString user_id,
+												 gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
 
 			void					_Notify(notification_type type, const char* title, const char* message);
 			void					_NotifyProgress(const char* title, const char* message, float progress);
@@ -132,6 +133,10 @@ private:
 
 			BString					_MUCChatId(gloox::MUCRoom* room);
 			bool					_MUCUserId(BString chat_id, const char* nick, BString* id);
+
+			const char*				_RoleTitle(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
+			uint32					_RolePerms(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
+			uint32					_RolePriority(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
 
 	virtual	void					onConnect();
 	virtual	void					onDisconnect(gloox::ConnectionError);

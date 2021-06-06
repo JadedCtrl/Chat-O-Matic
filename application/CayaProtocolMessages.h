@@ -222,11 +222,14 @@ enum im_what_code {
 	 * Room moderation
 	 */
 
+	//! A user's role has been changed
+	IM_ROOM_ROLECHANGE					= 170,
+
 	//! Ban user
-	IM_ROOM_BAN_PARTICIPANT				= 170,
+	IM_ROOM_BAN_PARTICIPANT				= 171,
 
 	//! Kick user
-	IM_ROOM_KICK_PARTICIPANT			= 171,
+	IM_ROOM_KICK_PARTICIPANT			= 172,
 
 
 	/*

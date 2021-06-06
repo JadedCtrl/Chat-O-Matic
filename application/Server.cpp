@@ -286,6 +286,19 @@ Server::ImMessage(BMessage* msg)
 			chat->RemoveUser(user);
 			break;
 		}
+		case IM_ROOM_ROLECHANGE:
+		{
+			Conversation* chat = _EnsureConversation(msg);
+			BString user_id;
+			Role* role = _GetRole(msg);
+
+			if (chat == NULL || msg->FindString("user_id", &user_id) != B_OK
+				|| role == NULL)
+				break;
+
+			chat->SetRole(user_id, role);
+			break;
+		}
 		case IM_ROOM_SUBJECT:
 		{
 			BString subject;
@@ -630,6 +643,25 @@ Server::_EnsureConversation(BMessage* message)
 		}
 	}
 	return item;
+}
+
+
+Role*
+Server::_GetRole(BMessage* msg)
+{
+	if (!msg)
+		return NULL;
+
+	BString title;
+	uint32 perms;
+	uint32 priority;
+
+	if (msg->FindString("role_title", &title) != B_OK
+		|| msg->FindUInt32("role_perms", &perms) != B_OK
+		|| msg->FindUInt32("role_priority", &priority) != B_OK)
+		return NULL;
+
+	return new Role(title, perms, priority);
 }
 
 

@@ -13,9 +13,10 @@
 #include <List.h>
 #include <StringList.h>
 
-#include <CayaProtocolMessages.h>
-
 #include <libsupport/SHA1.h>
+
+#include <CayaProtocolMessages.h>
+#include <Role.h>
 
 #include <gloox/chatstatefilter.h>
 #include <gloox/messageeventfilter.h>
@@ -894,6 +895,58 @@ JabberHandler::_MUCUserId(BString chat_id, const char* nick, BString* id)
 }
 
 
+const char*
+JabberHandler::_RoleTitle(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff)
+{
+	switch (role)
+	{
+		case gloox::RoleVisitor:
+			return "Visitor";
+		case gloox::RoleParticipant:
+			return "Member";
+		case gloox::RoleModerator:
+			if (aff == gloox::AffiliationOwner)
+				return "Owner";
+			return "Moderator";
+	}
+	return "Invalid";
+}
+
+
+uint32
+JabberHandler::_RolePerms(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff)
+{
+	switch (role)
+	{
+		case gloox::RoleVisitor:
+			return 0 | PERM_READ | PERM_NICK;
+		case gloox::RoleParticipant:
+			return 0 | PERM_READ | PERM_WRITE | PERM_ROOM_SUBJECT;
+		case gloox::RoleModerator:
+			if (aff == gloox::AffiliationOwner)
+				return PERM_ALL;
+			return PERM_ALL;
+	}
+	return 0;
+}
+
+
+uint32
+JabberHandler::_RolePriority(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff)
+{
+	switch (role)
+	{
+		case gloox::RoleParticipant:
+			return 1;
+		case gloox::RoleModerator:
+			if (aff == gloox::AffiliationOwner)
+				return 3;
+			return 2;
+	}
+	return 0;
+}
+
+
 BMessage
 JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 {
@@ -1132,6 +1185,12 @@ JabberHandler::handleMUCParticipantPresence(gloox::MUCRoom *room,
 											const gloox::MUCRoomParticipant participant,
 											const gloox::Presence &presence)
 {
+	// participant.flags, particpiant.role
+	// 0-0 (left), 0-* (joined/rolechange)
+
+	gloox::MUCRoomRole role = participant.role;
+	gloox::MUCRoomAffiliation aff = participant.affiliation;
+
 	const char* nick = participant.nick->resource().c_str();
 
 	BString user_id;
@@ -1150,6 +1209,7 @@ JabberHandler::handleMUCParticipantPresence(gloox::MUCRoom *room,
 		joinedMsg.AddInt32("im_what", im_what);
 		joinedMsg.AddString("chat_id", chat_id);
 		_SendMessage(&joinedMsg);
+		_RoleChanged(chat_id, user_id, role, aff);
 		return;
 	}
 
@@ -1175,6 +1235,23 @@ JabberHandler::handleMUCParticipantPresence(gloox::MUCRoom *room,
 	joinMsg.AddString("user_name", nick);
 	joinMsg.AddString("chat_id", chat_id);
 	_SendMessage(&joinMsg);
+
+	_RoleChanged(chat_id, user_id, role, aff);
+}
+
+
+void
+JabberHandler::_RoleChanged(BString chat_id, BString user_id,
+							gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff)
+{
+	BMessage roleMsg(IM_MESSAGE);
+	roleMsg.AddInt32("im_what", IM_ROOM_ROLECHANGE);
+	roleMsg.AddString("user_id", user_id);
+	roleMsg.AddString("chat_id", chat_id);
+	roleMsg.AddString("role_title", _RoleTitle(role, aff));
+	roleMsg.AddUInt32("role_perms", _RolePerms(role, aff));
+	roleMsg.AddUInt32("role_priority", _RolePriority(role, aff));
+	_SendMessage(&roleMsg);
 }
 
 

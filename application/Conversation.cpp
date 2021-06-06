@@ -162,6 +162,42 @@ Conversation::GetName() const
 }
 
 
+ConversationView*
+Conversation::GetView()
+{
+	if (fChatView != NULL)
+		return fChatView;
+
+	fChatView = new ConversationView(this);
+
+	if (fLooper->Protocol()->SaveLogs() == false)
+		return fChatView;
+
+	BStringList logs = _GetChatLogs();
+	BMessage logMsg(IM_MESSAGE);
+	logMsg.AddInt32("im_what", IM_LOGS_RECEIVED);
+	logMsg.AddStrings("body", logs);
+	fChatView->MessageReceived(&logMsg);
+
+	RegisterObserver(fChatView);
+	return fChatView;
+}
+
+
+void
+Conversation::ShowView(bool typing, bool userAction)
+{
+	((TheApp*)be_app)->GetMainWindow()->SetConversation(this);
+}
+
+
+ConversationItem*
+Conversation::GetListItem()
+{
+	return fConversationItem;
+}
+
+
 UserMap
 Conversation::Users()
 {
@@ -196,39 +232,30 @@ Conversation::RemoveUser(User* user)
 }
 
 
+BString
+Conversation::OwnUserId()
+{
+	return _GetServer()->GetOwnContact();
+}
+
+
 void
-Conversation::ShowView(bool typing, bool userAction)
+Conversation::SetRole(BString id, Role* role)
 {
-	((TheApp*)be_app)->GetMainWindow()->SetConversation(this);
+	Role* oldRole = fRoles.ValueFor(id);
+	if (oldRole != NULL) {
+		fRoles.RemoveItemFor(id);
+		delete oldRole;
+	}
+
+	fRoles.AddItem(id, role);
 }
 
 
-ConversationView*
-Conversation::GetView()
+Role*
+Conversation::GetRole(BString id)
 {
-	if (fChatView != NULL)
-		return fChatView;
-
-	fChatView = new ConversationView(this);
-
-	if (fLooper->Protocol()->SaveLogs() == false)
-		return fChatView;
-
-	BStringList logs = _GetChatLogs();
-	BMessage logMsg(IM_MESSAGE);
-	logMsg.AddInt32("im_what", IM_LOGS_RECEIVED);
-	logMsg.AddStrings("body", logs);
-	fChatView->MessageReceived(&logMsg);
-
-	RegisterObserver(fChatView);
-	return fChatView;
-}
-
-
-ConversationItem*
-Conversation::GetListItem()
-{
-	return fConversationItem;
+	return fRoles.ValueFor(id);
 }
 
 
