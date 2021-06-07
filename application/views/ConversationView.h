@@ -50,6 +50,9 @@ private:
 			bool		_AppendOrEnqueueMessage(BMessage* msg);
 			void		_AppendMessage(BMessage* msg);
 
+			void		_UserMessage(const char* format, const char* bodyFormat,
+									 BMessage* msg);
+
 		Conversation*	fConversation;
 		int32			fMessageCount;
 		BObjectList<BMessage>	fMessageQueue;

@@ -149,6 +149,30 @@ ConversationView::ImMessage(BMessage* msg)
 			_AppendOrEnqueueMessage(msg);
 			break;
 		}
+		case IM_ROOM_PARTICIPANT_JOINED:
+		{
+			_UserMessage("%user% has joined the room.\n",
+						 "%user% has joined the room (%body%).\n", msg);
+			break;
+		}
+		case IM_ROOM_PARTICIPANT_LEFT:
+		{
+			_UserMessage("%user% has left the room.\n",
+						 "%user% has left the room (%body%).\n", msg);
+			break;
+		}
+		case IM_ROOM_PARTICIPANT_KICKED:
+		{
+			_UserMessage("%user% was kicked.\n",
+						 "%user% was kicked (%body%).\n", msg);
+			break;
+		}
+		case IM_ROOM_PARTICIPANT_BANNED:
+		{
+			_UserMessage("%user% has been banned.\n",
+						 "%user% has been banned (%body%).\n", msg);
+			break;
+		}
 		default:
 			break;
 	}
@@ -276,9 +300,9 @@ void
 ConversationView::_AppendMessage(BMessage* msg)
 {
 	BStringList users, bodies;
-	if (msg->FindStrings("body", &bodies) != B_OK
-		|| msg->FindStrings("user_id", &users) != B_OK)
+	if (msg->FindStrings("body", &bodies) != B_OK)
 		return;
+	msg->FindStrings("user_id", &users);
 
 	for (int i = bodies.CountStrings(); i >= 0; i--) {
 		User* sender = fConversation->UserById(users.StringAt(i));
@@ -295,6 +319,34 @@ ConversationView::_AppendMessage(BMessage* msg)
 
 		fReceiveView->AppendOtherMessage(sender_name.String(), body.String());
 	}
+}
+
+
+void
+ConversationView::_UserMessage(const char* format, const char* bodyFormat,
+							   BMessage* msg)
+{
+	BString user_id;
+	BString user_name = msg->FindString("user_name");
+	BString body = msg->FindString("body");
+
+	if (msg->FindString("user_id", &user_id) != B_OK)
+		return;
+	if (user_name.IsEmpty() == true)
+		user_name = user_id;
+
+	BString newBody("** ");
+	if (body.IsEmpty() == true)
+		newBody << format;
+	else {
+		newBody << bodyFormat;
+		newBody.ReplaceAll("%body%", body.String());
+	}
+	newBody.ReplaceAll("%user%", user_name.String());
+
+	BMessage newMsg;
+	newMsg.AddString("body", newBody);
+	_AppendOrEnqueueMessage(&newMsg);
 }
 
 

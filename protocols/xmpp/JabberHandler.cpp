@@ -140,7 +140,7 @@ JabberHandler::Process(BMessage* msg)
 			if (!invite_id)
 				return B_ERROR;
 
-			_ChatCreated(invite_id);
+			_ChatCreatedMsg(invite_id);
 			break;
 		}
 
@@ -705,12 +705,76 @@ JabberHandler::_MessageSent(const char* id, const char* subject,
 
 
 void
-JabberHandler::_ChatCreated(const char* id)
+JabberHandler::_ChatCreatedMsg(const char* id)
 {
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_CHAT_CREATED);
 	msg.AddString("chat_id", id);
 	msg.AddString("user_id", id);
+	_SendMessage(&msg);
+}
+
+
+void
+JabberHandler::_RoleChangedMsg(BString chat_id, BString user_id,
+							gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff)
+{
+	BMessage roleMsg(IM_MESSAGE);
+	roleMsg.AddInt32("im_what", IM_ROOM_ROLECHANGE);
+	roleMsg.AddString("user_id", user_id);
+	roleMsg.AddString("chat_id", chat_id);
+	roleMsg.AddString("role_title", _RoleTitle(role, aff));
+	roleMsg.AddInt32("role_perms", _RolePerms(role, aff));
+	roleMsg.AddInt32("role_priority", _RolePriority(role, aff));
+	_SendMessage(&roleMsg);
+}
+
+
+void
+JabberHandler::_UserLeftMsg(BString chat_id, gloox::MUCRoomParticipant participant)
+{
+	BString user_id;
+	const char* nick = participant.nick->resource().c_str();
+	bool isSelf = _MUCUserId(chat_id, nick, &user_id);
+
+	if (user_id.IsEmpty() == true)
+		return;
+
+	int32 im_what = IM_ROOM_PARTICIPANT_LEFT;
+	int flags = participant.flags;
+
+	if (flags & gloox::UserBanned)
+		im_what = IM_ROOM_PARTICIPANT_BANNED;
+	else if (flags & gloox::UserKicked)
+		im_what = IM_ROOM_PARTICIPANT_KICKED;
+
+	BMessage leftMsg(IM_MESSAGE);
+	leftMsg.AddInt32("im_what", im_what);
+	leftMsg.AddString("chat_id", chat_id);
+	leftMsg.AddString("user_id", user_id);
+	leftMsg.AddString("user_name", nick);
+	if (participant.reason.empty() == false)
+		leftMsg.AddString("body", participant.reason.c_str());
+	_SendMessage(&leftMsg);
+}
+
+
+void
+JabberHandler::_StatusSetMsg(const char* user_id, gloox::Presence::PresenceType type,
+						  const char* message, const char* resource)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_STATUS_SET);
+	msg.AddString("user_id", user_id);
+	msg.AddInt32("status", _GlooxStatusToCaya(type));
+
+	if (BString(resource).IsEmpty() == false)
+		msg.AddString("resource", resource);
+	if (BString(message).IsEmpty() == false)
+		msg.AddString("message", message);
+
+	msg.PrintToStream();
+
 	_SendMessage(&msg);
 }
 
@@ -1251,49 +1315,26 @@ JabberHandler::handleMUCParticipantPresence(gloox::MUCRoom *room,
 		joinedMsg.AddInt32("im_what", im_what);
 		joinedMsg.AddString("chat_id", chat_id);
 		_SendMessage(&joinedMsg);
-		_RoleChanged(chat_id, user_id, role, aff);
+		_RoleChangedMsg(chat_id, user_id, role, aff);
 		return;
 	}
 
-	BMessage statusMsg(IM_MESSAGE);
-	statusMsg.AddInt32("im_what", IM_STATUS_SET);
-	statusMsg.AddString("user_id", user_id);
-	statusMsg.AddInt32("status", _GlooxStatusToCaya(presence.presence()));
-	_SendMessage(&statusMsg);
+	_StatusSetMsg(user_id.String(), presence.presence(), presence.status().c_str(), "");
 
 	// If unavailable (disconnected/left chat)
 	if (presence.presence() == 5) {
-		BMessage leftMsg(IM_MESSAGE);
-		leftMsg.AddInt32("im_what", IM_ROOM_PARTICIPANT_LEFT);
-		leftMsg.AddString("user_id", user_id);
-		leftMsg.AddString("chat_id", chat_id);
-		_SendMessage(&leftMsg);
+		_UserLeftMsg(chat_id, participant);
 		return;
 	}
 
 	BMessage joinMsg(IM_MESSAGE);
-	joinMsg.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
+	joinMsg.AddInt32("im_what", IM_ROOM_PARTICIPANT_JOINED);
 	joinMsg.AddString("user_id", user_id);
 	joinMsg.AddString("user_name", nick);
 	joinMsg.AddString("chat_id", chat_id);
 	_SendMessage(&joinMsg);
 
-	_RoleChanged(chat_id, user_id, role, aff);
-}
-
-
-void
-JabberHandler::_RoleChanged(BString chat_id, BString user_id,
-							gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff)
-{
-	BMessage roleMsg(IM_MESSAGE);
-	roleMsg.AddInt32("im_what", IM_ROOM_ROLECHANGE);
-	roleMsg.AddString("user_id", user_id);
-	roleMsg.AddString("chat_id", chat_id);
-	roleMsg.AddString("role_title", _RoleTitle(role, aff));
-	roleMsg.AddInt32("role_perms", _RolePerms(role, aff));
-	roleMsg.AddInt32("role_priority", _RolePriority(role, aff));
-	_SendMessage(&roleMsg);
+	_RoleChangedMsg(chat_id, user_id, role, aff);
 }
 
 
@@ -1482,13 +1523,8 @@ JabberHandler::handleRosterPresence(const gloox::RosterItem& item,
 									gloox::Presence::PresenceType type,
 									const std::string& presenceMsg)
 {
-	BMessage msg(IM_MESSAGE);
-	msg.AddInt32("im_what", IM_STATUS_SET);
-	msg.AddString("user_id", item.jidJID().full().c_str());
-	msg.AddInt32("status", _GlooxStatusToCaya(type));
-	msg.AddString("resource", resource.c_str());
-	msg.AddString("message", presenceMsg.c_str());
-	_SendMessage(&msg);
+	_StatusSetMsg(item.jidJID().full().c_str(), type, presenceMsg.c_str(),
+		resource.c_str());
 }
 
 

@@ -70,6 +70,31 @@ Conversation::ImMessage(BMessage* msg)
 			fMessenger.SendMessage(msg);
 			break;
 		}
+		case IM_ROOM_PARTICIPANT_JOINED:
+		{
+			BString user_id;
+			if (msg->FindString("user_id", &user_id) != B_OK)
+				break;
+
+			if (UserById(user_id) == NULL) {
+				_EnsureUser(msg);
+				GetView()->MessageReceived(msg);
+			}
+			break;
+		}
+		case IM_ROOM_PARTICIPANT_LEFT:
+		case IM_ROOM_PARTICIPANT_KICKED:
+		case IM_ROOM_PARTICIPANT_BANNED:
+		{
+			BString user_id = msg->FindString("user_id");
+			User* user;
+			if (user_id.IsEmpty() == true || (user = UserById(user_id)) == NULL)
+				break;
+
+			GetView()->MessageReceived(msg);
+			RemoveUser(user);
+			break;
+		}
 		case IM_LOGS_RECEIVED:
 		default:
 			GetView()->MessageReceived(msg);
@@ -347,16 +372,19 @@ User*
 Conversation::_EnsureUser(BMessage* msg)
 {
 	BString id = msg->FindString("user_id");
+	BString name = msg->FindString("user_name");
 	if (id.IsEmpty() == true) return NULL;
 
 	User* user = UserById(id);
 	User* serverUser = _GetServer()->UserById(id);
 
+	// Not here, but found in server
 	if (user == NULL && serverUser != NULL) {
 		fUsers.AddItem(id, serverUser);
 		user = serverUser;
 		GetView()->UpdateUserList(fUsers);
 	}
+	// Not anywhere; create user
 	else if (user == NULL) {
 		user = new User(id, _GetServer()->Looper());
 		user->SetProtocolLooper(fLooper);
@@ -364,6 +392,9 @@ Conversation::_EnsureUser(BMessage* msg)
 		_GetServer()->AddUser(user);
 		fUsers.AddItem(id, user);
 		GetView()->UpdateUserList(fUsers);
+
+		if (name.IsEmpty() == false)
+			user->SetNotifyName(name);
 	}
 	user->RegisterObserver(this);
 	return user;

@@ -228,23 +228,29 @@ enum im_what_code {
 	//! Kick user
 	IM_ROOM_KICK_PARTICIPANT			= 171,
 
+	//! A user was kicked
+	IM_ROOM_PARTICIPANT_KICKED			= 172,
+
 	//! Ban user
-	IM_ROOM_BAN_PARTICIPANT				= 172,
+	IM_ROOM_BAN_PARTICIPANT				= 173,
+
+	//! A user was banned
+	IM_ROOM_PARTICIPANT_BANNED			= 174,
 
 	//! Unban user
-	IM_ROOM_UNBAN_PARTICIPANT			= 173,
+	IM_ROOM_UNBAN_PARTICIPANT			= 175,
 
 	//! Mute user
-	IM_ROOM_MUTE_PARTICIPANT			= 174,
+	IM_ROOM_MUTE_PARTICIPANT			= 176,
 
 	//! Unmute user
-	IM_ROOM_UNMUTE_PARTICIPANT			= 175,
+	IM_ROOM_UNMUTE_PARTICIPANT			= 177,
 
 	//! Deafen
-	IM_ROOM_DEAFEN_PARTICIPANT			= 176,
+	IM_ROOM_DEAFEN_PARTICIPANT			= 178,
 
 	//! Allow to read messages
-	IM_ROOM_UNDEAFEN_PARTICIPANT		= 177,
+	IM_ROOM_UNDEAFEN_PARTICIPANT		= 179,
 
 
 	/*

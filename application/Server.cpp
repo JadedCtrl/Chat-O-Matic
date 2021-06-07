@@ -186,10 +186,8 @@ Server::ImMessage(BMessage* msg)
 				contact->SetNotifyName(name);
 
 			BString status;
-			if (msg->FindString("message", &status) == B_OK) {
+			if (msg->FindString("message", &status) == B_OK)
 				contact->SetNotifyPersonalStatus(status);
-//				contact->GetChatWindow()->UpdatePersonalMessage();
-			}
 			break;
 		}
 		case IM_EXTENDED_CONTACT_INFO:
@@ -276,14 +274,15 @@ Server::ImMessage(BMessage* msg)
 			}
 			break;
 		}
+		case IM_ROOM_PARTICIPANT_JOINED:
 		case IM_ROOM_PARTICIPANT_LEFT:
+		case IM_ROOM_PARTICIPANT_BANNED:
+		case IM_ROOM_PARTICIPANT_KICKED:
 		{
 			Conversation* chat = _EnsureConversation(msg);
-			User* user = _EnsureUser(msg);
-
-			if (user == NULL || chat == NULL)
+			if (chat == NULL)
 				break;
-			chat->RemoveUser(user);
+			chat->ImMessage(msg);
 			break;
 		}
 		case IM_ROOM_ROLECHANGE:

@@ -117,9 +117,12 @@ private:
 			void					_MessageSent(const char* id, const char* subject,
 												const char* body);
 
-			void					_ChatCreated(const char* id);
-			void					_RoleChanged(BString chat_id, BString user_id,
-												 gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
+			void					_ChatCreatedMsg(const char* id);
+			void					_RoleChangedMsg(BString chat_id, BString user_id,
+													gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
+			void					_UserLeftMsg(BString chat_id, gloox::MUCRoomParticipant participant);
+			void					_StatusSetMsg(const char* user_id, gloox::Presence::PresenceType type,
+												  const char* message, const char* resource);
 
 			void					_Notify(notification_type type, const char* title, const char* message);
 			void					_NotifyProgress(const char* title, const char* message, float progress);
