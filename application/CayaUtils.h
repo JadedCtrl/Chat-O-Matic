@@ -25,6 +25,7 @@ const char* CayaCachePath();
 const char* CayaLogPath(const char* signature, const char* subsignature);
 
 rgb_color	CayaTintColor(rgb_color color, int severity);
+rgb_color	CayaForegroundColor(rgb_color background);
 
 // Borrowed from BePodder's own libfunky
 status_t	ReadAttributeData(BNode* node, const char* name, char** buffer, int32 *size);

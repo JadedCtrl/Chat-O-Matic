@@ -177,6 +177,32 @@ CayaTintColor(rgb_color color, int severity)
 }
 
 
+rgb_color
+CayaForegroundColor(rgb_color background)
+{
+	rgb_color foreground;
+	int32 brighter;
+	int32 darker;
+	float ratio;
+
+	do {
+		foreground.set_to(rand() % 255, rand() % 255, rand() %255);
+		if (foreground.Brightness() > background.Brightness()) {
+			brighter = foreground.Brightness();
+			darker = background.Brightness();
+		}
+		else {
+			brighter = background.Brightness();
+			darker = foreground.Brightness();
+		}
+		ratio = (brighter + .05) / (darker + .05);
+	}
+	while (ratio > 5 || ratio < 4);
+
+	return foreground;
+}
+
+
 status_t
 ReadAttributeData(BNode* node, const char* name, char** buffer, int32 *size) {
 		attr_info info;

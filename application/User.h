@@ -63,6 +63,8 @@ public:
 
 	ChatMap			Conversations();
 
+	rgb_color		fItemColor;
+
 protected:
 	BMessenger		fMessenger;
 	ProtocolLooper*	fLooper;

@@ -29,6 +29,7 @@ User::User(BString id, BMessenger msgn)
 	fMessenger(msgn),
 	fLooper(NULL),
 	fListItem(NULL),
+	fItemColor(CayaForegroundColor(ui_color(B_LIST_BACKGROUND_COLOR))),
 	fStatus(CAYA_OFFLINE),
 	fPopUp(NULL)
 {
