@@ -337,8 +337,8 @@ Server::ImMessage(BMessage* msg)
 
 			break;
 		}
-		case IM_CONTACT_STARTED_TYPING:
-		case IM_CONTACT_STOPPED_TYPING:
+		case IM_USER_STARTED_TYPING:
+		case IM_USER_STOPPED_TYPING:
 		{
 //			BString id = msg->FindString("chat_id");
 //			Conversation* item = _EnsureConversation(msg);
