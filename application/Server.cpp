@@ -181,7 +181,7 @@ Server::ImMessage(BMessage* msg)
 
 			const char* name = NULL;
 
-			if ((msg->FindString("name", &name) == B_OK)
+			if ((msg->FindString("user_name", &name) == B_OK)
 				&& (strcmp(name, "") != 0))
 				contact->SetNotifyName(name);
 
@@ -201,9 +201,12 @@ Server::ImMessage(BMessage* msg)
 
 			const char* name = NULL;
 
-			if ((msg->FindString("full name", &name) == B_OK)
+			if ((msg->FindString("full_name", &name) == B_OK)
 				&& (strcmp(name, "") != 0))
 				contact->SetNotifyName(name);
+			else if ((msg->FindString("user_name", &name) == B_OK)
+				&& (strcmp(name, "") != 0))
+					contact->SetNotifyName(name);
 			break;
 		}
 		case IM_AVATAR_SET:
@@ -285,7 +288,7 @@ Server::ImMessage(BMessage* msg)
 			chat->ImMessage(msg);
 			break;
 		}
-		case IM_ROOM_ROLECHANGE:
+		case IM_ROOM_ROLECHANGED:
 		{
 			Conversation* chat = _EnsureConversation(msg);
 			BString user_id;
@@ -298,7 +301,7 @@ Server::ImMessage(BMessage* msg)
 			chat->SetRole(user_id, role);
 			break;
 		}
-		case IM_ROOM_NAME:
+		case IM_ROOM_NAME_SET:
 		{
 			BString name;
 			Conversation* chat = _EnsureConversation(msg);
@@ -308,7 +311,7 @@ Server::ImMessage(BMessage* msg)
 			chat->SetNotifyName(name.String());
 			break;
 		}
-		case IM_ROOM_SUBJECT:
+		case IM_ROOM_SUBJECT_SET:
 		{
 			BString subject;
 			Conversation* chat = _EnsureConversation(msg);

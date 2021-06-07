@@ -720,7 +720,7 @@ JabberHandler::_RoleChangedMsg(BString chat_id, BString user_id,
 							gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff)
 {
 	BMessage roleMsg(IM_MESSAGE);
-	roleMsg.AddInt32("im_what", IM_ROOM_ROLECHANGE);
+	roleMsg.AddInt32("im_what", IM_ROOM_ROLECHANGED);
 	roleMsg.AddString("user_id", user_id);
 	roleMsg.AddString("chat_id", chat_id);
 	roleMsg.AddString("role_title", _RoleTitle(role, aff));
@@ -1170,8 +1170,7 @@ JabberHandler::handleRoster(const gloox::Roster& roster)
 		BMessage infoMsg(IM_MESSAGE);
 		infoMsg.AddInt32("im_what", IM_CONTACT_INFO);
 		infoMsg.AddString("user_id", jid);
-		infoMsg.AddString("name", name);
-		infoMsg.AddInt32("subscription", subscription);
+		infoMsg.AddString("user_name", name);
 		infoMsg.AddInt32("status", CAYA_OFFLINE);
 
 		// Groups
@@ -1270,10 +1269,10 @@ printf("------ %d\n", state);
 
 	switch (state) {
 		case gloox::ChatStateComposing:
-			msg.AddInt32("im_what", IM_CONTACT_STARTED_TYPING);
+			msg.AddInt32("im_what", IM_USER_STARTED_TYPING);
 			break;
 		case gloox::ChatStatePaused:
-			msg.AddInt32("im_what", IM_CONTACT_STOPPED_TYPING);
+			msg.AddInt32("im_what", IM_USER_STOPPED_TYPING);
 			break;
 		case gloox::ChatStateGone:
 			// TODO
@@ -1395,7 +1394,7 @@ JabberHandler::handleMUCSubject(gloox::MUCRoom *room, const std::string &nick,
 		return;
 
 	BMessage msg(IM_MESSAGE);
-	msg.AddInt32("im_what", IM_ROOM_SUBJECT);
+	msg.AddInt32("im_what", IM_ROOM_SUBJECT_SET);
 	msg.AddString("subject", subject.c_str());
 	msg.AddString("chat_id", chat_id);
 	if (user_id.IsEmpty() == false)
@@ -1537,7 +1536,7 @@ JabberHandler::handleSelfPresence(const gloox::RosterItem& item, const std::stri
 	msg.AddInt32("im_what", IM_OWN_CONTACT_INFO);
 	msg.AddString("protocol", Signature());
 	msg.AddString("user_id", item.jidJID().full().c_str());
-	msg.AddString("name", item.name().c_str());
+	msg.AddString("user_name", item.name().c_str());
 	msg.AddInt32("subscription", item.subscription());
 	msg.AddInt32("status", _GlooxStatusToCaya(type));
 	msg.AddString("message", presenceMsg.c_str());
@@ -1607,13 +1606,13 @@ JabberHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_EXTENDED_CONTACT_INFO);
 	msg.AddString("user_id", jid.bare().c_str());
-	msg.AddString("nick", card->nickname().c_str());
-	msg.AddString("family name", name.family.c_str());
-	msg.AddString("given name", name.given.c_str());
-	msg.AddString("middle name", name.middle.c_str());
+	msg.AddString("user_name", card->nickname().c_str());
+	msg.AddString("family_name", name.family.c_str());
+	msg.AddString("given_name", name.given.c_str());
+	msg.AddString("middle_name", name.middle.c_str());
 	msg.AddString("prefix", name.prefix.c_str());
 	msg.AddString("suffix", name.suffix.c_str());
-	msg.AddString("full name", fullName.c_str());
+	msg.AddString("full_name", fullName.c_str());
 	_SendMessage(&msg);
 
 	// Return if there's no avatar icon

@@ -51,7 +51,7 @@ AccountManager::SetNickname(BString nick)
 	// Create message
 	BMessage* msg = new BMessage(IM_MESSAGE);
 	msg->AddInt32("im_what", IM_SET_OWN_NICKNAME);
-	msg->AddString("nick", nick);
+	msg->AddString("user_name", nick);
 
 	// Send message
 	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
