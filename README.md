@@ -1,28 +1,9 @@
-# Caya
-Caya is the best Instant Messaging client for Haiku.
+# ![Icon](data/icons/Caya.png) Caya
+![GSoC 2021](https://img.shields.io/badge/GSoC-2021-green.svg)
 
-[Project Page](http://www.versut.com/caya)
+A multi-protocol chat program.
 
-Protocols supported:
+![Screenshot](data/screenshots/update-1.png)
 
-* XMPP (Jabber, GTalk)
-* Yahoo
-* AIM
-
-How to install
---------------
-
-The latest stable version is available as package through HaikuDepot.
-
-How to build
-------------
-
-./configure
-
-jam
-
-Donate
-------
-If you like Caya, support the project with a little donation.
-
-[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=dareios&url=https://github.com/Barrett17/Caya&title=Caya&language=&tags=github&category=software)
+## Building
+`$ make`
