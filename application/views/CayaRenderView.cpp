@@ -29,8 +29,9 @@ CayaRenderView::AppendMessage(const char* nick, const char* message,
 	rgb_color bg = ui_color(B_PANEL_BACKGROUND_COLOR);
 	rgb_color fg = ui_color(B_PANEL_TEXT_COLOR);
 
-	Append(nick, nameColor, bg, nameColor);
-	Append(": ", nameColor, bg, nameColor);
+	Append("<", nameColor, bg, nameColor);
+	Append(nick, fg, bg, fg);
+	Append("> ", nameColor, bg, nameColor);
 //	AddEmoticText(message, fg, bg);
 	Append(message, fg, bg, fg);
 	Append("\n", fg, bg, fg);
