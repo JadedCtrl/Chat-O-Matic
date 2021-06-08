@@ -106,6 +106,7 @@ struct FontColor {
 	int				fOffset;
 	int				fWhich;
 	int				fIndex;
+	rgb_color		fColor;
 };
 
 
@@ -128,16 +129,18 @@ struct Line {
 	int				fSoftie_used;
 
 	Line(const char* buffer, int fLength, float top, float width, Theme* fTheme,
-		 const char* fStamp_format, int fore, int back, int font);
+		 const char* fStamp_format, rgb_color fore, rgb_color back, rgb_color font);
 
 					~Line ();
 
 	void			Append(const char* buffer, int len, float width,
-						   Theme* fTheme, int fore, int back, int font);
+						   Theme* fTheme, rgb_color fore, rgb_color back,
+						   rgb_color font);
 
 	void			FigureSpaces();
 
-	void			FigureFontColors(int pos, int fore, int back, int font);
+	void			FigureFontColors(int pos, rgb_color fore, rgb_color back,
+									 rgb_color font);
 	void			FigureEdges(Theme* fTheme, float width);
 	void			SoftBreaks(Theme* fTheme, float width);
 	void			AddSoftBreak(SoftBreakEnd, float&, int&, int16&, float&,
@@ -267,18 +270,18 @@ RunView::Draw(BRect frame)
 	Window()->BeginViewTransaction();
 
 	rgb_color low_color, hi_color, view_color, sel_color, sel_fText;
-	float height (frame.bottom);
-	BRect bounds (Bounds());
+	float height(frame.bottom);
+	BRect bounds(Bounds());
 	BRegion clipper;
-	bool drawSelection (false);
-	bool checkSelection (fSp_start != fSp_end);
+	bool drawSelection(false);
+	bool checkSelection(fSp_start != fSp_end);
 
 	clipper.Set (frame);
 	ConstrainClippingRegion (&clipper);
 
 	fTheme->ReadLock();
-	view_color = fTheme->BackgroundAt (Theme::NormalBack);
-	sel_color = fTheme->BackgroundAt (Theme::SelectionBack);
+	view_color = fTheme->BackgroundAt(Theme::NormalBack);
+	sel_color = fTheme->BackgroundAt(Theme::SelectionBack);
 
 	if (((sel_color.red + sel_color.blue + sel_color.green) / 3) >= 127) {
 		sel_fText.red = sel_fText.green = sel_fText.blue = 0;
@@ -301,7 +304,7 @@ RunView::Draw(BRect frame)
 	}
 
 	for (int i = fLine_count - 1; i >= 0; --i) {
-		Line* line (fLines[i]);
+		Line* line(fLines[i]);
 		if (line->fBottom < frame.top)
 			break;
 
@@ -346,7 +349,7 @@ RunView::Draw(BRect frame)
 						if (line->fFcs[fore].fOffset > place)
 							break;
 
-						hi_color = fTheme->ForegroundAt(line->fFcs[fore].fIndex);
+						hi_color = line->fFcs[fore].fColor;
 					}
 
 					++fore;
@@ -358,8 +361,7 @@ RunView::Draw(BRect frame)
 						if (line->fFcs[back].fOffset > place)
 							break;
 
-						low_color = fTheme->BackgroundAt(
-							 line->fFcs[back].fIndex);
+						low_color = line->fFcs[back].fColor;
 					}
 
 					++back;
@@ -1234,25 +1236,21 @@ RunView::RecalcScrollBar(bool constrain)
 
 
 void
-RunView::Append(const char* buffer, int fore, int back, int font)
+RunView::Append(const char* buffer, rgb_color fore, rgb_color back,
+				rgb_color font)
 {
 	Append(buffer, strlen(buffer), fore, back, font);
 }
 
 
 void
-RunView::Append(const char* buffer, int32 len, int fore, int back, int font)
+RunView::Append(const char* buffer, int32 len, rgb_color fore, rgb_color back,
+				rgb_color font)
 {
 	if (buffer == NULL)
 		return;
 	float width(Bounds().Width() - 10);
 	int32 place(0);
-
-	assert(back != Theme::TimestampBack);
-	assert(font != Theme::TimestampFont);
-	assert(back != Theme::TimespaceBack);
-	assert(font != Theme::TimespaceFont);
-	assert(back != Theme::SelectionBack);
 
 	fTheme->ReadLock();
 
@@ -1276,15 +1274,15 @@ RunView::Append(const char* buffer, int32 len, int fore, int back, int font)
 								 width, fTheme, fore, back, font);
 
 				fWorking->Append(temp.String(), temp.Length(), width, fTheme,
-								 C_URL, back, F_URL);
+								 ui_color(B_LINK_TEXT_COLOR), back, fore);
 
 				place += (url_offset - last_offset) + temp.Length();
 				last_offset = url_offset + temp.Length();
 			}
 
 			if (place < end)
-				fWorking->Append(buffer + place, end - place, width,
-								 fTheme, fore, back, font);
+				fWorking->Append(buffer + place, end - place, width, fTheme,
+								 fore, back, font);
 		}
 		else {
 			float top(0.0);
@@ -1304,8 +1302,8 @@ RunView::Append(const char* buffer, int32 len, int fore, int back, int font)
 			while ((url_offset = crunch.Crunch(&temp)) != B_ERROR) {
 				fWorking->Append(buffer + place, (url_offset - last_offset),
 								 width, fTheme, fore, back, font);
-				fWorking->Append(temp.String(), temp.Length(),
-								 width, fTheme, C_URL, back, F_URL);
+				fWorking->Append(temp.String(), temp.Length(), width, fTheme,
+								 ui_color(B_LINK_TEXT_COLOR), back, fore);
 
 				place += (url_offset - last_offset) + temp.Length();
 				last_offset = url_offset + temp.Length();
@@ -1747,27 +1745,27 @@ void RunView::ScrollToSelection()
 
 
 Line::Line(const char* buffer, int len, float top, float width, Theme* theme,
-		   const char* stamp_format, int fore, int back, int font)
+		   const char* stamp_format, rgb_color fore, rgb_color back, rgb_color font)
 	:
-	fText (NULL),
-	fStamp (time(NULL)),
-	fUrls (NULL),
-	fSpaces (NULL),
-	fEdges (NULL),
-	fFcs (NULL),
-	fSofties (NULL),
-	fTop (top),
-	fBottom (0.0),
-	fLength (len),
-	fSpace_count (0),
-	fEdge_count (0),
-	fFc_count (0),
-	fSoftie_size (0),
-	fSoftie_used (0)
+	fText(NULL),
+	fStamp(time(NULL)),
+	fUrls(NULL),
+	fSpaces(NULL),
+	fEdges(NULL),
+	fFcs(NULL),
+	fSofties(NULL),
+	fTop(top),
+	fBottom(0.0),
+	fLength(len),
+	fSpace_count(0),
+	fEdge_count(0),
+	fFc_count(0),
+	fSoftie_size(0),
+	fSoftie_used(0)
 {
 	// Very important to call SetStamp before Append, It would look real funny otherwise!
 	SetStamp(stamp_format, false );
-	Append(buffer, len, width, theme, fore, back, font );
+	Append(buffer, len, width, theme, fore, back, font);
 }
 
 
@@ -1789,7 +1787,7 @@ Line::~Line()
 
 void
 Line::Append(const char* buffer, int len, float width, Theme* theme,
-			 int fore, int back, int font)
+			 rgb_color fore, rgb_color back, rgb_color font)
 {
 	int save (fLength);
 	char* new_fText;
@@ -1816,9 +1814,9 @@ Line::Append(const char* buffer, int len, float width, Theme* theme,
 
 	fText = new_fText;
 
-	FigureFontColors (save, fore, back, font);
+	FigureFontColors(save, fore, back, font);
 
-	if (fore == C_URL) {
+	if (fore == ui_color(B_LINK_TEXT_COLOR)) {
 		if (!fUrls)
 			fUrls = new urllist;
 		fUrls->AddItem (new URL (buffer, save, len));
@@ -1857,7 +1855,7 @@ Line::FigureSpaces()
 
 
 void
-Line::FigureFontColors(int pos, int fore, int back, int font)
+Line::FigureFontColors(int pos, rgb_color fore, rgb_color back, rgb_color font)
 {
 	if (fFc_count) {
 		int last_fore = -1;
@@ -1867,56 +1865,51 @@ Line::FigureFontColors(int pos, int fore, int back, int font)
 
 		// we have fFcs, so we backtrack for last of each fWhich
 		for (i = fFc_count - 1; i >= 0; --i) {
-			if (last_fore < 0
-					&&  fFcs[i].fWhich == FORE_WHICH)
+			if (last_fore < 0  &&  fFcs[i].fWhich == FORE_WHICH)
 				last_fore = i;
-			else if (last_back < 0
-					 &&       fFcs[i].fWhich == BACK_WHICH)
+			else if (last_back < 0  &&  fFcs[i].fWhich == BACK_WHICH)
 				last_back = i;
-			else if (last_font < 0
-					 &&       fFcs[i].fWhich == FONT_WHICH)
+			else if (last_font < 0  &&  fFcs[i].fWhich == FONT_WHICH)
 				last_font = i;
 
-			if (last_fore >= 0
-					&&  last_back >= 0
-					&&  last_font >= 0)
+			if (last_fore >= 0  &&  last_back >= 0  &&  last_font >= 0)
 				break;
 		}
 
 		// now figure out how many more we need
 		int16 count = 0;
-		if (fFcs[last_fore].fIndex != fore)
+		if (fFcs[last_fore].fColor != fore)
 			++count;
-		if (fFcs[last_back].fIndex != back)
+		if (fFcs[last_back].fColor != back)
 			++count;
-		if (fFcs[last_font].fIndex != font)
+		if (fFcs[last_font].fColor != font)
 			++count;
 
 		if (count) {
 			FontColor* new_fFcs;
-			new_fFcs = new FontColor [fFc_count + count];
+			new_fFcs = new FontColor[fFc_count + count];
 			memcpy (new_fFcs, fFcs, fFc_count * sizeof (FontColor));
 			delete [] fFcs;
 			fFcs = new_fFcs;
 
-			if (fFcs[last_fore].fIndex != fore) {
+			if (fFcs[last_fore].fColor != fore) {
 				fFcs[fFc_count].fWhich = FORE_WHICH;
 				fFcs[fFc_count].fOffset = pos;
-				fFcs[fFc_count].fIndex = fore;
+				fFcs[fFc_count].fColor = fore;
 				++fFc_count;
 			}
 
-			if (fFcs[last_back].fIndex != back) {
+			if (fFcs[last_back].fColor != back) {
 				fFcs[fFc_count].fWhich = BACK_WHICH;
 				fFcs[fFc_count].fOffset = pos;
-				fFcs[fFc_count].fIndex = back;
+				fFcs[fFc_count].fColor = back;
 				++fFc_count;
 			}
 
-			if (fFcs[last_font].fIndex != font) {
+			if (fFcs[last_font].fColor != font) {
 				fFcs[fFc_count].fWhich = FONT_WHICH;
 				fFcs[fFc_count].fOffset = pos;
-				fFcs[fFc_count].fIndex = font;
+				fFcs[fFc_count].fColor = font;
 				++fFc_count;
 			}
 		}
@@ -1924,13 +1917,13 @@ Line::FigureFontColors(int pos, int fore, int back, int font)
 		fFcs = new FontColor [fFc_count = 3];
 		fFcs[0].fWhich = FORE_WHICH;
 		fFcs[0].fOffset = 0;
-		fFcs[0].fIndex = fore;
+		fFcs[0].fColor = fore;
 		fFcs[1].fWhich = BACK_WHICH;
 		fFcs[1].fOffset = 0;
-		fFcs[1].fIndex = back;
+		fFcs[1].fColor = back;
 		fFcs[2].fWhich = FONT_WHICH;
 		fFcs[2].fOffset = 0;
-		fFcs[2].fIndex = font;
+		fFcs[2].fColor = font;
 	}
 }
 
@@ -1988,7 +1981,7 @@ Line::FigureEdges(Theme* theme, float width)
 			seglen = fFcs[next_fFcs].fOffset - fFcs[cur_fFcs].fOffset;
 		}
 
-		//  const BFont &f (theme->FontAt (fFcs[cur_font].fIndex));
+		//  const BFont &f (theme->FontAt (fFcs[cur_font].fIndex))
 		TextRender* tr = theme->TextRenderAt (fFcs[cur_font].fIndex);
 
 #ifdef __INTEL__

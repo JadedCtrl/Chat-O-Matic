@@ -13,7 +13,8 @@ public:
 	static Emoticor*	Get(); //singleton
 
 
-	void		AddText(RunView* fTextView, const char* text,  int16 cols , int16 font , int16 cols2 , int16 font2 );
+	void		AddText(RunView* fTextView, const char* text,  rgb_color cols,
+						rgb_color font, rgb_color cols2, rgb_color font2);
 	void		LoadConfig(const char*);
 
 	Emoconfig* Config();
@@ -23,7 +24,9 @@ public:
 private:
 	Emoticor();
 	Emoconfig*	fConfig;
-	void		_findTokens(RunView* fTextView, BString text, int tokenstart, int16 cols , int16 font , int16 cols2 , int16 font2);
+	void		_findTokens(RunView* fTextView, BString text, int tokenstart,
+							rgb_color cols, rgb_color font, rgb_color cols2,
+							rgb_color font2);
 
 };
 

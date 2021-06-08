@@ -158,8 +158,8 @@ public:
 	virtual void			MouseUp (BPoint);
 
 
-	void					Append (const char*, int32, int, int, int);
-	void					Append (const char*, int, int, int);
+	void					Append (const char*, int32, rgb_color, rgb_color, rgb_color);
+	void					Append (const char*, rgb_color, rgb_color, rgb_color);
 
 	void					Clear (void);
 

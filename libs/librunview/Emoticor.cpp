@@ -4,6 +4,7 @@
 #include <Path.h>
 #include "string.h"
 
+
 static Emoticor*	fInstance = NULL;
 
 
@@ -16,11 +17,13 @@ Emoticor::Get()
 	return fInstance;
 }
 
+
 Emoticor::Emoticor()
 {
 	fInstance = NULL;
 	fConfig = NULL;
 }
+
 
 Emoticor::~Emoticor()
 {
@@ -28,11 +31,13 @@ Emoticor::~Emoticor()
 		delete fConfig;
 }
 
+
 Emoconfig*
 Emoticor::Config()
 {
 	return fConfig;
 }
+
 
 void
 Emoticor::LoadConfig(const char* txt)
@@ -40,13 +45,15 @@ Emoticor::LoadConfig(const char* txt)
 	fConfig = new Emoconfig(txt);
 }
 
+
 void
-Emoticor::_findTokens(RunView* fTextView, BString text, int tokenstart, int16 cols , int16 font , int16 cols2 , int16 font2)
+Emoticor::_findTokens(RunView* fTextView, BString text, int tokenstart,
+					  rgb_color cols, rgb_color font, rgb_color cols2,
+					  rgb_color font2)
 {
 	//******************************************
 	// "Iteration is human, recursion is divine"
 	//******************************************
-
 
 	int32	newindex = 0;
 	BString	cur;
@@ -82,7 +89,8 @@ Emoticor::_findTokens(RunView* fTextView, BString text, int tokenstart, int16 co
 
 					//printf("remaning [%s] printed  [%s]\n",text.String(),cur->original.String());
 
-					fTextView->Append(cur.String(), cols2, cols2, font2);
+//					fTextView->Append(cur.String(), cols2, cols2, font2);
+//					TODO
 
 					if (text.Length() == 0) return; //useless stack
 				} else
@@ -92,12 +100,14 @@ Emoticor::_findTokens(RunView* fTextView, BString text, int tokenstart, int16 co
 		}
 	}
 
-	fTextView->Append(text.String(), cols, cols, font);
-
+//	fTextView->Append(text.String(), cols, cols, font);
+//	TODO
 }
 
+
 void
-Emoticor::AddText(RunView* fTextView, const char* txt,  int16 cols , int16 font , int16 cols2 , int16 font2 )
+Emoticor::AddText(RunView* fTextView, const char* txt, rgb_color cols,
+				  rgb_color font, rgb_color cols2, rgb_color font2)
 {
 
 	BString left(txt);
@@ -110,4 +120,5 @@ Emoticor::AddText(RunView* fTextView, const char* txt,  int16 cols , int16 font 
 	return;
 
 }
+
 

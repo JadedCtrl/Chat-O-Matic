@@ -306,18 +306,21 @@ ConversationView::_AppendMessage(BMessage* msg)
 
 	for (int i = bodies.CountStrings(); i >= 0; i--) {
 		User* sender = fConversation->UserById(users.StringAt(i));
-		BString sender_name;
+		BString sender_name = users.StringAt(i);
 		BString body = bodies.StringAt(i);
+		rgb_color userColor = ui_color(B_PANEL_TEXT_COLOR);
 
-		if (sender != NULL)
+		if (sender != NULL) {
 			sender_name = sender->GetName();
+			userColor = sender->fItemColor;
+		}
 
 		if (sender_name.IsEmpty() == true) {
 			fReceiveView->AppendGenericMessage(body.String());
 			continue;
 		}
 
-		fReceiveView->AppendOtherMessage(sender_name.String(), body.String());
+		fReceiveView->AppendMessage(sender_name.String(), body.String(), userColor);
 	}
 }
 

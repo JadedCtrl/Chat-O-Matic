@@ -37,10 +37,9 @@ class CayaRenderView : public RunView
 	public:
 				CayaRenderView(const char* name, const char* smileyConfig = NULL);
 		
-		void	AppendOtherMessage(const char* otherNick, const char* message);
-		void	AppendOwnMessage(const char* message);
+		void	AppendMessage(const char* nick, const char* message, rgb_color nameColor);
 		void	AppendGenericMessage(const char* message);
-		void 	AddEmoticText(const char * txt,  int16 cols , int16 font , int16 cols2 , int16 font2);
+		void 	AddEmoticText(const char * txt, rgb_color fore, rgb_color bg);
 		
 	protected:
 		void	PrepareTheme(Theme* theme);

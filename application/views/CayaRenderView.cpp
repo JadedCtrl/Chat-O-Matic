@@ -15,11 +15,6 @@ CayaRenderView::CayaRenderView(const char *name,  const char* smileyConfig)
 
 	PrepareTheme(fTheme);
 
-	SetViewColor(245, 245, 245, 0);
-	SetLowColor(245, 245, 245, 0);
-	SetHighColor(0, 0, 0, 0);
-
-
 	SetTimeStampFormat(NULL);
 	if ( IsHidden() )
 		Show();
@@ -28,22 +23,17 @@ CayaRenderView::CayaRenderView(const char *name,  const char* smileyConfig)
 
 
 void
-CayaRenderView::AppendOtherMessage(const char* otherNick, const char* message)
+CayaRenderView::AppendMessage(const char* nick, const char* message,
+							  rgb_color nameColor)
 {
-	Append(otherNick, COL_OTHERNICK, COL_OTHERNICK, R_TEXT);
-	Append(": ", COL_OTHERNICK, COL_OTHERNICK, R_TEXT);
-	AddEmoticText(message, COL_TEXT, R_TEXT, COL_TEXT,R_EMOTICON);
-	Append("\n", COL_TEXT, COL_TEXT, R_TEXT);
-	ScrollToSelection();
-}
+	rgb_color bg = ui_color(B_PANEL_BACKGROUND_COLOR);
+	rgb_color fg = ui_color(B_PANEL_TEXT_COLOR);
 
-
-void
-CayaRenderView::AppendOwnMessage(const char* message)
-{
-	Append("You: ", COL_OWNNICK, COL_OWNNICK, R_TEXT);
-	AddEmoticText(message, COL_TEXT, R_TEXT,COL_TEXT,R_EMOTICON);
-	Append("\n", COL_TEXT, COL_TEXT, R_TEXT);
+	Append(nick, nameColor, bg, nameColor);
+	Append(": ", nameColor, bg, nameColor);
+//	AddEmoticText(message, fg, bg);
+	Append(message, fg, bg, fg);
+	Append("\n", fg, bg, fg);
 	ScrollToSelection();
 }
 
@@ -51,18 +41,21 @@ CayaRenderView::AppendOwnMessage(const char* message)
 void
 CayaRenderView::AppendGenericMessage(const char* message)
 {
-	Append(message, COL_TEXT, COL_TEXT, R_TEXT);
+	rgb_color bg = ui_color(B_PANEL_BACKGROUND_COLOR);
+	rgb_color fg = ui_color(B_PANEL_TEXT_COLOR);
+
+	Append(message, fg, bg, fg);
 	ScrollToSelection();
 }
 
 
 void
-CayaRenderView::AddEmoticText(const char * txt,  int16 cols , int16 font , int16 cols2 , int16 font2)
+CayaRenderView::AddEmoticText(const char * txt, rgb_color fore, rgb_color bg)
 {
 	if (CayaPreferences::Item()->IgnoreEmoticons)
-		Append(txt,cols,cols,font);
+		Append(txt, fore, bg, fore);
 	else
-		Emoticor::Get()->AddText(this, txt, cols, font, cols2, font2);
+		Emoticor::Get()->AddText(this, txt, fore, fore, bg, fore);
 }
 
 
