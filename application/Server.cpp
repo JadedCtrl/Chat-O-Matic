@@ -21,12 +21,13 @@
 
 #include "Account.h"
 #include "AccountManager.h"
-#include "ProtocolLooper.h"
 #include "CayaMessages.h"
 #include "CayaProtocol.h"
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
 #include "ImageCache.h"
+#include "InviteDialogue.h"
+#include "ProtocolLooper.h"
 #include "ProtocolManager.h"
 #include "RosterItem.h"
 #include "Server.h"
@@ -337,13 +338,54 @@ Server::ImMessage(BMessage* msg)
 
 			break;
 		}
+		case IM_ROOM_INVITE_RECEIVED:
+		{
+			msg->PrintToStream();
+			BString chat_id;
+			User* user = _EnsureUser(msg);
+			BString user_id = msg->FindString("user_id");
+			BString user_name = user_id;
+			BString chat_name = msg->FindString("chat_name");
+			BString body = msg->FindString("body");
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+
+			if (msg->FindString("chat_id", &chat_id) != B_OK || looper == NULL)
+				result = B_SKIP_MESSAGE;
+				break;
+			}
+
+			if (chat_name.IsEmpty() == true)
+				chat_name = chat_id;
+
+			if (user != NULL)
+				user_name = user->GetName();
+
+			BString alertBody("You've been invited to %room%.");
+			if (user_id.IsEmpty() == false)
+				alertBody = "%user% has invited you to %room%.";
+			if (body.IsEmpty() == false)
+				alertBody << "\n\n\"%body%\"";
+
+			alertBody.ReplaceAll("%user%", user_name);
+			alertBody.ReplaceAll("%room%", chat_name);
+			alertBody.ReplaceAll("%body%", body);
+
+			BMessage* accept = new BMessage(IM_ROOM_INVITE_ACCEPT);
+			accept->AddString("chat_id", chat_id);
+			BMessage* reject = new BMessage(IM_ROOM_INVITE_REFUSE);
+			reject->AddString("chat_id", chat_id);
+
+			InviteDialogue* invite = new InviteDialogue(BMessenger(looper),
+										"Invitation received",
+										alertBody.String(), accept, reject);
+			invite->Go();
+			break;
+		}
 		case IM_USER_STARTED_TYPING:
 		case IM_USER_STOPPED_TYPING:
 		{
-//			BString id = msg->FindString("chat_id");
-//			Conversation* item = _EnsureConversation(msg);
-//			item->ImMessage(msg);
-
+//			User* user = _EnsureUser();
+//			Conversation* chat = _EnsureConversation();
 			result = B_SKIP_MESSAGE;
 			break;
 		}

@@ -10,13 +10,13 @@
  * What-codes for messages.
  */
 enum message_what_codes {
-	//! All client <> protocol communication uses this what-code
+	//!	All client <> protocol communication uses this what-code
 	IM_MESSAGE						= 'IMme',
 
-	//! Used for very important (blocking) error messages
+	//!	Used for very important (blocking) error messages
 	IM_ERROR						= 'IMer',
 
-	//! Returned after a request has succeded
+	//!	Returned after a request has succeded
 	IM_ACTION_PERFORMED				= 'IMap'
 };
 
@@ -28,19 +28,19 @@ enum im_what_code {
 	 * Messages that involves server-side contact list.
 	 */
 
-	//! Request a server-side contact list from protocol
+	//!	Request a server-side contact list from protocol →Protocol
 	IM_GET_CONTACT_LIST					= 1,
 
-	//! Server-side contact list received
-	//  Requires:	Stringlist "user_id"
+	//!	Server-side contact list received →Caya
+	//	Requires:	Stringlist "user_id"
 	IM_CONTACT_LIST						= 2,
 
-	//! Contact(s) was added to the server-side list
-	//  Requires:	String "user_id"
+	//!	Contact(s) was added to the server-side list →Caya
+	//	Requires:	String "user_id"
 	IM_CONTACT_LIST_ADD_CONTACT			= 3,
 
-	//! Contact(s) removed from the server-side list
-	//  Requires:	String "user_id"
+	//!	Contact(s) removed from the server-side list →Caya
+	//	Requires:	String "user_id"
 	IM_CONTACT_LIST_REMOVED_CONTACT		= 4,
 
 
@@ -48,31 +48,31 @@ enum im_what_code {
 	 * Messages related to text chat.
 	 */
 
-	//! Send a chat message to the protocol
-	//  Requires:	String "user_id", String "body"
+	//!	Send a chat message				→Protocol
+	//	Requires:	String "user_id", String "body"
 	IM_SEND_MESSAGE						= 20,
 
-	//! Chat message has been sent
-	//  Requires:	String "chat_id", String "user_id", String "body"
-	//  Accepts:	String "subject"
+	//!	Chat message has been sent		→Caya
+	//	Requires:	String "chat_id", String "user_id", String "body"
+	//	Accepts:	String "subject"
 	IM_MESSAGE_SENT						= 21,
 
-	//! Chat message received
-	//  Requires:	String "chat_id", String "user_id", String "body"
-	//  Accepts:	String "subject"
+	//!	Chat message received			→Caya
+	//	Requires:	String "chat_id", String "user_id", String "body"
+	//	Accepts:	String "subject"
 	IM_MESSAGE_RECEIVED					= 22,
 
-	//! Logs received
-	//  Requires:	String "chat_id", String "user_id", String "body"
-	//  Accepts:	String "subject"
+	//!	Logs received					→Caya
+	//	Requires:	String "chat_id", String "user_id", String "body"
+	//	Accepts:	String "subject"
 	IM_LOGS_RECEIVED					= 23,
 
-	//! User started typing
-	//  Requires:	String "chat_id", String "user_id"
+	//!	User started typing				→Caya
+	//	Requires:	String "chat_id", String "user_id"
 	IM_USER_STARTED_TYPING				= 24,
 
-	//! User stopped typing
-	//  Requires:	String "chat_id", String "user_id"
+	//!	User stopped typing				→Caya
+	//	Requires:	String "chat_id", String "user_id"
 	IM_USER_STOPPED_TYPING				= 25,
 
 
@@ -81,10 +81,10 @@ enum im_what_code {
 	 * Messages related to contact changes.
 	 */
 
-	//! Change contact's status
+	//!	Change contact's status			→Protocol
 	IM_SET_NICKNAME						= 40,
 
-	//! Contact's status has changed
+	//!	Contact's status has changed	→Caya
 	IM_NICKNAME_SET						= 41,
 
 
@@ -92,28 +92,28 @@ enum im_what_code {
 	 * Messages related to contact's information received from protocols.
 	 */
 
-	//! Received contact new status
-	//  Requires:	String "user_id", int32/CayaStatus "status"
+	//!	Received contact new status		→Caya
+	//	Requires:	String "user_id", int32/CayaStatus "status"
 	IM_STATUS_SET						= 60,
 
-	//! Contact's avatar icon was changed
-	//  Requires:	String "user_id", Ref "ref"
+	//!	User's avatar icon was changed	→Caya
+	//	Requires:	String "user_id", Ref "ref"
 	IM_AVATAR_SET						= 61,
 
-	//! Get contact information
+	//!	Get contact information			→Caya
 	IM_GET_CONTACT_INFO					= 62,
 
-	//! Received contact information
-	//  Requires:	String "user_id"
-	//  Accepts:	String "user_name", String "message", int32/CayaStatus "status"
+	//!	Received contact information	→Caya
+	//	Requires:	String "user_id"
+	//	Accepts:	String "user_name", String "message", int32/CayaStatus "status"
 	IM_CONTACT_INFO						= 63,
 
-	//! Get extended contact information
+	//!	Request contact information		→Protocol
 	IM_GET_EXTENDED_CONTACT_INFO		= 64,
 
-	//! Received extended contact information
-	//  Requires:	String "user_id"
-	//  Accepts:	String "user_name", String "full_name"
+	//!	Received contact information	→Caya
+	//	Requires:	String "user_id"
+	//	Accepts:	String "user_name", String "full_name"
 	IM_EXTENDED_CONTACT_INFO			= 65,
 
 
@@ -121,30 +121,30 @@ enum im_what_code {
 	 * Messages that involve changing own information.
 	 */
 
-	//! Change own nickname
-	//  Requires:	String "user_name"
+	//!	Change own nickname				→Protocol
+	//	Requires:	String "user_name"
 	IM_SET_OWN_NICKNAME					= 80,
 
-	//! Own nickname was changed
+	//!	Own nickname was changed		→Caya
 	IM_OWN_NICKNAME_SET					= 81,
 
-	//! Change own status
-	//  Requires:	int32/CayaStatus "status"
+	//!	Change own status				→Protocol
+	//	Requires:	int32/CayaStatus "status"
 	IM_SET_OWN_STATUS					= 82,
 
-	// Own status was chagned
-	//  Requires:	int32/CayaStatus "status"
+	//	Own status was changed			→Caya
+	//	Requires:	int32/CayaStatus "status"
 	IM_OWN_STATUS_SET					= 83,
 
-	//! Get own contact information
-	//  Requires:	String "user_id"
+	//!	Get own contact information
+	//	Requires:	String "user_id"
 	IM_OWN_CONTACT_INFO					= 84,
 
-	//! Change own avatar icon
+	//!	Change own avatar icon
 	IM_SET_OWN_AVATAR					= 85,
 
-	//! Own avatar icon was changed
-	//  Requires:	Ref "ref"
+	//!	Own avatar icon was changed
+	//	 Requires:	Ref "ref"
 	IM_OWN_AVATAR_SET					= 86,
 
 
@@ -152,10 +152,10 @@ enum im_what_code {
 	 * Contacts registration.
 	 */
 
-	//! Start listening to changes in these contact's statuses
+	//!	Start listening to changes in these contact's statuses
 	IM_REGISTER_CONTACTS				= 100,
 
-	//! Stop listening to status changes from these contacts
+	//!	Stop listening to status changes from these contacts
 	IM_UNREGISTER_CONTACTS				= 101,
 
 
@@ -163,19 +163,19 @@ enum im_what_code {
 	 * Authorization.
 	 */
 
-	//! Ask authorization to contact
+	//!	Ask authorization to contact
 	IM_ASK_AUTHORIZATION				= 120,
 
-	//! Authorization response received from contact
+	//!	Authorization response received from contact
 	IM_AUTHORIZATION_RECEIVED			= 121,
 
-	//! Authorization request received from contact
+	//!	Authorization request received from contact
 	IM_AUTHORIZATION_REQUEST			= 122,
 
-	//! Authorization response given to contact
+	//!	Authorization response given to contact
 	IM_AUTHORIZATION_RESPONSE			= 123,
 
-	//! Contact has been authorized
+	//!	Contact has been authorized
 	IM_CONTACT_AUTHORIZED				= 124,
 
 
@@ -183,10 +183,10 @@ enum im_what_code {
 	 * Miscellaneous.
 	 */
 
-	//! Progress message received, could be login sequence, file transfer etc...
+	//!	Progress message received, could be login sequence, file transfer etc...
 	IM_PROGRESS							= 140,
 
-	//! Notifications
+	//!	Notifications
 	IM_NOTIFICATION						= 141,
 
 
@@ -194,121 +194,145 @@ enum im_what_code {
 	 * Room membership
 	 */
 
-	//! Create an individual chat
-	//  Requires:	String "user_id"
+	//!	Create an individual chat
+	//	Requires:	String "user_id"	→Protocol
 	IM_CREATE_CHAT						= 150,
 
-	//! Chat has been created
-	//  Requires:	String "chat_id", String "user_id"
+	//!	Chat has been created			→Caya
+	//	Requires:	String "chat_id", String "user_id"
 	IM_CHAT_CREATED						= 151,
 
-	//! Join a room
-	//  Requires:	String "chat_id"
+	//!	Join a room						→Protocol
+	//	Requires:	String "chat_id"
 	IM_JOIN_ROOM						= 152,
 
-	//! Confirm the room's been joined
-	//  Requires:	String "chat_id"
+	//!	Confirm the room's been joined	→Caya
+	//	Requires:	String "chat_id"
 	IM_ROOM_JOINED						= 153,
 
-	//! User wants to leave the room
-	//  Requires:	String "chat_id"
+	//!	User wants to leave the room	→Protocol
+	//	Requires:	String "chat_id"
 	IM_LEAVE_ROOM						= 154,
 
-	//! User left the room
-	//  Requires:	String "chat_id"
+	//!	User left the room				→Caya
+	//	Requires:	String "chat_id"
 	IM_ROOM_LEFT						= 155,
 
-	//! Quietly add a user(s) to the chat
-	//  Requires:	String "chat_id", StringList "user_id"
-	//  Accepts:	StringList "user_name"
+	//!	Quietly add user(s) to the chat	→Caya
+	//	Requires:	String "chat_id", StringList "user_id"
+	//	Accepts:	StringList "user_name"
 	IM_ROOM_PARTICIPANTS				= 156,
 
-	//! User has newly and explicitly joined
-	//  Requires:	String "chat_id", String "user_id"
-	//  Accepts:	String "body"
+	//!	User has explicitly joined		→Caya
+	//	 Requires:	String "chat_id", String "user_id"
+	//	 Accepts:	String "body"
 	IM_ROOM_PARTICIPANT_JOINED			= 157,
 
-	//! A user left the room
-	//  Requires:	String "chat_id", String "user_id"
-	//  Accepts:	String "user_name", String "body"
+	//!	A user left the room			→Caya
+	//	Requires:	String "chat_id", String "user_id"
+	//	Accepts:	String "user_name", String "body"
 	IM_ROOM_PARTICIPANT_LEFT			= 158,
+
+	//!	Invite a user to a room			→Protocol
+	//	You can tell it succeded with ROOM_PARTICIPANT_JOINED
+	//	Requires:	String "chat_id", String "user_id"
+	//	Accepts:	String "body"
+	IM_ROOM_SEND_INVITE					= 159,
+
+	//!	Invitee explicitly refused		→Caya
+	//	Requires:	String "chat_id", String "user_id"
+	//	Accepts:	String "user_name", String "body"
+	IM_ROOM_INVITE_REFUSED				= 160,
+
+	//!	User was invited to a room		→Caya
+	//	Requires:	String "chat_id"
+	//	Accepts:	String "user_id", String "chat_name", String "body"
+	IM_ROOM_INVITE_RECEIVED				= 161,
+
+	//!	User accepted an invite			→Protocol
+	//	Requires:	String "chat_id"
+	IM_ROOM_INVITE_ACCEPT				= 162,
+
+	//!	User denies an invite			→Protocol
+	//	Requires:	String "chat_id"
+	IM_ROOM_INVITE_REFUSE				= 163,
 
 
 	/*
 	 * Room metadata
 	 */
 
-	//! Set the room name
-	//  Requires:	String "chat_id", String "chat_name"
-	IM_SET_ROOM_NAME					= 160,
+	//!	Set the room name				→Protocol
+	//	Requires:	String "chat_id", String "chat_name"
+	IM_SET_ROOM_NAME					= 170,
 
-	//! Room name
-	//  Requires:	String "chat_id", String "chat_name"
-	IM_ROOM_NAME_SET					= 161,
+	//!	Room name changed				→Protocol
+	//	Requires:	String "chat_id", String "chat_name"
+	IM_ROOM_NAME_SET					= 171,
 
-	//! Set the room subject
-	//  Requires:	String "chat_id", String "subject"
-	IM_SET_ROOM_SUBJECT					= 162,
+	//!	Set the room subject			→Caya
+	//	Requires:	String "chat_id", String "subject"
+	IM_SET_ROOM_SUBJECT					= 172,
 
-	//! Room has been set
-	//  Requires:	String "chat_id", String "subject"
-	IM_ROOM_SUBJECT_SET					= 163,
+	//!	Subject has been set			→Caya
+	//	Requires:	String "chat_id", String "subject"
+	IM_ROOM_SUBJECT_SET					= 173,
 
 
 	/*
 	 * Room moderation
 	 */
 
-	//! A user's role has been changed
-	//  Requires:	String "role_title", int32 "role_perms", int32 "role_priority"
-	IM_ROOM_ROLECHANGED					= 170,
+	//!	A user's role has been changed	→Caya
+	//	Requires:	String "role_title", int32 "role_perms", int32 "role_priority"
+	IM_ROOM_ROLECHANGED					= 190,
 
-	//! Kick user
-	// Requires:	String "chat_id", String "user_id"
-	IM_ROOM_KICK_PARTICIPANT			= 171,
+	//!	Kick user						→Protocol
+	//	Requires:	String "chat_id", String "user_id"
+	IM_ROOM_KICK_PARTICIPANT			= 191,
 
-	//! A user was kicked
-	// Requires:	String "chat_id", String "user_id"
-	// Accepts:		String "user_name", String "body"
-	IM_ROOM_PARTICIPANT_KICKED			= 172,
+	//!	A user was kicked				→Caya
+	//	Requires:	String "chat_id", String "user_id"
+	//	Accepts:	String "user_name", String "body"
+	IM_ROOM_PARTICIPANT_KICKED			= 192,
 
-	//! Ban user
-	// Requires:	String "chat_id", String "user_id"
-	IM_ROOM_BAN_PARTICIPANT				= 173,
+	//!	Ban user						→Protocol
+	//	Requires:	String "chat_id", String "user_id"
+	IM_ROOM_BAN_PARTICIPANT				= 193,
 
-	//! A user was banned
-	// Requires:	String "chat_id", String "user_id"
-	// Accepts:		String "user_name", String "body"
-	IM_ROOM_PARTICIPANT_BANNED			= 174,
+	//!	A user was banned				→Caya
+	//	Requires:	String "chat_id", String "user_id"
+	//	Accepts:		String "user_name", String "body"
+	IM_ROOM_PARTICIPANT_BANNED			= 194,
 
-	//! Unban user
-	IM_ROOM_UNBAN_PARTICIPANT			= 175,
+	//!	Unban user →Protocol
+	IM_ROOM_UNBAN_PARTICIPANT			= 195,
 
-	//! Mute user
-	// Requires:	String "chat_id", String "user_id"
-	IM_ROOM_MUTE_PARTICIPANT			= 176,
+	//!	Mute user						→Protocol
+	//	Requires:	String "chat_id", String "user_id"
+	IM_ROOM_MUTE_PARTICIPANT			= 196,
 
-	//! Unmute user
-	// Requires:	String "chat_id", String "user_id"
-	IM_ROOM_UNMUTE_PARTICIPANT			= 177,
+	//!	Unmute user						→Protocol
+	//	Requires:	String "chat_id", String "user_id"
+	IM_ROOM_UNMUTE_PARTICIPANT			= 197,
 
-	//! Deafen
-	// Requires:	String "chat_id", String "user_id"
-	IM_ROOM_DEAFEN_PARTICIPANT			= 178,
+	//!	Deafen							→Protocol
+	//	Requires:	String "chat_id", String "user_id"
+	IM_ROOM_DEAFEN_PARTICIPANT			= 198,
 
-	//! Allow to read messages
-	// Requires:	String "chat_id", String "user_id"
-	IM_ROOM_UNDEAFEN_PARTICIPANT		= 179,
+	//!	Allow to read messages			→Protocol
+	//	Requires:	String "chat_id", String "user_id"
+	IM_ROOM_UNDEAFEN_PARTICIPANT		= 199,
 
 
 	/*
 	 * Special messages
 	 */
 
-	//! Special message forwarded to protocol
+	//!	Special message forwarded to protocol
 	IM_SPECIAL_TO_PROTOCOL				= 1000,
 
-	//! Special message forwarded from protocol
+	//!	Special message forwarded from protocol
 	IM_SPECIAL_FROM_PROTOCOL			= 1001
 };
 

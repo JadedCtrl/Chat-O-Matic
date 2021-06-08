@@ -65,6 +65,7 @@ SRCS = \
 	application/views/ConversationItem.cpp \
 	application/views/ConversationListView.cpp \
 	application/views/ConversationView.cpp \
+	application/views/InviteDialogue.cpp \
 	application/views/NicknameTextControl.cpp \
 	application/views/ReplicantStatusView.cpp \
 	application/views/ReplicantMenuItem.cpp \
