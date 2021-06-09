@@ -28,16 +28,14 @@ const uint32 kSearchContact = 'RWSC';
 const uint32 kSendMessage = 'RWSM';
 
 
-RosterWindow::RosterWindow(const char* title, int32 selectMsg,
+RosterWindow::RosterWindow(const char* title, BMessage* selectMsg,
 	BMessenger* messenger, Server* server)
 	:
 	BWindow(BRect(0, 0, 300, 400), title, B_FLOATING_WINDOW, 0),
 	fTarget(messenger),
+	fMessage(selectMsg),
 	fServer(server)
 {
-	fMessage = new BMessage(IM_MESSAGE);
-	fMessage->AddInt32("im_what", selectMsg);
-
 	SearchBarTextControl* searchBox = 
 		new SearchBarTextControl(new BMessage(kSearchContact));
 

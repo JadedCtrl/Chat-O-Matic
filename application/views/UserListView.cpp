@@ -139,7 +139,6 @@ UserListView::_BlankPopUp()
 
 	BMenuItem* invite = new BMenuItem("Invite user…" B_UTF8_ELLIPSIS,
 		new BMessage(CAYA_SEND_INVITE), 'I', B_COMMAND_KEY);
-	invite->SetEnabled(false);
 
 	menu->AddItem(invite);
 	menu->SetTargetForItems(Window());

@@ -181,6 +181,17 @@ JabberHandler::Process(BMessage* msg)
 			break;
 		}
 
+		case IM_ROOM_SEND_INVITE: {
+			BString chat_id = msg->FindString("chat_id");
+			gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
+			BString user_id;
+			if (room == NULL || msg->FindString("user_id", &user_id) != B_OK)
+				break;
+
+			room->invite(gloox::JID(user_id.String()), "");
+			break;
+		}
+
 		case IM_ROOM_KICK_PARTICIPANT:
 		case IM_ROOM_BAN_PARTICIPANT:
 		case IM_ROOM_UNBAN_PARTICIPANT:

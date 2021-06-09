@@ -106,8 +106,11 @@ MainWindow::MessageReceived(BMessage* message)
 
 		case CAYA_NEW_CHAT:
 		{
+			BMessage* newMsg = new BMessage(IM_MESSAGE);
+			newMsg->AddInt32("im_what", IM_CREATE_CHAT);
+
 			fRosterWindow = new RosterWindow("Invite contact to chat"
-			B_UTF8_ELLIPSIS, IM_CREATE_CHAT, new BMessenger(this), fServer);
+				B_UTF8_ELLIPSIS, newMsg, new BMessenger(this), fServer);
 			fRosterWindow->Show();
 			break;
 		}
@@ -120,10 +123,28 @@ MainWindow::MessageReceived(BMessage* message)
 			break;
 		}
 
+		case CAYA_SEND_INVITE:
+		{
+			if (fConversation == NULL)
+				break;
+			BString chat_id = fConversation->GetId();
+
+			BMessage* invite = new BMessage(IM_MESSAGE);
+			invite->AddInt32("im_what", IM_ROOM_SEND_INVITE);
+			invite->AddString("chat_id", chat_id);
+
+			BLooper* looper = (BLooper*)fConversation->GetProtocolLooper();
+			fRosterWindow = new RosterWindow("Invite contact to chat"
+				B_UTF8_ELLIPSIS, invite, new BMessenger(looper), fServer);
+
+			fRosterWindow->Show();
+			break;
+		}
+
 		case CAYA_MOVE_UP:
 		{
 			if (fConversation == NULL)
-				return;
+				break;
 
 			int32 index = fListView->IndexOf(fConversation->GetListItem());
 			if (index > 0)
@@ -134,7 +155,7 @@ MainWindow::MessageReceived(BMessage* message)
 		case CAYA_MOVE_DOWN:
 		{
 			if (fConversation == NULL)
-				return;
+				break;
 
 			int32 index = fListView->IndexOf(fConversation->GetListItem());
 			int32 count = fListView->CountItems();
@@ -372,7 +393,6 @@ MainWindow::_CreateMenuBar()
 	BMenu* chatMenu = new BMenu("Chat");
 	BMenuItem* invite = new BMenuItem("Invite user" B_UTF8_ELLIPSIS,
 		new BMessage(CAYA_SEND_INVITE), 'I', B_COMMAND_KEY);
-	invite->SetEnabled(false);
 	BMenuItem* newRoom = new BMenuItem("New room" B_UTF8_ELLIPSIS,
 		new BMessage(), 'N', B_COMMAND_KEY);
 	newRoom->SetEnabled(false);

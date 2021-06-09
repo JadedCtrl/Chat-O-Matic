@@ -21,7 +21,7 @@ class Server;
    the server with contact info, once a contact is selected. */
 class RosterWindow : public BWindow {
 public:
-	RosterWindow(const char* title, int32 selectMsg, BMessenger* messenger,
+	RosterWindow(const char* title, BMessage* selectMsg, BMessenger* messenger,
 		Server* server);
 
 			void		MessageReceived(BMessage* message);
