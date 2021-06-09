@@ -808,7 +808,7 @@ JabberHandler::_SetupAvatarCache()
 
 	path.Append("Caya");
 	path.Append("Cache");
-	path.Append(Signature());
+	path.Append(GetName());
 
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return B_ERROR;

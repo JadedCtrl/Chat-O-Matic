@@ -22,7 +22,7 @@ const char*	CayaAccountPath(const char* signature);
 const char*	CayaAccountPath(const char* signature, const char* subsignature);
 
 const char* CayaCachePath();
-const char* CayaLogPath(const char* signature, const char* subsignature);
+const char* CayaLogPath(const char* accountName);
 
 rgb_color	CayaTintColor(rgb_color color, int severity);
 rgb_color	CayaForegroundColor(rgb_color background);

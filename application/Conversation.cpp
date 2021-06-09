@@ -360,10 +360,7 @@ Conversation::_EnsureLogPath()
 	if (fLogPath.InitCheck() == B_OK)
 		return;
 
-	const char* sig = fLooper->Protocol()->Signature();
-	CayaProtocolAddOn* protoAdd = ProtocolManager::Get()->ProtocolAddOn(sig);
-
-	fLogPath.SetTo(CayaLogPath(protoAdd->Signature(), protoAdd->ProtoSignature()));
+	fLogPath.SetTo(CayaLogPath(fLooper->Protocol()->GetName()));
 	fLogPath.Append(fID);
 }
 

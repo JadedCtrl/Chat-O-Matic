@@ -126,20 +126,14 @@ CayaCachePath()
 
 
 const char*
-CayaLogPath(const char* signature, const char* subsignature)
+CayaLogPath(const char* accountName)
 {
 	BPath path;
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
 		return NULL;
 
 	path.Append("Caya/Logs");
-	path.Append(signature);
-
-	if (BString(signature) != BString(subsignature)
-		|| BString(subsignature).IsEmpty() == false)
-	{
-		path.Append(subsignature);
-	}
+	path.Append(accountName);
 
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
