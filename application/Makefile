@@ -32,7 +32,6 @@ APP_MIME_SIG = application/x-vnd.caya.Caya
 #	same name (source.c or source.cpp) are included from different directories.
 #	Also note that spaces in folder names do not work well with this Makefile.
 SRCS = \
-	application/AboutWindow.cpp \
 	application/Account.cpp \
 	application/AccountManager.cpp \
 	application/CayaProtocolAddOn.cpp \
@@ -41,14 +40,11 @@ SRCS = \
 	application/Conversation.cpp \
 	application/EditingFilter.cpp \
 	application/ImageCache.cpp \
-	application/JoinWindow.cpp \
 	application/Main.cpp \
-	application/MainWindow.cpp \
 	application/Notifier.cpp \
 	application/ProtocolLooper.cpp \
 	application/ProtocolManager.cpp \
 	application/ProtocolSettings.cpp \
-	application/RosterWindow.cpp \
 	application/Server.cpp \
 	application/TheApp.cpp \
 	application/User.cpp \
@@ -56,11 +52,11 @@ SRCS = \
 	application/preferences/AccountListItem.cpp \
 	application/preferences/AccountView.cpp \
 	application/preferences/CayaPreferences.cpp \
+	application/preferences/PreferencesChatWindow.cpp \
 	application/preferences/PreferencesDialog.cpp \
 	application/preferences/PreferencesAccounts.cpp \
 	application/preferences/PreferencesBehavior.cpp \
 	application/preferences/PreferencesReplicant.cpp \
-	application/preferences/PreferencesChatWindow.cpp \
 	application/views/CayaRenderView.cpp \
 	application/views/ConversationItem.cpp \
 	application/views/ConversationListView.cpp \
@@ -74,10 +70,14 @@ SRCS = \
 	application/views/SearchBarTextControl.cpp \
 	application/views/StatusMenuItem.cpp \
 	application/views/StatusView.cpp \
-	application/views/UserInfoWindow.cpp \
 	application/views/UserItem.cpp \
 	application/views/UserListView.cpp \
-	application/views/UserPopUp.cpp
+	application/views/UserPopUp.cpp \
+	application/windows/AboutWindow.cpp \
+	application/windows/JoinWindow.cpp \
+	application/windows/MainWindow.cpp \
+	application/windows/RosterWindow.cpp \
+	application/windows/UserInfoWindow.cpp
 
 
 #	Specify the resource definition files to use. Full or relative paths can be
