@@ -19,12 +19,13 @@
 #include <gloox/loghandler.h>
 #include <gloox/logsink.h>
 #include <gloox/message.h>
+#include <gloox/messageeventhandler.h>
 #include <gloox/messagehandler.h>
 #include <gloox/messagesession.h>
 #include <gloox/messagesessionhandler.h>
-#include <gloox/messageeventhandler.h>
-#include <gloox/mucroomhandler.h>
+#include <gloox/mucinvitationhandler.h>
 #include <gloox/mucroomconfighandler.h>
+#include <gloox/mucroomhandler.h>
 #include <gloox/presence.h>
 #include <gloox/vcardhandler.h>
 #include <gloox/vcardmanager.h>
@@ -34,6 +35,7 @@
 #include <libsupport/KeyMap.h>
 
 class BList;
+class InviteHandler;
 
 
 typedef KeyMap<BString, gloox::MUCRoom*> RoomMap;
@@ -103,6 +105,7 @@ private:
 									fConnection;
 			gloox::VCardManager*	fVCardManager;
 			gloox::MessageSession*	fSession;
+			InviteHandler*			fInviteHandler;
 
 			gloox::JID				fJid;
 			thread_id				fRecvThread;
@@ -116,6 +119,7 @@ private:
 			void					_SendMessage(BMessage* msg);
 			void					_MessageSent(const char* id, const char* subject,
 												const char* body);
+			void					_JoinRoom(const char* chat_id);
 
 			void					_ChatCreatedMsg(const char* id);
 			void					_RoleChangedMsg(BString chat_id, BString user_id,
@@ -194,4 +198,18 @@ private:
 													  const gloox::JID&, gloox::StanzaError);
 };
 
+
+class InviteHandler : public gloox::MUCInvitationHandler {
+public:
+									InviteHandler(gloox::ClientBase* parent, JabberHandler* handler);
+	void					handleMUCInvitation(const gloox::JID& room, const gloox::JID& from,
+														const std::string& reason, const std::string& body,
+														const std::string& password, bool cont,
+														const std::string& thread);
+private:
+	JabberHandler* fHandler;
+};
+
+
 #endif	// _JABBER_HANDLER_H
+

@@ -145,17 +145,10 @@ JabberHandler::Process(BMessage* msg)
 		}
 
 		case IM_JOIN_ROOM: {
-			BString chat_id = msg->FindString("chat_id");
-			BString join_id = chat_id;
-			join_id << "/" << fNick;
+			BString chat_id;
+			if (msg->FindString("chat_id", &chat_id) == B_OK)
+				_JoinRoom(chat_id.String());
 
-			gloox::MUCRoom* room =
-				new gloox::MUCRoom(fClient, gloox::JID(join_id.String()),
-								   this, this);
-			room->join();
-			room->getRoomItems();
-
-			fRooms.AddItem(chat_id, room);
 			break;
 		}
 
@@ -172,6 +165,19 @@ JabberHandler::Process(BMessage* msg)
 			left.AddInt32("im_what", IM_ROOM_LEFT);
 			left.AddString("chat_id", chat_id);
 			_SendMessage(&left);
+			break;
+		}
+
+		case IM_ROOM_INVITE_ACCEPT: {
+			BString chat_id;
+			if (msg->FindString("chat_id", &chat_id) != B_OK)
+				break;
+
+			BStringList splitAtPassword;
+			chat_id.Split("#", false, splitAtPassword);
+			chat_id = splitAtPassword.StringAt(0);
+
+			_JoinRoom(chat_id.String());
 			break;
 		}
 
@@ -268,6 +274,7 @@ JabberHandler::UpdateSettings(BMessage* msg)
 		fClient->setPort(fPort);
 	fClient->registerConnectionListener(this);
 	fClient->registerMessageSessionHandler(this);
+	fClient->registerMUCInvitationHandler(new InviteHandler(fClient, this));
 	fClient->rosterManager()->registerRosterListener(this);
 	fClient->disco()->setVersion("Caya", VERSION);
 	fClient->disco()->setIdentity("client", "caya");
@@ -773,8 +780,6 @@ JabberHandler::_StatusSetMsg(const char* user_id, gloox::Presence::PresenceType 
 	if (BString(message).IsEmpty() == false)
 		msg.AddString("message", message);
 
-	msg.PrintToStream();
-
 	_SendMessage(&msg);
 }
 
@@ -964,6 +969,23 @@ JabberHandler::_MUCUserId(BString chat_id, const char* nick, BString* id)
 
 	*id = chat;
 	return false;
+}
+
+
+void
+JabberHandler::_JoinRoom(const char* chat_id)
+{
+	BString join_id(chat_id);
+	join_id << "/" << fNick;
+
+	gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
+	if (room == NULL)
+		room = new gloox::MUCRoom(fClient, gloox::JID(join_id.String()), this, this);
+
+	room->join();
+	room->getRoomItems();
+
+	fRooms.AddItem(BString(chat_id), room);
 }
 
 
@@ -1486,6 +1508,8 @@ JabberHandler::handleMUCRequest(gloox::MUCRoom* room, const gloox::DataForm &for
 }
 
 
+
+
 void
 JabberHandler::handleItemAdded(const gloox::JID&)
 {
@@ -1634,3 +1658,40 @@ JabberHandler::handleVCardResult(gloox::VCardHandler::VCardContext context,
 	//if (context == gloox::VCardHandler::FetchVCard)
 	//else
 }
+
+
+InviteHandler::InviteHandler(gloox::ClientBase* client, JabberHandler* handler)
+	:
+	gloox::MUCInvitationHandler(client),
+	fHandler(handler)
+{
+}
+
+
+void
+InviteHandler::handleMUCInvitation(const gloox::JID& room, const gloox::JID& from,
+								   const std::string& reason, const std::string& body,
+								   const std::string& password, bool cont,
+								   const std::string& thread)
+{
+	std::string chat_name = room.resource().c_str();
+	BString chat_id = room.full().c_str();
+
+	if (chat_name.empty() == true)
+		chat_name = chat_id.String();
+	if (password.empty() == false)
+		chat_id << "#" << password.c_str();
+
+	BMessage invite(IM_MESSAGE);
+	invite.AddInt32("im_what", IM_ROOM_INVITE_RECEIVED);
+	invite.AddString("chat_id", chat_id);
+	invite.AddString("chat_name", chat_name.c_str());
+	invite.AddString("user_id", from.bare().c_str());
+	if (reason.empty() == false)
+		invite.AddString("body", reason.c_str());
+	invite.AddString("protocol", fHandler->Signature());
+
+	fHandler->MessengerInterface()->SendMessage(new BMessage(invite));
+}
+
+

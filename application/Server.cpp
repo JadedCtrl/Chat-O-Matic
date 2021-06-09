@@ -340,7 +340,6 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_ROOM_INVITE_RECEIVED:
 		{
-			msg->PrintToStream();
 			BString chat_id;
 			User* user = _EnsureUser(msg);
 			BString user_id = msg->FindString("user_id");
@@ -350,6 +349,7 @@ Server::ImMessage(BMessage* msg)
 			ProtocolLooper* looper = _LooperFromMessage(msg);
 
 			if (msg->FindString("chat_id", &chat_id) != B_OK || looper == NULL)
+			{
 				result = B_SKIP_MESSAGE;
 				break;
 			}
@@ -370,9 +370,11 @@ Server::ImMessage(BMessage* msg)
 			alertBody.ReplaceAll("%room%", chat_name);
 			alertBody.ReplaceAll("%body%", body);
 
-			BMessage* accept = new BMessage(IM_ROOM_INVITE_ACCEPT);
+			BMessage* accept = new BMessage(IM_MESSAGE);
+			accept->AddInt32("im_what", IM_ROOM_INVITE_ACCEPT);
 			accept->AddString("chat_id", chat_id);
-			BMessage* reject = new BMessage(IM_ROOM_INVITE_REFUSE);
+			BMessage* reject = new BMessage(IM_MESSAGE);
+			accept->AddInt32("im_what", IM_ROOM_INVITE_REFUSE);
 			reject->AddString("chat_id", chat_id);
 
 			InviteDialogue* invite = new InviteDialogue(BMessenger(looper),

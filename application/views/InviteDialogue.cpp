@@ -30,7 +30,6 @@ InviteDialogue::MessageReceived(BMessage* msg)
 		BAlert::MessageReceived(msg);
 		return;
 	}
-	msg->PrintToStream();
 
 	switch (which)
 	{
