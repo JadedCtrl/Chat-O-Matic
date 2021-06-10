@@ -21,11 +21,6 @@ public:
 			const char*			Account() const;
 			void				SetAccount(const char* name);
 
-			void				DrawItem(BView* owner, BRect frame,
-									     bool complete = false);
-
-			void				Update(BView* owner, const BFont* font);
-
 private:
 			ProtocolSettings*	fSettings;
 			BString				fAccount;
