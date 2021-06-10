@@ -390,9 +390,10 @@ Conversation::_EnsureUser(BMessage* msg)
 		fLooper->AddUser(user);
 		fUsers.AddItem(id, user);
 		GetView()->UpdateUserList(fUsers);
+	}
 
-		if (name.IsEmpty() == false)
-			user->SetNotifyName(name);
+	if (name.IsEmpty() == false) {
+		user->SetNotifyName(name);
 	}
 	user->RegisterObserver(this);
 	return user;
