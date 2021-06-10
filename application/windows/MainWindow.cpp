@@ -26,7 +26,7 @@
 #include "JoinWindow.h"
 #include "MainWindow.h"
 #include "NotifyMessage.h"
-#include "PreferencesDialog.h"
+#include "PreferencesWindow.h"
 #include "ReplicantStatusView.h"
 #include "RosterWindow.h"
 #include "Server.h"
@@ -99,8 +99,8 @@ MainWindow::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case CAYA_SHOW_SETTINGS:
 		{
-			PreferencesDialog* dialog = new PreferencesDialog();
-			dialog->Show();
+			PreferencesWindow* win = new PreferencesWindow();
+			win->Show();
 			break;
 		}
 
@@ -257,12 +257,8 @@ MainWindow::ImMessage(BMessage* msg)
 		case IM_CONTACT_INFO:
 		case IM_EXTENDED_CONTACT_INFO:
 		case IM_STATUS_SET:
-		{
-			if (fServer->ContactById(msg->FindString("user_id")) != NULL)
-				if (fRosterWindow != NULL)
-					fRosterWindow->PostMessage(msg);
+			fRosterWindow->PostMessage(msg);
 			break;
-		}
 	}
 }
 
@@ -428,7 +424,7 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 	ChatMap chats = fServer->Conversations();
 
 	BString chat_id = msg->FindString("chat_id");
-	Conversation* chat = fServer->ConversationById(chat_id);
+	Conversation* chat = fServer->ConversationById(chat_id, msg->FindInt64("instance"));
 
 	if (chat != NULL) {
 		ConversationItem* item = chat->GetListItem();
@@ -466,7 +462,11 @@ MainWindow::_RemoveListItem(ConversationItem* item)
 		index--;
 
 	fListView->RemoveItem(item);
-	fServer->RemoveConversation(item->GetConversation());
+	Conversation* chat = item->GetConversation();
+	ProtocolLooper* looper = chat->GetProtocolLooper();
+
+	if (chat != NULL && looper != NULL)
+		looper->RemoveConversation(chat);
 
 	if (fListView->CountItems() == 0) {
 		fChatView = new ConversationView();

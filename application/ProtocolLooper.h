@@ -7,19 +7,57 @@
 #define _PROTOCOL_LOOPER_H
 
 #include <Looper.h>
+#include <String.h>
+
+#include <libsupport/KeyMap.h>
 
 #include "CayaProtocol.h"
 
+class Contact;
+class Conversation;
+class User;
+
+
+typedef KeyMap<BString, Conversation*> ChatMap;
+typedef KeyMap<BString, Contact*> RosterMap;
+typedef KeyMap<BString, User*> UserMap;
+
+
 class ProtocolLooper : public BLooper {
 public:		
-					ProtocolLooper(CayaProtocol* protocol);
+							ProtocolLooper(CayaProtocol* protocol, int64 instance);
 
-			void	MessageReceived(BMessage* msg);
+			void			MessageReceived(BMessage* msg);
 
-	CayaProtocol*	Protocol();
+			CayaProtocol*	Protocol();
+
+			ChatMap			Conversations() const;
+			Conversation*	ConversationById(BString id);
+			void			AddConversation(Conversation* chat);
+			void			RemoveConversation(Conversation* chat);
+
+			RosterMap		Contacts() const;
+			Contact*		ContactById(BString id);
+			void			AddContact(Contact* contact);
+
+			UserMap			Users() const;
+			User*			UserById(BString id);
+			void			AddUser(User* user);
+
+			BString			GetOwnId();
+			void			SetOwnId(BString user_id);
+
+			int64			GetInstance();
 
 private:
-	CayaProtocol*	fProtocol;
+			CayaProtocol*	fProtocol;
+			int64			fInstance;
+
+			BString			fMySelf;
+
+			ChatMap			fChatMap;
+			RosterMap		fRosterMap;
+			UserMap			fUserMap;
 };
 
 #endif	// _PROTOCOL_LOOPER_H

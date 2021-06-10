@@ -14,6 +14,7 @@
 #include "CayaConstants.h"
 #include "Contact.h"
 #include "Conversation.h"
+#include "ProtocolLooper.h"
 #include "User.h"
 
 class CayaProtocol;
@@ -21,9 +22,6 @@ class RosterItem;
 class ProtocolLooper;
 
 
-typedef KeyMap<BString, Contact*> RosterMap;
-typedef KeyMap<BString, User*> UserMap;
-typedef KeyMap<BString, Conversation*> ChatMap;
 typedef KeyMap<bigtime_t, ProtocolLooper*> ProtocolLoopers;
 typedef KeyMap<BString, bigtime_t> AccountInstances;
 
@@ -49,20 +47,17 @@ public:
 			void			SendAllProtocolMessage(BMessage* msg);
 
 			RosterMap		Contacts() const;
-			Contact*		ContactById(BString id);
-			void			AddContact(Contact* contact);
+			Contact*		ContactById(BString id, int64 instance);
+			void			AddContact(Contact* contact, int64 instance);
 
 			UserMap			Users() const;
-			User*			UserById(BString id);
-			void			AddUser(User* user);
+			User*			UserById(BString id, int64 instance);
+			void			AddUser(User* user, int64 instance);
 
 			ChatMap			Conversations() const;
-			Conversation*	ConversationById(BString id);
-			void			AddConversation(Conversation* chat);
-			void			RemoveConversation(Conversation* chat);
-
-			// TODO: there should be a contact for each account.
-			BString			GetOwnContact();
+			Conversation*	ConversationById(BString id, int64 instance);
+			void			AddConversation(Conversation* chat, int64 instance);
+			void			RemoveConversation(Conversation* chat, int64 instance);
 
 private:
 			ProtocolLooper*	_LooperFromMessage(BMessage* message);
@@ -76,9 +71,6 @@ private:
 
 			void			_ReplicantStatusNotify(CayaStatus status);
 
-			RosterMap		fRosterMap;
-			UserMap			fUserMap;
-			ChatMap			fChatMap;
 			ProtocolLoopers	fLoopers;
 			AccountInstances
 							fAccounts;

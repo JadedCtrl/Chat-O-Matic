@@ -115,8 +115,11 @@ RosterListView::MessageReceived(BMessage* msg)
 			BMessage* start = new BMessage(IM_MESSAGE);
 			start->AddInt32("im_what", IM_CREATE_CHAT);
 			start->AddString("user_id", user->GetId());
+			ProtocolLooper* looper = user->GetProtocolLooper();
 
-			user->GetProtocolLooper()->PostMessage(start);
+			if (looper != NULL)
+				looper->PostMessage(start);
+
 			break;
 		}
 

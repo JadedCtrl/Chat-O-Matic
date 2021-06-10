@@ -6,21 +6,23 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
+#include "PreferencesWindow.h"
+
 #include <Button.h>
 #include <ControlLook.h>
 #include <LayoutBuilder.h>
 #include <TabView.h>
 
-#include "PreferencesDialog.h"
 #include "PreferencesAccounts.h"
 #include "PreferencesBehavior.h"
 #include "PreferencesChatWindow.h"
 #include "PreferencesReplicant.h"
 
+
 const uint32 kApply = 'SAVE';
 
 
-PreferencesDialog::PreferencesDialog()
+PreferencesWindow::PreferencesWindow()
 	: BWindow(BRect(0, 0, 500, 615), "Preferences", B_TITLED_WINDOW,
 		B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_CLOSE_ON_ESCAPE)
 {
@@ -44,7 +46,7 @@ PreferencesDialog::PreferencesDialog()
 
 
 void
-PreferencesDialog::MessageReceived(BMessage* msg)
+PreferencesWindow::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
 		case kApply:

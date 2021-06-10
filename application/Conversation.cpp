@@ -267,9 +267,9 @@ Conversation::RemoveUser(User* user)
 
 
 BString
-Conversation::OwnUserId()
+Conversation::GetOwnId()
 {
-	return _GetServer()->GetOwnContact();
+	return fLooper->GetOwnId();
 }
 
 
@@ -373,7 +373,7 @@ Conversation::_EnsureUser(BMessage* msg)
 	if (id.IsEmpty() == true) return NULL;
 
 	User* user = UserById(id);
-	User* serverUser = _GetServer()->UserById(id);
+	User* serverUser = fLooper->UserById(id);
 
 	// Not here, but found in server
 	if (user == NULL && serverUser != NULL) {
@@ -383,10 +383,11 @@ Conversation::_EnsureUser(BMessage* msg)
 	}
 	// Not anywhere; create user
 	else if (user == NULL) {
-		user = new User(id, _GetServer()->Looper());
+		user = new User(id,
+			((TheApp*)be_app)->GetMainWindow()->GetServer()->Looper());
 		user->SetProtocolLooper(fLooper);
 
-		_GetServer()->AddUser(user);
+		fLooper->AddUser(user);
 		fUsers.AddItem(id, user);
 		GetView()->UpdateUserList(fUsers);
 
@@ -395,13 +396,6 @@ Conversation::_EnsureUser(BMessage* msg)
 	}
 	user->RegisterObserver(this);
 	return user;
-}
-
-
-Server*
-Conversation::_GetServer()
-{
-	return ((TheApp*)be_app)->GetMainWindow()->GetServer();
 }
 
 

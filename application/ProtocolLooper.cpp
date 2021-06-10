@@ -8,16 +8,19 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
+#include "ProtocolLooper.h"
+
 #include <String.h>
 
 #include "Account.h"
-#include "ProtocolLooper.h"
+#include "Conversation.h"
 
 
-ProtocolLooper::ProtocolLooper(CayaProtocol* protocol)
+ProtocolLooper::ProtocolLooper(CayaProtocol* protocol, int64 instance)
 	:
 	BLooper(),
-	fProtocol(protocol)
+	fProtocol(protocol),
+	fInstance(instance)
 {
 	Account* account = reinterpret_cast<Account*>(
 		protocol->MessengerInterface());
@@ -43,3 +46,110 @@ ProtocolLooper::Protocol()
 {
 	return fProtocol;
 }
+
+
+ChatMap
+ProtocolLooper::Conversations() const
+{
+	return fChatMap;
+}
+
+
+Conversation*
+ProtocolLooper::ConversationById(BString id)
+{
+	bool found = false;
+	return fChatMap.ValueFor(id, &found);
+}
+
+
+void
+ProtocolLooper::AddConversation(Conversation* chat)
+{
+	fChatMap.AddItem(chat->GetId(), chat);
+}
+
+
+void
+ProtocolLooper::RemoveConversation(Conversation* chat)
+{
+	fChatMap.RemoveItemFor(chat->GetId());
+}
+
+
+RosterMap
+ProtocolLooper::Contacts() const
+{
+	return fRosterMap;
+}
+
+
+Contact*
+ProtocolLooper::ContactById(BString id)
+{
+	bool found = false;
+	return fRosterMap.ValueFor(id, &found);
+}
+
+
+void
+ProtocolLooper::AddContact(Contact* contact)
+{
+	fRosterMap.AddItem(contact->GetId(), contact);
+}
+
+
+UserMap
+ProtocolLooper::Users() const
+{
+	UserMap users = fUserMap;
+
+	for (int i = 0; i < fRosterMap.CountItems(); i++) {
+		User* user = (User*)fRosterMap.ValueAt(i);
+		users.AddItem(user->GetId(), user);
+	}
+
+	return users;
+}
+
+
+User*
+ProtocolLooper::UserById(BString id)
+{
+	bool found = false;
+	User* user = ContactById(id);
+	if (user == NULL)
+		user = fUserMap.ValueFor(id, &found);
+
+	return user;
+}
+
+
+void
+ProtocolLooper::AddUser(User* user)
+{
+	fUserMap.AddItem(user->GetId(), user);
+}
+
+
+BString
+ProtocolLooper::GetOwnId()
+{
+	return fMySelf;
+}
+
+
+void
+ProtocolLooper::SetOwnId(BString user_id)
+{
+	fMySelf = user_id;
+}
+
+
+int64
+ProtocolLooper::GetInstance()
+{
+	return fInstance;
+}
+
+

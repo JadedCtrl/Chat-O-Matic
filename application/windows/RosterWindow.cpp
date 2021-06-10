@@ -102,6 +102,7 @@ RosterWindow::MessageReceived(BMessage* message)
 
 			User* user = ritem->GetContact();
 			fMessage->AddString("user_id", user->GetId());
+			fMessage->AddInt64("instance", user->GetProtocolLooper()->GetInstance());
 			fTarget->SendMessage(fMessage);
 			PostMessage(B_QUIT_REQUESTED);
 
@@ -126,11 +127,18 @@ RosterWindow::ImMessage(BMessage* msg)
 		case IM_STATUS_SET:
 		{
 			int32 status;
-
-			if (msg->FindInt32("status", &status) != B_OK)
+			int64 instance;
+			BString user_id = msg->FindString("user_id");
+			if (msg->FindInt32("status", &status) != B_OK
+				|| msg->FindInt64("instance", &instance) != B_OK
+				|| user_id.IsEmpty() == true)
 				return;
 
-			RosterItem*	rosterItem = fServer->ContactById(msg->FindString("user_id"))->GetRosterItem();
+			Contact* contact = fServer->ContactById(user_id, instance);
+			if (contact == NULL)
+				return;
+
+			RosterItem*	rosterItem = contact->GetRosterItem();
 
 			if (rosterItem) {
 				UpdateListItem(rosterItem);
@@ -191,8 +199,19 @@ RosterWindow::ImMessage(BMessage* msg)
 		case IM_CONTACT_INFO:
 		case IM_EXTENDED_CONTACT_INFO:
 		{
-			RosterItem*	rosterItem
-				= fServer->ContactById(msg->FindString("user_id"))->GetRosterItem();
+			int32 status = -1;
+			int64 instance;
+			BString user_id = msg->FindString("user_id");
+			if (msg->FindInt32("status", &status) != B_OK
+				|| msg->FindInt64("instance", &instance) != B_OK
+				|| user_id.IsEmpty() == true)
+				return;
+
+			Contact* contact = fServer->ContactById(user_id, instance);
+			if (contact == NULL)
+				return;
+
+			RosterItem*	rosterItem = contact->GetRosterItem();
 			if (rosterItem)
 				UpdateListItem(rosterItem);
 			break;

@@ -59,7 +59,7 @@ public:
 
 	UserMap				Users();
 	User*				UserById(BString id);
-	BString				OwnUserId();
+	BString				GetOwnId();
 
 	void				AddUser(User* user);
 	void				RemoveUser(User* user);
@@ -72,8 +72,7 @@ private:
 	status_t			_GetChatLogs(BMessage* msg);
 	void				_EnsureLogPath();
 
-	User*			_EnsureUser(BMessage* msg);
-	Server*				_GetServer();
+	User*				_EnsureUser(BMessage* msg);
 
 	BMessenger	fMessenger;
 	ProtocolLooper*	fLooper;

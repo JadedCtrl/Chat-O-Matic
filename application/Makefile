@@ -53,7 +53,6 @@ SRCS = \
 	application/preferences/AccountView.cpp \
 	application/preferences/CayaPreferences.cpp \
 	application/preferences/PreferencesChatWindow.cpp \
-	application/preferences/PreferencesDialog.cpp \
 	application/preferences/PreferencesAccounts.cpp \
 	application/preferences/PreferencesBehavior.cpp \
 	application/preferences/PreferencesReplicant.cpp \
@@ -76,6 +75,7 @@ SRCS = \
 	application/windows/AboutWindow.cpp \
 	application/windows/JoinWindow.cpp \
 	application/windows/MainWindow.cpp \
+	application/windows/PreferencesWindow.cpp \
 	application/windows/RosterWindow.cpp \
 	application/windows/UserInfoWindow.cpp
 

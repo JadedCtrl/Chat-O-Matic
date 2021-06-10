@@ -92,7 +92,7 @@ UserListView::_UserPopUp()
 	menu->SetTargetForItems(this);
 
 	// Now for the moderation items
-	Role* role = fChat->GetRole(fChat->OwnUserId());
+	Role* role = fChat->GetRole(fChat->GetOwnId());
 	if (role == NULL)	return menu;
 	int32 perms = role->fPerms;
 	UserItem* item = (UserItem*)ItemAt(CurrentSelection());
@@ -150,7 +150,7 @@ UserListView::_BlankPopUp()
 void
 UserListView::_ModerationAction(int32 im_what)
 {
-	Role* role = fChat->GetRole(fChat->OwnUserId());
+	Role* role = fChat->GetRole(fChat->GetOwnId());
 	int32 perms = role->fPerms;
 	UserItem* item = (UserItem*)ItemAt(CurrentSelection());
 	if (item == NULL)

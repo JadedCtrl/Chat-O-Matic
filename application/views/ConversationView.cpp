@@ -76,9 +76,11 @@ ConversationView::MessageReceived(BMessage* message)
 			BString text = message->FindString("body");
 			if (text == "")
 				return;
+			int64 instance = fConversation->GetProtocolLooper()->GetInstance();
 
 			BMessage msg(IM_MESSAGE);
 			msg.AddInt32("im_what", IM_SEND_MESSAGE);
+			msg.AddInt64("instance", instance);
 			msg.AddString("chat_id", fConversation->GetId());
 			msg.AddString("body", text);
 			fConversation->ImMessage(&msg);

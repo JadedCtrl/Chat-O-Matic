@@ -46,15 +46,15 @@ Server::Quit()
 	Contact* contact = NULL;
 	Conversation* conversation = NULL;
 
-	while (contact = fRosterMap.ValueAt(0)) {
-		contact->DeletePopUp();
-		fRosterMap.RemoveItemAt(0);
-	}
+//	while (contact = fRosterMap.ValueAt(0)) {
+//		contact->DeletePopUp();
+//		fRosterMap.RemoveItemAt(0);
+//	}
 
-	while (conversation = fChatMap.ValueAt(0)) {
-		fChatMap.RemoveItemAt(0);
-		delete conversation;
-	}
+//	while (conversation = fChatMap.ValueAt(0)) {
+//		fChatMap.RemoveItemAt(0);
+//		delete conversation;
+//	}
 }
 
 
@@ -83,7 +83,7 @@ Server::Filter(BMessage* message, BHandler **target)
 			BString id = message->FindString("chat_id");
 			if (id.Length() > 0) {
 				bool found = false;
-				Conversation* item = fChatMap.ValueFor(id, &found);
+//				Conversation* item = fChatMap.ValueFor(id, &found);
 			}
 			result = B_SKIP_MESSAGE;
 			break;
@@ -170,7 +170,7 @@ Server::ImMessage(BMessage* msg)
 		{
 			Contact* contact = _EnsureContact(msg);
 			if (contact != NULL) {
-				fMySelf = contact->GetId();
+				contact->GetProtocolLooper()->SetOwnId(contact->GetId());
 			}
 			break;
 		}
@@ -229,7 +229,7 @@ Server::ImMessage(BMessage* msg)
 		{
 			BString user_id = msg->FindString("user_id");
 			if (user_id.IsEmpty() == false) {
-				User* user = ContactById(user_id);
+				User* user = ContactById(user_id, msg->FindInt64("instance"));
 				user->GetProtocolLooper()->PostMessage(msg);
 			}
 			break;
@@ -466,7 +466,7 @@ Server::ImMessage(BMessage* msg)
 void
 Server::AddProtocolLooper(bigtime_t instanceId, CayaProtocol* cayap)
 {
-	ProtocolLooper* looper = new ProtocolLooper(cayap);
+	ProtocolLooper* looper = new ProtocolLooper(cayap, instanceId);
 	fLoopers.AddItem(instanceId, looper);
 	fAccounts.AddItem(cayap->GetName(), instanceId);
 }
@@ -531,33 +531,53 @@ Server::SendAllProtocolMessage(BMessage* msg)
 RosterMap
 Server::Contacts() const
 {
-	return fRosterMap;
+	RosterMap contacts;
+
+	for (int i = 0; i < fAccounts.CountItems(); i++) {
+		ProtocolLooper* fruitLoop = fLoopers.ValueFor(fAccounts.ValueAt(i));
+		if (fruitLoop == NULL)	continue;
+
+		RosterMap accContacts = fruitLoop->Contacts();
+		for (int i = 0; i < accContacts.CountItems(); i++)
+			contacts.AddItem(accContacts.KeyAt(i), accContacts.ValueAt(i));
+	}
+
+	return contacts;
 }
 
 
 Contact*
-Server::ContactById(BString id)
+Server::ContactById(BString id, int64 instance)
 {
-	bool found = false;
-	return fRosterMap.ValueFor(id, &found);
+	ProtocolLooper* looper = fLoopers.ValueFor(instance);
+	Contact* result = NULL;
+	if (looper != NULL)
+		result = looper->ContactById(id);
+	return result;
 }
 
 
 void
-Server::AddContact(Contact* contact)
+Server::AddContact(Contact* contact, int64 instance)
 {
-	fRosterMap.AddItem(contact->GetId(), contact);
+	ProtocolLooper* looper = fLoopers.ValueFor(instance);
+	if (looper != NULL)
+		looper->AddContact(contact);
 }
 
 
 UserMap
 Server::Users() const
 {
-	UserMap users = fUserMap;
+	UserMap users;
 
-	for (int i = 0; i < fRosterMap.CountItems(); i++) {
-		User* user = (User*)fRosterMap.ValueAt(i);
-		users.AddItem(user->GetId(), user);
+	for (int i = 0; i < fAccounts.CountItems(); i++) {
+		ProtocolLooper* fruitLoop = fLoopers.ValueFor(fAccounts.ValueAt(i));
+		if (fruitLoop == NULL)	continue;
+
+		UserMap accUsers = fruitLoop->Users();
+		for (int i = 0; i < accUsers.CountItems(); i++)
+			users.AddItem(accUsers.KeyAt(i), accUsers.ValueAt(i));
 	}
 
 	return users;
@@ -565,57 +585,69 @@ Server::Users() const
 
 
 User*
-Server::UserById(BString id)
+Server::UserById(BString id, int64 instance)
 {
-	bool found = false;
-	User* user = ContactById(id);
-	if (user == NULL)
-		user = fUserMap.ValueFor(id, &found);
-
-	return user;
+	ProtocolLooper* looper = fLoopers.ValueFor(instance);
+	User* result = NULL;
+	if (looper != NULL)
+		result = looper->UserById(id);
+	return result;
 }
 
 
 void
-Server::AddUser(User* user)
+Server::AddUser(User* user, int64 instance)
 {
-	fUserMap.AddItem(user->GetId(), user);
+	ProtocolLooper* looper = fLoopers.ValueFor(instance);
+	if (looper != NULL)
+		looper->AddUser(user);
 }
 
 
 ChatMap
 Server::Conversations() const
 {
-	return fChatMap;
+	ChatMap chats;
+
+	for (int i = 0; i < fAccounts.CountItems(); i++) {
+		ProtocolLooper* fruitLoop = fLoopers.ValueFor(fAccounts.ValueAt(i));
+		if (fruitLoop == NULL)	continue;
+
+		ChatMap accChats = fruitLoop->Conversations();
+		for (int i = 0; i < accChats.CountItems(); i++)
+			chats.AddItem(accChats.KeyAt(i), accChats.ValueAt(i));
+	}
+
+	return chats;
 }
 
 
 Conversation*
-Server::ConversationById(BString id)
+Server::ConversationById(BString id, int64 instance)
 {
-	bool found = false;
-	return fChatMap.ValueFor(id, &found);
+	ProtocolLooper* looper = fLoopers.ValueFor(instance);
+	Conversation* result = NULL;
+	if (looper != NULL)
+		result = looper->ConversationById(id);
+	return result;
 }
 
 
 void
-Server::AddConversation(Conversation* chat)
+Server::AddConversation(Conversation* chat, int64 instance)
 {
-	fChatMap.AddItem(chat->GetId(), chat);
+	ProtocolLooper* looper = fLoopers.ValueFor(instance);
+	if (looper != NULL)
+		looper->AddConversation(chat);
 }
 
 
 void
-Server::RemoveConversation(Conversation* chat)
+Server::RemoveConversation(Conversation* chat, int64 instance)
 {
-	fChatMap.RemoveItemFor(chat->GetId());
-}
-
-
-BString
-Server::GetOwnContact()
-{
-	return fMySelf;
+	ProtocolLooper* looper = fLoopers.ValueFor(instance);
+	if (looper != NULL)
+		looper->RemoveConversation(chat);
 }
 
 
@@ -643,12 +675,15 @@ Contact*
 Server::_EnsureContact(BMessage* message)
 {
 	BString id = message->FindString("user_id");
-	Contact* contact = ContactById(id);
+	ProtocolLooper* looper = _LooperFromMessage(message);
+	if (looper == NULL) return NULL;
 
-	if (contact == NULL && id.IsEmpty() == false) {
+	Contact* contact = looper->ContactById(id);
+
+	if (contact == NULL && id.IsEmpty() == false && looper != NULL) {
 		contact = new Contact(id, Looper());
-		contact->SetProtocolLooper(_LooperFromMessage(message));
-		AddContact(contact);
+		contact->SetProtocolLooper(looper);
+		looper->AddContact(contact);
 	}
 
 	return contact;
@@ -666,12 +701,12 @@ Server::_EnsureUser(BMessage* message)
 User*
 Server::_EnsureUser(BString id, ProtocolLooper* protoLooper)
 {
-	User* user = UserById(id);
+	User* user = protoLooper->UserById(id);
 
 	if (user == NULL && id.IsEmpty() == false) {
 		user = new User(id, Looper());
 		user->SetProtocolLooper(protoLooper);
-		AddUser(user);
+		protoLooper->AddUser(user);
 	}
 
 	return user;
@@ -681,21 +716,21 @@ Server::_EnsureUser(BString id, ProtocolLooper* protoLooper)
 Conversation*
 Server::_EnsureConversation(BMessage* message)
 {
-	if (!message)
+	ProtocolLooper* looper;
+	if (!message || (looper = _LooperFromMessage(message)) == NULL)
 		return NULL;
 
 	BString chat_id = message->FindString("chat_id");
 	Conversation* item = NULL;
 
 	if (chat_id.IsEmpty() == false) {
-		bool found = false;
-		item = fChatMap.ValueFor(chat_id, &found);
+		item = looper->ConversationById(chat_id);
 
-		if (!found) {
+		if (item == NULL) {
 			item = new Conversation(chat_id, Looper());
-			item->SetProtocolLooper(_LooperFromMessage(message));
-			item->AddUser(ContactById(fMySelf));
-			fChatMap.AddItem(chat_id, item);
+			item->SetProtocolLooper(looper);
+			item->AddUser(looper->ContactById(looper->GetOwnId()));
+			looper->AddConversation(item);
 		}
 	}
 	return item;
