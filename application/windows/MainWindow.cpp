@@ -1,4 +1,5 @@
 /*
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
@@ -87,9 +88,8 @@ MainWindow::QuitRequested()
 		ReplicantStatusView::RemoveReplicant();
 		be_app->PostMessage(B_QUIT_REQUESTED);
 		return true;
-	} else {
+	} else
 		return false;
-	}
 }
 
 
@@ -146,9 +146,9 @@ MainWindow::MessageReceived(BMessage* message)
 			if (fConversation == NULL)
 				break;
 
-			int32 index = fListView->IndexOf(fConversation->GetListItem());
+			int32 index = fListView->ConversationIndexOf(fConversation);
 			if (index > 0)
-				fListView->Select(index - 1);
+				fListView->SelectConversation(index - 1);
 			break;
 		}
 
@@ -157,10 +157,10 @@ MainWindow::MessageReceived(BMessage* message)
 			if (fConversation == NULL)
 				break;
 
-			int32 index = fListView->IndexOf(fConversation->GetListItem());
-			int32 count = fListView->CountItems();
+			int32 index = fListView->ConversationIndexOf(fConversation);
+			int32 count = fListView->CountConversations();
 			if (index < (count - 1))
-				fListView->Select(index + 1);
+				fListView->SelectConversation(index + 1);
 			break;
 		}
 
@@ -249,7 +249,7 @@ MainWindow::ImMessage(BMessage* msg)
 			if (item == NULL)
 				break;
 
-			_RemoveListItem(item);
+			_RemoveConversation(item->GetConversation());
 			item->GetConversation()->GetView()->MessageReceived(msg);
 			break;
 		}
@@ -425,18 +425,16 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 
 	BString chat_id = msg->FindString("chat_id");
 	Conversation* chat = fServer->ConversationById(chat_id, msg->FindInt64("instance"));
+	ConversationItem* item = chat->GetListItem();
 
 	if (chat != NULL) {
-		ConversationItem* item = chat->GetListItem();
-		if (fListView->HasItem(item)) {
-			_UpdateListItem(item);
-		}
-		else if (item != NULL) {
-			fListView->AddItem(item);
-		}
+		if (fListView->HasItem(item))
+			fListView->InvalidateItem(fListView->IndexOf(item));
+		else if (item != NULL)
+			fListView->AddConversation(chat);
 
-		if (fListView->CountItems() == 1)
-			fListView->Select(0);
+		if (fListView->CountConversations() == 1)
+			fListView->SelectConversation(0);
 		return item;
 	}
 
@@ -445,35 +443,24 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 
 
 void
-MainWindow::_UpdateListItem(ConversationItem* item)
+MainWindow::_RemoveConversation(Conversation* chat)
 {
-	if (fListView->HasItem(item) == true)
-		fListView->InvalidateItem(fListView->IndexOf(item));
-	else
-		fListView->AddItem(item);
-}
-
-
-void
-MainWindow::_RemoveListItem(ConversationItem* item)
-{
-	int32 index = fListView->IndexOf(item);
+	int32 index = fListView->ConversationIndexOf(chat);
 	if (index > 0)
 		index--;
 
-	fListView->RemoveItem(item);
-	Conversation* chat = item->GetConversation();
+	fListView->RemoveConversation(chat);
 	ProtocolLooper* looper = chat->GetProtocolLooper();
 
 	if (chat != NULL && looper != NULL)
 		looper->RemoveConversation(chat);
 
-	if (fListView->CountItems() == 0) {
+	if (fListView->CountConversations() == 0) {
 		fChatView = new ConversationView();
 		SetConversation(NULL);
 	}
 	else
-		fListView->Select(index);
+		fListView->SelectConversation(index);
 }
 
 

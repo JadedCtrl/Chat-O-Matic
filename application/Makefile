@@ -57,6 +57,7 @@ SRCS = \
 	application/preferences/PreferencesBehavior.cpp \
 	application/preferences/PreferencesReplicant.cpp \
 	application/views/CayaRenderView.cpp \
+	application/views/ConversationAccountItem.cpp \
 	application/views/ConversationItem.cpp \
 	application/views/ConversationListView.cpp \
 	application/views/ConversationView.cpp \

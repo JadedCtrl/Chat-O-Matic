@@ -1,4 +1,5 @@
 /*
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
@@ -14,13 +15,15 @@
 
 #include "Account.h"
 #include "Conversation.h"
+#include "ConversationAccountItem.h"
 
 
 ProtocolLooper::ProtocolLooper(CayaProtocol* protocol, int64 instance)
 	:
 	BLooper(),
 	fProtocol(protocol),
-	fInstance(instance)
+	fInstance(instance),
+	fListItem(NULL)
 {
 	Account* account = reinterpret_cast<Account*>(
 		protocol->MessengerInterface());
@@ -150,6 +153,16 @@ int64
 ProtocolLooper::GetInstance()
 {
 	return fInstance;
+}
+
+
+ConversationAccountItem*
+ProtocolLooper::GetListItem()
+{
+	if (fListItem == NULL)
+		fListItem = new ConversationAccountItem(fProtocol->GetName(),
+												fInstance);
+	return fListItem;
 }
 
 

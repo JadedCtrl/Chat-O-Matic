@@ -1,4 +1,5 @@
 /*
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
@@ -50,8 +51,7 @@ private:
 
 			ConversationItem*
 						_EnsureConversationItem(BMessage* msg);
-			void		_UpdateListItem(ConversationItem* item);	
-			void		_RemoveListItem(ConversationItem* item);
+			void		_RemoveConversation(Conversation* chat);
 
 
 	Server*				fServer;

@@ -5,7 +5,7 @@
 #ifndef CONVERSATIONITEM_H
 #define CONVERSATIONITEM_H
 
-#include <ListView.h>
+#include <StringItem.h>
 
 #include "Observer.h"
 

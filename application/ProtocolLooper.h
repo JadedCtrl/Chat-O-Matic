@@ -1,4 +1,5 @@
 /*
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
@@ -15,6 +16,7 @@
 
 class Contact;
 class Conversation;
+class ConversationAccountItem;
 class User;
 
 
@@ -49,6 +51,9 @@ public:
 
 			int64			GetInstance();
 
+			ConversationAccountItem*
+							GetListItem();
+
 private:
 			CayaProtocol*	fProtocol;
 			int64			fInstance;
@@ -58,6 +63,9 @@ private:
 			ChatMap			fChatMap;
 			RosterMap		fRosterMap;
 			UserMap			fUserMap;
+
+			ConversationAccountItem*
+							fListItem;
 };
 
 #endif	// _PROTOCOL_LOOPER_H
