@@ -466,6 +466,23 @@ Server::ImMessage(BMessage* msg)
 
 			break;
 		}
+		case IM_PROTOCOL_READY:
+		{
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+			if (looper == NULL)
+				break;
+
+			BString content("%user% has connected!");
+			content.ReplaceAll("%user%", looper->Protocol()->GetName());
+
+			BNotification notification(B_INFORMATION_NOTIFICATION);
+			notification.SetGroup(BString("Caya"));
+			notification.SetTitle("Connected");
+			notification.SetContent(content);
+			notification.SetIcon(looper->Protocol()->Icon());
+			notification.Send();
+			break;
+		}
 
 		default:
 			break;

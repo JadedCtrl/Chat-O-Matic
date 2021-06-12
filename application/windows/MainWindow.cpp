@@ -42,7 +42,8 @@ MainWindow::MainWindow()
 	BWindow(BRect(0, 0, 600, 400), "Caya", B_TITLED_WINDOW, 0),
 	fWorkspaceChanged(false),
 	fConversation(NULL),
-	fRosterWindow(NULL)
+	fRosterWindow(NULL),
+	fServer(NULL)
 {
 	_InitInterface();
 
@@ -200,6 +201,10 @@ MainWindow::MessageReceived(BMessage* message)
 			break;
 		}
 
+		case CAYA_DISABLE_ACCOUNT:
+			_ToggleMenuItems();
+			break;
+
 		case IM_MESSAGE:
 			ImMessage(message);
 			break;
@@ -257,6 +262,10 @@ MainWindow::ImMessage(BMessage* msg)
 		case IM_EXTENDED_CONTACT_INFO:
 		case IM_STATUS_SET:
 			fRosterWindow->PostMessage(msg);
+			break;
+
+		case IM_PROTOCOL_READY:
+			_ToggleMenuItems();
 			break;
 	}
 }
@@ -369,7 +378,7 @@ MainWindow::_InitInterface()
 	fSendView->SetWordWrap(true);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
-		.Add(_CreateMenuBar())
+		.Add((fMenuBar = _CreateMenuBar()))
 		.AddGroup(B_HORIZONTAL)
 			.SetInsets(5, 5, 0, 10)
 			.AddSplit(B_HORIZONTAL, 0)
@@ -383,6 +392,7 @@ MainWindow::_InitInterface()
 	.End();
 
 	SetConversation(NULL);
+	_ToggleMenuItems();
 }
 
 
@@ -404,17 +414,19 @@ MainWindow::_CreateMenuBar()
 
 	// Chat
 	BMenu* chatMenu = new BMenu("Chat");
+	BMenuItem* joinRoom = new BMenuItem("Join room" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_JOIN_CHAT), 'J', B_COMMAND_KEY);
 	BMenuItem* invite = new BMenuItem("Invite user" B_UTF8_ELLIPSIS,
 		new BMessage(CAYA_SEND_INVITE), 'I', B_COMMAND_KEY);
+
+	BMenuItem* newChat = new BMenuItem("New chat" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY);
 	BMenuItem* newRoom = new BMenuItem("New room" B_UTF8_ELLIPSIS,
 		new BMessage(), 'N', B_COMMAND_KEY);
-	newRoom->SetEnabled(false);
 
-	chatMenu->AddItem(new BMenuItem("Join room" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_JOIN_CHAT), 'J', B_COMMAND_KEY));
+	chatMenu->AddItem(joinRoom);
 	chatMenu->AddSeparatorItem();
-	chatMenu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY));
+	chatMenu->AddItem(newChat);
 	chatMenu->AddItem(newRoom);
 	chatMenu->AddSeparatorItem();
 	chatMenu->AddItem(invite);
@@ -431,7 +443,25 @@ MainWindow::_CreateMenuBar()
 	menuBar->AddItem(programMenu);
 	menuBar->AddItem(chatMenu);
 	menuBar->AddItem(windowMenu);
+
 	return menuBar;
+}
+
+
+void
+MainWindow::_ToggleMenuItems()
+{
+	BMenuItem* chatMenuItem = fMenuBar->FindItem("Chat");
+	BMenu* chatMenu = chatMenuItem->Submenu();
+	if (chatMenuItem == NULL || chatMenu == NULL)
+		return;
+
+	bool enabled = false;
+	if (fServer != NULL && fServer->GetAccounts().CountItems() > 0)
+		enabled = true;
+
+	for (int i = 0; i < chatMenu->CountItems(); i++)
+		chatMenu->ItemAt(i)->SetEnabled(enabled);
 }
 
 

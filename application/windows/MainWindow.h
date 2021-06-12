@@ -11,6 +11,7 @@
 
 #include "Observer.h"
 
+//class BMenubar;
 class BSplitView;
 class BTextView;
 
@@ -49,6 +50,7 @@ public:
 private:
 			void		_InitInterface();
 			BMenuBar*	_CreateMenuBar();
+			void		_ToggleMenuItems();
 
 			ConversationItem*
 						_EnsureConversationItem(BMessage* msg);
@@ -56,6 +58,7 @@ private:
 	Server*				fServer;
 	RosterWindow*		fRosterWindow;
 	bool				fWorkspaceChanged;
+	BMenuBar*			fMenuBar;
 
 	// Left panel, chat list
 	ConversationListView* fListView;

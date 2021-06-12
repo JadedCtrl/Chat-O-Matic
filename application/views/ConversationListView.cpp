@@ -14,7 +14,10 @@
 #include "Conversation.h"
 #include "ConversationAccountItem.h"
 #include "ConversationItem.h"
+#include "MainWindow.h"
 #include "ProtocolLooper.h"
+#include "Server.h"
+#include "TheApp.h"
 
 
 const uint32 kOpenSelectedChat = 'CVos';
@@ -182,11 +185,19 @@ ConversationListView::_ConversationPopUp()
 BPopUpMenu*
 ConversationListView::_BlankPopUp()
 {
+	bool enabled = false;
+
+	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
+	if (server != NULL && server->GetAccounts().CountItems() > 0)
+		enabled = true;
+
 	BPopUpMenu* menu = new BPopUpMenu("blankPopUp");
-	menu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY));
+	BMenuItem* newChat = new BMenuItem("New chat" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY);
+	newChat->SetEnabled(enabled);
+
+	menu->AddItem(newChat);
 	menu->SetTargetForItems(Window());
-	
 	return menu;
 }
 

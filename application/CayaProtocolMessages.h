@@ -333,7 +333,10 @@ enum im_what_code {
 	IM_SPECIAL_TO_PROTOCOL				= 1000,
 
 	//!	Special message forwarded from protocol
-	IM_SPECIAL_FROM_PROTOCOL			= 1001
+	IM_SPECIAL_FROM_PROTOCOL			= 1001,
+
+	//!	Protocol is ready to receive messages
+	IM_PROTOCOL_READY					= 1002
 };
 
 #endif	// _CAYA_PROTOCOL_MESSAGES_H

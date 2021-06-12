@@ -1138,12 +1138,6 @@ JabberHandler::onConnect()
 	msg.AddInt32("status", CAYA_ONLINE);
 	_SendMessage(&msg);
 
-	// Notify our online status
-	BString content(fUsername);
-	content << " has logged in!";
-	_Notify(B_INFORMATION_NOTIFICATION, "Connected",
-		content.String());
-
 	fVCardManager->fetchVCard(fJid, this);
 }
 
@@ -1235,6 +1229,13 @@ JabberHandler::handleRoster(const gloox::Roster& roster)
 		_SendMessage(&msg);
 		fVCardManager->fetchVCard(gloox::JID(jid), this);
 	}
+
+	// This is a safe spot to say "READY", since this is called immediately
+	// after logging in, whether the user has friends in the roster or not―
+	// especially since loading all the users from the roster can take a while.
+	BMessage readyMsg(IM_MESSAGE);
+	readyMsg.AddInt32("im_what", IM_PROTOCOL_READY);
+	_SendMessage(&readyMsg);
 }
 
 

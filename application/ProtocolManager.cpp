@@ -146,12 +146,7 @@ ProtocolManager::_LoadAccounts(const char* image_path, CayaProtocolAddOn* addOn,
 	bool firstDone = false;
 
 	while (dir.GetNextEntry(&entry) == B_OK) {
-//		if (firstDone == false) {
 			_LoadAccount(addOn, entry, target);
-//			firstDone = true;
-//		}
-//		else
-//			_LoadAccount(image_path, entry, protoIndex, target);
 	}
 }
 
