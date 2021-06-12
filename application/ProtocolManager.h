@@ -41,9 +41,15 @@ private:
 	typedef KeyMap<bigtime_t, CayaProtocol*> ProtocolMap;
 
 								ProtocolManager();
-			void				_GetAccounts(CayaProtocolAddOn* addOn,
-									const char* subProtocol,
+
+			void				_LoadAccounts(const char* image_path,
+									CayaProtocolAddOn* addOn, int protoIndex,
 									BHandler* target);
+			void				_LoadAccount(const char* imagePath,
+									BEntry accountEntry, int protoIndex,
+									BHandler* target);
+			void				_LoadAccount(CayaProtocolAddOn* addOn,
+									BEntry accountEntry, BHandler* target);
 
 			AddOnMap			fAddOnMap;
 			ProtocolMap			fProtocolMap;

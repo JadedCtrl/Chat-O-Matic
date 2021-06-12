@@ -45,17 +45,16 @@ ProtocolManager::Init(BDirectory dir, BHandler* target)
 		if (addOn->Version() != CAYA_VERSION)
 			continue;
 
-		fAddOnMap.AddItem(addOn->Signature(), addOn);
-		_GetAccounts(addOn, addOn->Signature(), target);
-
 		// If add-on has multiple protocols, also load them
-		for (int32 i = 1; i < addOn->CountProtocols(); i++) {
-			CayaProtocolAddOn* subAddOn =
-				new CayaProtocolAddOn(id,path.Path(), i);
+		for (int32 i = 0; i < addOn->CountProtocols(); i++) {
+			CayaProtocolAddOn* subAddOn = addOn;
+			if (i > 0)
+				subAddOn = new CayaProtocolAddOn(id, path.Path(), i);
+
 			CayaProtocol* proto = subAddOn->Protocol();
 
 			fAddOnMap.AddItem(proto->Signature(), subAddOn);
-			_GetAccounts(subAddOn, proto->Signature(), target);
+			_LoadAccounts(path.Path(), subAddOn, i, target);
 			delete proto;
 		}
 	}
@@ -134,26 +133,58 @@ ProtocolManager::AddAccount(CayaProtocolAddOn* addOn, const char* account,
 
 
 void
-ProtocolManager::_GetAccounts(CayaProtocolAddOn* addOn, const char* subProtocol,
-								BHandler* target)
+ProtocolManager::_LoadAccounts(const char* image_path, CayaProtocolAddOn* addOn,
+							   int protoIndex, BHandler* target)
 {
 	// Find accounts path for this protocol
-	BPath path(CayaAccountPath(addOn->Signature(), subProtocol));
+	BPath path(CayaAccountPath(addOn->Signature(), addOn->Protocol()->Signature()));
 	if (path.InitCheck() != B_OK)
 		return;
 
 	BDirectory dir(path.Path());
 	BEntry entry;
-	while (dir.GetNextEntry(&entry) == B_OK) {
-		BFile file(&entry, B_READ_ONLY);
-		BMessage msg;
+	bool firstDone = false;
 
-		if (msg.Unflatten(&file) == B_OK) {
-			char buffer[B_PATH_NAME_LENGTH];
-			if (entry.GetName(buffer) == B_OK) {
-				printf("Found %s for protocol %s!\n", buffer, subProtocol);
-				AddAccount(addOn, buffer, target);
-			}
+	while (dir.GetNextEntry(&entry) == B_OK) {
+//		if (firstDone == false) {
+			_LoadAccount(addOn, entry, target);
+//			firstDone = true;
+//		}
+//		else
+//			_LoadAccount(image_path, entry, protoIndex, target);
+	}
+}
+
+
+void
+ProtocolManager::_LoadAccount(const char* imagePath, BEntry accountEntry,
+							  int protoIndex, BHandler* target)
+{
+	image_id id = load_add_on(imagePath);
+	if (id < 0)
+		return;
+
+	// If add-on's API version fits then load accounts...
+	CayaProtocolAddOn* addOn = new CayaProtocolAddOn(id, imagePath, protoIndex);
+	if (addOn->Version() != CAYA_VERSION)
+		return;
+
+	_LoadAccount(addOn, accountEntry, target);
+}
+
+
+void
+ProtocolManager::_LoadAccount(CayaProtocolAddOn* addOn, BEntry accountEntry,
+							  BHandler* target)
+{
+	BFile file(&accountEntry, B_READ_ONLY);
+	BMessage msg;
+
+	if (msg.Unflatten(&file) == B_OK) {
+		char buffer[B_PATH_NAME_LENGTH];
+		if (accountEntry.GetName(buffer) == B_OK) {
+			printf("Found %s for protocol %s!\n", buffer, addOn->Protocol()->Signature());
+			AddAccount(addOn, buffer, target);
 		}
 	}
 }
