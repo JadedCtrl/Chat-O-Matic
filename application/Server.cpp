@@ -109,6 +109,18 @@ Server::Filter(BMessage* message, BHandler **target)
 			break;
 		}
 
+		case CAYA_DISABLE_ACCOUNT:
+		{
+			int64 instance = 0;
+			if (message->FindInt64("instance", &instance) != B_OK) {
+				result = B_SKIP_MESSAGE;
+				break;
+			}
+
+			RemoveProtocolLooper(instance);
+			break;
+		}
+
 		default:
 			// Dispatch not handled messages to main window
 			break;
@@ -475,6 +487,22 @@ Server::AddProtocolLooper(bigtime_t instanceId, CayaProtocol* cayap)
 void
 Server::RemoveProtocolLooper(bigtime_t instanceId)
 {
+	ProtocolLooper* looper = GetProtocolLooper(instanceId);
+	if (looper == NULL)
+		return;
+
+	ChatMap chats = looper->Conversations();
+	for (int i = 0; i < chats.CountItems(); i++)
+		delete chats.ValueAt(i);
+
+	UserMap users = looper->Users();
+	for (int i = 0; i < users.CountItems(); i++)
+		delete users.ValueAt(i);
+
+	fLoopers.RemoveItemFor(instanceId);
+	fAccounts.RemoveItemFor(looper->Protocol()->GetName());
+	looper->Lock();
+	looper->Quit();
 }
 
 
@@ -639,15 +667,6 @@ Server::AddConversation(Conversation* chat, int64 instance)
 	ProtocolLooper* looper = fLoopers.ValueFor(instance);
 	if (looper != NULL)
 		looper->AddConversation(chat);
-}
-
-
-void
-Server::RemoveConversation(Conversation* chat, int64 instance)
-{
-	ProtocolLooper* looper = fLoopers.ValueFor(instance);
-	if (looper != NULL)
-		looper->RemoveConversation(chat);
 }
 
 

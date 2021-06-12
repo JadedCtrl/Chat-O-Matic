@@ -28,6 +28,7 @@ typedef KeyMap<BString, User*> UserMap;
 class ProtocolLooper : public BLooper {
 public:		
 							ProtocolLooper(CayaProtocol* protocol, int64 instance);
+							~ProtocolLooper();
 
 			void			MessageReceived(BMessage* msg);
 

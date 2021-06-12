@@ -57,7 +57,6 @@ public:
 			ChatMap			Conversations() const;
 			Conversation*	ConversationById(BString id, int64 instance);
 			void			AddConversation(Conversation* chat, int64 instance);
-			void			RemoveConversation(Conversation* chat, int64 instance);
 
 private:
 			ProtocolLooper*	_LooperFromMessage(BMessage* message);

@@ -30,6 +30,7 @@ typedef KeyMap<BString, Role*> RoleMap;
 class Conversation : public Notifier, public Observer {
 public:
 						Conversation(BString id, BMessenger msgn);
+						~Conversation();
 
 	BString				GetId() const;
 

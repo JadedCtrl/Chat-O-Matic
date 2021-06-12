@@ -18,17 +18,21 @@
 
 #include "AccountDialog.h"
 #include "AccountListItem.h"
+#include "CayaMessages.h"
 #include "CayaProtocol.h"
 #include "PreferencesAccounts.h"
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
 #include "MainWindow.h"
+#include "Server.h"
 #include "TheApp.h"
 
-const uint32 kAddAccount   = 'adac';
-const uint32 kEditAccount  = 'edac';
-const uint32 kDelAccount   = 'dlac';
-const uint32 kSelect       = 'selt';
+
+const uint32 kAddAccount	= 'adac';
+const uint32 kEditAccount	= 'edac';
+const uint32 kDelAccount	= 'dlac';
+const uint32 kToggleAccount	= 'tgac';
+const uint32 kSelect		= 'selt';
 
 
 static int
@@ -74,8 +78,10 @@ PreferencesAccounts::PreferencesAccounts()
 	proto->SetMenu(fProtosMenu);
 	fDelButton = new BButton("Del", new BMessage(kDelAccount));
 	fEditButton = new BButton("Edit" B_UTF8_ELLIPSIS, new BMessage(kEditAccount));
+	fToggleButton = new BButton("Enable", new BMessage(kToggleAccount));
 	fDelButton->SetEnabled(false);
 	fEditButton->SetEnabled(false);
+	fToggleButton->SetEnabled(false);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.SetInsets(B_USE_DEFAULT_SPACING)
@@ -85,6 +91,7 @@ PreferencesAccounts::PreferencesAccounts()
 			.Add(proto)
 			.Add(fDelButton)
 			.AddGlue()
+			.Add(fToggleButton)
 			.Add(fEditButton)
 		.End()
 	.End();
@@ -98,6 +105,7 @@ PreferencesAccounts::AttachedToWindow()
 	fProtosMenu->SetTargetForItems(this);
 	fDelButton->SetTarget(this);
 	fEditButton->SetTarget(this);
+	fToggleButton->SetTarget(this);
 }
 
 
@@ -106,14 +114,28 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
 		case kSelect: {
-				int32 index;
+			int32 index;
 
-				if (msg->FindInt32("index", &index) == B_OK) {
-					fDelButton->SetEnabled(index >= 0);
-					fEditButton->SetEnabled(index >= 0);
+			if (msg->FindInt32("index", &index) == B_OK) {
+				fDelButton->SetEnabled(index >= 0);
+				fEditButton->SetEnabled(index >= 0);
+				fToggleButton->SetEnabled(index >= 0);
+
+				if (index >= 0) {
+					AccountListItem* item = (AccountListItem*)fListView->ItemAt(fListView->CurrentSelection());
+
+					if (_AccountEnabled(item->Account() ) == true) {
+						fToggleButton->SetLabel("Disable");
+						fToggleButton->SetEnabled(true);
+					}
+					else {
+						fToggleButton->SetLabel("Enable");
+						fToggleButton->SetEnabled(false);
+					}
 				}
 			}
 			break;
+		}
 		case kAddAccount: {
 			void *pointer = NULL;
 			if (msg->FindPointer("settings", &pointer) == B_OK) {
@@ -159,6 +181,28 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 					fListView->RemoveItem(item);
 				delete settings;
 			}
+			break;
+		}
+		case kToggleAccount: {
+			int32 current = fListView->CurrentSelection();
+			AccountListItem* item;
+
+			if (current < 0
+			|| (item = (AccountListItem*)fListView->ItemAt(current)) == NULL)
+				break;
+
+			bool found = false;
+			AccountInstances accs = ((TheApp*)be_app)->GetMainWindow()->GetServer()->GetAccounts();
+			int64 instance = accs.ValueFor(BString(item->Account()), &found);
+			if (found == false)
+				return;
+
+			BMessage* remove = new BMessage(CAYA_DISABLE_ACCOUNT);
+			remove->AddInt64("instance", instance);
+			((TheApp*)be_app)->GetMainWindow()->PostMessage(remove);
+
+			fToggleButton->SetLabel("Enable");
+			fToggleButton->SetEnabled(false);
 			break;
 		}
 		case kAccountAdded:
@@ -234,3 +278,16 @@ PreferencesAccounts::_LoadListView(ProtocolSettings* settings)
 		fListView->AddItem(listItem);
 	}
 }
+
+
+bool
+PreferencesAccounts::_AccountEnabled(const char* account)
+{
+	bool found = false;
+	AccountInstances accs = ((TheApp*)be_app)->GetMainWindow()->GetServer()->GetAccounts();
+	accs.ValueFor(BString(account), &found);
+
+	return found;
+}
+
+

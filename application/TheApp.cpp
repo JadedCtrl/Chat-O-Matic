@@ -27,6 +27,7 @@
 #include "ReplicantStatusView.h"
 #include "Server.h"
 
+
 TheApp::TheApp()
 	:
 	BApplication(CAYA_SIGNATURE),
@@ -59,7 +60,7 @@ TheApp::ReadyToRun()
 			BString msg("Can't find smileys settings in:\n\n");
 			msg << currentPath.Path();
 			BAlert* alert = new BAlert("", msg.String(), "Ouch!");
-			alert->Go();
+//			alert->Go();
 		}
 		printf("Loaded Emoticons settings from: %s\n", currentPath.Path());
 

@@ -36,6 +36,13 @@ ProtocolLooper::ProtocolLooper(CayaProtocol* protocol, int64 instance)
 }
 
 
+ProtocolLooper::~ProtocolLooper()
+{
+	fProtocol->Shutdown();
+	delete fProtocol;
+}
+
+
 void	
 ProtocolLooper::MessageReceived(BMessage* msg)
 {

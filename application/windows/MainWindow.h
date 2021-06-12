@@ -42,8 +42,9 @@ public:
 							bool active);
 
 			void		SetConversation(Conversation* chat);
-			Server*		GetServer() const { return fServer; }
+			void		RemoveConversation(Conversation* chat);
 
+			Server*		GetServer() const { return fServer; }
 
 private:
 			void		_InitInterface();
@@ -51,8 +52,6 @@ private:
 
 			ConversationItem*
 						_EnsureConversationItem(BMessage* msg);
-			void		_RemoveConversation(Conversation* chat);
-
 
 	Server*				fServer;
 	RosterWindow*		fRosterWindow;

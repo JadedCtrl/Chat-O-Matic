@@ -1,9 +1,11 @@
 /*
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Copyright 2010, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the GPL v2 License.
  *
  * Authors:
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
+ *		Jaidyn Levesque, jadedctrl@teknik.io
  */
 
 #include <Directory.h>
@@ -214,10 +216,10 @@ JabberHandler::Shutdown()
 	if (fVCardManager)
 		fVCardManager->cancelVCardOperations(this);
 
-	if (fClient) {
+	if (fClient)
 		fClient->disposeMessageSession(fSession);
-		fClient->disconnect();
-	}
+
+	kill_thread(fRecvThread);
 
 	return B_OK;
 }

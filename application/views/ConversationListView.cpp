@@ -36,8 +36,9 @@ ConversationListView::MessageReceived(BMessage* msg)
 			ConversationItem* item;
 			int32 selIndex = CurrentSelection();
 
-			if (ItemAt(selIndex)->OutlineLevel() == 1
-				&& (item = (ConversationItem*)ItemAt(selIndex)) != NULL)
+			if (selIndex >= 0
+				&& (item = (ConversationItem*)ItemAt(selIndex)) != NULL
+				&& item->OutlineLevel() == 1)
 				item->GetConversation()->ShowView(false, true);
 			break;
 		}
@@ -73,7 +74,7 @@ ConversationListView::MouseDown(BPoint where)
 	int32 newSel = CurrentSelection();
 
 	// Don't allow selecting an AccountItem
-	if (ItemAt(newSel)->OutlineLevel() == 0) {
+	if (newSel >= 0 && ItemAt(newSel)->OutlineLevel() == 0) {
 		Select(selection);
 		return;
 	}

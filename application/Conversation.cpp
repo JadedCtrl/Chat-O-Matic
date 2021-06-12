@@ -38,6 +38,19 @@ Conversation::Conversation(BString id, BMessenger msgn)
 }
 
 
+Conversation::~Conversation()
+{
+	((TheApp*)be_app)->GetMainWindow()->RemoveConversation(this);
+
+	ProtocolLooper* looper = GetProtocolLooper();
+	if (looper != NULL)
+		looper->RemoveConversation(this);
+
+	delete fChatView;
+	delete fConversationItem;
+}
+
+
 BString
 Conversation::GetId() const
 {
@@ -332,12 +345,7 @@ Conversation::_LogChatMessage(BMessage* msg)
 		uname = "You";
 
 	BString logLine("[");
-	logLine << date;
-	logLine << "] ";
-	logLine << uname;
-	logLine << ": ";
-	logLine << body;
-	logLine << "\n";
+	logLine << date << "] <" << uname << "> " << body << "\n";
 
 	logFile.Write(logLine.String(), logLine.Length());
 }

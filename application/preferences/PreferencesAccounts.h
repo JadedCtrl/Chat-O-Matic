@@ -14,6 +14,7 @@ class BPopUpMenu;
 class ToolButton;
 class ProtocolSettings;
 
+
 class PreferencesAccounts : public BView {
 public:
 					PreferencesAccounts();
@@ -26,9 +27,12 @@ private:
 	BPopUpMenu*		fProtosMenu;
 	BButton*		fDelButton;
 	BButton*		fEditButton;
-
+	BButton*		fToggleButton;
 
 	void			_LoadListView(ProtocolSettings* settings);
+	bool			_AccountEnabled(const char* account);
 };
 
+
 #endif	// _PREFERENCES_ACCOUNTS_H
+

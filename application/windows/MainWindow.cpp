@@ -249,8 +249,7 @@ MainWindow::ImMessage(BMessage* msg)
 			if (item == NULL)
 				break;
 
-			_RemoveConversation(item->GetConversation());
-			item->GetConversation()->GetView()->MessageReceived(msg);
+			delete item->GetConversation();
 			break;
 		}
 		case IM_AVATAR_SET:
@@ -333,6 +332,24 @@ MainWindow::SetConversation(Conversation* chat)
 		fRightView->SetItemWeight(0, weightChat, true);
 		fRightView->SetItemWeight(1, weightSend, true);
 	}
+}
+
+
+void
+MainWindow::RemoveConversation(Conversation* chat)
+{
+	int32 index = fListView->ConversationIndexOf(chat);
+	if (index > 0)
+		index--;
+
+	fListView->RemoveConversation(chat);
+
+	if (fListView->CountConversations() == 0) {
+		fChatView = new ConversationView();
+		SetConversation(NULL);
+	}
+	else
+		fListView->SelectConversation(index);
 }
 
 
@@ -439,28 +456,6 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 	}
 
 	return NULL;
-}
-
-
-void
-MainWindow::_RemoveConversation(Conversation* chat)
-{
-	int32 index = fListView->ConversationIndexOf(chat);
-	if (index > 0)
-		index--;
-
-	fListView->RemoveConversation(chat);
-	ProtocolLooper* looper = chat->GetProtocolLooper();
-
-	if (chat != NULL && looper != NULL)
-		looper->RemoveConversation(chat);
-
-	if (fListView->CountConversations() == 0) {
-		fChatView = new ConversationView();
-		SetConversation(NULL);
-	}
-	else
-		fListView->SelectConversation(index);
 }
 
 
