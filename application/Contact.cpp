@@ -9,6 +9,8 @@
  */
 #include "Contact.h"
 
+#include "CayaUtils.h"
+#include "ProtocolLooper.h"
 #include "RosterItem.h"
 
 
@@ -34,6 +36,16 @@ Contact::SetNotifyAvatarBitmap(BBitmap* bitmap)
 	User::SetNotifyAvatarBitmap(bitmap);
 //	if (fAvatarBitmap != NULL && fChatWindow != NULL)
 //		fChatWindow->UpdateAvatar();
+}
+
+
+void
+Contact::_EnsureCachePath()
+{
+	if (fCachePath.InitCheck() == B_OK)
+		return;
+	fCachePath.SetTo(CayaContactCachePath(fLooper->Protocol()->GetName(),
+										  fID.String()));
 }
 
 

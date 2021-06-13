@@ -117,11 +117,9 @@ CayaCachePath()
 	BPath path;
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
 		return NULL;
-
 	path.Append("Caya/Cache");
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
-
 	return path.Path();
 }
 
@@ -133,7 +131,6 @@ CayaAccountCachePath(const char* accountName)
 	if (path.InitCheck() != B_OK)
 		return NULL;
 	path.Append(accountName);
-
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
 	return path.Path();
@@ -147,7 +144,6 @@ CayaRoomsCachePath(const char* accountName)
 	if (path.InitCheck() != B_OK)
 		return NULL;
 	path.Append("Rooms");
-
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
 	return path.Path();
@@ -158,9 +154,32 @@ const char*
 CayaRoomCachePath(const char* accountName, const char* roomIdentifier)
 {
 	BPath path(CayaRoomsCachePath(accountName));
-	if (path.InitCheck() != B_OK)
-		return NULL;
+	if (path.InitCheck() != B_OK)	return NULL;
 	path.Append(roomIdentifier);
+	return path.Path();
+}
+
+
+const char*
+CayaUserCachePath(const char* accountName, const char* userIdentifier)
+{
+	BPath path(CayaAccountCachePath(accountName));
+	if (path.InitCheck() != B_OK)	return NULL;
+	path.Append("Users");
+	if (create_directory(path.Path(), 0755) != B_OK)	return NULL;
+	path.Append(userIdentifier);
+	return path.Path();
+}
+
+
+const char*
+CayaContactCachePath(const char* accountName, const char* userIdentifier)
+{
+	BPath path(CayaAccountCachePath(accountName));
+	if (path.InitCheck() != B_OK)	return NULL;
+	path.Append("People");
+	if (create_directory(path.Path(), 0755) != B_OK)	return NULL;
+	path.Append(userIdentifier);
 	return path.Path();
 }
 

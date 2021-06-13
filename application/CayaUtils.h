@@ -27,6 +27,8 @@ const char* CayaCachePath();
 const char* CayaAccountCachePath(const char* accountName);
 const char* CayaRoomsCachePath(const char* accountName);
 const char* CayaRoomCachePath(const char* accountName, const char* roomIdentifier);
+const char* CayaUserCachePath(const char* accountName, const char* userIdentifier);
+const char* CayaContactCachePath(const char* accountName, const char* userIdentifier);
 
 rgb_color	CayaTintColor(rgb_color color, int severity);
 rgb_color	CayaForegroundColor(rgb_color background);

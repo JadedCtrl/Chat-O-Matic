@@ -1,6 +1,7 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2012, Dario Casalinuovo. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef USER_H
@@ -10,6 +11,7 @@
 #include <Message.h>
 #include <Messenger.h>
 #include <ObjectList.h>
+#include <Path.h>
 
 #include <libsupport/KeyMap.h>
 
@@ -66,6 +68,11 @@ public:
 	rgb_color		fItemColor;
 
 protected:
+	virtual void	_EnsureCachePath();
+
+	BBitmap*		_GetCachedAvatar();
+	void			_SetCachedAvatar(BBitmap* avatar);
+
 	BMessenger		fMessenger;
 	ProtocolLooper*	fLooper;
 
@@ -76,6 +83,7 @@ protected:
 	BString			fName;
 	BString			fPersonalStatus;
 	BBitmap*		fAvatarBitmap;
+	BPath			fCachePath;
 	CayaStatus		fStatus;
 	UserPopUp*		fPopUp;
 	ChatMap			fConversations;

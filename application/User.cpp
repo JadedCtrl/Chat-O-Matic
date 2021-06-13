@@ -1,6 +1,7 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2012, Dario Casalinuovo. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
@@ -9,12 +10,16 @@
  */
 #include "User.h"
 
-#include <libinterface/BitmapUtils.h>
+#include <Bitmap.h>
+#include <BitmapStream.h>
+#include <TranslationUtils.h>
+#include <TranslatorRoster.h>
 
 #include "CayaProtocolAddOn.h"
 #include "CayaResources.h"
 #include "CayaUtils.h"
 #include "Conversation.h"
+#include "ImageCache.h"
 #include "NotifyMessage.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
@@ -31,6 +36,7 @@ User::User(BString id, BMessenger msgn)
 	fListItem(NULL),
 	fItemColor(CayaForegroundColor(ui_color(B_LIST_BACKGROUND_COLOR))),
 	fStatus(CAYA_OFFLINE),
+	fAvatarBitmap(NULL),
 	fPopUp(NULL)
 {
 }
@@ -125,6 +131,8 @@ User::GetName() const
 BBitmap*
 User::AvatarBitmap() const
 {
+	if (fAvatarBitmap == NULL)
+		return ImageCache::Get()->GetImage("kPersonIcon");
 	return fAvatarBitmap;
 }
 
@@ -168,15 +176,13 @@ User::GetNotifyPersonalStatus() const
 void
 User::SetProtocolLooper(ProtocolLooper* looper)
 {
-	if (looper) {
+	if (looper != NULL) {
 		fLooper = looper;
-
-		// By default we use the Person icon as avatar icon
-		BResources* res = CayaResources();
-		BBitmap* bitmap = IconFromResources(res,
-			kPersonIcon, B_LARGE_ICON);
-
-		SetNotifyAvatarBitmap(bitmap);
+		BBitmap* avatar = _GetCachedAvatar();
+		if (avatar != NULL && avatar->IsValid()) {
+			fAvatarBitmap = avatar;
+			NotifyPointer(PTR_AVATAR_BITMAP, (void*)avatar);
+		}
 	}
 }
 
@@ -196,6 +202,7 @@ User::SetNotifyAvatarBitmap(BBitmap* bitmap)
 {
 	if ((fAvatarBitmap != bitmap) && (bitmap != NULL)) {
 		fAvatarBitmap = bitmap;
+		_SetCachedAvatar(bitmap);
 		NotifyPointer(PTR_AVATAR_BITMAP, (void*)bitmap);
 	}
 }
@@ -225,6 +232,50 @@ ChatMap
 User::Conversations()
 {
 	return fConversations;
+}
+
+
+void
+User::_EnsureCachePath()
+{
+	if (fCachePath.InitCheck() == B_OK)
+		return;
+	fCachePath.SetTo(CayaUserCachePath(fLooper->Protocol()->GetName(),
+									   fID.String()));
+}
+
+
+BBitmap*
+User::_GetCachedAvatar()
+{
+	_EnsureCachePath();
+
+	// Try loading cached avatar
+	BFile cacheFile(fCachePath.Path(), B_READ_ONLY);
+	BBitmap* bitmap = BTranslationUtils::GetBitmap(&cacheFile);
+	if (bitmap != NULL && bitmap->IsValid() == true)
+		return bitmap;
+	return NULL;
+}
+
+
+void
+User::_SetCachedAvatar(BBitmap* bitmap)
+{
+	_EnsureCachePath();
+	BFile cacheFile(fCachePath.Path(), B_WRITE_ONLY | B_CREATE_FILE);
+
+	BBitmapStream* stream = new BBitmapStream(bitmap);
+	BTranslatorRoster* roster = BTranslatorRoster::Default();
+
+	int32 format_count;
+	translator_info info;
+	const translation_format* formats = NULL;
+	roster->Identify(stream, new BMessage(), &info, 0, "image");
+	roster->GetOutputFormats(info.translator, &formats, &format_count);
+
+	roster->Translate(info.translator, stream, new BMessage(), &cacheFile,
+		formats[0].type);
 }
 
 

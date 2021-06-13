@@ -14,12 +14,13 @@ class BBitmap;
 
 class ImageCache {
 public:
-	/* Returns the image corresponding to the which constant */
-	static	BBitmap*			GetImage(BString fullPath,
-									BString symbolicName);
+	static	ImageCache*			Get();
 
-	static	void				AddImage(BString name, BBitmap* which);
-	static	void				DeleteImage(BString name);
+	/* Returns the image corresponding to the which constant */
+			BBitmap*			GetImage(const char* keyName);
+
+			void				AddImage(BString name, BBitmap* which);
+			void				DeleteImage(BString name);
 
 	/* Frees the singleton instance of the cache, must be
 	 * called when the application quits.
@@ -31,11 +32,12 @@ protected:
 								~ImageCache();
 
 private:
-	static	BBitmap*			LoadImage(const char* resourceName,
-									const char*);
+			void				_LoadResource(int identifier, const char* key);
 
 	static	ImageCache*			fInstance;
 	KeyMap<BString, BBitmap*>	fBitmaps;
 };
 
+
 #endif	// _IMAGE_CACHE_H
+

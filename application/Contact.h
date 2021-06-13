@@ -9,6 +9,7 @@
 #include <String.h>
 #include <Message.h>
 #include <Messenger.h>
+#include <Path.h>
 
 #include "CayaConstants.h"
 #include "User.h"
@@ -28,6 +29,8 @@ public:
 	void			SetNotifyAvatarBitmap(BBitmap* bitmap);
 
 private:
+	virtual void	_EnsureCachePath();
+
 	RosterItem*		fRosterItem;
 };
 

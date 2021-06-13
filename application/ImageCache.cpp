@@ -1,5 +1,6 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
@@ -11,13 +12,21 @@
 #include <AppDefs.h>
 #include <Bitmap.h>
 #include <Debug.h>
+#include <Resources.h>
 #include <TranslationUtils.h>
+
+#include <libinterface/BitmapUtils.h>
+
+#include "CayaResources.h"
+#include "CayaUtils.h"
+
 
 ImageCache* ImageCache::fInstance = NULL;
 
 
 ImageCache::ImageCache()
 {
+	_LoadResource(kPersonIcon, "kPersonIcon");
 }
 
 
@@ -30,24 +39,25 @@ ImageCache::~ImageCache()
 }
 
 
-BBitmap*
-ImageCache::GetImage(BString which, BString name)
+ImageCache*
+ImageCache::Get()
 {
-	if (fInstance == NULL)
+	if (fInstance == NULL) {
 		fInstance = new ImageCache();
+	}
+	return fInstance;
+}
 
+
+BBitmap*
+ImageCache::GetImage(const char* keyName)
+{
 	// Loads the bitmap if found
 	bool found;
-	BBitmap* bitmap = fInstance->fBitmaps.ValueFor(name, &found);
+	BBitmap* bitmap = fBitmaps.ValueFor(BString(keyName), &found);
 
-	if (!found) {
-		bitmap = LoadImage(which.String(), name.String());
-		if (bitmap)
-			fInstance->fBitmaps.AddItem(name, bitmap);
+	if (found == true)
 		return bitmap;
-	} else
-		return bitmap;
-
 	return NULL;
 }
 
@@ -55,22 +65,16 @@ ImageCache::GetImage(BString which, BString name)
 void
 ImageCache::AddImage(BString name, BBitmap* which)
 {
-	if (fInstance == NULL)
-		fInstance = new ImageCache();
-
-	fInstance->fBitmaps.AddItem(name, which);
+	fBitmaps.AddItem(name, which);
 }
 
 
 void
 ImageCache::DeleteImage(BString name)
 {
-	if (fInstance == NULL)
-		fInstance = new ImageCache();
-
-	BBitmap* bitmap = fInstance->fBitmaps.ValueFor(name);	
+	BBitmap* bitmap = fBitmaps.ValueFor(name);
 	if (bitmap) {
-		fInstance->fBitmaps.RemoveItemFor(name);
+		fBitmaps.RemoveItemFor(name);
 		delete bitmap;	
 	}
 }
@@ -86,14 +90,13 @@ ImageCache::Release()
 }
 
 
-BBitmap*
-ImageCache::LoadImage(const char* fullName, const char* shortName)
+void
+ImageCache::_LoadResource(int identifier, const char* key)
 {
-	BBitmap* bitmap = BTranslationUtils::GetBitmap(fullName);
-	if (!bitmap)
-		bitmap = BTranslationUtils::GetBitmap('PNG ', shortName);
-
-	if (!bitmap)
-		printf("ImageCache: Can't load bitmap! %s\n", fullName);
-	return bitmap;
+	BResources* res = CayaResources();
+	BBitmap* bitmap = IconFromResources(res, identifier, B_LARGE_ICON);
+	if (bitmap != NULL && bitmap->IsValid() == true)
+		fBitmaps.AddItem(BString(key), bitmap);
 }
+
+
