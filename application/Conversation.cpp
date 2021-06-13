@@ -103,6 +103,7 @@ Conversation::ImMessage(BMessage* msg)
 			int32 disabledFlags;
 			if (msg->FindInt32("room_disallowed_flags", &disabledFlags) == B_OK)
 					fDisallowedFlags = disabledFlags;
+			_CacheRoomFlags();
 			break;
 		}
 		case IM_ROOM_PARTICIPANT_JOINED:
@@ -205,6 +206,7 @@ void
 Conversation::SetProtocolLooper(ProtocolLooper* looper)
 {
 	fLooper = looper;
+	_LoadRoomFlags();
 }
 
 
@@ -381,6 +383,30 @@ Conversation::_GetChatLogs(BMessage* msg)
 	BFile logFile(fCachePath.Path(), B_READ_WRITE | B_CREATE_FILE);
 
 	return ReadAttributeMessage(&logFile, "logs", msg);
+}
+
+
+void
+Conversation::_CacheRoomFlags()
+{
+	_EnsureCachePath();
+	BFile cacheFile(fCachePath.Path(), B_READ_WRITE | B_CREATE_FILE);
+	if (cacheFile.InitCheck() != B_OK)
+		return;
+
+	cacheFile.WriteAttr("Caya:flags", B_INT32_TYPE, 0, &fRoomFlags, sizeof(int32));
+}
+
+
+void
+Conversation::_LoadRoomFlags()
+{
+	_EnsureCachePath();
+	BFile cacheFile(fCachePath.Path(), B_READ_ONLY);
+	if (cacheFile.InitCheck() != B_OK)
+		return;
+
+	cacheFile.ReadAttr("Caya:flags", B_INT32_TYPE, 0, &fRoomFlags, sizeof(int32));
 }
 
 

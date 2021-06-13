@@ -136,14 +136,15 @@ JabberHandler::Process(BMessage* msg)
 		}
 
 		case IM_CREATE_CHAT: {
-			const char* invite_id = msg->FindString("user_id");
+			const char* user_id = msg->FindString("user_id");
 
 			// TODO: Contact validation, make sure permssion is granted
 
-			if (!invite_id)
+			if (!user_id)
 				return B_ERROR;
 
-			_ChatCreatedMsg(invite_id);
+			_EnsureUserChat(user_id);
+			_ChatCreatedMsg(user_id);
 			break;
 		}
 
@@ -213,14 +214,14 @@ JabberHandler::Process(BMessage* msg)
 			gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
 			if (room != NULL)
 				room->getRoomInfo();
-			else if (fUserChats.HasString(chat_id) == true)
+			if (fUserChats.HasString(chat_id) == true)
 			{
 				BMessage metadata(IM_MESSAGE);
 				metadata.AddInt32("im_what", IM_ROOM_METADATA);
 				metadata.AddString("chat_id", chat_id);
-				metadata.AddInt32("room_default_flags",
-					0 | ROOM_AUTOCREATE | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
-				metadata.AddInt32("room_disallowed_flags", 0 | ROOM_AUTOJOIN);
+				metadata.AddInt32("room_default_flags", 0 | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
+				metadata.AddInt32("room_disallowed_flags", 0 | ROOM_AUTOJOIN | ROOM_AUTOCREATE);
+				_SendMessage(&metadata);
 			}
 			break;
 		}

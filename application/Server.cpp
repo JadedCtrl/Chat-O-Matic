@@ -30,6 +30,7 @@
 #include "InviteDialogue.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
+#include "RoomFlags.h"
 #include "RosterItem.h"
 #include "Server.h"
 
@@ -489,8 +490,25 @@ Server::ImMessage(BMessage* msg)
 
 			while (dir.GetNextEntry(&entry, true) == B_OK)
 				if (entry.GetName(fileName) == B_OK) {
+					int32 flags;
+					BFile file(&entry, B_READ_ONLY);
+					if (file.InitCheck() != B_OK)
+						continue;
+
+					if (file.ReadAttr("Caya:flags", B_INT32_TYPE, 0, &flags,
+							sizeof(int32)) < 0)
+						continue;
+
+					if (!(flags & ROOM_AUTOJOIN) && !(flags & ROOM_AUTOCREATE))
+						continue;
+
 					BMessage join(IM_MESSAGE);
-					join.AddInt32("im_what", IM_JOIN_ROOM);
+					int32 im_what = IM_JOIN_ROOM;
+					if (flags & ROOM_AUTOCREATE) {
+						im_what = IM_CREATE_CHAT;
+						join.AddString("user_id", fileName);
+					}
+					join.AddInt32("im_what", im_what);
 					join.AddString("chat_id", fileName);
 					looper->PostMessage(&join);
 				}

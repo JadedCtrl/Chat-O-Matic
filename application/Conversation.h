@@ -68,9 +68,14 @@ public:
 	void				SetRole(BString id, Role* role);
 	Role*				GetRole(BString id);
 
+	int32				GetFlags(int32 flags) { return fRoomFlags; }
+
 private:
 	void				_LogChatMessage(BMessage* msg);
 	status_t			_GetChatLogs(BMessage* msg);
+
+	void				_CacheRoomFlags();
+	void				_LoadRoomFlags();
 
 	void				_EnsureCachePath();
 
