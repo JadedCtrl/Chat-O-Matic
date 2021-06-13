@@ -1,6 +1,7 @@
 /*
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
  * Copyright 2014, Funky Idea Software
+ * Copyright 2021, Jaidyn Levesque
  * Distributed under the terms of the MIT License.
  */
 #include <memory.h>
@@ -126,18 +127,40 @@ CayaCachePath()
 
 
 const char*
-CayaLogPath(const char* accountName)
+CayaAccountCachePath(const char* accountName)
 {
-	BPath path;
-	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
+	BPath path(CayaCachePath());
+	if (path.InitCheck() != B_OK)
 		return NULL;
-
-	path.Append("Caya/Logs");
 	path.Append(accountName);
 
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
+	return path.Path();
+}
 
+
+const char*
+CayaRoomsCachePath(const char* accountName)
+{
+	BPath path(CayaAccountCachePath(accountName));
+	if (path.InitCheck() != B_OK)
+		return NULL;
+	path.Append("Rooms");
+
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
+	return path.Path();
+}
+
+
+const char*
+CayaRoomCachePath(const char* accountName, const char* roomIdentifier)
+{
+	BPath path(CayaRoomsCachePath(accountName));
+	if (path.InitCheck() != B_OK)
+		return NULL;
+	path.Append(roomIdentifier);
 	return path.Path();
 }
 

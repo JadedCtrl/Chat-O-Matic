@@ -334,8 +334,8 @@ Conversation::_LogChatMessage(BMessage* msg)
 	newLogMsg.AddStrings("body", bodies);
 	newLogMsg.AddStrings("user_id", users);
 
-	BFile logFile(fLogPath.Path(), B_READ_WRITE | B_OPEN_AT_END | B_CREATE_FILE);
-	WriteAttributeMessage(&logFile, "logs", &newLogMsg);
+	BFile logFile(fCachePath.Path(), B_READ_WRITE | B_OPEN_AT_END | B_CREATE_FILE);
+	WriteAttributeMessage(&logFile, "Caya:logs", &newLogMsg);
 
 	// Plain-text logs
 	BString uname;
@@ -354,22 +354,22 @@ Conversation::_LogChatMessage(BMessage* msg)
 status_t
 Conversation::_GetChatLogs(BMessage* msg)
 {
-	_EnsureLogPath();
+	_EnsureCachePath();
 
-	BFile logFile(fLogPath.Path(), B_READ_WRITE | B_CREATE_FILE);
+	BFile logFile(fCachePath.Path(), B_READ_WRITE | B_CREATE_FILE);
 
 	return ReadAttributeMessage(&logFile, "logs", msg);
 }
 
 
 void
-Conversation::_EnsureLogPath()
+Conversation::_EnsureCachePath()
 {
-	if (fLogPath.InitCheck() == B_OK)
+	if (fCachePath.InitCheck() == B_OK)
 		return;
 
-	fLogPath.SetTo(CayaLogPath(fLooper->Protocol()->GetName()));
-	fLogPath.Append(fID);
+	fCachePath.SetTo(CayaRoomCachePath(fLooper->Protocol()->GetName(),
+									   fID.String()));
 }
 
 

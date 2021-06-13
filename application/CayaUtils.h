@@ -1,5 +1,7 @@
 /*
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2014, Funky Idea Software
+ * Copyright 2021, Jaidyn Levesque
  * Distributed under the terms of the MIT License.
  */
 #ifndef _CAYA_UTILS_H
@@ -22,7 +24,9 @@ const char*	CayaAccountPath(const char* signature);
 const char*	CayaAccountPath(const char* signature, const char* subsignature);
 
 const char* CayaCachePath();
-const char* CayaLogPath(const char* accountName);
+const char* CayaAccountCachePath(const char* accountName);
+const char* CayaRoomsCachePath(const char* accountName);
+const char* CayaRoomCachePath(const char* accountName, const char* roomIdentifier);
 
 rgb_color	CayaTintColor(rgb_color color, int severity);
 rgb_color	CayaForegroundColor(rgb_color background);

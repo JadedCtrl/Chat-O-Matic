@@ -25,6 +25,7 @@
 #include "CayaProtocol.h"
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
+#include "CayaUtils.h"
 #include "ImageCache.h"
 #include "InviteDialogue.h"
 #include "ProtocolLooper.h"
@@ -43,18 +44,8 @@ Server::Server()
 void
 Server::Quit()
 {
-	Contact* contact = NULL;
-	Conversation* conversation = NULL;
-
-//	while (contact = fRosterMap.ValueAt(0)) {
-//		contact->DeletePopUp();
-//		fRosterMap.RemoveItemAt(0);
-//	}
-
-//	while (conversation = fChatMap.ValueAt(0)) {
-//		fChatMap.RemoveItemAt(0);
-//		delete conversation;
-//	}
+	for (int i = 0; i < fLoopers.CountItems(); i++)
+		RemoveProtocolLooper(fLoopers.KeyAt(i));
 }
 
 
@@ -468,9 +459,11 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_PROTOCOL_READY:
 		{
+			// Ready notification
 			ProtocolLooper* looper = _LooperFromMessage(msg);
 			if (looper == NULL)
 				break;
+			CayaProtocol* proto = looper->Protocol();
 
 			BString content("%user% has connected!");
 			content.ReplaceAll("%user%", looper->Protocol()->GetName());
@@ -479,8 +472,21 @@ Server::ImMessage(BMessage* msg)
 			notification.SetGroup(BString("Caya"));
 			notification.SetTitle("Connected");
 			notification.SetContent(content);
-			notification.SetIcon(looper->Protocol()->Icon());
+			notification.SetIcon(proto->Icon());
 			notification.Send();
+
+			// Join cached rooms
+			BEntry entry;
+			char fileName[B_FILE_NAME_LENGTH] = {'\0'};
+			BDirectory dir(CayaRoomsCachePath(proto->GetName()));
+
+			while (dir.GetNextEntry(&entry, true) == B_OK)
+				if (entry.GetName(fileName) == B_OK) {
+					BMessage join(IM_MESSAGE);
+					join.AddInt32("im_what", IM_JOIN_ROOM);
+					join.AddString("chat_id", fileName);
+					looper->PostMessage(&join);
+				}
 			break;
 		}
 

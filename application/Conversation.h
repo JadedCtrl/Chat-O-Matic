@@ -71,7 +71,8 @@ public:
 private:
 	void				_LogChatMessage(BMessage* msg);
 	status_t			_GetChatLogs(BMessage* msg);
-	void				_EnsureLogPath();
+
+	void				_EnsureCachePath();
 
 	User*				_EnsureUser(BMessage* msg);
 
@@ -86,7 +87,7 @@ private:
 
 	BBitmap* fIcon;
 
-	BPath fLogPath;
+	BPath fCachePath;
 	BDateTimeFormat fDateFormatter;
 
 	UserMap fUsers;
