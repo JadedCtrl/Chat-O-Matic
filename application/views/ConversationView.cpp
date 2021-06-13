@@ -230,6 +230,11 @@ ConversationView::ObserveString(int32 what, BString str)
 {
 	switch (what)
 	{
+		case STR_ROOM_NAME:
+		{
+			fNameTextView->SetText(str);
+			break;
+		}
 		case STR_ROOM_SUBJECT:
 		{
 			fSubjectTextView->SetText(str);

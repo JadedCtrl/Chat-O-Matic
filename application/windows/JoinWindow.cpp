@@ -20,7 +20,7 @@ const uint32 kAccSelected = 'JWas';
 
 JoinWindow::JoinWindow(BMessenger* messenger, AccountInstances accounts)
 	:
-	BWindow(BRect(0, 0, 300, 100), "Join a room", B_FLOATING_WINDOW, 0),
+	BWindow(BRect(0, 0, 400, 100), "Join a room", B_FLOATING_WINDOW, 0),
 	fTarget(messenger),
 	fAccounts(accounts),
 	fSelectedAcc(0)
@@ -109,7 +109,10 @@ JoinWindow::_CreateAccountMenu()
 	menu->SetRadioMode(true);
 	menu->SetLabelFromMarked(true);
 	menu->ItemAt(fSelectedAcc)->SetMarked(true);
-		
+
+	if (fAccounts.CountItems() == 0)
+		menu->SetEnabled(false);
+
 	return menu;
 }
 
