@@ -19,6 +19,7 @@
 
 #include <CayaProtocolMessages.h>
 #include <Role.h>
+#include <RoomFlags.h>
 
 #include <gloox/chatstatefilter.h>
 #include <gloox/messageeventfilter.h>
@@ -150,7 +151,6 @@ JabberHandler::Process(BMessage* msg)
 			BString chat_id;
 			if (msg->FindString("chat_id", &chat_id) == B_OK)
 				_JoinRoom(chat_id.String());
-
 			break;
 		}
 
@@ -191,6 +191,37 @@ JabberHandler::Process(BMessage* msg)
 				break;
 
 			room->invite(gloox::JID(user_id.String()), "");
+			break;
+		}
+
+		case IM_GET_ROOM_PARTICIPANTS: {
+			BString chat_id = msg->FindString("chat_id");
+			gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
+
+			if (room != NULL)
+				room->getRoomItems();
+			else if (fUserChats.HasString(chat_id) == true) {
+				BMessage users(IM_MESSAGE);
+				users.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
+				users.AddString("user_id", chat_id);
+			}
+			break;
+		}
+
+		case IM_GET_ROOM_METADATA: {
+			BString chat_id = msg->FindString("chat_id");
+			gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
+			if (room != NULL)
+				room->getRoomInfo();
+			else if (fUserChats.HasString(chat_id) == true)
+			{
+				BMessage metadata(IM_MESSAGE);
+				metadata.AddInt32("im_what", IM_ROOM_METADATA);
+				metadata.AddString("chat_id", chat_id);
+				metadata.AddInt32("room_default_flags",
+					0 | ROOM_AUTOCREATE | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
+				metadata.AddInt32("room_disallowed_flags", 0 | ROOM_AUTOJOIN);
+			}
 			break;
 		}
 
@@ -797,6 +828,14 @@ JabberHandler::_StatusSetMsg(const char* user_id, gloox::Presence::PresenceType 
 }
 
 
+void
+JabberHandler::_EnsureUserChat(const char* chat_id)
+{
+	if (fUserChats.HasString(BString(chat_id)) == false)
+		fUserChats.Add(BString(chat_id));
+}
+
+
 status_t
 JabberHandler::_SetupAvatarCache()
 {
@@ -996,8 +1035,6 @@ JabberHandler::_JoinRoom(const char* chat_id)
 		room = new gloox::MUCRoom(fClient, gloox::JID(join_id.String()), this, this);
 
 	room->join();
-	room->getRoomItems();
-
 	fRooms.AddItem(BString(chat_id), room);
 }
 
@@ -1273,6 +1310,8 @@ JabberHandler::handleMessage(const gloox::Message& m, gloox::MessageSession*)
 	if (m.body() == "")
 		return;
 
+	_EnsureUserChat(m.from().bare().c_str());
+
 	// Notify that a chat message was received
 	BMessage msg(IM_MESSAGE);
 	msg.AddString("user_id", m.from().bare().c_str());
@@ -1298,6 +1337,8 @@ printf("------ %d\n", state);
 	// We're interested only in some states
 	if (state == gloox::ChatStateActive || state == gloox::ChatStateInvalid)
 		return;
+
+	_EnsureUserChat(from.bare().c_str());
 
 	BMessage msg(IM_MESSAGE);
 	msg.AddString("user_id", from.bare().c_str());
@@ -1459,6 +1500,16 @@ void
 JabberHandler::handleMUCInfo(gloox::MUCRoom *room, int features,
 							 const std::string &name, const gloox::DataForm *infoForm)
 {
+	BString chat_id = _MUCChatId(room);
+
+	BMessage metadata(IM_MESSAGE);
+	metadata.AddInt32("im_what", IM_ROOM_METADATA);
+	metadata.AddString("chat_id", chat_id);
+	metadata.AddString("chat_name", name.c_str());
+	metadata.AddInt32("room_default_flags",
+		0 | ROOM_AUTOJOIN | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
+	metadata.AddInt32("room_disallowed_flags", 0 | ROOM_AUTOCREATE);
+	_SendMessage(&metadata);
 }
 
 

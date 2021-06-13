@@ -292,6 +292,13 @@ Server::ImMessage(BMessage* msg)
 			chat->ImMessage(msg);
 			break;
 		}
+		case IM_ROOM_METADATA:
+		{
+			Conversation* chat = _EnsureConversation(msg);
+			if (chat != NULL)
+				chat->ImMessage(msg);
+			break;
+		}
 		case IM_ROOM_ROLECHANGED:
 		{
 			Conversation* chat = _EnsureConversation(msg);
@@ -773,6 +780,17 @@ Server::_EnsureConversation(BMessage* message)
 			item->SetProtocolLooper(looper);
 			item->AddUser(looper->ContactById(looper->GetOwnId()));
 			looper->AddConversation(item);
+
+			BMessage meta(IM_MESSAGE);
+			meta.AddInt32("im_what", IM_GET_ROOM_METADATA);
+			meta.AddString("chat_id", chat_id);
+
+			BMessage users(IM_MESSAGE);
+			users.AddInt32("im_what", IM_GET_ROOM_PARTICIPANTS);
+			users.AddString("chat_id", chat_id);
+
+			looper->MessageReceived(&meta);
+			looper->MessageReceived(&users);
 		}
 	}
 	return item;

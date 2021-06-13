@@ -31,7 +31,9 @@ Conversation::Conversation(BString id, BMessenger msgn)
 	fChatView(NULL),
 	fLooper(NULL),
 	fIcon(NULL),
-	fDateFormatter()
+	fDateFormatter(),
+	fRoomFlags(0),
+	fDisallowedFlags(0)
 {
 	fConversationItem = new ConversationItem(fName.String(), this);
 	RegisterObserver(fConversationItem);
@@ -81,6 +83,26 @@ Conversation::ImMessage(BMessage* msg)
 		case IM_SEND_MESSAGE:
 		{
 			fMessenger.SendMessage(msg);
+			break;
+		}
+		case IM_ROOM_METADATA:
+		{
+			BString name;
+			if (msg->FindString("chat_name", &name) == B_OK)
+				SetNotifyName(name.String());
+
+			BString subject;
+			if (msg->FindString("subject", &subject) == B_OK)
+				SetNotifySubject(subject.String());
+
+			int32 defaultFlags;
+			if (msg->FindInt32("room_default_flags", &defaultFlags) == B_OK)
+				if (fRoomFlags == 0)
+					fRoomFlags = defaultFlags;
+
+			int32 disabledFlags;
+			if (msg->FindInt32("room_disallowed_flags", &disabledFlags) == B_OK)
+					fDisallowedFlags = disabledFlags;
 			break;
 		}
 		case IM_ROOM_PARTICIPANT_JOINED:

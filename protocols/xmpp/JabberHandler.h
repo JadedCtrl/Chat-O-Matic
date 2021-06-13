@@ -1,5 +1,6 @@
 /*
  * Copyright 2010, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the GPL v2 License.
  */
 #ifndef _JABBER_HANDLER_H
@@ -8,6 +9,7 @@
 #include <Notification.h>
 #include <Path.h>
 #include <String.h>
+#include <StringList.h>
 
 #include <gloox/client.h>
 #include <gloox/chatstatehandler.h>
@@ -109,7 +111,9 @@ private:
 
 			gloox::JID				fJid;
 			thread_id				fRecvThread;
-			RoomMap					fRooms;
+
+			RoomMap					fRooms;		// Keylist of MUC rooms
+			BStringList				fUserChats;	// List of individual chats (non-gloox::MUCRooms)
 
 			BPath					fCachePath;
 			BPath					fAvatarCachePath;
@@ -119,8 +123,8 @@ private:
 			void					_SendMessage(BMessage* msg);
 			void					_MessageSent(const char* id, const char* subject,
 												const char* body);
-			void					_JoinRoom(const char* chat_id);
 
+			void					_JoinRoom(const char* chat_id);
 			void					_ChatCreatedMsg(const char* id);
 			void					_RoleChangedMsg(BString chat_id, BString user_id,
 													gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff);
@@ -130,6 +134,8 @@ private:
 
 			void					_Notify(notification_type type, const char* title, const char* message);
 			void					_NotifyProgress(const char* title, const char* message, float progress);
+
+			void					_EnsureUserChat(const char* chat_id);
 
 			status_t				_SetupAvatarCache();
 			status_t				_SaveAvatarCache();
@@ -202,7 +208,7 @@ private:
 class InviteHandler : public gloox::MUCInvitationHandler {
 public:
 									InviteHandler(gloox::ClientBase* parent, JabberHandler* handler);
-	void					handleMUCInvitation(const gloox::JID& room, const gloox::JID& from,
+			void					handleMUCInvitation(const gloox::JID& room, const gloox::JID& from,
 														const std::string& reason, const std::string& body,
 														const std::string& password, bool cont,
 														const std::string& thread);

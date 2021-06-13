@@ -90,6 +90,9 @@ private:
 	BPath fCachePath;
 	BDateTimeFormat fDateFormatter;
 
+	int32 fRoomFlags;
+	int32 fDisallowedFlags;
+
 	UserMap fUsers;
 	RoleMap fRoles;
 };

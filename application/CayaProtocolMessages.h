@@ -1,6 +1,7 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _CAYA_PROTOCOL_MESSAGES_H
@@ -100,7 +101,7 @@ enum im_what_code {
 	//	Requires:	String "user_id", Ref "ref"
 	IM_AVATAR_SET						= 61,
 
-	//!	Get contact information			→Caya
+	//!	Get contact information			→Protocol
 	IM_GET_CONTACT_INFO					= 62,
 
 	//!	Received contact information	→Caya
@@ -194,8 +195,13 @@ enum im_what_code {
 	 * Room membership
 	 */
 
-	//!	Create an individual chat
-	//	Requires:	String "user_id"	→Protocol
+	//!	Create an individual chat		→Protocol
+	//	Individual chats and rooms are really the same thing (at least according
+	//	to Caya)― the only difference is in how they're created and joined.
+	//	A "chat" should be uniquely tied to a single user, and its chat_id
+	//	should be derivable from the user's ID (when sent back from
+	//	CHAT_CREATED). It doesn't matter how you get this done, really.
+	//	Requires:	String "user_id"
 	IM_CREATE_CHAT						= 150,
 
 	//!	Chat has been created			→Caya
@@ -205,6 +211,7 @@ enum im_what_code {
 	//!	Join a room						→Protocol
 	//	Requires:	String "chat_id"
 	IM_JOIN_ROOM						= 152,
+
 
 	//!	Confirm the room's been joined	→Caya
 	//	Requires:	String "chat_id"
@@ -218,65 +225,83 @@ enum im_what_code {
 	//	Requires:	String "chat_id"
 	IM_ROOM_LEFT						= 155,
 
+	//! Request a room's userlist		→Protocol
+	//	Requires:	String "chat_id"
+	IM_GET_ROOM_PARTICIPANTS			= 156,
+
 	//!	Quietly add user(s) to the chat	→Caya
+	//	Shouldn't be sent automatically on joining a room.
 	//	Requires:	String "chat_id", StringList "user_id"
 	//	Accepts:	StringList "user_name"
-	IM_ROOM_PARTICIPANTS				= 156,
+	IM_ROOM_PARTICIPANTS				= 157,
 
 	//!	User has explicitly joined		→Caya
 	//	 Requires:	String "chat_id", String "user_id"
 	//	 Accepts:	String "body"
-	IM_ROOM_PARTICIPANT_JOINED			= 157,
+	IM_ROOM_PARTICIPANT_JOINED			= 158,
 
 	//!	A user left the room			→Caya
 	//	Requires:	String "chat_id", String "user_id"
 	//	Accepts:	String "user_name", String "body"
-	IM_ROOM_PARTICIPANT_LEFT			= 158,
+	IM_ROOM_PARTICIPANT_LEFT			= 159,
 
 	//!	Invite a user to a room			→Protocol
-	//	You can tell it succeded with ROOM_PARTICIPANT_JOINED
+	//	You can tell it succeded with IM_ROOM_PARTICIPANT_JOINED.
 	//	Requires:	String "chat_id", String "user_id"
 	//	Accepts:	String "body"
-	IM_ROOM_SEND_INVITE					= 159,
+	IM_ROOM_SEND_INVITE					= 160,
 
 	//!	Invitee explicitly refused		→Caya
 	//	Requires:	String "chat_id", String "user_id"
 	//	Accepts:	String "user_name", String "body"
-	IM_ROOM_INVITE_REFUSED				= 160,
+	IM_ROOM_INVITE_REFUSED				= 161,
 
 	//!	User was invited to a room		→Caya
 	//	Requires:	String "chat_id"
 	//	Accepts:	String "user_id", String "chat_name", String "body"
-	IM_ROOM_INVITE_RECEIVED				= 161,
+	IM_ROOM_INVITE_RECEIVED				= 162,
 
 	//!	User accepted an invite			→Protocol
 	//	Requires:	String "chat_id"
-	IM_ROOM_INVITE_ACCEPT				= 162,
+	IM_ROOM_INVITE_ACCEPT				= 163,
 
 	//!	User denies an invite			→Protocol
 	//	Requires:	String "chat_id"
-	IM_ROOM_INVITE_REFUSE				= 163,
+	IM_ROOM_INVITE_REFUSE				= 164,
 
 
 	/*
 	 * Room metadata
 	 */
 
+	//!	Request a room's metadata		→Protocol
+	//	Requires:	String "chat_id"
+	IM_GET_ROOM_METADATA				= 170,
+
+	//!	Receive room metadata			→Caya
+	//	The idea is that all other metadata-related messages should only be
+	//	called either from a request, or from a change.
+	//	This shouldn't be sent automatically upon joining a room.
+	//	Requires:	String "chat_id"
+	//	Allows:		String "chat_name", String "subject",
+	//				int32 "room_default_flags", int32 "room_disallowed_flags"
+	IM_ROOM_METADATA					= 171,
+
 	//!	Set the room name				→Protocol
 	//	Requires:	String "chat_id", String "chat_name"
-	IM_SET_ROOM_NAME					= 170,
+	IM_SET_ROOM_NAME					= 172,
 
-	//!	Room name changed				→Protocol
+	//!	Room name has changed			→Protocol
 	//	Requires:	String "chat_id", String "chat_name"
-	IM_ROOM_NAME_SET					= 171,
+	IM_ROOM_NAME_SET					= 173,
 
 	//!	Set the room subject			→Caya
 	//	Requires:	String "chat_id", String "subject"
-	IM_SET_ROOM_SUBJECT					= 172,
+	IM_SET_ROOM_SUBJECT					= 174,
 
-	//!	Subject has been set			→Caya
+	//!	Subject has been changed		→Caya
 	//	Requires:	String "chat_id", String "subject"
-	IM_ROOM_SUBJECT_SET					= 173,
+	IM_ROOM_SUBJECT_SET					= 175,
 
 
 	/*
@@ -302,25 +327,29 @@ enum im_what_code {
 
 	//!	A user was banned				→Caya
 	//	Requires:	String "chat_id", String "user_id"
-	//	Accepts:		String "user_name", String "body"
+	//	Accepts:	String "user_name", String "body"
 	IM_ROOM_PARTICIPANT_BANNED			= 194,
 
 	//!	Unban user →Protocol
 	IM_ROOM_UNBAN_PARTICIPANT			= 195,
 
 	//!	Mute user						→Protocol
+	//	The result of this can be seen with IM_ROOM_ROLECHANGED.
 	//	Requires:	String "chat_id", String "user_id"
 	IM_ROOM_MUTE_PARTICIPANT			= 196,
 
 	//!	Unmute user						→Protocol
+	//	The result of this can be seen with IM_ROOM_ROLECHANGED.
 	//	Requires:	String "chat_id", String "user_id"
 	IM_ROOM_UNMUTE_PARTICIPANT			= 197,
 
 	//!	Deafen							→Protocol
+	//	The result of this can be seen with IM_ROOM_ROLECHANGED.
 	//	Requires:	String "chat_id", String "user_id"
 	IM_ROOM_DEAFEN_PARTICIPANT			= 198,
 
 	//!	Allow to read messages			→Protocol
+	//	The result of this can be seen with IM_ROOM_ROLECHANGED.
 	//	Requires:	String "chat_id", String "user_id"
 	IM_ROOM_UNDEAFEN_PARTICIPANT		= 199,
 
@@ -339,4 +368,6 @@ enum im_what_code {
 	IM_PROTOCOL_READY					= 1002
 };
 
+
 #endif	// _CAYA_PROTOCOL_MESSAGES_H
+
