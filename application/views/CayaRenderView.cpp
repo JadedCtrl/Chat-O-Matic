@@ -8,14 +8,17 @@
 
 CayaRenderView::CayaRenderView(const char *name,  const char* smileyConfig)
 	:
-	RunView(BRect(0, 0, 1, 1), name, fTheme = new Theme(name, COL_MAX_COLORS + 1, COL_MAX_COLORS + 1, MAX_RENDERS + 1), B_FOLLOW_ALL, B_WILL_DRAW )
+	RunView(BRect(0, 0, 1, 1), name,
+			fTheme = new Theme(name, COL_MAX_COLORS + 1, COL_MAX_COLORS + 1,
+							   MAX_RENDERS + 1),
+			B_FOLLOW_ALL, B_WILL_DRAW)
 {
 	if (smileyConfig)
 		Emoticor::Get()->LoadConfig(smileyConfig);
 
 	PrepareTheme(fTheme);
 
-	SetTimeStampFormat(NULL);
+	SetTimeStampFormat("[%H:%M]");
 	if ( IsHidden() )
 		Show();
 	ScrollToBottom();
@@ -29,7 +32,7 @@ CayaRenderView::AppendMessage(const char* nick, const char* message,
 	rgb_color bg = ui_color(B_PANEL_BACKGROUND_COLOR);
 	rgb_color fg = ui_color(B_PANEL_TEXT_COLOR);
 
-	Append("<", nameColor, bg, nameColor);
+	Append("<", nameColor, bg, nameColor, time(NULL));
 	Append(nick, fg, bg, fg);
 	Append("> ", nameColor, bg, nameColor);
 //	AddEmoticText(message, fg, bg);
@@ -45,7 +48,7 @@ CayaRenderView::AppendGenericMessage(const char* message)
 	rgb_color bg = ui_color(B_PANEL_BACKGROUND_COLOR);
 	rgb_color fg = ui_color(B_PANEL_TEXT_COLOR);
 
-	Append(message, fg, bg, fg);
+	Append(message, fg, bg, fg, time(NULL));
 	ScrollToSelection();
 }
 

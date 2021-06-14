@@ -129,7 +129,8 @@ struct Line {
 	int				fSoftie_used;
 
 	Line(const char* buffer, int fLength, float top, float width, Theme* fTheme,
-		 const char* fStamp_format, rgb_color fore, rgb_color back, rgb_color font);
+		 const char* fStamp_format, time_t fStamp, rgb_color fore, rgb_color back,
+		 rgb_color font);
 
 					~Line ();
 
@@ -1237,15 +1238,15 @@ RunView::RecalcScrollBar(bool constrain)
 
 void
 RunView::Append(const char* buffer, rgb_color fore, rgb_color back,
-				rgb_color font)
+				rgb_color font, time_t time)
 {
-	Append(buffer, strlen(buffer), fore, back, font);
+	Append(buffer, strlen(buffer), fore, back, font, time);
 }
 
 
 void
 RunView::Append(const char* buffer, int32 len, rgb_color fore, rgb_color back,
-				rgb_color font)
+				rgb_color font, time_t time)
 {
 	if (buffer == NULL)
 		return;
@@ -1290,9 +1291,8 @@ RunView::Append(const char* buffer, int32 len, rgb_color fore, rgb_color back,
 			if (fLine_count > 0)
 				top = fLines[fLine_count - 1]->fBottom + (float) 1.0;
 
-			//HERE
 			fWorking = new Line(buffer + place, 0, top, width, fTheme,
-								fStamp_format, fore, back, font);
+								fStamp_format, time, fore, back, font);
 
 			URLCrunch crunch(buffer + place, end - place);
 			BString temp;
@@ -1745,10 +1745,11 @@ void RunView::ScrollToSelection()
 
 
 Line::Line(const char* buffer, int len, float top, float width, Theme* theme,
-		   const char* stamp_format, rgb_color fore, rgb_color back, rgb_color font)
+		   const char* stamp_format, time_t stamp_time, rgb_color fore,
+		   rgb_color back, rgb_color font)
 	:
 	fText(NULL),
-	fStamp(time(NULL)),
+	fStamp(stamp_time),
 	fUrls(NULL),
 	fSpaces(NULL),
 	fEdges(NULL),
@@ -2264,17 +2265,30 @@ Line::SetStamp(const char* format, bool was_on)
 		char buffer[1024];
 		struct tm curTime;
 
-		localtime_r (&fStamp, &curTime);
-		size = strftime (buffer, 1023, format, &curTime);
+		localtime_r(&fStamp, &curTime);
+
+		// If no time specified, subsitute times with "x"
+		if (fStamp == 0) {
+			curTime.tm_hour, curTime.tm_min, curTime.tm_sec = 0;
+			BString newFormat(format);
+			newFormat.ReplaceAll("%H", "xx");
+
+			size = strftime(buffer, 1023, newFormat.String(), &curTime);
+
+			const char* newBuffer = BString(buffer).ReplaceAll("0", "x").String();
+			memcpy(buffer, newBuffer, size);
+		}
+		else
+			size = strftime (buffer, 1023, format, &curTime);
+
 		if (fUrls) {
 			for (i = 0; i < fUrls->CountItems(); i++)
 				fUrls->ItemAt(i)->fOffset += size;
 		}
 
 		char* new_fText;
-
-		new_fText = new char [fLength + size + 2];
-		memcpy (new_fText, buffer, size);
+		new_fText = new char[fLength + size + 2];
+		memcpy(new_fText, buffer, size);
 		new_fText[size++] = ' ';
 		new_fText[size] = '\0';
 
@@ -2299,25 +2313,31 @@ Line::SetStamp(const char* format, bool was_on)
 		fFcs = new_fFcs;
 		fFc_count += 6;
 
-		fFcs[0].fWhich  = FORE_WHICH;
-		fFcs[0].fIndex  = Theme::TimestampFore;
-		fFcs[0].fOffset  = 0;
-		fFcs[1].fWhich  = BACK_WHICH;
-		fFcs[1].fIndex  = Theme::TimestampBack;
-		fFcs[1].fOffset  = 0;
-		fFcs[2].fWhich  = FONT_WHICH;
-		fFcs[2].fIndex  = Theme::TimestampFont;
-		fFcs[2].fOffset  = 0;
+		fFcs[0].fWhich	= FORE_WHICH;
+		fFcs[0].fColor	= ui_color(B_LINK_HOVER_COLOR);
+		fFcs[0].fIndex	= Theme::TimestampFore;
+		fFcs[0].fOffset	= 0;
+		fFcs[1].fWhich	= BACK_WHICH;
+		fFcs[1].fColor	= ui_color(B_PANEL_BACKGROUND_COLOR);
+		fFcs[1].fIndex	= Theme::TimestampBack;
+		fFcs[1].fOffset	= 0;
+		fFcs[2].fWhich	= FONT_WHICH;
+		fFcs[2].fColor	= ui_color(B_PANEL_BACKGROUND_COLOR);
+		fFcs[2].fIndex	= Theme::TimestampFont;
+		fFcs[2].fOffset	= 0;
 
-		fFcs[3].fWhich  = FORE_WHICH;
-		fFcs[3].fIndex  = Theme::TimespaceFore;
-		fFcs[3].fOffset  = size - 1;
-		fFcs[4].fWhich  = BACK_WHICH;
-		fFcs[4].fIndex  = Theme::TimespaceBack;
-		fFcs[4].fOffset  = size - 1;
-		fFcs[5].fWhich  = FONT_WHICH;
-		fFcs[5].fIndex  = Theme::TimespaceFont;
-		fFcs[5].fOffset  = size - 1;
+		fFcs[3].fWhich	= FORE_WHICH;
+		fFcs[0].fColor	= ui_color(B_LINK_HOVER_COLOR);
+		fFcs[3].fIndex	= Theme::TimespaceFore;
+		fFcs[3].fOffset	= size - 1;
+		fFcs[4].fWhich	= BACK_WHICH;
+		fFcs[4].fColor	= ui_color(B_PANEL_BACKGROUND_COLOR);
+		fFcs[4].fIndex	= Theme::TimespaceBack;
+		fFcs[4].fOffset	= size - 1;
+		fFcs[5].fWhich	= FONT_WHICH;
+		fFcs[5].fColor	= ui_color(B_PANEL_BACKGROUND_COLOR);
+		fFcs[5].fIndex	= Theme::TimespaceFont;
+		fFcs[5].fOffset	= size - 1;
 
 		for (i = 6; i < fFc_count; ++i)
 			fFcs[i].fOffset += size;
