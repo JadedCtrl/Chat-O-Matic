@@ -55,17 +55,16 @@ enum im_what_code {
 
 	//!	Chat message has been sent		→Caya
 	//	Requires:	String "chat_id", String "user_id", String "body"
-	//	Accepts:	String "subject"
 	IM_MESSAGE_SENT						= 21,
 
 	//!	Chat message received			→Caya
 	//	Requires:	String "chat_id", String "user_id", String "body"
-	//	Accepts:	String "subject"
 	IM_MESSAGE_RECEIVED					= 22,
 
 	//!	Logs received					→Caya
-	//	Requires:	String "chat_id", String "user_id", String "body"
-	//	Accepts:	String "subject"
+	//	Without "when" (a time_t), the logged message will lack a timestamp
+	//	Requires:	Strings "chat_id", Strings "user_id", Strings "body"
+	//	Accepts:	in64s "when"
 	IM_LOGS_RECEIVED					= 23,
 
 	//!	User started typing				→Caya

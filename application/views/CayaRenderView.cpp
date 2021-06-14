@@ -27,12 +27,12 @@ CayaRenderView::CayaRenderView(const char *name,  const char* smileyConfig)
 
 void
 CayaRenderView::AppendMessage(const char* nick, const char* message,
-							  rgb_color nameColor)
+							  rgb_color nameColor, time_t time)
 {
 	rgb_color bg = ui_color(B_PANEL_BACKGROUND_COLOR);
 	rgb_color fg = ui_color(B_PANEL_TEXT_COLOR);
 
-	Append("<", nameColor, bg, nameColor, time(NULL));
+	Append("<", nameColor, bg, nameColor, time);
 	Append(nick, fg, bg, fg);
 	Append("> ", nameColor, bg, nameColor);
 //	AddEmoticText(message, fg, bg);

@@ -342,11 +342,19 @@ Conversation::_LogChatMessage(BMessage* msg)
 	// Binary logs
 	// TODO: Don't hardcode 21, expose maximum as a setting
 	BStringList users, bodies;
+	int64 times[21] = { 0 };
+	times[0] = (int64)time(NULL);
 
 	BMessage logMsg;
 	if (_GetChatLogs(&logMsg) == B_OK) {
 		logMsg.FindStrings("body", &bodies);
 		logMsg.FindStrings("user_id", &users);
+
+		int64 found;
+		for (int i = 0; i < 21; i++)
+			if (logMsg.FindInt64("when", i, &found) == B_OK)
+				times[i + 1] = found;
+
 		bodies.Remove(21);
 		users.Remove(21);
 		bodies.Add(body, 0);
@@ -357,6 +365,9 @@ Conversation::_LogChatMessage(BMessage* msg)
 	newLogMsg.AddInt32("im_what", IM_LOGS_RECEIVED);
 	newLogMsg.AddStrings("body", bodies);
 	newLogMsg.AddStrings("user_id", users);
+	newLogMsg.AddInt64("when", time(NULL));
+	for (int i = 0; i < 21; i++)
+		newLogMsg.AddInt64("when", times[i]);
 
 	BFile logFile(fCachePath.Path(), B_READ_WRITE | B_OPEN_AT_END | B_CREATE_FILE);
 	WriteAttributeMessage(&logFile, "Caya:logs", &newLogMsg);
@@ -382,7 +393,7 @@ Conversation::_GetChatLogs(BMessage* msg)
 
 	BFile logFile(fCachePath.Path(), B_READ_WRITE | B_CREATE_FILE);
 
-	return ReadAttributeMessage(&logFile, "logs", msg);
+	return ReadAttributeMessage(&logFile, "Caya:logs", msg);
 }
 
 
@@ -415,7 +426,6 @@ Conversation::_EnsureCachePath()
 {
 	if (fCachePath.InitCheck() == B_OK)
 		return;
-
 	fCachePath.SetTo(CayaRoomCachePath(fLooper->Protocol()->GetName(),
 									   fID.String()));
 }

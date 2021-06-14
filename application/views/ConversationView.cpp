@@ -316,6 +316,10 @@ ConversationView::_AppendMessage(BMessage* msg)
 		BString sender_name = users.StringAt(i);
 		BString body = bodies.StringAt(i);
 		rgb_color userColor = ui_color(B_PANEL_TEXT_COLOR);
+		int64 timeInt;
+
+		if (msg->FindInt64("when", i, &timeInt) != B_OK)
+			timeInt = (int64)time(NULL);
 
 		if (sender != NULL) {
 			sender_name = sender->GetName();
@@ -327,7 +331,8 @@ ConversationView::_AppendMessage(BMessage* msg)
 			continue;
 		}
 
-		fReceiveView->AppendMessage(sender_name.String(), body.String(), userColor);
+		fReceiveView->AppendMessage(sender_name.String(), body.String(),
+									userColor, (time_t)timeInt);
 	}
 }
 
