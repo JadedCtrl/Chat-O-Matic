@@ -1,6 +1,7 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _CAYA_PROTOCOL_H
@@ -8,13 +9,17 @@
 
 #include <Messenger.h>
 
+#include "ChatCommand.h"
+
 class BBitmap;
+
 
 // Caya protocol interface version
 #define CAYA_VERSION_1_PRE_ALPHA_1		0x00000001
 #define CAYA_VERSION_1_ALPHA_1			0x00000100
 
 #define CAYA_VERSION 					CAYA_VERSION_1_PRE_ALPHA_1
+
 
 class CayaProtocolMessengerInterface {
 public:
@@ -47,9 +52,6 @@ public:
 	//! Protocol icon
 	virtual BBitmap* Icon() const = 0;
 
-	//! Use local logs to populate chat
-	virtual bool SaveLogs() const = 0;
-
 	//! Add-on's path
 	virtual void SetAddOnPath(BPath path) = 0;
 	virtual BPath AddOnPath() = 0;
@@ -63,6 +65,9 @@ public:
 
 	//! Messenger interface used
 	virtual CayaProtocolMessengerInterface* MessengerInterface() const = 0;
+
+	//! Return a map of any custom commands
+	virtual CommandMap Commands() = 0;
 };
 
 #endif	// _CAYA_PROTOCOL_H

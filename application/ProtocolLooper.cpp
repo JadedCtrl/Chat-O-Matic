@@ -24,7 +24,8 @@ ProtocolLooper::ProtocolLooper(CayaProtocol* protocol, int64 instance)
 	BLooper(),
 	fProtocol(protocol),
 	fInstance(instance),
-	fListItem(NULL)
+	fListItem(NULL),
+	fCommands(protocol->Commands())
 {
 	Account* account = reinterpret_cast<Account*>(
 		protocol->MessengerInterface());

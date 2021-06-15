@@ -24,6 +24,8 @@ public:
 	KEY			KeyAt(uint32 position) const;
 	TYPE		ValueAt(uint32 position) const;
 
+	void		AddList(KeyMap<KEY, TYPE> appendList);
+
 	List<TYPE>	Values() const;
 
 private:
@@ -111,6 +113,17 @@ KeyMap<KEY, TYPE>::ValueAt(uint32 position) const
 	if (i == fMap.end())
 		return NULL;
 	return i->second;
+}
+
+
+template<class KEY, class TYPE>
+inline void
+KeyMap<KEY, TYPE>::AddList(KeyMap<KEY, TYPE> appendList)
+{
+	if (appendList.CountItems() == 0)
+		return;
+	for (int i = 0; i < appendList.CountItems(); i++)
+		AddItem(appendList.KeyAt(i), appendList.ValueAt(i));
 }
 
 

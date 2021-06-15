@@ -34,6 +34,7 @@
 
 #include <CayaProtocol.h>
 #include <CayaConstants.h>
+#include <ChatCommand.h>
 #include <libsupport/KeyMap.h>
 
 class BList;
@@ -70,9 +71,9 @@ public:
 
 	virtual	status_t				UpdateSettings(BMessage* msg);
 
-	virtual	uint32					GetEncoding();
+	virtual	CommandMap				Commands();
 
-	virtual bool					SaveLogs() const { return true; }
+	virtual	uint32					GetEncoding();
 
 	virtual CayaProtocolMessengerInterface*
 									MessengerInterface() const;

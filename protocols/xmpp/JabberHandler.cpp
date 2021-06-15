@@ -341,6 +341,13 @@ JabberHandler::UpdateSettings(BMessage* msg)
 }
 
 
+CommandMap
+JabberHandler::Commands()
+{
+	return CommandMap();
+}
+
+
 uint32
 JabberHandler::GetEncoding()
 {

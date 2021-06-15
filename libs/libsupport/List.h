@@ -20,6 +20,8 @@ public:
 
 	T		ItemAt(uint32 position);
 
+	void	AddList(List<T> appendList);
+
 private:
 	std::list<T> fList;
 	typedef typename std::list<T>::iterator fIter;
@@ -56,5 +58,16 @@ T List<T>::ItemAt(uint32 position)
 	std::advance(i, position); 	
 	return *i;
 }
+
+
+template<class T>
+void List<T>::AddList(List<T> appendList)
+{
+	if (appendList.CountItems() == 0)
+		return;
+	for (int i = 0; i < appendList.CountItems(); i++)
+		AddItem(appendList.ItemAt(i));
+}
+
 
 #endif	// _LIST_H

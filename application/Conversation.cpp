@@ -20,6 +20,7 @@
 #include "NotifyMessage.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
+#include "RoomFlags.h"
 #include "Server.h"
 #include "TheApp.h"
 
@@ -264,7 +265,7 @@ Conversation::GetView()
 
 	fChatView = new ConversationView(this);
 
-	if (fLooper->Protocol()->SaveLogs() == false)
+	if (!(fRoomFlags & ROOM_POPULATE_LOGS))
 		return fChatView;
 
 	BMessage logMsg;

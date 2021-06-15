@@ -134,9 +134,13 @@ Server::Filter(BMessage* message, BHandler **target)
 				}
 			}
 			else {
+				CommandMap combinedCmds;
+				combinedCmds.AddList(fCommands);
+				combinedCmds.AddList(chat->GetProtocolLooper()->Commands());
+
 				body << "** Commands: ";
-				for (int i = 0; i < fCommands.CountItems(); i++) {
-					ChatCommand* cmd = fCommands.ValueAt(i);
+				for (int i = 0; i < combinedCmds.CountItems(); i++) {
+					ChatCommand* cmd = combinedCmds.ValueAt(i);
 					if (i > 0)	body << ", ";
 					body << cmd->GetName();
 				}
@@ -649,10 +653,7 @@ Server::Contacts() const
 	for (int i = 0; i < fAccounts.CountItems(); i++) {
 		ProtocolLooper* fruitLoop = fLoopers.ValueFor(fAccounts.ValueAt(i));
 		if (fruitLoop == NULL)	continue;
-
-		RosterMap accContacts = fruitLoop->Contacts();
-		for (int i = 0; i < accContacts.CountItems(); i++)
-			contacts.AddItem(accContacts.KeyAt(i), accContacts.ValueAt(i));
+		contacts.AddList(fruitLoop->Contacts());
 	}
 
 	return contacts;
@@ -686,10 +687,7 @@ Server::Users() const
 	for (int i = 0; i < fAccounts.CountItems(); i++) {
 		ProtocolLooper* fruitLoop = fLoopers.ValueFor(fAccounts.ValueAt(i));
 		if (fruitLoop == NULL)	continue;
-
-		UserMap accUsers = fruitLoop->Users();
-		for (int i = 0; i < accUsers.CountItems(); i++)
-			users.AddItem(accUsers.KeyAt(i), accUsers.ValueAt(i));
+		users.AddList(fruitLoop->Users());
 	}
 
 	return users;
@@ -724,10 +722,7 @@ Server::Conversations() const
 	for (int i = 0; i < fAccounts.CountItems(); i++) {
 		ProtocolLooper* fruitLoop = fLoopers.ValueFor(fAccounts.ValueAt(i));
 		if (fruitLoop == NULL)	continue;
-
-		ChatMap accChats = fruitLoop->Conversations();
-		for (int i = 0; i < accChats.CountItems(); i++)
-			chats.AddItem(accChats.KeyAt(i), accChats.ValueAt(i));
+		chats.AddList(fruitLoop->Conversations());
 	}
 
 	return chats;
@@ -761,10 +756,7 @@ Server::Commands()
 	for (int i = 0; i < fAccounts.CountItems(); i++) {
 		ProtocolLooper* fruitLoop = fLoopers.ValueFor(fAccounts.ValueAt(i));
 		if (fruitLoop == NULL)	continue;
-
-		CommandMap cmds = fruitLoop->Commands();
-		for (int i = 0; i < cmds.CountItems(); i++)
-			commands.AddItem(cmds.KeyAt(i), cmds.ValueAt(i));
+		commands.AddList(fruitLoop->Commands());
 	}
 	return fCommands;
 }
