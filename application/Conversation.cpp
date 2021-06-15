@@ -94,7 +94,7 @@ Conversation::ImMessage(BMessage* msg)
 
 			BString name = CommandName(body);
 			BString args = CommandArgs(body);
-			ChatCommand* cmd = _GetServer()->CommandById(name);
+			ChatCommand* cmd = _GetServer()->CommandById(name, fLooper->GetInstance());
 
 			if (cmd == NULL) {
 				_WarnUser(BString("That isn't a valid command. Try /help for a list."));

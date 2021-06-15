@@ -117,13 +117,14 @@ Server::Filter(BMessage* message, BHandler **target)
 		{
 			BString body;
 			BString cmd_name = message->FindString("misc_str");
+			int64 instance = message->FindInt64("instance");
 			Conversation* chat = _EnsureConversation(message);
 
 			if (chat == NULL)
 				break;
 
 			if (cmd_name.IsEmpty() == false) {
-				ChatCommand* cmd = CommandById(cmd_name);
+				ChatCommand* cmd = CommandById(cmd_name, instance);
 				if (cmd == NULL)
 					body = "-- That command doesn't exist. Try '/help' for a "
 						   "list.\n";
@@ -682,7 +683,6 @@ UserMap
 Server::Users() const
 {
 	UserMap users;
-
 	for (int i = 0; i < fAccounts.CountItems(); i++) {
 		ProtocolLooper* fruitLoop = fLoopers.ValueFor(fAccounts.ValueAt(i));
 		if (fruitLoop == NULL)	continue;
@@ -757,14 +757,29 @@ Server::AddConversation(Conversation* chat, int64 instance)
 CommandMap
 Server::Commands()
 {
+	CommandMap commands = fCommands;
+	for (int i = 0; i < fAccounts.CountItems(); i++) {
+		ProtocolLooper* fruitLoop = fLoopers.ValueFor(fAccounts.ValueAt(i));
+		if (fruitLoop == NULL)	continue;
+
+		CommandMap cmds = fruitLoop->Commands();
+		for (int i = 0; i < cmds.CountItems(); i++)
+			commands.AddItem(cmds.KeyAt(i), cmds.ValueAt(i));
+	}
 	return fCommands;
 }
 
 
 ChatCommand*
-Server::CommandById(BString id)
+Server::CommandById(BString id, int64 instance)
 {
-	return fCommands.ValueFor(id);
+	ProtocolLooper* looper = fLoopers.ValueFor(instance);
+	ChatCommand* result = NULL;
+	if (looper != NULL)
+		result = looper->CommandById(id);
+	if (result == NULL)
+		result = fCommands.ValueFor(id);
+	return result;
 }
 
 

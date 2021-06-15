@@ -60,7 +60,7 @@ public:
 			void			AddConversation(Conversation* chat, int64 instance);
 
 			CommandMap		Commands();
-			ChatCommand*	CommandById(BString id);
+			ChatCommand*	CommandById(BString id, int64 instance);
 
 private:
 			ProtocolLooper*	_LooperFromMessage(BMessage* message);

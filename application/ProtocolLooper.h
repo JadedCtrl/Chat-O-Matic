@@ -1,7 +1,7 @@
 /*
- * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _PROTOCOL_LOOPER_H
@@ -13,6 +13,7 @@
 #include <libsupport/KeyMap.h>
 
 #include "CayaProtocol.h"
+#include "ChatCommand.h"
 
 class Contact;
 class Conversation;
@@ -47,6 +48,9 @@ public:
 			User*			UserById(BString id);
 			void			AddUser(User* user);
 
+			CommandMap		Commands() const;
+			ChatCommand*	CommandById(BString id);
+
 			BString			GetOwnId();
 			void			SetOwnId(BString user_id);
 
@@ -64,6 +68,7 @@ private:
 			ChatMap			fChatMap;
 			RosterMap		fRosterMap;
 			UserMap			fUserMap;
+			CommandMap		fCommands;
 
 			ConversationAccountItem*
 							fListItem;
