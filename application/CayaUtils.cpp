@@ -61,8 +61,9 @@ BString
 CommandArgs(BString line)
 {
 	BString remove("/");
-	remove << CommandName(line) << " ";
-	return line.RemoveFirst(remove);
+	remove << CommandName(line) << "";
+	line.RemoveFirst(remove);
+	return line.Trim();
 }
 
 

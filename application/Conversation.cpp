@@ -97,7 +97,7 @@ Conversation::ImMessage(BMessage* msg)
 			ChatCommand* cmd = _GetServer()->CommandById(name);
 
 			if (cmd == NULL) {
-				_WarnUser(BString("That isn't a valid command."));
+				_WarnUser(BString("That isn't a valid command. Try /help for a list."));
 				break;
 			}
 
@@ -369,6 +369,9 @@ Conversation::_LogChatMessage(BMessage* msg)
 
 	BString id = msg->FindString("user_id");
 	BString body = msg->FindString("body");
+
+	if (id.IsEmpty() == true)
+		return;
 
 	// Binary logs
 	// TODO: Don't hardcode 21, expose maximum as a setting

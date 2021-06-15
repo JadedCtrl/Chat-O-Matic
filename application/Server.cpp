@@ -109,8 +109,43 @@ Server::Filter(BMessage* message, BHandler **target)
 				result = B_SKIP_MESSAGE;
 				break;
 			}
-
 			RemoveProtocolLooper(instance);
+			break;
+		}
+
+		case CAYA_REQUEST_HELP:
+		{
+			BString body;
+			BString cmd_name = message->FindString("misc_str");
+			Conversation* chat = _EnsureConversation(message);
+
+			if (chat == NULL)
+				break;
+
+			if (cmd_name.IsEmpty() == false) {
+				ChatCommand* cmd = CommandById(cmd_name);
+				if (cmd == NULL)
+					body = "-- That command doesn't exist. Try '/help' for a "
+						   "list.\n";
+				else {
+					body = "** ";
+					body << cmd->GetName() << " ― " << cmd->GetDesc() << "\n";
+				}
+			}
+			else {
+				body << "** Commands: ";
+				for (int i = 0; i < fCommands.CountItems(); i++) {
+					ChatCommand* cmd = fCommands.ValueAt(i);
+					if (i > 0)	body << ", ";
+					body << cmd->GetName();
+				}
+				body << "\n";
+			}
+			BMessage* help = new BMessage(IM_MESSAGE);
+			help->AddInt32("im_what", IM_MESSAGE_RECEIVED);
+			help->AddString("body", body);
+			help->AddInt64("when", 0);
+			chat->ImMessage(help);
 			break;
 		}
 
@@ -911,6 +946,11 @@ Server::_InitDefaultCommands()
 	ChatCommand* invite = new ChatCommand("invite", inviteMsg, true, knownUser);
 	invite->SetDesc("Invite a user to the current room.");
 	fCommands.AddItem("invite", invite);
+
+	BMessage helpMsg(CAYA_REQUEST_HELP);
+	ChatCommand* help = new ChatCommand("help", helpMsg, false, List<int>());
+	help->SetDesc("List all current commands, or get help for certain command.");
+	fCommands.AddItem("help", help);
 }
 
 

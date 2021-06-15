@@ -44,7 +44,10 @@ const uint32 CAYA_MOVE_UP = 'CYmu';
 //! Select the downward conversation
 const uint32 CAYA_MOVE_DOWN = 'CYmd';
 
-//! Select the downward conversation
+//! Disable a given account
 const uint32 CAYA_DISABLE_ACCOUNT = 'CYda';
+
+//! Request a "help" message
+const uint32 CAYA_REQUEST_HELP = 'CYhm';
 
 #endif	// _CAYA_MESSAGES_H
