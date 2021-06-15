@@ -71,6 +71,8 @@ public:
 	int32				GetFlags(int32 flags) { return fRoomFlags; }
 
 private:
+	void				_WarnUser(BString message);
+
 	void				_LogChatMessage(BMessage* msg);
 	status_t			_GetChatLogs(BMessage* msg);
 
@@ -78,8 +80,9 @@ private:
 	void				_LoadRoomFlags();
 
 	void				_EnsureCachePath();
-
 	User*				_EnsureUser(BMessage* msg);
+
+	Server*				_GetServer();
 
 	BMessenger	fMessenger;
 	ProtocolLooper*	fLooper;

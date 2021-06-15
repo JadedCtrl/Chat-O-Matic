@@ -13,6 +13,7 @@
 #include "CayaProtocolMessages.h"
 #include "CayaRenderView.h"
 #include "CayaUtils.h"
+#include "ChatCommand.h"
 #include "ConversationItem.h"
 #include "ConversationView.h"
 #include "MainWindow.h"
@@ -82,7 +83,27 @@ Conversation::ImMessage(BMessage* msg)
 		}
 		case IM_SEND_MESSAGE:
 		{
-			fMessenger.SendMessage(msg);
+			BString body;
+			if (msg->FindString("body", &body) != B_OK)
+				break;
+
+			if (IsCommand(body.String()) == false) {
+				fMessenger.SendMessage(msg);
+				break;
+			}
+
+			BString name = CommandName(body);
+			BString args = CommandArgs(body);
+			ChatCommand* cmd = _GetServer()->CommandById(name);
+
+			if (cmd == NULL) {
+				_WarnUser(BString("That isn't a valid command."));
+				break;
+			}
+
+			BString error("");
+			if (cmd->Parse(args, &error, this) == false)
+				_WarnUser(error);
 			break;
 		}
 		case IM_ROOM_METADATA:
@@ -331,6 +352,16 @@ Conversation::GetRole(BString id)
 
 
 void
+Conversation::_WarnUser(BString message)
+{
+	BMessage* warning = new BMessage(IM_MESSAGE);
+	warning->AddInt32("im_what", IM_MESSAGE_RECEIVED);
+	warning->AddString("body", message.Append('\n', 1).InsertChars("-- ", 0));
+	GetView()->MessageReceived(warning);
+}
+
+
+void
 Conversation::_LogChatMessage(BMessage* msg)
 {
 	BString date;
@@ -449,8 +480,7 @@ Conversation::_EnsureUser(BMessage* msg)
 	}
 	// Not anywhere; create user
 	else if (user == NULL) {
-		user = new User(id,
-			((TheApp*)be_app)->GetMainWindow()->GetServer()->Looper());
+		user = new User(id, _GetServer()->Looper());
 		user->SetProtocolLooper(fLooper);
 
 		fLooper->AddUser(user);
@@ -463,6 +493,13 @@ Conversation::_EnsureUser(BMessage* msg)
 	}
 	user->RegisterObserver(this);
 	return user;
+}
+
+
+Server*
+Conversation::_GetServer()
+{
+	return ((TheApp*)be_app)->GetMainWindow()->GetServer();
 }
 
 

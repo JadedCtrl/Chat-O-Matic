@@ -12,6 +12,7 @@
 #include <libsupport/KeyMap.h>
 
 #include "CayaConstants.h"
+#include "ChatCommand.h"
 #include "Contact.h"
 #include "Conversation.h"
 #include "ProtocolLooper.h"
@@ -58,6 +59,9 @@ public:
 			Conversation*	ConversationById(BString id, int64 instance);
 			void			AddConversation(Conversation* chat, int64 instance);
 
+			CommandMap		Commands();
+			ChatCommand*	CommandById(BString id);
+
 private:
 			ProtocolLooper*	_LooperFromMessage(BMessage* message);
 
@@ -68,11 +72,13 @@ private:
 
 			Role*			_GetRole(BMessage* msg);
 
+			void			_InitDefaultCommands();
 			void			_ReplicantStatusNotify(CayaStatus status);
 
 			ProtocolLoopers	fLoopers;
 			AccountInstances
 							fAccounts;
+			CommandMap		fCommands;
 			BString			fMySelf;
 };
 

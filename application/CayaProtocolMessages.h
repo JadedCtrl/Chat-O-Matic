@@ -54,7 +54,9 @@ enum im_what_code {
 	IM_SEND_MESSAGE						= 20,
 
 	//!	Chat message has been sent		→Caya
-	//	Requires:	String "chat_id", String "user_id", String "body"
+	//	If no user_id is specified, it's treated as a system message
+	//	Requires:	String "chat_id", String "body"
+	//	Allows:		String "user_id"
 	IM_MESSAGE_SENT						= 21,
 
 	//!	Chat message received			→Caya
@@ -74,7 +76,6 @@ enum im_what_code {
 	//!	User stopped typing				→Caya
 	//	Requires:	String "chat_id", String "user_id"
 	IM_USER_STOPPED_TYPING				= 25,
-
 
 
 	/*

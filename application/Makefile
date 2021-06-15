@@ -36,6 +36,7 @@ SRCS = \
 	application/AccountManager.cpp \
 	application/CayaProtocolAddOn.cpp \
 	application/CayaUtils.cpp \
+	application/ChatCommand.cpp \
 	application/Contact.cpp \
 	application/Conversation.cpp \
 	application/EditingFilter.cpp \

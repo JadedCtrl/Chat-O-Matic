@@ -12,6 +12,7 @@
 #include <FindDirectory.h>
 #include <IconUtils.h>
 #include <Path.h>
+#include <StringList.h>
 
 #include <kernel/fs_attr.h>
 
@@ -37,6 +38,31 @@ CayaStatusToString(CayaStatus status)
 		default:
 			return NULL;
 	}
+}
+
+
+bool
+IsCommand(BString line)
+{
+	return line.StartsWith("/");
+}
+
+
+BString
+CommandName(BString line)
+{
+	BStringList words;
+	line.Split(" ", true, words);
+	return words.StringAt(0).RemoveFirst("/");
+}
+
+
+BString
+CommandArgs(BString line)
+{
+	BString remove("/");
+	remove << CommandName(line) << " ";
+	return line.RemoveFirst(remove);
 }
 
 

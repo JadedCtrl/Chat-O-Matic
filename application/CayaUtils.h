@@ -17,6 +17,10 @@
 
 const char* CayaStatusToString(CayaStatus status);
 
+bool		IsCommand(BString line);
+BString		CommandName(BString line);
+BString		CommandArgs(BString line);
+
 BResources* CayaResources();
 
 const char*	CayaAccountsPath();
@@ -33,7 +37,7 @@ const char* CayaContactCachePath(const char* accountName, const char* userIdenti
 rgb_color	CayaTintColor(rgb_color color, int severity);
 rgb_color	CayaForegroundColor(rgb_color background);
 
-// Borrowed from BePodder's own libfunky
+// Borrowed from BePodder's own libfunky. Groovy B)
 status_t	ReadAttributeData(BNode* node, const char* name, char** buffer, int32 *size);
 status_t	WriteAttributeMessage(BNode* node, const char* name, BMessage* data);
 status_t	ReadAttributeMessage(BNode* node, const char* name, BMessage* data);

@@ -1,0 +1,113 @@
+/*
+ * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
+ * All rights reserved. Distributed under the terms of the MIT license.
+ */
+
+#include "ChatCommand.h"
+
+#include <StringList.h>
+
+#include "Conversation.h"
+#include "MainWindow.h"
+#include "TheApp.h"
+
+
+ChatCommand::ChatCommand(const char* name, BMessage msg, bool toProtocol,
+						 List<int32> argTypes)
+	:
+	fName(name),
+	fMessage(msg),
+	fToProto(toProtocol),
+	fArgTypes(argTypes)
+{
+}
+
+
+void
+ChatCommand::SetDesc(const char* description)
+{
+	fDescription = description;
+}
+
+
+bool
+ChatCommand::Parse(BString args, BString* errorMsg, Conversation* chat)
+{
+	BMessage* msg = new BMessage(fMessage);
+	msg->AddString("chat_id", chat->GetId());
+	msg->AddInt64("instance", chat->GetProtocolLooper()->GetInstance());
+
+	if (fArgTypes.CountItems() == 0) {
+		msg->AddString("misc_str", args);
+		return _Send(msg, chat);
+	}
+
+	if (_ProcessArgs(args, msg, errorMsg, chat) == true)
+		return _Send(msg, chat);
+	return false;
+}
+
+
+bool
+ChatCommand::_ProcessArgs(BString args, BMessage* msg, BString* errorMsg,
+					  Conversation* chat)
+{
+	int32 argCount = fArgTypes.CountItems();
+	BStringList argList;
+	args.Split(" ", false, argList);
+
+	for (int i = 0; i < argCount; i++) {
+		BString arg = argList.StringAt(i);
+		const char* strName = "misc_str";
+
+		switch (fArgTypes.ItemAt(i))
+		{
+			case CMD_ROOM_PARTICIPANT:
+			{
+				if (chat->UserById(arg) == NULL) {
+					errorMsg->SetTo("%user% isn't a member of this room.");
+					errorMsg->ReplaceAll("%user%", arg);
+					return false;
+				}
+				msg->AddString("user_id", arg);
+				break;
+			}
+			case CMD_KNOWN_USER:
+			{
+				if (chat->GetProtocolLooper()->UserById(arg) == NULL) {
+					errorMsg->SetTo("You aren't contacts with and have no chats "
+									"in common with %user%. Shame.");
+					errorMsg->ReplaceAll("%user%", arg);
+					return false;
+				}
+				msg->AddString("user_id", arg);
+				break;
+			}
+			case CMD_ANY_USER:
+				msg->AddString("user_id", arg);
+				break;
+			case CMD_BODY_STRING:
+				strName = "body";
+			default:
+				// If string's the last argument, it can be longer than one word
+				if (i == (argCount - 1) && argList.CountStrings() > argCount)
+					for (int j = i + 1; j < argList.CountStrings(); j++)
+						arg << " " << argList.StringAt(j);
+				msg->AddString(strName, arg);
+		}
+	}
+	return true;
+}
+
+
+bool
+ChatCommand::_Send(BMessage* msg, Conversation* chat)
+{
+	if (fToProto == true)
+		chat->GetProtocolLooper()->PostMessage(msg);
+	else
+		((TheApp*)be_app)->GetMainWindow()->PostMessage(msg);
+	return true;
+}
+
+

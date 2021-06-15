@@ -111,14 +111,13 @@ ConversationView::ImMessage(BMessage* msg)
 		}
 		case IM_MESSAGE_RECEIVED:
 		{
-			BString message = msg->FindString("body");
 			BString id = msg->FindString("user_id");
 			User* sender = fConversation->UserById(id);
-			BString uname = sender->GetName();
 
 			// Send a notification, if it's appropriate
 			if ((Window() == NULL || Window()->IsActive() == false)
-				&& (!CayaPreferences::Item()->NotifyNewMessage))
+				&& (!CayaPreferences::Item()->NotifyNewMessage)
+				&& sender != NULL)
 			{
 				fMessageCount++;
 				BString notify_message;
@@ -128,14 +127,14 @@ ConversationView::ImMessage(BMessage* msg)
 					notify_message << " new message from ";
 				else
 					notify_message << " new messages from ";
-				notify_message << uname;
+				notify_message << sender->GetName();
 
 				BNotification notification(B_INFORMATION_NOTIFICATION);
 				notification.SetGroup(BString("Caya"));
 				notification.SetTitle(BString("New message"));
 				notification.SetIcon(sender->AvatarBitmap());
 				notification.SetContent(notify_message);
-				notification.SetMessageID(uname);
+				notification.SetMessageID(sender->GetName());
 				notification.Send();
 				// Check if the user want the notification
 				if (!CayaPreferences::Item()->NotifyNewMessage)
