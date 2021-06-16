@@ -9,8 +9,6 @@
 
 #include <Messenger.h>
 
-#include "ChatCommand.h"
-
 class BBitmap;
 
 
@@ -65,9 +63,6 @@ public:
 
 	//! Messenger interface used
 	virtual CayaProtocolMessengerInterface* MessengerInterface() const = 0;
-
-	//! Return a map of any custom commands
-	virtual CommandMap Commands() = 0;
 };
 
 #endif	// _CAYA_PROTOCOL_H

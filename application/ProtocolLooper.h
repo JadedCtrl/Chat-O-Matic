@@ -8,6 +8,7 @@
 #define _PROTOCOL_LOOPER_H
 
 #include <Looper.h>
+#include <ObjectList.h>
 #include <String.h>
 
 #include <libsupport/KeyMap.h>
@@ -50,6 +51,11 @@ public:
 
 			CommandMap		Commands() const;
 			ChatCommand*	CommandById(BString id);
+			void			AddCommand(ChatCommand* cmd);
+
+			BObjectList<BMessage>
+							UserPopUpItems() const;
+			void			AddUserPopUpItem(BMessage* archived);
 
 			BString			GetOwnId();
 			void			SetOwnId(BString user_id);
@@ -68,7 +74,9 @@ private:
 			ChatMap			fChatMap;
 			RosterMap		fRosterMap;
 			UserMap			fUserMap;
+
 			CommandMap		fCommands;
+			BObjectList<BMessage> fUserItems;
 
 			ConversationAccountItem*
 							fListItem;

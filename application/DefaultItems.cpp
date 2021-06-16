@@ -5,15 +5,17 @@
 
 #include "DefaultItems.h"
 
+#include <Looper.h>
 #include <InterfaceDefs.h>
 
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
+#include "ChatCommand.h"
 #include "Role.h"
 
 
-CommandMap
-DefaultCommands()
+void
+DefaultCommands(BLooper* target)
 {
 	List<int32> roomUser;
 	roomUser.AddItem(CMD_ROOM_PARTICIPANT);
@@ -83,48 +85,54 @@ DefaultCommands()
 	help->SetDesc("List all current commands, or get help for certain command.");
 	commands.AddItem("help", help);
 
-	return commands;
+	for (int i = 0; i < commands.CountItems(); i++) {
+		BMessage* item = new BMessage(IM_MESSAGE);
+		item->AddInt32("im_what", IM_REGISTER_COMMAND);
+		ChatCommand* cmd = commands.ValueAt(i);
+		cmd->Archive(item);
+		target->PostMessage(item);
+	}
 }
 
 
-BObjectList<BMessage>
-DefaultUserPopUpItems()
+void
+DefaultUserPopUpItems(BLooper* target)
 {
 	BObjectList<BMessage> items;
 
 	BMessage* infoMsg = new BMessage(CAYA_USER_INFO);
-	items.AddItem(_UserMenuItem("User info" B_UTF8_ELLIPSIS, infoMsg, 0, 0, 0,
-								false, false));
+	target->PostMessage(_UserMenuItem("User info" B_UTF8_ELLIPSIS, infoMsg, 0,
+									  0, 0, false, false));
 
 	BMessage* kickMsg = new BMessage(IM_MESSAGE);
 	kickMsg->AddInt32("im_what", IM_ROOM_KICK_PARTICIPANT);
-	items.AddItem(_UserMenuItem("Kick user", kickMsg, PERM_KICK, 0, 0, false,
-								true));
+	target->PostMessage(_UserMenuItem("Kick user", kickMsg, PERM_KICK, 0, 0,
+									  false, true));
 
 	BMessage* banMsg = new BMessage(IM_MESSAGE);
 	banMsg->AddInt32("im_what", IM_ROOM_BAN_PARTICIPANT);
-	items.AddItem(_UserMenuItem("Ban user", banMsg, PERM_BAN, 0, 0, false, true));
+	target->PostMessage(_UserMenuItem("Ban user", banMsg, PERM_BAN, 0, 0, false,
+									  true));
 
 	BMessage* muteMsg = new BMessage(IM_MESSAGE);
 	muteMsg->AddInt32("im_what", IM_ROOM_MUTE_PARTICIPANT);
-	items.AddItem(_UserMenuItem("Mute user", muteMsg, PERM_MUTE, PERM_WRITE, 0,
-								false, true));
+	target->PostMessage(_UserMenuItem("Mute user", muteMsg, PERM_MUTE,
+									  PERM_WRITE, 0, false, true));
 
 	BMessage* unmuteMsg = new BMessage(IM_MESSAGE);
 	unmuteMsg->AddInt32("im_what", IM_ROOM_UNMUTE_PARTICIPANT);
-	items.AddItem(_UserMenuItem("Unmute user", unmuteMsg, PERM_MUTE, 0,
-								PERM_WRITE, false, true));
+	target->PostMessage(_UserMenuItem("Unmute user", unmuteMsg, PERM_MUTE, 0,
+									  PERM_WRITE, false, true));
 
 	BMessage* deafenMsg = new BMessage(IM_MESSAGE);
 	deafenMsg->AddInt32("im_what", IM_ROOM_DEAFEN_PARTICIPANT);
-	items.AddItem(_UserMenuItem("Deafen user", deafenMsg, PERM_DEAFEN, PERM_READ,
-								0, false, true));
+	target->PostMessage(_UserMenuItem("Deafen user", deafenMsg, PERM_DEAFEN,
+									  PERM_READ, 0, false, true));
 
 	BMessage* undeafenMsg = new BMessage(IM_MESSAGE);
 	undeafenMsg->AddInt32("im_what", IM_ROOM_UNDEAFEN_PARTICIPANT);
-	items.AddItem(_UserMenuItem("Undeafen user", undeafenMsg, PERM_DEAFEN, 0,
-								PERM_READ, false, true));
-	return items;
+	target->PostMessage(_UserMenuItem("Undeafen user", undeafenMsg, PERM_DEAFEN,
+									  0, PERM_READ, false, true));
 }
 
 
@@ -133,7 +141,9 @@ _UserMenuItem(const char* label, BMessage* msg, int32 user_perms,
 			  int32 target_perms, int32 target_lacks, bool ignorePriority,
 			  bool toProtocol)
 {
-	BMessage* item = new BMessage();
+	BMessage* item = new BMessage(IM_MESSAGE);
+	item->AddInt32("im_what", IM_REGISTER_USER_ITEM);
+
 	item->AddString("class", "BMenuItem");
 	item->AddString("_label", label);
 	item->AddMessage("_msg", msg);

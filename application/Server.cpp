@@ -42,9 +42,7 @@
 
 Server::Server()
 	:
-	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE),
-	fUserItems(DefaultUserPopUpItems()),
-	fCommands(DefaultCommands())
+	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
 {
 }
 
@@ -520,6 +518,27 @@ Server::ImMessage(BMessage* msg)
 			notification.SetContent(message);
 			notification.Send();
 
+			break;
+		}
+		case IM_REGISTER_COMMAND:
+		{
+			ChatCommand* cmd = new ChatCommand(msg);
+			if (cmd == NULL)	break;
+
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+			if (looper == NULL)
+				fCommands.AddItem(cmd->GetName(), cmd);
+			else
+				looper->AddCommand(cmd);
+			break;
+		}
+		case IM_REGISTER_USER_ITEM:
+		{
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+			if (looper == NULL)
+				fUserItems.AddItem(new BMessage(*msg));
+			else
+				looper->AddUserPopUpItem(new BMessage(*msg));
 			break;
 		}
 		case IM_PROTOCOL_READY:

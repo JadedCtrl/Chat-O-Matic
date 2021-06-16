@@ -5,13 +5,14 @@
 #ifndef DEFAULTITEMS_H
 #define DEFAULTITEMS_H
 
-#include "ChatCommand.h"
-
 #include <ObjectList.h>
 
+class BLooper;
+class BMessage;
 
-CommandMap				DefaultCommands();
-BObjectList<BMessage>	DefaultUserPopUpItems();
+
+void					DefaultCommands(BLooper* target);
+void					DefaultUserPopUpItems(BLooper* target);
 BMessage*				_UserMenuItem(const char* label, BMessage* msg,
 									  int32 user_perms, int32 target_perms,
 									  int32 target_lacks, bool ignorePriority,

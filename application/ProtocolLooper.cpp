@@ -24,8 +24,7 @@ ProtocolLooper::ProtocolLooper(CayaProtocol* protocol, int64 instance)
 	BLooper(),
 	fProtocol(protocol),
 	fInstance(instance),
-	fListItem(NULL),
-	fCommands(protocol->Commands())
+	fListItem(NULL)
 {
 	Account* account = reinterpret_cast<Account*>(
 		protocol->MessengerInterface());
@@ -155,6 +154,27 @@ ChatCommand*
 ProtocolLooper::CommandById(BString id)
 {
 	return fCommands.ValueFor(id);
+}
+
+
+void
+ProtocolLooper::AddCommand(ChatCommand* cmd)
+{
+	fCommands.AddItem(cmd->GetName(), cmd);
+}
+
+
+BObjectList<BMessage>
+ProtocolLooper::UserPopUpItems() const
+{
+	return fUserItems;
+}
+
+
+void
+ProtocolLooper::AddUserPopUpItem(BMessage* archived)
+{
+	fUserItems.AddItem(archived);
 }
 
 
