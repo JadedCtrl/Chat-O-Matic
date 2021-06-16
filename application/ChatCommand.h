@@ -5,6 +5,7 @@
 #ifndef CHAT_COMMAND_H
 #define CHAT_COMMAND_H
 
+#include <Archivable.h>
 #include <Message.h>
 #include <String.h>
 
@@ -23,10 +24,15 @@ enum cmd_arg_type
 };
 
 
-class ChatCommand {
+class ChatCommand : public BArchivable {
 public:
 					ChatCommand(const char* name, BMessage msg, bool toProtocol,
 								List<int32> argTypes);
+					ChatCommand(BMessage* data);
+
+	status_t		Archive(BMessage* data, bool deep=true);
+	ChatCommand*	Instantiate(BMessage* data);
+
 
 	const char*		GetName() { return fName.String(); }
 

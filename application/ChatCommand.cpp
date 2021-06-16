@@ -23,6 +23,46 @@ ChatCommand::ChatCommand(const char* name, BMessage msg, bool toProtocol,
 }
 
 
+ChatCommand::ChatCommand(BMessage* data)
+	: BArchivable(data)
+{
+	data->FindString("_name", &fName);
+	data->FindString("_desc", &fDescription);
+	data->FindBool("_proto", &fToProto);
+	data->FindMessage("_msg", &fMessage);
+
+	int32 argType, i = 0;
+	while (data->FindInt32("_argtype", i, &argType) == B_OK) {
+		fArgTypes.AddItem(argType);
+		i++;
+	}
+}
+
+
+status_t
+ChatCommand::Archive(BMessage* data, bool deep)
+{
+	status_t ret = BArchivable::Archive(data, deep);
+	data->AddString("_name", fName);
+	data->AddString("_desc", fDescription);
+	data->AddBool("_proto", fToProto);
+	data->AddMessage("_msg", new BMessage(fMessage));
+
+	for (int i = 0; i < fArgTypes.CountItems(); i++)
+		data->AddInt32("_argtype", fArgTypes.ItemAt(i));
+	return ret;
+}
+
+
+ChatCommand*
+ChatCommand::Instantiate(BMessage* data)
+{
+	if (!validate_instantiation(data, "ChatCommand"))
+		return NULL;
+	return new ChatCommand(data);
+}
+
+
 void
 ChatCommand::SetDesc(const char* description)
 {
