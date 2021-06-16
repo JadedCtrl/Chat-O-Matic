@@ -50,4 +50,7 @@ const uint32 CAYA_DISABLE_ACCOUNT = 'CYda';
 //! Request a "help" message
 const uint32 CAYA_REQUEST_HELP = 'CYhm';
 
+//! Display a "user info" window
+const uint32 CAYA_USER_INFO = 'CYuw';
+
 #endif	// _CAYA_MESSAGES_H

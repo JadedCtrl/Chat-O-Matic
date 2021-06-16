@@ -1,15 +1,19 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  *		Andrea Anzani, andrea.anzani@gmail.com
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
+ *		Jaidyn Levesque, jadedctrl@teknik.io
  *
  * Contributors:
  *		Dario Casalinuovo
  */
+
+#include "Server.h"
 
 #include <Application.h>
 #include <Debug.h>
@@ -26,20 +30,22 @@
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
 #include "CayaUtils.h"
+#include "DefaultItems.h"
 #include "ImageCache.h"
 #include "InviteDialogue.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
 #include "RoomFlags.h"
 #include "RosterItem.h"
-#include "Server.h"
+#include "UserInfoWindow.h"
 
 
 Server::Server()
 	:
-	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
+	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE),
+	fUserItems(DefaultUserPopUpItems()),
+	fCommands(DefaultCommands())
 {
-	_InitDefaultCommands();
 }
 
 
@@ -110,6 +116,16 @@ Server::Filter(BMessage* message, BHandler **target)
 				break;
 			}
 			RemoveProtocolLooper(instance);
+			break;
+		}
+
+		case CAYA_USER_INFO:
+		{
+			User* user = _EnsureUser(message);
+			if (user != NULL) {
+				UserInfoWindow* win = new UserInfoWindow(user);
+				win->Show();
+			}
 			break;
 		}
 
@@ -749,19 +765,6 @@ Server::AddConversation(Conversation* chat, int64 instance)
 }
 
 
-CommandMap
-Server::Commands()
-{
-	CommandMap commands = fCommands;
-	for (int i = 0; i < fAccounts.CountItems(); i++) {
-		ProtocolLooper* fruitLoop = fLoopers.ValueFor(fAccounts.ValueAt(i));
-		if (fruitLoop == NULL)	continue;
-		commands.AddList(fruitLoop->Commands());
-	}
-	return fCommands;
-}
-
-
 ChatCommand*
 Server::CommandById(BString id, int64 instance)
 {
@@ -772,6 +775,20 @@ Server::CommandById(BString id, int64 instance)
 	if (result == NULL)
 		result = fCommands.ValueFor(id);
 	return result;
+}
+
+
+BObjectList<BMessage>
+Server::ConversationPopUpItems()
+{
+	return fChatItems;
+}
+
+
+BObjectList<BMessage>
+Server::UserPopUpItems()
+{
+	return fUserItems;
 }
 
 
@@ -888,76 +905,6 @@ Server::_GetRole(BMessage* msg)
 		return NULL;
 
 	return new Role(title, perms, priority);
-}
-
-void
-Server::_InitDefaultCommands()
-{
-	List<int32> roomUser;
-	roomUser.AddItem(CMD_ROOM_PARTICIPANT);
-	List<int32> kickBody;
-	kickBody.AddItem(CMD_ROOM_PARTICIPANT);
-	kickBody.AddItem(CMD_BODY_STRING);
-	List<int32> knownUser;
-	knownUser.AddItem(CMD_KNOWN_USER);
-	List<int32> anyUser;
-	anyUser.AddItem(CMD_ANY_USER);
-
-	BMessage kickMsg(IM_MESSAGE);
-	kickMsg.AddInt32("im_what", IM_ROOM_KICK_PARTICIPANT);
-	ChatCommand* kick = new ChatCommand("kick", kickMsg, true, kickBody);
-	kick->SetDesc("Force a user to temporarily leave the room, assuming your "
-				  "power level's high enough.");
-	fCommands.AddItem("kick", kick);
-
-	BMessage banMsg(IM_MESSAGE);
-	banMsg.AddInt32("im_what", IM_ROOM_BAN_PARTICIPANT);
-	ChatCommand* ban = new ChatCommand("ban", banMsg, true, kickBody);
-	ban->SetDesc("Kick a user out of the room and slam the door behind them― "
-				 "locking it while you're at it.");
-	fCommands.AddItem("ban", ban);
-
-	BMessage unbanMsg(IM_MESSAGE);
-	unbanMsg.AddInt32("im_what", IM_ROOM_UNBAN_PARTICIPANT);
-	ChatCommand* unban = new ChatCommand("unban", unbanMsg, true, anyUser);
-	unban->SetDesc("Undo a previous ban, allowing the user to rejoin (if they "
-				   "still want to).");
-	fCommands.AddItem("unban", unban);
-
-	BMessage muteMsg(IM_MESSAGE);
-	muteMsg.AddInt32("im_what", IM_ROOM_MUTE_PARTICIPANT);
-	ChatCommand* mute = new ChatCommand("mute", muteMsg, true, roomUser);
-	mute->SetDesc("Disallow a user from sending visible messages.");
-	fCommands.AddItem("mute", mute);
-
-	BMessage unmuteMsg(IM_MESSAGE);
-	unmuteMsg.AddInt32("im_what", IM_ROOM_UNMUTE_PARTICIPANT);
-	ChatCommand* unmute = new ChatCommand("unmute", unmuteMsg, true, roomUser);
-	unmute->SetDesc("Restore a user's ability to send messages.");
-	fCommands.AddItem("unmute", unmute);
-
-	BMessage deafenMsg(IM_MESSAGE);
-	deafenMsg.AddInt32("im_what", IM_ROOM_DEAFEN_PARTICIPANT);
-	ChatCommand* deafen = new ChatCommand("deafen", deafenMsg, true, roomUser);
-	deafen->SetDesc("Disallow a user from reading messages sent in the room.");
-	fCommands.AddItem("deafen", deafen);
-
-	BMessage undeafenMsg(IM_MESSAGE);
-	undeafenMsg.AddInt32("im_what", IM_ROOM_UNDEAFEN_PARTICIPANT);
-	ChatCommand* undeafen = new ChatCommand("undeafen", undeafenMsg, true, roomUser);
-	undeafen->SetDesc("Restore a user's ability to receive messages.");
-	fCommands.AddItem("undeafen", undeafen);
-
-	BMessage inviteMsg(IM_MESSAGE);
-	inviteMsg.AddInt32("im_what", IM_ROOM_SEND_INVITE);
-	ChatCommand* invite = new ChatCommand("invite", inviteMsg, true, knownUser);
-	invite->SetDesc("Invite a user to the current room.");
-	fCommands.AddItem("invite", invite);
-
-	BMessage helpMsg(CAYA_REQUEST_HELP);
-	ChatCommand* help = new ChatCommand("help", helpMsg, false, List<int>());
-	help->SetDesc("List all current commands, or get help for certain command.");
-	fCommands.AddItem("help", help);
 }
 
 

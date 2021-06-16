@@ -39,6 +39,7 @@ SRCS = \
 	application/ChatCommand.cpp \
 	application/Contact.cpp \
 	application/Conversation.cpp \
+	application/DefaultItems.cpp \
 	application/EditingFilter.cpp \
 	application/ImageCache.cpp \
 	application/Main.cpp \

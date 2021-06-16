@@ -7,6 +7,8 @@
 
 #include <ListView.h>
 
+#include "Role.h"
+
 class BPopUpMenu;
 class Conversation;
 
@@ -27,8 +29,6 @@ class UserListView : public BListView {
 public:
 	UserListView(const char* name);
 
-	void MessageReceived(BMessage* msg);
-
 	void MouseDown(BPoint where);
 
 	void SetConversation(Conversation* chat) { fChat = chat; }
@@ -38,6 +38,8 @@ private:
 	BPopUpMenu* _BlankPopUp();
 
 	void		_ModerationAction(int32 im_what);
+	void		_ProcessItem(BMessage* itemMsg, BPopUpMenu* menu, Role* user,
+							 Role* target, BString target_id);
 
 	Conversation* fChat;
 };

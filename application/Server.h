@@ -59,8 +59,10 @@ public:
 			Conversation*	ConversationById(BString id, int64 instance);
 			void			AddConversation(Conversation* chat, int64 instance);
 
-			CommandMap		Commands();
 			ChatCommand*	CommandById(BString id, int64 instance);
+
+			BObjectList<BMessage> ConversationPopUpItems();
+			BObjectList<BMessage> UserPopUpItems();
 
 private:
 			ProtocolLooper*	_LooperFromMessage(BMessage* message);
@@ -72,14 +74,18 @@ private:
 
 			Role*			_GetRole(BMessage* msg);
 
-			void			_InitDefaultCommands();
 			void			_ReplicantStatusNotify(CayaStatus status);
 
 			ProtocolLoopers	fLoopers;
 			AccountInstances
 							fAccounts;
-			CommandMap		fCommands;
 			BString			fMySelf;
+
+			CommandMap		fCommands;
+			BObjectList<BMessage>
+							fChatItems;
+			BObjectList<BMessage>
+							fUserItems;
 };
 
 

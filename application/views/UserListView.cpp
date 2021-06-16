@@ -12,8 +12,11 @@
 #include "CayaMessages.h"
 #include "CayaProtocolMessages.h"
 #include "Conversation.h"
+#include "MainWindow.h"
 #include "ProtocolLooper.h"
 #include "Role.h"
+#include "Server.h"
+#include "TheApp.h"
 #include "User.h"
 #include "UserInfoWindow.h"
 #include "UserItem.h"
@@ -24,44 +27,6 @@ UserListView::UserListView(const char* name)
 	: BListView(name),
 	fChat(NULL)
 {
-}
-
-
-void
-UserListView::MessageReceived(BMessage* msg)
-{
-	switch (msg->what) {
-		case kUserInfo:
-		{
-			UserItem* item = (UserItem*)ItemAt(CurrentSelection());
-			if (item == NULL)
-				return;
-
-			UserInfoWindow* win = new UserInfoWindow(item->GetUser());
-			win->Show();
-			break;
-		}
-		case kKickUser:
-			_ModerationAction(IM_ROOM_KICK_PARTICIPANT);
-			break;
-		case kBanUser:
-			_ModerationAction(IM_ROOM_BAN_PARTICIPANT);
-			break;
-		case kMuteUser:
-			_ModerationAction(IM_ROOM_MUTE_PARTICIPANT);
-			break;
-		case kUnmuteUser:
-			_ModerationAction(IM_ROOM_UNMUTE_PARTICIPANT);
-			break;
-		case kDeafenUser:
-			_ModerationAction(IM_ROOM_DEAFEN_PARTICIPANT);
-			break;
-		case kUndeafenUser:
-			_ModerationAction(IM_ROOM_UNDEAFEN_PARTICIPANT);
-			break;
-		default:
-			BListView::MessageReceived(msg);
-	}
 }
 
 
@@ -87,47 +52,24 @@ BPopUpMenu*
 UserListView::_UserPopUp()
 {
 	BPopUpMenu* menu = new BPopUpMenu("userPopUp");
-	menu->AddItem(new BMenuItem("User info" B_UTF8_ELLIPSIS,
-		new BMessage(kUserInfo)));
-	menu->SetTargetForItems(this);
-
-	// Now for the moderation items
-	Role* role = fChat->GetRole(fChat->GetOwnId());
-	if (role == NULL)	return menu;
-	int32 perms = role->fPerms;
 	UserItem* item = (UserItem*)ItemAt(CurrentSelection());
 	User* selected_user;
-
 	if (item == NULL || (selected_user = item->GetUser()) == NULL)
-		return menu;
+		return _BlankPopUp();
+
+	Role* own_role = fChat->GetRole(fChat->GetOwnId());
+	if (own_role == NULL)	return _BlankPopUp();
 
 	Role* selected_role = fChat->GetRole(selected_user->GetId());
-	if (selected_role == NULL)	return menu;
-	int32 selected_priority = selected_role->fPriority;
-	int32 selected_perms = selected_role->fPerms;
-	if (selected_priority > role->fPriority)
-		return menu;
+	if (selected_role == NULL)	return _BlankPopUp();
 
-	if ((perms & PERM_DEAFEN) || (perms & PERM_MUTE) || (perms & PERM_KICK)
-		|| (perms & PERM_BAN))
-		menu->AddSeparatorItem();
+	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
+	BObjectList<BMessage> items = server->UserPopUpItems();
 
-	if ((perms & PERM_DEAFEN) && (selected_perms & PERM_READ))
-		menu->AddItem(new BMenuItem("Deafen user", new BMessage(kDeafenUser)));
-	if ((perms & PERM_DEAFEN) && !(selected_perms & PERM_READ))
-		menu->AddItem(new BMenuItem("Undeafen user", new BMessage(kUndeafenUser)));
-
-	if ((perms & PERM_MUTE) && (selected_perms & PERM_WRITE))
-		menu->AddItem(new BMenuItem("Mute user", new BMessage(kMuteUser)));
-	if ((perms & PERM_MUTE) && !(selected_perms & PERM_WRITE))
-		menu->AddItem(new BMenuItem("Unmute user", new BMessage(kUnmuteUser)));
-
-	if (perms & PERM_KICK)
-		menu->AddItem(new BMenuItem("Kick user", new BMessage(kKickUser)));
-	if (perms & PERM_BAN)
-		menu->AddItem(new BMenuItem("Ban user", new BMessage(kBanUser)));
-
-	menu->SetTargetForItems(this);
+	for (int i = 0; i < items.CountItems(); i++) {
+		BMessage* itemMsg = items.ItemAt(i);
+		_ProcessItem(itemMsg, menu, own_role, selected_role, selected_user->GetId());
+	}
 	return menu;
 }
 
@@ -150,19 +92,35 @@ UserListView::_BlankPopUp()
 
 
 void
-UserListView::_ModerationAction(int32 im_what)
+UserListView::_ProcessItem(BMessage* itemMsg, BPopUpMenu* menu, Role* user,
+						   Role* target, BString target_id)
 {
-	Role* role = fChat->GetRole(fChat->GetOwnId());
-	int32 perms = role->fPerms;
-	UserItem* item = (UserItem*)ItemAt(CurrentSelection());
-	if (item == NULL)
-		return;
+	BMessage* msg = new BMessage(*itemMsg);
+	bool priority = msg->GetBool("x_priority", false);
+	int32 perms = msg->GetInt32("x_perms", 0);
+	int32 target_perms = msg->GetInt32("x_target_perms", 0);
+	int32 target_antiperms = msg->GetInt32("x_target_antiperms", 0);
 
-	BMessage modMsg(IM_MESSAGE);
-	modMsg.AddInt32("im_what", im_what);
-	modMsg.AddString("user_id", item->GetUser()->GetId());
-	modMsg.AddString("chat_id", fChat->GetId());
-	fChat->GetProtocolLooper()->PostMessage(&modMsg);
+	BMessage toSend;
+	msg->FindMessage("_msg", &toSend);
+	toSend.AddString("user_id", target_id);
+	toSend.AddString("chat_id", fChat->GetId());
+	toSend.AddInt64("instance", fChat->GetProtocolLooper()->GetInstance());
+	msg->ReplaceMessage("_msg", &toSend);
+
+	if ((perms == 0 || (user->fPerms & perms))
+		&& (target_perms == 0 || (target->fPerms & target_perms))
+		&& (target_antiperms == 0 || (!(target->fPerms & target_antiperms)))
+		&& ((priority == false) || (user->fPriority > target->fPriority)))
+	{
+		BMenuItem* item = new BMenuItem(msg);
+		if (msg->GetBool("x_to_protocol", true) == true)
+			item->SetTarget(fChat->GetProtocolLooper());
+		else
+			item->SetTarget(Window());
+
+		menu->AddItem(item);
+	}
 }
 
 
