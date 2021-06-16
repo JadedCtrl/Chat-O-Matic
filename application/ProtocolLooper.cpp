@@ -192,6 +192,20 @@ ProtocolLooper::AddChatPopUpItem(BMessage* archived)
 }
 
 
+BObjectList<BMessage>
+ProtocolLooper::MenuBarItems() const
+{
+	return fMenuItems;
+}
+
+
+void
+ProtocolLooper::AddMenuBarItem(BMessage* archived)
+{
+	fMenuItems.AddItem(archived);
+}
+
+
 BString
 ProtocolLooper::GetOwnId()
 {

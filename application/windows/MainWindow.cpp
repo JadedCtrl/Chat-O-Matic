@@ -348,6 +348,36 @@ MainWindow::SetConversation(Conversation* chat)
 		fRightView->SetItemWeight(0, weightChat, true);
 		fRightView->SetItemWeight(1, weightSend, true);
 	}
+
+	// Remove "Protocol" menu
+	BMenuItem* chatMenuItem = fMenuBar->FindItem("Protocol");
+	BMenu* chatMenu;
+	if (chatMenuItem != NULL && (chatMenu = chatMenuItem->Submenu()) != NULL)
+		fMenuBar->RemoveItem(chatMenu);
+
+	// Add and populate "Protocol" menu, if appropriate
+	if (fConversation != NULL) {
+		ProtocolLooper* looper = fConversation->GetProtocolLooper();
+		BObjectList<BMessage> menuItems = looper->MenuBarItems();
+		for (int i = 0; i < menuItems.CountItems(); i++) {
+			BMessage* itemMsg = menuItems.ItemAt(i);
+			BMessage* msg = new BMessage(*itemMsg);
+			BMessage toSend;
+			msg->FindMessage("_msg", &toSend);
+			toSend.AddString("chat_id", fConversation->GetId());
+			toSend.AddInt64("instance", looper->GetInstance());
+			msg->ReplaceMessage("_msg", &toSend);
+
+			BMenuItem* item = new BMenuItem(msg);
+			if (item == NULL)
+				continue;
+			if (msg->GetBool("x_to_protocol", true) == true)
+				item->SetTarget(looper);
+			else
+				item->SetTarget(this);
+			chatMenu->AddItem(item);
+		}
+	}
 }
 
 

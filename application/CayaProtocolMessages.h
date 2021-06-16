@@ -396,7 +396,14 @@ enum im_what_code {
 	//	Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
 	//			  Bool "x_to_protocol", int32 "x_perms"
 	//	Allowed:  int64 "instance"
-	IM_REGISTER_CHATLIST_ITEM			= 1102
+	IM_REGISTER_CHATLIST_ITEM			= 1102,
+
+	//! Register a "Protocol" menu item	→Caya
+	//	Just an archived BMenuItem with extra slots; it adds a menu item to
+	//	the menubar's "Protocol" menu.
+	//	Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
+	//			  Bool "x_to_protocol", int64 "instance"
+	IM_REGISTER_MENUBAR_ITEM			= 1103
 };
 
 

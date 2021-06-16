@@ -550,6 +550,13 @@ Server::ImMessage(BMessage* msg)
 				looper->AddChatPopUpItem(new BMessage(*msg));
 			break;
 		}
+		case IM_REGISTER_MENUBAR_ITEM:
+		{
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+			if (looper != NULL)
+				looper->AddMenuBarItem(new BMessage(*msg));
+			break;
+		}
 		case IM_PROTOCOL_READY:
 		{
 			// Ready notification
