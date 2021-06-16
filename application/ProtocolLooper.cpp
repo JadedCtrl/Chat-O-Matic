@@ -178,6 +178,20 @@ ProtocolLooper::AddUserPopUpItem(BMessage* archived)
 }
 
 
+BObjectList<BMessage>
+ProtocolLooper::ChatPopUpItems() const
+{
+	return fChatItems;
+}
+
+
+void
+ProtocolLooper::AddChatPopUpItem(BMessage* archived)
+{
+	fChatItems.AddItem(archived);
+}
+
+
 BString
 ProtocolLooper::GetOwnId()
 {

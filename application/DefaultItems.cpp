@@ -96,6 +96,23 @@ DefaultCommands(BLooper* target)
 
 
 void
+DefaultChatPopUpItems(BLooper* target)
+{
+	BMessage* leave = new BMessage(IM_MESSAGE);
+	leave->AddInt32("im_what", IM_LEAVE_ROOM);
+
+	BMessage* item = new BMessage(IM_MESSAGE);
+	item->AddInt32("im_what", IM_REGISTER_CHATLIST_ITEM);
+	item->AddString("class", "BMenuItem");
+	item->AddString("_label", "Leave chat");
+	item->AddMessage("_msg", leave);
+	item->AddBool("x_to_protocol", true);
+
+	target->PostMessage(item);
+}
+
+
+void
 DefaultUserPopUpItems(BLooper* target)
 {
 	BObjectList<BMessage> items;
@@ -142,7 +159,7 @@ _UserMenuItem(const char* label, BMessage* msg, int32 user_perms,
 			  bool toProtocol)
 {
 	BMessage* item = new BMessage(IM_MESSAGE);
-	item->AddInt32("im_what", IM_REGISTER_USER_ITEM);
+	item->AddInt32("im_what", IM_REGISTER_USERLIST_ITEM);
 
 	item->AddString("class", "BMenuItem");
 	item->AddString("_label", label);

@@ -388,7 +388,15 @@ enum im_what_code {
 	//			  Bool "x_to_protocol", Bool "x_priority", int32 "x_perms",
 	//			  int32 "x_target_perms", int32 "x_target_antiperms"
 	//	Allowed:  int64 "instance"
-	IM_REGISTER_USER_ITEM				= 1101
+	IM_REGISTER_USERLIST_ITEM			= 1101,
+
+	//! Register a pop-up item			→Caya
+	//	Just an archived BMenuItem with extra slots; if "instance" isn't
+	//	specified, the item is global, rather than protocol-only.
+	//	Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
+	//			  Bool "x_to_protocol", int32 "x_perms"
+	//	Allowed:  int64 "instance"
+	IM_REGISTER_CHATLIST_ITEM			= 1102
 };
 
 

@@ -61,7 +61,7 @@ public:
 
 			ChatCommand*	CommandById(BString id, int64 instance);
 
-			BObjectList<BMessage> ConversationPopUpItems();
+			BObjectList<BMessage> ChatPopUpItems();
 			BObjectList<BMessage> UserPopUpItems();
 
 private:

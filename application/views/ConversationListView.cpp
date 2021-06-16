@@ -46,21 +46,6 @@ ConversationListView::MessageReceived(BMessage* msg)
 			break;
 		}
 
-		case kLeaveSelectedChat:
-		{
-			ConversationItem* item;
-			int32 selIndex = CurrentSelection();
-
-			if ((item = (ConversationItem*)ItemAt(selIndex)) == NULL)
-				break;
-
-			BMessage leave(IM_MESSAGE);
-			leave.AddInt32("im_what", IM_LEAVE_ROOM);
-			leave.AddString("chat_id", item->GetConversation()->GetId());
-			item->GetConversation()->GetProtocolLooper()->MessageReceived(&leave);
-			break;
-		}
-
 		default:
 			BListView::MessageReceived(msg);
 	}
@@ -172,13 +157,36 @@ BPopUpMenu*
 ConversationListView::_ConversationPopUp()
 {
 	BPopUpMenu* menu = new BPopUpMenu("chatPopUp");
-	menu->AddItem(new BMenuItem("Open chat" B_UTF8_ELLIPSIS,
-		new BMessage(kOpenSelectedChat)));
-	menu->AddItem(new BMenuItem("Leave chat", new BMessage(kLeaveSelectedChat)));
-	menu->SetTargetForItems(this);
+	int32 selIndex = CurrentSelection();
 
+	ConversationItem* item;
+	if ((item = (ConversationItem*)ItemAt(selIndex)) == NULL)
+		return _BlankPopUp();
+	Conversation* chat = item->GetConversation();
+	ProtocolLooper* looper = chat->GetProtocolLooper();
+
+	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
+	BObjectList<BMessage> items = server->ChatPopUpItems();
+	BObjectList<BMessage> protoItems = looper->ChatPopUpItems();
+	items.AddList(&protoItems);
+
+	for (int i = 0; i < items.CountItems(); i++) {
+		BMessage* itemMsg = items.ItemAt(i);
+		BMessage* msg = new BMessage(*itemMsg);
+		BMessage toSend;
+		msg->FindMessage("_msg", &toSend);
+		toSend.AddString("chat_id", chat->GetId());
+		toSend.AddInt64("instance", looper->GetInstance());
+		msg->ReplaceMessage("_msg", &toSend);
+
+		BMenuItem* item = new BMenuItem(msg);
+		if (msg->GetBool("x_to_protocol", true) == true)
+			item->SetTarget(looper);
+		else
+			item->SetTarget(Window());
+		menu->AddItem(item);
+	}
 	return menu;
-
 }
 
 

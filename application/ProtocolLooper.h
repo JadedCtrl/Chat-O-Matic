@@ -57,6 +57,10 @@ public:
 							UserPopUpItems() const;
 			void			AddUserPopUpItem(BMessage* archived);
 
+			BObjectList<BMessage>
+							ChatPopUpItems() const;
+			void			AddChatPopUpItem(BMessage* archived);
+
 			BString			GetOwnId();
 			void			SetOwnId(BString user_id);
 
@@ -77,6 +81,7 @@ private:
 
 			CommandMap		fCommands;
 			BObjectList<BMessage> fUserItems;
+			BObjectList<BMessage> fChatItems;
 
 			ConversationAccountItem*
 							fListItem;

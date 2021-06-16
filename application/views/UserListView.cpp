@@ -65,6 +65,8 @@ UserListView::_UserPopUp()
 
 	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
 	BObjectList<BMessage> items = server->UserPopUpItems();
+	BObjectList<BMessage> protoItems = fChat->GetProtocolLooper()->UserPopUpItems();
+	items.AddList(&protoItems);
 
 	for (int i = 0; i < items.CountItems(); i++) {
 		BMessage* itemMsg = items.ItemAt(i);

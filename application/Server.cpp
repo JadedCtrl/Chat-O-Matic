@@ -532,13 +532,22 @@ Server::ImMessage(BMessage* msg)
 				looper->AddCommand(cmd);
 			break;
 		}
-		case IM_REGISTER_USER_ITEM:
+		case IM_REGISTER_USERLIST_ITEM:
 		{
 			ProtocolLooper* looper = _LooperFromMessage(msg);
 			if (looper == NULL)
 				fUserItems.AddItem(new BMessage(*msg));
 			else
 				looper->AddUserPopUpItem(new BMessage(*msg));
+			break;
+		}
+		case IM_REGISTER_CHATLIST_ITEM:
+		{
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+			if (looper == NULL)
+				fChatItems.AddItem(new BMessage(*msg));
+			else
+				looper->AddChatPopUpItem(new BMessage(*msg));
 			break;
 		}
 		case IM_PROTOCOL_READY:
@@ -798,7 +807,7 @@ Server::CommandById(BString id, int64 instance)
 
 
 BObjectList<BMessage>
-Server::ConversationPopUpItems()
+Server::ChatPopUpItems()
 {
 	return fChatItems;
 }

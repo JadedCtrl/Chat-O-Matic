@@ -56,6 +56,7 @@ MainWindow::MainWindow()
 	// Register default commands & items
 	DefaultCommands(this);
 	DefaultUserPopUpItems(this);
+	DefaultChatPopUpItems(this);
 
 	// Also through the editing filter (enter to send)
 	AddCommonFilter(new EditingFilter(fSendView));
