@@ -44,7 +44,7 @@ AccountDialog::AccountDialog(const char* title, ProtocolSettings* settings,
 	if (fAccount.Length() > 0)
 		fSettings->Load(fAccount.String(), fTop);
 	else
-		fSettings->LoadTemplate(fTop);
+		fSettings->Load(NULL, fTop);
 
 	BButton* cancel = new BButton("Cancel", new BMessage(kCancel));
 	BButton* ok = new BButton("OK", new BMessage(kOK));

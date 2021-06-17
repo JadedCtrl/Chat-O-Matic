@@ -47,9 +47,12 @@ FacebookProtocol::Icon() const
 
 
 BMessage
-FacebookProtocol::SettingsTemplate()
+FacebookProtocol::SettingsTemplate(const char* name)
 {
-	return JabberHandler::_SettingsTemplate("Username", false);
+	if (name == BString("account"))
+		return JabberHandler::_SettingsTemplate("Username", false);
+	else
+		return BMessage();
 }
 
 

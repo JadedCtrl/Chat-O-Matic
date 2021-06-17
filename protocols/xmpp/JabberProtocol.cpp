@@ -46,9 +46,12 @@ JabberProtocol::Icon() const
 
 
 BMessage
-JabberProtocol::SettingsTemplate()
+JabberProtocol::SettingsTemplate(const char* name)
 {
-	return JabberHandler::_SettingsTemplate("Jabber identifier", true);
+	if (name == BString("account"))
+		return JabberHandler::_SettingsTemplate("Jabber identifier", true);
+	else
+		return BMessage();
 }
 
 

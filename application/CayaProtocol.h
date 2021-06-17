@@ -38,8 +38,10 @@ public:
 	//! Change settings
 	virtual status_t UpdateSettings(BMessage*) = 0;
 
-	//! Settings menu template
-	virtual BMessage SettingsTemplate() = 0;
+	//! Return a settings template
+	//	Currently there are two: "account" (used when creating/editing
+	//	the user's account) and "room" (used when creating a room).
+	virtual BMessage SettingsTemplate(const char* name) = 0;
 
 	//! Protocol signature
 	virtual const char* Signature() const = 0;

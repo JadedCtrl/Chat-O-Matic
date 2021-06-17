@@ -17,7 +17,7 @@ public:
 
 	virtual BBitmap*	Icon() const;
 
-	virtual BMessage	SettingsTemplate();
+	virtual BMessage	SettingsTemplate(const char* name);
 	virtual	void		OverrideSettings();
 
 	virtual	BString		ComposeJID() const;

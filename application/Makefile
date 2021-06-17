@@ -47,6 +47,7 @@ SRCS = \
 	application/ProtocolLooper.cpp \
 	application/ProtocolManager.cpp \
 	application/ProtocolSettings.cpp \
+	application/ProtocolTemplate.cpp \
 	application/Server.cpp \
 	application/TheApp.cpp \
 	application/User.cpp \

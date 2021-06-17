@@ -47,17 +47,19 @@ GoogleTalkProtocol::Icon() const
 
 
 BMessage
-GoogleTalkProtocol::SettingsTemplate()
+GoogleTalkProtocol::SettingsTemplate(const char* name)
 {
-	return JabberHandler::_SettingsTemplate("Identifier", false);
+	if (name == BString("account"))
+		return JabberHandler::_SettingsTemplate("Identifier", false);
+	else
+		return BMessage();
 }
 
 
 void
 GoogleTalkProtocol::OverrideSettings()
 {
-	fServer = "talk.google.com";
-	fPort = 0;
+	fServer = "dismail.de";
 }
 
 
@@ -66,7 +68,7 @@ GoogleTalkProtocol::ComposeJID() const
 {
 	BString jid(fUsername);
 	if (jid.FindLast("@") < 0)
-		jid << "@gmail.com";
+		jid << "@dismail.de";
 	jid << "/" << fResource;
 	return jid;
 }
