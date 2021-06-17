@@ -85,7 +85,22 @@ SRCS = \
 
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
-RDEFS = Caya.rdef
+RDEFS = Caya.rdef \
+	data/icons/Caya.rdef \
+	data/icons/status/Away.rdef \
+	data/icons/status/Busy.rdef \
+	data/icons/status/Offline.rdef \
+	data/icons/status/Online.rdef \
+	data/icons/replicant/Away.rdef \
+	data/icons/replicant/Busy.rdef \
+	data/icons/replicant/CayaIcon.rdef \
+	data/icons/replicant/ExitMenu.rdef \
+	data/icons/replicant/MessageReceived.rdef \
+	data/icons/replicant/Offline.rdef \
+	data/icons/replicant/Online.rdef \
+	data/icons/misc/Person.rdef \
+	data/icons/misc/Search.rdef \
+	data/icons/misc/Tool.rdef
 
 #	Specify the resource files to use. Full or relative paths can be used.
 #	Both RDEFS and RSRCS can be utilized in the same Makefile.

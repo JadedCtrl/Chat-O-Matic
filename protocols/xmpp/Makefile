@@ -42,7 +42,10 @@ SRCS = \
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
 RDEFS = \
-	protocols/xmpp/jabber.rdef
+	protocols/xmpp/jabber.rdef \
+	data/icons/protocols/Jabber.rdef \
+	data/icons/protocols/GoogleTalk.rdef \
+	data/icons/protocols/Facebook.rdef
 
 #	Specify the resource files to use. Full or relative paths can be used.
 #	Both RDEFS and RSRCS can be utilized in the same Makefile.
