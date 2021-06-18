@@ -61,13 +61,11 @@ ProtocolTemplate::Load(BView* parent, BMessage* settings)
 {
 	if (!parent)
 		debugger("Couldn't build protocol's settings GUI on a NULL parent!");
-
 	BMessage curr;
-	float inset = ceilf(be_plain_font->Size() * 0.7f);
 
 	// Setup layout
 	parent->SetLayout(new BGroupLayout(B_VERTICAL));
-	BGroupLayoutBuilder layout(B_VERTICAL, inset);
+	BGroupLayoutBuilder layout(B_VERTICAL);
 
 	for (int32 i = 0; fTemplate->FindMessage("setting", i, &curr) == B_OK; i++) {
 		char temp[512];

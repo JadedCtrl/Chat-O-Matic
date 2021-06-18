@@ -1149,7 +1149,7 @@ JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 
 	BMessage passwordText;
 	passwordText.AddString("name", "password");
-	passwordText.AddString("description", "Password");
+	passwordText.AddString("description", "Password:");
 	passwordText.AddString("error", "You can't log into an account without a "
 		"password.\nPlease fill in your password for the given account.");
 	passwordText.AddInt32("type", 'CSTR');
@@ -1158,7 +1158,7 @@ JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 
 	BMessage serverText;
 	serverText.AddString("name", "server");
-	serverText.AddString("description", "Server");
+	serverText.AddString("description", "Server:");
 	serverText.AddString("error", "You can't add an account without a server.\n"
 		"Please add a valid XMPP server.");
 	serverText.AddInt32("type", 'CSTR');
@@ -1167,7 +1167,7 @@ JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 
 	BMessage resourceText;
 	resourceText.AddString("name", "resource");
-	resourceText.AddString("description", "Resource");
+	resourceText.AddString("description", "Resource:");
 	resourceText.AddInt32("type", 'CSTR');
 	resourceText.AddString("default", "Caya");
 	resourceText.AddString("error", "You can't add an account without a "
@@ -1184,7 +1184,7 @@ JabberHandler::_RoomTemplate()
 	BMessage stemplate('IMst');
 	BMessage roomIdentifier;
 	roomIdentifier.AddString("name", "chat_id");
-	roomIdentifier.AddString("description", "Room identifier");
+	roomIdentifier.AddString("description", "Room identifier:");
 	roomIdentifier.AddString("error", "You can't create a room without a JID!\n"
 		"Use the \"name@server\" format.");
 	roomIdentifier.AddInt32("type", 'CSTR');

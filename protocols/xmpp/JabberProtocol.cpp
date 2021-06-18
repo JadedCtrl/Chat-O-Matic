@@ -49,7 +49,7 @@ BMessage
 JabberProtocol::SettingsTemplate(const char* name)
 {
 	if (name == BString("account"))
-		return JabberHandler::_SettingsTemplate("Jabber identifier", true);
+		return JabberHandler::_SettingsTemplate("Jabber identifier:", true);
 	if (name == BString("room"))
 		return JabberHandler::_RoomTemplate();
 	else

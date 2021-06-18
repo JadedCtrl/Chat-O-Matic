@@ -50,6 +50,8 @@ TemplateView::AttachedToWindow()
 			menu = menuField->Menu();
 
 		if (menu) {
+			if (i == 0)
+				menu->MakeFocus(true);
 			for (int32 j = 0; j < menu->CountItems(); j++) {
 				BMenuItem* item = menu->ItemAt(j);
 				item->SetMessage(new BMessage(kChanged));
@@ -60,16 +62,22 @@ TemplateView::AttachedToWindow()
 		}
 
 		if (textControl) {
+			if (i == 0)
+				textControl->MakeFocus(true);
 			textControl->SetMessage(new BMessage(kChanged));
 			textControl->SetTarget(Window());
 		}
 
 		if (checkBox) {
+			if (i == 0)
+				checkBox->MakeFocus(true);
 			checkBox->SetMessage(new BMessage(kChanged));
 			checkBox->SetTarget(Window());
 		}
 
 		if (textView) {
+			if (i == 0)
+				textView->MakeFocus(true);
 			textView->SetMessage(new BMessage(kChanged));
 			textView->SetTarget(Window());
 		}

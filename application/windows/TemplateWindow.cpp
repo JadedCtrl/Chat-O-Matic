@@ -20,7 +20,6 @@
 #include "TemplateView.h"
 
 
-const uint32 kCancel	= 'canc';
 const uint32 kOK		= 'save';
 const uint32 kAccSelected = 'JWas';
 
@@ -81,9 +80,6 @@ TemplateWindow::MessageReceived(BMessage* msg)
 			Close();
 			break;
 		}
-		case kCancel:
-			Close();
-			break;
 		case kChanged:
 			break;
 		default:
@@ -105,22 +101,23 @@ TemplateWindow::_InitInterface()
 	fTemplateView = new TemplateView("template");
 	fMenuField = new BMenuField("accountMenuField", NULL, _CreateAccountMenu());
 
-	BButton* cancel = new BButton("Cancel", new BMessage(kCancel));
 	BButton* fOkButton = new BButton("OK", new BMessage(kOK));
 	if (fAccounts.CountItems() <= 0)
 		fOkButton->SetEnabled(false);
+	fOkButton->MakeDefault(true);
 
 	const float spacing = be_control_look->DefaultItemSpacing();
+
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
+		.SetInsets(B_USE_DEFAULT_SPACING)
 		.Add(fTemplateView)
 		.AddGroup(B_HORIZONTAL)
 			.Add(fMenuField)
 			.AddGlue()
-			.Add(cancel)
+			.Add(new BButton("Cancel", new BMessage(B_QUIT_REQUESTED)))
 			.Add(fOkButton)
 		.End()
-		.AddGlue()
-		.SetInsets(spacing, spacing, spacing, 0);
+	.End();
 }
 
 
@@ -129,7 +126,6 @@ TemplateWindow::_LoadTemplate()
 {
 	if (fAccounts.CountItems() == 0)
 		return;
-//	fOkButton->SetEnabled(true);
 
 	ProtocolLooper* looper
 		= fServer->GetProtocolLooper(fAccounts.ValueAt(fSelectedAcc));
@@ -142,6 +138,8 @@ TemplateWindow::_LoadTemplate()
 		fTemplateView->RemoveChild(fTemplateView->ChildAt(i));
 
 	fTemplate->Load(fTemplateView);
+	fTemplateView->AttachedToWindow();
+	fTemplateView->MakeFocus(true);
 }
 
 
