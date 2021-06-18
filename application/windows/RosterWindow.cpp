@@ -10,43 +10,55 @@
  *		Jaidyn Levesque, jadedctrl@teknik.io
  */
 
-
 #include "RosterWindow.h"
 
+#include <Button.h>
 #include <LayoutBuilder.h>
+#include <MenuField.h>
 #include <Notification.h>
 #include <ScrollView.h>
 
 #include "CayaMessages.h"
 #include "CayaPreferences.h"
 #include "CayaProtocolMessages.h"
+#include "CayaUtils.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
 #include "RosterView.h"
-#include "Server.h"
 
 
 const uint32 kSendMessage = 'RWSM';
+const uint32 kSelAccount = 'RWSA';
+const uint32 kSelNoAccount = 'RWNA';
 
 
 RosterWindow::RosterWindow(const char* title, BMessage* selectMsg,
-	BMessenger* messenger, Server* server)
+	BMessenger* messenger, Server* server, bigtime_t instance)
 	:
 	BWindow(BRect(0, 0, 300, 400), title, B_FLOATING_WINDOW, 0),
 	fTarget(messenger),
 	fMessage(selectMsg),
+	fAccounts(server->GetAccounts()),
 	fServer(server)
 {
-	fRosterView = new RosterView("buddyView", server);
+	fRosterView = new RosterView("buddyView", server, instance),
 	fRosterView->SetInvocationMessage(new BMessage(kSendMessage));
 
+	fOkButton = new BButton("OK", new BMessage(kSendMessage));
+	fAccountField = new BMenuField("accountMenuField", NULL,
+		CreateAccountMenu(fAccounts, BMessage(kSelAccount),
+			new BMessage(kSelNoAccount)));
+
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
-		.AddGroup(B_VERTICAL)
-			.SetInsets(5, 5, 5, 10)
-			.Add(fRosterView)
+		.SetInsets(B_USE_DEFAULT_SPACING)
+		.Add(fRosterView)
+		.AddGroup(B_HORIZONTAL)
+			.Add(fAccountField)
+			.AddGlue()
+			.Add(new BButton("Cancel", new BMessage(B_QUIT_REQUESTED)))
+			.Add(fOkButton)
 		.End()
 	.End();
-
 	CenterOnScreen();
 }
 
@@ -68,9 +80,19 @@ RosterWindow::MessageReceived(BMessage* message)
 			fMessage->AddInt64("instance", user->GetProtocolLooper()->GetInstance());
 			fTarget->SendMessage(fMessage);
 			PostMessage(B_QUIT_REQUESTED);
-
 			break;
 		}
+		case kSelAccount:
+		{
+			int index = message->FindInt32("index") - 1;
+			if (index < 0 || index > (fAccounts.CountItems() - 1))
+				return;
+			fRosterView->SetAccount(fAccounts.ValueAt(index));
+			break;
+		}
+		case kSelNoAccount:
+			fRosterView->SetAccount(-1);
+			break;
 		case IM_MESSAGE:
 			fRosterView->MessageReceived(message);
 			break;

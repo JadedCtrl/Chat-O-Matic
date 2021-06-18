@@ -14,9 +14,11 @@
 
 #include <Window.h>
 
+#include "Server.h"
+
+class BMenuField;
 class RosterItem;
 class RosterView;
-class Server;
 
 
 /* A window with the a list of the user's contacts, will send a message to
@@ -24,14 +26,19 @@ class Server;
 class RosterWindow : public BWindow {
 public:
 	RosterWindow(const char* title, BMessage* selectMsg, BMessenger* messenger,
-		Server* server);
+		Server* server, bigtime_t instance = -1);
 
 			void		MessageReceived(BMessage* message);
 
 			void		UpdateListItem(RosterItem* item);		
 
 private:
+	BButton*			fOkButton;
+	BMenuField*			fAccountField;
+	AccountInstances	fAccounts;
+
 	Server*				fServer;
+
 	RosterView*			fRosterView;
 	BMessenger*			fTarget;
 	BMessage*			fMessage;

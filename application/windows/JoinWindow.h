@@ -24,7 +24,6 @@ public:
 
 private:
 			void		_InitInterface();
-			BMenu*		_CreateAccountMenu();
 
 	BMessenger*			fTarget;
 	AccountInstances	fAccounts;

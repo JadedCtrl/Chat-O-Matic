@@ -14,6 +14,10 @@
 #include <Resources.h>
 
 #include "CayaConstants.h"
+#include "Server.h"
+
+class BMenu;
+
 
 const char* CayaStatusToString(CayaStatus status);
 
@@ -22,6 +26,9 @@ BString		CommandName(BString line);
 BString		CommandArgs(BString line);
 
 BResources* CayaResources();
+
+BMenu* CreateAccountMenu(AccountInstances accounts, BMessage msg,
+			BMessage* allMsg = NULL);
 
 const char*	CayaAccountsPath();
 const char*	CayaAccountPath(const char* signature);

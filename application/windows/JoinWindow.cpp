@@ -12,6 +12,7 @@
 #include <StringView.h>
 
 #include "CayaProtocolMessages.h"
+#include "CayaUtils.h"
 
 
 const uint32 kJoinRoom = 'JWjr';
@@ -26,7 +27,6 @@ JoinWindow::JoinWindow(BMessenger* messenger, AccountInstances accounts)
 	fSelectedAcc(0)
 {
 	_InitInterface();
-
 	CenterOnScreen();
 }
 
@@ -77,9 +77,10 @@ JoinWindow::MessageReceived(BMessage* msg)
 void
 JoinWindow::_InitInterface()
 {
-	fMenuField = new BMenuField("accountMenuField", NULL, _CreateAccountMenu());
 	BButton* join = new BButton("Join", new BMessage(kJoinRoom));
 	fTextBox = new BTextControl("Room ID:", "", NULL);
+	fMenuField = new BMenuField("accountMenuField", NULL,
+		CreateAccountMenu(fAccounts, BMessage(kAccSelected)));
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.SetInsets(B_USE_DEFAULT_SPACING)
@@ -95,25 +96,3 @@ JoinWindow::_InitInterface()
 	fTextBox->MakeFocus(true);
 	join->MakeDefault(true);
 }
-
-
-BMenu*
-JoinWindow::_CreateAccountMenu()
-{
-	BMenu* menu = new BMenu("accountMenu");
-
-	for (int i = 0; i < fAccounts.CountItems(); i++)
-		menu->AddItem(new BMenuItem(fAccounts.KeyAt(i).String(),
-									new BMessage(kAccSelected)));
-
-	menu->SetRadioMode(true);
-	menu->SetLabelFromMarked(true);
-	menu->ItemAt(fSelectedAcc)->SetMarked(true);
-
-	if (fAccounts.CountItems() == 0)
-		menu->SetEnabled(false);
-
-	return menu;
-}
-
-
