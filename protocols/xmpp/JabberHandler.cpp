@@ -1,6 +1,6 @@
 /*
- * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Copyright 2010, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the GPL v2 License.
  *
  * Authors:
@@ -145,6 +145,14 @@ JabberHandler::Process(BMessage* msg)
 
 			_EnsureUserChat(user_id);
 			_ChatCreatedMsg(user_id);
+			break;
+		}
+
+		case IM_CREATE_ROOM: {
+			BString chat_id;
+			if (msg->FindString("chat_id", &chat_id) != B_OK)
+				break;
+			_JoinRoom(chat_id);
 			break;
 		}
 
@@ -1162,6 +1170,20 @@ JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 }
 
 
+BMessage
+JabberHandler::_RoomTemplate()
+{
+	BMessage stemplate('IMst');
+	BMessage roomIdentifier;
+	roomIdentifier.AddString("name", "chat_id");
+	roomIdentifier.AddString("description", "JID");
+	roomIdentifier.AddInt32("type", 'CSTR');
+	stemplate.AddMessage("setting", &roomIdentifier);
+
+	return stemplate;
+}
+
+
 /***********************************************************************
  * gloox callbacks
  **********************************************************************/
@@ -1454,8 +1476,12 @@ JabberHandler::handleMUCMessage(gloox::MUCRoom *room, const gloox::Message &m,
 
 
 bool
-JabberHandler::handleMUCRoomCreation(gloox::MUCRoom *room)
+JabberHandler::handleMUCRoomCreation(gloox::MUCRoom* room)
 {
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_ROOM_CREATED);
+	msg.AddString("chat_id", _MUCChatId(room));
+	_SendMessage(&msg);
 	return true;
 }
 

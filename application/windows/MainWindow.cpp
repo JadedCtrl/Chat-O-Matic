@@ -248,9 +248,10 @@ MainWindow::ImMessage(BMessage* msg)
 		}
 		case IM_ROOM_JOINED:
 		case IM_ROOM_PARTICIPANTS:
+		case IM_ROOM_CREATED:
+		case IM_CHAT_CREATED:
 		case IM_MESSAGE_RECEIVED:
 		case IM_MESSAGE_SENT:
-		case IM_CHAT_CREATED:
 		{
 			_EnsureConversationItem(msg);
 			break;

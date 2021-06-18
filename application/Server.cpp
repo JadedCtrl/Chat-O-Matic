@@ -310,6 +310,7 @@ Server::ImMessage(BMessage* msg)
 			SendProtocolMessage(msg);
 			break;
 		}
+		case IM_ROOM_CREATED:
 		case IM_ROOM_JOINED:
 		{
 			_EnsureConversation(msg);

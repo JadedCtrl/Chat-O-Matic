@@ -96,6 +96,8 @@ protected:
 			BString					fName;
 
 			BMessage				_SettingsTemplate(const char* username, bool serverOption);
+			BMessage				_RoomTemplate();
+
 private:
 			CayaProtocolMessengerInterface*
 									fServerMessenger;

@@ -215,7 +215,8 @@ enum im_what_code {
 	//	CayaProtocol::SettingsTemplate("room")
 	IM_CREATE_ROOM						= 152,
 
-	//!	Create a room					→Caya
+	//!	Inform Caya room was created	→Caya
+	//	Just a semantically-dressed IM_ROOM_JOINED
 	//	Requires:	String "chat_id"
 	IM_ROOM_CREATED						= 153,
 
