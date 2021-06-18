@@ -12,6 +12,7 @@
 #include "ProtocolTemplate.h"
 #include "Server.h"
 
+class BAlert;
 class BMenu;
 class BMenuField;
 class BTextControl;

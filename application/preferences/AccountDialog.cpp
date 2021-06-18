@@ -98,7 +98,10 @@ AccountDialog::MessageReceived(BMessage* msg)
 			}
 
 			// Save account settings
-			if (fSettings->Save(fAccountName->Text(), fTop) == B_OK) {
+			BString error = "An error has occured saving the settings.\n"
+				"Check if your disk has enough space.";
+
+			if (fSettings->Save(fAccountName->Text(), fTop, &error) == B_OK) {
 				if (fTarget && (adding || renaming)) {
 					BMessage* saveMsg = new BMessage(renaming
 							? kAccountRenamed : kAccountAdded);
@@ -113,12 +116,9 @@ AccountDialog::MessageReceived(BMessage* msg)
 
 				Close();
 			} else {
-				BAlert* alert = new BAlert("", "An error is occurred saving the settings.\n"
-					"Check if your disk has enough space.", "OK", NULL, NULL, B_WIDTH_AS_USUAL,
-					B_STOP_ALERT);
+				BAlert* alert = new BAlert("", error.String(), "OK", NULL, NULL,
+					B_WIDTH_AS_USUAL, B_STOP_ALERT);
 				alert->Go();
-
-				Close();
 			}
 			break;
 		}

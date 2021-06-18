@@ -1142,12 +1142,16 @@ JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 	BMessage usernameText;
 	usernameText.AddString("name", "username");
 	usernameText.AddString("description", username);
+	usernameText.AddString("error", "You can't log into an account without a "
+		"username.\nPlease fill in your username for the given server.");
 	usernameText.AddInt32("type", 'CSTR');
 	stemplate.AddMessage("setting", &usernameText);
 
 	BMessage passwordText;
 	passwordText.AddString("name", "password");
 	passwordText.AddString("description", "Password");
+	passwordText.AddString("error", "You can't log into an account without a "
+		"password.\nPlease fill in your password for the given account.");
 	passwordText.AddInt32("type", 'CSTR');
 	passwordText.AddBool("is_secret", true);
 	stemplate.AddMessage("setting", &passwordText);
@@ -1155,6 +1159,8 @@ JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 	BMessage serverText;
 	serverText.AddString("name", "server");
 	serverText.AddString("description", "Server");
+	serverText.AddString("error", "You can't add an account without a server.\n"
+		"Please add a valid XMPP server.");
 	serverText.AddInt32("type", 'CSTR');
 	if (serverOption == true)
 		stemplate.AddMessage("setting", &serverText);
@@ -1164,6 +1170,8 @@ JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 	resourceText.AddString("description", "Resource");
 	resourceText.AddInt32("type", 'CSTR');
 	resourceText.AddString("default", "Caya");
+	resourceText.AddString("error", "You can't add an account without a "
+		"resource.\nDon't worry― it can be whatever string you want.");
 	stemplate.AddMessage("setting", &resourceText);
 
 	return stemplate;
@@ -1176,7 +1184,9 @@ JabberHandler::_RoomTemplate()
 	BMessage stemplate('IMst');
 	BMessage roomIdentifier;
 	roomIdentifier.AddString("name", "chat_id");
-	roomIdentifier.AddString("description", "JID");
+	roomIdentifier.AddString("description", "Room identifier");
+	roomIdentifier.AddString("error", "You can't create a room without a JID!\n"
+		"Use the \"name@server\" format.");
 	roomIdentifier.AddInt32("type", 'CSTR');
 	stemplate.AddMessage("setting", &roomIdentifier);
 

@@ -62,12 +62,14 @@ TemplateWindow::MessageReceived(BMessage* msg)
 			if (fTemplate == NULL || fTemplateView == NULL)
 				break;
 
+			BString error = "Some items are empty. Please make sure to fill "
+				"out every item.";
 			BMessage* settings = new BMessage(*fMessage);
-			status_t result = fTemplate->Save(fTemplateView, settings);
+			status_t result = fTemplate->Save(fTemplateView, settings, &error);
 
 			if (result != B_OK) {
-				BAlert* alert = new BAlert("", "Invalid settings― make sure "
-					"each item is filled out.\n", "OK", NULL, NULL);
+				BAlert* alert = new BAlert("", error.String(), "OK", NULL, NULL,
+					B_WIDTH_AS_USUAL, B_WARNING_ALERT);
 				alert->Go();
 				break;
 			}
@@ -75,7 +77,6 @@ TemplateWindow::MessageReceived(BMessage* msg)
 				= fServer->GetProtocolLooper(fAccounts.ValueAt(fSelectedAcc));
 			if (looper == NULL)
 				break;
-
 			looper->PostMessage(settings);
 			Close();
 			break;

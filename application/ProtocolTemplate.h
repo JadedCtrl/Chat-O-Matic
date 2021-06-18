@@ -10,6 +10,7 @@
 #include <SupportDefs.h>
 
 class BMessage;
+class BString;
 class BView;
 class CayaProtocol;
 
@@ -24,7 +25,8 @@ public:
 	CayaProtocol*		Protocol() const;
 
 	status_t			Load(BView* parent, BMessage* settings = NULL);
-	status_t			Save(BView* parent, BMessage* settings);
+	status_t			Save(BView* parent, BMessage* settings,
+							BString* errorText = NULL);
 
 private:
 	CayaProtocol*		fProtocol;

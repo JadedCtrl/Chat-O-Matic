@@ -228,7 +228,7 @@ ProtocolTemplate::Load(BView* parent, BMessage* settings)
 
 
 status_t
-ProtocolTemplate::Save(BView* parent, BMessage* settings)
+ProtocolTemplate::Save(BView* parent, BMessage* settings, BString* errorText)
 {
 	if (!parent)
 		debugger("Couldn't save protocol's settings GUI on a NULL parent!");
@@ -236,6 +236,7 @@ ProtocolTemplate::Save(BView* parent, BMessage* settings)
 	BMessage cur;
 	for (int32 i = 0; fTemplate->FindMessage("setting", i, &cur) == B_OK; i++) {
 		const char* name = cur.FindString("name");
+		BString error = cur.FindString("error");
 
 		// Skip NULL names
 		if (!name)
@@ -251,7 +252,13 @@ ProtocolTemplate::Save(BView* parent, BMessage* settings)
 
 		BTextControl* textControl
 			= dynamic_cast<BTextControl*>(view);
-		if (textControl) {
+
+		if (textControl && BString(textControl->Text()).IsEmpty() == true) {
+			if (error.IsEmpty() == false && errorText != NULL)
+				errorText->SetTo(error);
+			return B_BAD_VALUE;
+		}
+		else if (textControl)
 			switch (type) {
 				case B_STRING_TYPE:
 					settings->AddString(name, textControl->Text());
@@ -260,9 +267,8 @@ ProtocolTemplate::Save(BView* parent, BMessage* settings)
 					settings->AddInt32(name, atoi(textControl->Text()));
 					break;
 				default:
-					return B_ERROR;
+					return B_BAD_TYPE;
 			}
-		}
 
 		BMenuField* menuField
 			= dynamic_cast<BMenuField*>(view);
@@ -279,7 +285,7 @@ ProtocolTemplate::Save(BView* parent, BMessage* settings)
 					settings->AddInt32(name, atoi(item->Label()));
 					break;
 				default:
-					return B_ERROR;
+					return B_BAD_TYPE;
 			}
 		}
 

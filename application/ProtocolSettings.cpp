@@ -85,16 +85,16 @@ ProtocolSettings::Load(const char* account, BView* parent)
 
 
 status_t
-ProtocolSettings::Save(const char* account, BView* parent)
+ProtocolSettings::Save(const char* account, BView* parent, BString* errorText)
 {
 	if (!parent)
 		debugger("Couldn't save protocol's settings GUI on a NULL parent!");
 
 	BMessage settings;
-	status_t status = fTemplate.Save(parent, &settings);
+	status_t status = fTemplate.Save(parent, &settings, errorText);
 
-	if (!account || status != B_OK)
-		return B_BAD_VALUE;
+	if (status != B_OK)
+		return status;
 
 	status_t ret = B_ERROR;
 
