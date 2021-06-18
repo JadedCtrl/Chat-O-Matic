@@ -1,11 +1,13 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  *		Andrea Anzani, andrea.anzani@gmail.com
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
+ *		Jaidyn Levesque, jadedctrl@teknik.io
  */
 #ifndef ROSTERWINDOW_H
 #define ROSTERWINDOW_H
@@ -13,7 +15,7 @@
 #include <Window.h>
 
 class RosterItem;
-class RosterListView;
+class RosterView;
 class Server;
 
 
@@ -25,25 +27,14 @@ public:
 		Server* server);
 
 			void		MessageReceived(BMessage* message);
-			void		ImMessage(BMessage* msg);
-
-			int32		CountItems() const;
-			RosterItem*	ItemAt(int index);
-			void		AddItem(RosterItem*);
-			bool		HasItem(RosterItem*);
-			void		RemoveItem(RosterItem*);
 
 			void		UpdateListItem(RosterItem* item);		
 
 private:
-	void _PopulateRosterList();
-
 	Server*				fServer;
-	RosterListView*		fListView;
+	RosterView*			fRosterView;
 	BMessenger*			fTarget;
 	BMessage*			fMessage;
 };
 
-
 #endif // ROSTERWINDOW_H
-

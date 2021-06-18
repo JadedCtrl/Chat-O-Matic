@@ -215,6 +215,22 @@ RosterListView::Draw(BRect updateRect)
 }
 
 
+bool
+RosterListView::AddRosterItem(RosterItem* item)
+{
+	if (HasItem(item) == false)
+		return AddItem(item);
+	return false;
+}
+
+
+RosterItem*
+RosterListView::RosterItemAt(int32 index)
+{
+	return dynamic_cast<RosterItem*>(ItemAt(index));
+}
+
+
 void
 RosterListView::Sort()
 {

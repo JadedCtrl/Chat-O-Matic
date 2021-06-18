@@ -69,7 +69,7 @@ SRCS = \
 	application/views/ReplicantMenuItem.cpp \
 	application/views/RosterItem.cpp \
 	application/views/RosterListView.cpp \
-	application/views/SearchBarTextControl.cpp \
+	application/views/RosterView.cpp \
 	application/views/StatusMenuItem.cpp \
 	application/views/StatusView.cpp \
 	application/views/TemplateView.cpp \

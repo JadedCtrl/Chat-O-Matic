@@ -22,6 +22,10 @@ public:
 	virtual	void	MouseDown(BPoint where);
 	virtual	void	Draw(BRect updateRect);
 	virtual void	AttachedToWindow();
+
+			bool	AddRosterItem(RosterItem* item);
+		RosterItem*	RosterItemAt(int32 index);
+
 			void	Sort();
 
 private:
