@@ -313,7 +313,9 @@ Server::ImMessage(BMessage* msg)
 		case IM_ROOM_CREATED:
 		case IM_ROOM_JOINED:
 		{
-			_EnsureConversation(msg);
+			Conversation* chat = _EnsureConversation(msg);
+			if (chat != NULL)
+				chat->ImMessage(msg);
 			break;
 		}
 		case IM_ROOM_PARTICIPANTS:

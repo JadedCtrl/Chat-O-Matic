@@ -1,9 +1,11 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  *		Andrea Anzani, andrea.anzani@gmail.com
+ *		Jaidyn Levesque, jadedctrl@teknik.io
  */
 
 #include "ConversationView.h"
@@ -149,6 +151,18 @@ ConversationView::ImMessage(BMessage* msg)
 		{
 			_AppendOrEnqueueMessage(msg);
 			break;
+		}
+		case IM_ROOM_JOINED:
+		{
+			BMessage msg;
+			msg.AddString("body", "** You joined the room.\n");
+			_AppendOrEnqueueMessage(&msg);
+		}
+		case IM_ROOM_CREATED:
+		{
+			BMessage msg;
+			msg.AddString("body", "** You created the room.\n");
+			_AppendOrEnqueueMessage(&msg);
 		}
 		case IM_ROOM_PARTICIPANT_JOINED:
 		{
