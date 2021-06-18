@@ -6,6 +6,8 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
+#include "TemplateView.h"
+
 #include <Button.h>
 #include <ControlLook.h>
 #include <CheckBox.h>
@@ -20,17 +22,15 @@
 
 #include <libinterface/NotifyingTextView.h>
 
-#include "AccountView.h"
 
-
-AccountView::AccountView(const char* name)
+TemplateView::TemplateView(const char* name)
 	: BView(name, B_WILL_DRAW)
 {
 }
 
 
 void
-AccountView::AttachedToWindow()
+TemplateView::AttachedToWindow()
 {
 	// Once we are attached to window, the GUI is already created
 	// so we can set our window as target for messages

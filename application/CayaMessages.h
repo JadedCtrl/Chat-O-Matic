@@ -20,8 +20,11 @@ const uint32 CAYA_CHAT = 'CYch';
 //! Create a new chat
 const uint32 CAYA_NEW_CHAT = 'CYnc';
 
+//! Create a new chat
+const uint32 CAYA_NEW_ROOM = 'CYnr';
+
 //! Join a chat
-const uint32 CAYA_JOIN_CHAT = 'CYjc';
+const uint32 CAYA_JOIN_ROOM = 'CYjr';
 
 //! Invite user to current chat
 const uint32 CAYA_SEND_INVITE = 'CYin';

@@ -34,6 +34,7 @@
 #include "RosterWindow.h"
 #include "Server.h"
 #include "StatusView.h"
+#include "TemplateWindow.h"
 
 
 const uint32 kLogin			= 'LOGI';
@@ -111,7 +112,6 @@ MainWindow::MessageReceived(BMessage* message)
 			win->Show();
 			break;
 		}
-
 		case CAYA_NEW_CHAT:
 		{
 			BMessage* newMsg = new BMessage(IM_MESSAGE);
@@ -122,15 +122,23 @@ MainWindow::MessageReceived(BMessage* message)
 			fRosterWindow->Show();
 			break;
 		}
+		case CAYA_NEW_ROOM:
+		{
+			BMessage* createMsg = new BMessage(IM_MESSAGE);
+			createMsg->AddInt32("im_what", IM_CREATE_ROOM);
 
-		case CAYA_JOIN_CHAT:
+			TemplateWindow* win = new TemplateWindow("Create room",
+				"room", createMsg, fServer);
+			win->Show();
+			break;
+		}
+		case CAYA_JOIN_ROOM:
 		{
 			JoinWindow* win = new JoinWindow(new BMessenger(this),
 											 fServer->GetAccounts());
 			win->Show();
 			break;
 		}
-
 		case CAYA_SEND_INVITE:
 		{
 			if (fConversation == NULL)
@@ -148,7 +156,6 @@ MainWindow::MessageReceived(BMessage* message)
 			fRosterWindow->Show();
 			break;
 		}
-
 		case CAYA_MOVE_UP:
 		{
 			if (fConversation == NULL)
@@ -159,7 +166,6 @@ MainWindow::MessageReceived(BMessage* message)
 				fListView->SelectConversation(index - 1);
 			break;
 		}
-
 		case CAYA_MOVE_DOWN:
 		{
 			if (fConversation == NULL)
@@ -171,7 +177,6 @@ MainWindow::MessageReceived(BMessage* message)
 				fListView->SelectConversation(index + 1);
 			break;
 		}
-
 		case CAYA_REPLICANT_STATUS_SET:
 		{
 			int32 status;
@@ -180,7 +185,6 @@ MainWindow::MessageReceived(BMessage* message)
 			accountManager->SetStatus((CayaStatus)status);
 			break;
 		}
-
 		case CAYA_REPLICANT_SHOW_WINDOW:
 		{
 			if (LockLooper()) {
@@ -199,7 +203,6 @@ MainWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-
 		case CAYA_CHAT:
 		{
 			message->AddString("body", fSendView->Text());
@@ -207,11 +210,9 @@ MainWindow::MessageReceived(BMessage* message)
 			fSendView->SetText("");
 			break;
 		}
-
 		case CAYA_DISABLE_ACCOUNT:
 			_ToggleMenuItems();
 			break;
-
 		case IM_MESSAGE:
 			ImMessage(message);
 			break;
@@ -221,7 +222,6 @@ MainWindow::MessageReceived(BMessage* message)
 		case B_ABOUT_REQUESTED:
 			be_app->PostMessage(message);
 			break;
-
 		default:
 			BWindow::MessageReceived(message);
 	}
@@ -452,14 +452,14 @@ MainWindow::_CreateMenuBar()
 	// Chat
 	BMenu* chatMenu = new BMenu("Chat");
 	BMenuItem* joinRoom = new BMenuItem("Join room" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_JOIN_CHAT), 'J', B_COMMAND_KEY);
+		new BMessage(CAYA_JOIN_ROOM), 'J', B_COMMAND_KEY);
 	BMenuItem* invite = new BMenuItem("Invite user" B_UTF8_ELLIPSIS,
 		new BMessage(CAYA_SEND_INVITE), 'I', B_COMMAND_KEY);
 
 	BMenuItem* newChat = new BMenuItem("New chat" B_UTF8_ELLIPSIS,
 		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY);
 	BMenuItem* newRoom = new BMenuItem("New room" B_UTF8_ELLIPSIS,
-		new BMessage(), 'N', B_COMMAND_KEY);
+		new BMessage(CAYA_NEW_ROOM), 'N', B_COMMAND_KEY);
 
 	chatMenu->AddItem(joinRoom);
 	chatMenu->AddSeparatorItem();
@@ -524,5 +524,3 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 
 	return NULL;
 }
-
-

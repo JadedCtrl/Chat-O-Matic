@@ -32,13 +32,13 @@
 const float kDividerWidth = 1.0f;
 
 
-ProtocolTemplate::ProtocolTemplate(CayaProtocolAddOn* addOn, const char* type)
+ProtocolTemplate::ProtocolTemplate(CayaProtocol* protocol, const char* type)
 	:
-	fAddOn(addOn),
+	fProtocol(protocol),
 	fTemplate(new BMessage())
 {
 	// Load protocol's settings template
-	BMessage settingsTemplate = fAddOn->Protocol()->SettingsTemplate(type);
+	BMessage settingsTemplate = fProtocol->SettingsTemplate(type);
 	*fTemplate = settingsTemplate;
 }
 
@@ -49,10 +49,10 @@ ProtocolTemplate::~ProtocolTemplate()
 }
 
 
-CayaProtocolAddOn*
-ProtocolTemplate::AddOn() const
+CayaProtocol*
+ProtocolTemplate::Protocol() const
 {
-	return fAddOn;
+	return fProtocol;
 }
 
 
@@ -227,13 +227,11 @@ ProtocolTemplate::Load(BView* parent, BMessage* settings)
 }
 
 
-BMessage* 
-ProtocolTemplate::Save(BView* parent)
+status_t
+ProtocolTemplate::Save(BView* parent, BMessage* settings)
 {
 	if (!parent)
 		debugger("Couldn't save protocol's settings GUI on a NULL parent!");
-
-	BMessage* settings = new BMessage();
 
 	BMessage cur;
 	for (int32 i = 0; fTemplate->FindMessage("setting", i, &cur) == B_OK; i++) {
@@ -262,7 +260,7 @@ ProtocolTemplate::Save(BView* parent)
 					settings->AddInt32(name, atoi(textControl->Text()));
 					break;
 				default:
-					return NULL;
+					return B_ERROR;
 			}
 		}
 
@@ -271,7 +269,7 @@ ProtocolTemplate::Save(BView* parent)
 		if (menuField) {
 			BMenuItem* item = menuField->Menu()->FindMarked();
 			if (!item)
-				return NULL;
+				return B_ERROR;
 
 			switch (type) {
 				case B_STRING_TYPE:
@@ -281,7 +279,7 @@ ProtocolTemplate::Save(BView* parent)
 					settings->AddInt32(name, atoi(item->Label()));
 					break;
 				default:
-					return NULL;
+					return B_ERROR;
 			}
 		}
 
@@ -296,5 +294,5 @@ ProtocolTemplate::Save(BView* parent)
 			settings->AddString(name, textView->Text());
 	}
 
-	return settings;
+	return B_OK;
 }

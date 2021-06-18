@@ -33,6 +33,7 @@ public:
 private:
 	status_t			_Load(const char* account, BMessage** settings);
 
+	CayaProtocolAddOn*	fAddOn;
 	ProtocolTemplate	fTemplate;
 	status_t			fStatus;
 };

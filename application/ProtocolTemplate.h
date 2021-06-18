@@ -11,23 +11,23 @@
 
 class BMessage;
 class BView;
-class CayaProtocolAddOn;
+class CayaProtocol;
 
 
 class ProtocolTemplate {
 public:
-						ProtocolTemplate(CayaProtocolAddOn* addOn,
+						ProtocolTemplate(CayaProtocol* protocol,
 							const char* type);
 						~ProtocolTemplate();
 
 	status_t			InitCheck() const;
-	CayaProtocolAddOn*	AddOn() const;
+	CayaProtocol*		Protocol() const;
 
 	status_t			Load(BView* parent, BMessage* settings = NULL);
-	BMessage*			Save(BView* parent);
+	status_t			Save(BView* parent, BMessage* settings);
 
 private:
-	CayaProtocolAddOn*	fAddOn;
+	CayaProtocol*		fProtocol;
 	BMessage*			fTemplate;
 };
 

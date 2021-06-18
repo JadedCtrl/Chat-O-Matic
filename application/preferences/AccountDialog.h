@@ -10,8 +10,8 @@
 
 class BTextControl;
 
-class AccountView;
 class ProtocolSettings;
+class TemplateView;
 
 const uint32 kAccountAdded		= 'acad';
 const uint32 kAccountRenamed	= 'acrd';
@@ -29,7 +29,7 @@ public:
 private:
 	ProtocolSettings*	fSettings;
 	BString				fAccount;
-	AccountView*		fTop;
+	TemplateView*		fTop;
 	BTextControl*		fAccountName;
 	BHandler*			fTarget;
 };

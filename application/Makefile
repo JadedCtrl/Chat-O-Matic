@@ -53,7 +53,6 @@ SRCS = \
 	application/User.cpp \
 	application/preferences/AccountDialog.cpp \
 	application/preferences/AccountListItem.cpp \
-	application/preferences/AccountView.cpp \
 	application/preferences/CayaPreferences.cpp \
 	application/preferences/PreferencesChatWindow.cpp \
 	application/preferences/PreferencesAccounts.cpp \
@@ -73,6 +72,7 @@ SRCS = \
 	application/views/SearchBarTextControl.cpp \
 	application/views/StatusMenuItem.cpp \
 	application/views/StatusView.cpp \
+	application/views/TemplateView.cpp \
 	application/views/UserItem.cpp \
 	application/views/UserListView.cpp \
 	application/views/UserPopUp.cpp \
@@ -81,6 +81,7 @@ SRCS = \
 	application/windows/MainWindow.cpp \
 	application/windows/PreferencesWindow.cpp \
 	application/windows/RosterWindow.cpp \
+	application/windows/TemplateWindow.cpp \
 	application/windows/UserInfoWindow.cpp
 
 

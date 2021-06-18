@@ -16,8 +16,8 @@
 #include <libinterface/Divider.h>
 
 #include "AccountDialog.h"
-#include "AccountView.h"
 #include "ProtocolSettings.h"
+#include "TemplateView.h"
 
 const uint32 kCancel	= 'canc';
 const uint32 kOK		= 'save';
@@ -40,7 +40,7 @@ AccountDialog::AccountDialog(const char* title, ProtocolSettings* settings,
 
 	Divider* divider = new Divider("divider", B_WILL_DRAW);
 
-	fTop = new AccountView("top");
+	fTop = new TemplateView("top");
 	if (fAccount.Length() > 0)
 		fSettings->Load(fAccount.String(), fTop);
 	else

@@ -24,7 +24,8 @@
 
 ProtocolSettings::ProtocolSettings(CayaProtocolAddOn* addOn)
 	:
-	fTemplate(addOn, "account")
+	fTemplate(addOn->Protocol(), "account"),
+	fAddOn(addOn)
 {
 }
 
@@ -39,7 +40,7 @@ ProtocolSettings::InitCheck() const
 CayaProtocolAddOn*
 ProtocolSettings::AddOn() const
 {
-	return fTemplate.AddOn();
+	return fAddOn;
 }
 
 
@@ -48,8 +49,7 @@ ProtocolSettings::Accounts() const
 {
 	BObjectList<BString> list(true);
 
-	BPath path(CayaAccountPath(AddOn()->Signature(),
-		AddOn()->ProtoSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 
 	if (path.InitCheck() != B_OK)
 		return list;
@@ -90,16 +90,16 @@ ProtocolSettings::Save(const char* account, BView* parent)
 	if (!parent)
 		debugger("Couldn't save protocol's settings GUI on a NULL parent!");
 
-	BMessage* settings = fTemplate.Save(parent);
+	BMessage settings;
+	status_t status = fTemplate.Save(parent, &settings);
 
-	if (!account || !settings)
+	if (!account || status != B_OK)
 		return B_BAD_VALUE;
 
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(AddOn()->Signature(),
-		AddOn()->ProtoSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
@@ -107,7 +107,7 @@ ProtocolSettings::Save(const char* account, BView* parent)
 	// Load settings file
 	path.Append(account);
 	BFile file(path.Path(), B_CREATE_FILE | B_ERASE_FILE | B_WRITE_ONLY);
-	return settings->Flatten(&file);
+	return settings.Flatten(&file);
 }
 
 
@@ -117,8 +117,7 @@ ProtocolSettings::Rename(const char* from, const char* to)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(AddOn()->Signature(),
-		AddOn()->ProtoSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
@@ -140,8 +139,7 @@ ProtocolSettings::Delete(const char* account)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(AddOn()->Signature(),
-		AddOn()->ProtoSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
@@ -168,8 +166,7 @@ ProtocolSettings::_Load(const char* account, BMessage** settings)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(AddOn()->Signature(),
-		AddOn()->ProtoSignature()));
+	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;

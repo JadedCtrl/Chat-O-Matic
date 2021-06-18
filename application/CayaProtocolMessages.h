@@ -208,66 +208,76 @@ enum im_what_code {
 	//	Requires:	String "chat_id", String "user_id"
 	IM_CHAT_CREATED						= 151,
 
+	//!	Create a room					→Protocol
+	//	The required slots for this message are completely determined by the
+	//	protocol itself― the protocol will just receive data from the
+	//	"room" template (which is fetched via
+	//	CayaProtocol::SettingsTemplate("room")
+	IM_CREATE_ROOM						= 152,
+
+	//!	Create a room					→Caya
+	//	Requires:	String "chat_id"
+	IM_ROOM_CREATED						= 153,
+
 	//!	Join a room						→Protocol
 	//	Requires:	String "chat_id"
-	IM_JOIN_ROOM						= 152,
-
+	IM_JOIN_ROOM						= 154,
 
 	//!	Confirm the room's been joined	→Caya
 	//	Requires:	String "chat_id"
-	IM_ROOM_JOINED						= 153,
+	IM_ROOM_JOINED						= 155,
 
 	//!	User wants to leave the room	→Protocol
 	//	Requires:	String "chat_id"
-	IM_LEAVE_ROOM						= 154,
+	IM_LEAVE_ROOM						= 156,
 
 	//!	User left the room				→Caya
 	//	Requires:	String "chat_id"
-	IM_ROOM_LEFT						= 155,
+	IM_ROOM_LEFT						= 157,
 
 	//! Request a room's userlist		→Protocol
 	//	Requires:	String "chat_id"
-	IM_GET_ROOM_PARTICIPANTS			= 156,
+	IM_GET_ROOM_PARTICIPANTS			= 158,
 
 	//!	Quietly add user(s) to the chat	→Caya
 	//	Shouldn't be sent automatically on joining a room.
 	//	Requires:	String "chat_id", StringList "user_id"
 	//	Accepts:	StringList "user_name"
-	IM_ROOM_PARTICIPANTS				= 157,
+	IM_ROOM_PARTICIPANTS				= 159,
 
 	//!	User has explicitly joined		→Caya
 	//	 Requires:	String "chat_id", String "user_id"
 	//	 Accepts:	String "body"
-	IM_ROOM_PARTICIPANT_JOINED			= 158,
+	IM_ROOM_PARTICIPANT_JOINED			= 160,
 
 	//!	A user left the room			→Caya
 	//	Requires:	String "chat_id", String "user_id"
 	//	Accepts:	String "user_name", String "body"
-	IM_ROOM_PARTICIPANT_LEFT			= 159,
+	IM_ROOM_PARTICIPANT_LEFT			= 161,
 
 	//!	Invite a user to a room			→Protocol
 	//	You can tell it succeded with IM_ROOM_PARTICIPANT_JOINED.
 	//	Requires:	String "chat_id", String "user_id"
 	//	Accepts:	String "body"
-	IM_ROOM_SEND_INVITE					= 160,
+	IM_ROOM_SEND_INVITE					= 162,
 
 	//!	Invitee explicitly refused		→Caya
 	//	Requires:	String "chat_id", String "user_id"
 	//	Accepts:	String "user_name", String "body"
-	IM_ROOM_INVITE_REFUSED				= 161,
+	IM_ROOM_INVITE_REFUSED				= 163,
 
 	//!	User was invited to a room		→Caya
 	//	Requires:	String "chat_id"
 	//	Accepts:	String "user_id", String "chat_name", String "body"
-	IM_ROOM_INVITE_RECEIVED				= 162,
+	IM_ROOM_INVITE_RECEIVED				= 164,
 
 	//!	User accepted an invite			→Protocol
 	//	Requires:	String "chat_id"
-	IM_ROOM_INVITE_ACCEPT				= 163,
+	IM_ROOM_INVITE_ACCEPT				= 165,
 
 	//!	User denies an invite			→Protocol
 	//	Requires:	String "chat_id"
-	IM_ROOM_INVITE_REFUSE				= 164,
+	IM_ROOM_INVITE_REFUSE				= 166,
 
 
 	/*
