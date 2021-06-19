@@ -45,9 +45,28 @@ RosterWindow::RosterWindow(const char* title, BMessage* selectMsg,
 	fRosterView->SetInvocationMessage(new BMessage(kSendMessage));
 
 	fOkButton = new BButton("OK", new BMessage(kSendMessage));
-	fAccountField = new BMenuField("accountMenuField", NULL,
-		CreateAccountMenu(fAccounts, BMessage(kSelAccount),
-			new BMessage(kSelNoAccount)));
+
+	BMenu* accountMenu;
+
+	// If a specific instance is given, disallow selecting other accounts
+	if (instance > -1) {
+		accountMenu = new BMenu("accountMenu");
+		BString name = "N/A";
+		for (int i = 0; i < fAccounts.CountItems(); i++)
+			if (fAccounts.ValueAt(i) == instance) {
+				name = fAccounts.KeyAt(i);
+				break;
+			}
+		accountMenu->AddItem(new BMenuItem(name.String(), NULL));
+		accountMenu->SetLabelFromMarked(true);
+		accountMenu->ItemAt(0)->SetMarked(true);
+		accountMenu->SetEnabled(false);
+	}
+	else
+		accountMenu = CreateAccountMenu(fAccounts, BMessage(kSelAccount),
+			new BMessage(kSelNoAccount));
+
+	fAccountField = new BMenuField("accountMenuField", NULL, accountMenu);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.SetInsets(B_USE_DEFAULT_SPACING)

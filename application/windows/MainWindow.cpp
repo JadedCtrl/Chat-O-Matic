@@ -149,9 +149,11 @@ MainWindow::MessageReceived(BMessage* message)
 			invite->AddInt32("im_what", IM_ROOM_SEND_INVITE);
 			invite->AddString("chat_id", chat_id);
 
-			BLooper* looper = (BLooper*)fConversation->GetProtocolLooper();
+			ProtocolLooper* plooper = fConversation->GetProtocolLooper();
+			BLooper* looper = (BLooper*)plooper;
 			fRosterWindow = new RosterWindow("Invite contact to chat"
-				B_UTF8_ELLIPSIS, invite, new BMessenger(looper), fServer);
+				B_UTF8_ELLIPSIS, invite, new BMessenger(looper), fServer,
+				plooper->GetInstance());
 
 			fRosterWindow->Show();
 			break;
