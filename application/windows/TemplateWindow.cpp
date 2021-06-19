@@ -59,7 +59,6 @@ TemplateWindow::TemplateWindow(const char* title, ProtocolTemplate* temp,
 	_InitInterface(instance);
 	CenterOnScreen();
 
-	fTemplate = temp;
 	fTemplate->Load(fTemplateView);
 	fTemplateView->AttachedToWindow();
 	fTemplateView->MakeFocus(true);

@@ -26,7 +26,6 @@
 #include "ConversationView.h"
 #include "DefaultItems.h"
 #include "EditingFilter.h"
-#include "JoinWindow.h"
 #include "MainWindow.h"
 #include "NotifyMessage.h"
 #include "PreferencesWindow.h"
@@ -136,8 +135,20 @@ MainWindow::MessageReceived(BMessage* message)
 		}
 		case CAYA_JOIN_ROOM:
 		{
-			JoinWindow* win = new JoinWindow(new BMessenger(this),
-											 fServer->GetAccounts());
+			BMessage temp;
+			BMessage roomId;
+			roomId.AddString("name", "chat_id");
+			roomId.AddString("description", "Room ID:");
+			roomId.AddString("error", "You can't join an addressless room! "
+				"Please enter a valid room ID.");
+			roomId.AddInt32("type", 'CSTR');
+			temp.AddMessage("setting", &roomId);
+
+			BMessage* joinMsg = new BMessage(IM_MESSAGE);
+			joinMsg->AddInt32("im_what", IM_JOIN_ROOM);
+
+			TemplateWindow* win = new TemplateWindow("Join a room",
+				new ProtocolTemplate(temp), joinMsg, fServer);
 			win->Show();
 			break;
 		}

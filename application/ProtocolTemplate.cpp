@@ -43,6 +43,15 @@ ProtocolTemplate::ProtocolTemplate(CayaProtocol* protocol, const char* type)
 }
 
 
+ProtocolTemplate::ProtocolTemplate(BMessage pTemplate)
+	:
+	fProtocol(NULL),
+	fTemplate(new BMessage())
+{
+	*fTemplate = pTemplate;
+}
+
+
 ProtocolTemplate::~ProtocolTemplate()
 {
 	delete fTemplate;

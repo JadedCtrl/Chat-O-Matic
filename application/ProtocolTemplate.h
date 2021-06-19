@@ -19,6 +19,7 @@ class ProtocolTemplate {
 public:
 						ProtocolTemplate(CayaProtocol* protocol,
 							const char* type);
+						ProtocolTemplate(BMessage pTemplate);
 						~ProtocolTemplate();
 
 	status_t			InitCheck() const;
