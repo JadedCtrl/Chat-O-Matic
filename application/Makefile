@@ -80,6 +80,7 @@ SRCS = \
 	application/windows/JoinWindow.cpp \
 	application/windows/MainWindow.cpp \
 	application/windows/PreferencesWindow.cpp \
+	application/windows/RosterEditWindow.cpp \
 	application/windows/RosterWindow.cpp \
 	application/windows/TemplateWindow.cpp \
 	application/windows/UserInfoWindow.cpp

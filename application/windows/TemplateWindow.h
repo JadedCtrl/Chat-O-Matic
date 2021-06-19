@@ -22,18 +22,24 @@ class TemplateView;
 
 class TemplateWindow : public BWindow {
 public:
+						/*! Get template from selected account's protocol
+						 * 	via CayaProtocol::SettingsTemplate() */
 						TemplateWindow(const char* title,
 							const char* templateType, BMessage* msg,
-							Server* server);
+							Server* server, bigtime_t instance = -1);
+
+						/*! Use only the given template. */
+						TemplateWindow(const char* title,
+							ProtocolTemplate* temp, BMessage* msg,
+							Server* server, bigtime_t instance = -1);
 
 	virtual	void		MessageReceived(BMessage* msg);
 
 			void		SetTarget(BHandler* target);
 
 private:
-			void		_InitInterface();
+			void		_InitInterface(bigtime_t instance);
 			void		_LoadTemplate();
-			BMenu*		_CreateAccountMenu();
 
 	Server*				fServer;
 	AccountInstances	fAccounts;

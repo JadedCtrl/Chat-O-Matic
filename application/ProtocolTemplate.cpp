@@ -251,8 +251,10 @@ ProtocolTemplate::Save(BView* parent, BMessage* settings, BString* errorText)
 		BTextControl* textControl
 			= dynamic_cast<BTextControl*>(view);
 
-		if (textControl && BString(textControl->Text()).IsEmpty() == true) {
-			if (error.IsEmpty() == false && errorText != NULL)
+		if (textControl && BString(textControl->Text()).IsEmpty() == true
+			&& error.IsEmpty() == false)
+		{
+			if (errorText != NULL)
 				errorText->SetTo(error);
 			return B_BAD_VALUE;
 		}

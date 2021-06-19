@@ -242,6 +242,18 @@ JabberHandler::Process(BMessage* msg)
 			_MUCModeration(msg);
 			break;
 
+		case IM_CONTACT_LIST_ADD_CONTACT: {
+			BString user_name = msg->FindString("user_name");
+			BString user_id;
+			if (msg->FindString("user_id", &user_id) != B_OK)
+				break;
+			fClient->rosterManager()->add(gloox::JID(user_id.String()),
+				user_name.String(), gloox::StringList());
+			fClient->rosterManager()->subscribe(gloox::JID(user_id.String()),
+				user_name.String());
+			fClient->rosterManager()->synchronize();
+			break;
+		}
 		default:
 			return B_ERROR;
 	}
@@ -1184,11 +1196,34 @@ JabberHandler::_RoomTemplate()
 	BMessage stemplate('IMst');
 	BMessage roomIdentifier;
 	roomIdentifier.AddString("name", "chat_id");
-	roomIdentifier.AddString("description", "Room identifier:");
+	roomIdentifier.AddString("description", "Room ID:");
 	roomIdentifier.AddString("error", "You can't create a room without a JID!\n"
 		"Use the \"name@server\" format.");
 	roomIdentifier.AddInt32("type", 'CSTR');
 	stemplate.AddMessage("setting", &roomIdentifier);
+
+	return stemplate;
+}
+
+
+BMessage
+JabberHandler::_RosterTemplate()
+{
+	BMessage stemplate('IMst');
+
+	BMessage user_id;
+	user_id.AddString("name", "user_id");
+	user_id.AddString("description", "User ID:");
+	user_id.AddString("error", "You can't befriend an IDless miscreant!\n"
+		"Please use the \"name@server\" format.");
+	user_id.AddInt32("type", 'CSTR');
+	stemplate.AddMessage("setting", &user_id);
+
+	BMessage user_name;
+	user_name.AddString("name", "user_name");
+	user_name.AddString("description", "Nickname:");
+	user_name.AddInt32("type", 'CSTR');
+	stemplate.AddMessage("setting", &user_name);
 
 	return stemplate;
 }

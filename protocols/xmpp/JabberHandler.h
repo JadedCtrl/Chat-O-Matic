@@ -97,6 +97,7 @@ protected:
 
 			BMessage				_SettingsTemplate(const char* username, bool serverOption);
 			BMessage				_RoomTemplate();
+			BMessage				_RosterTemplate();
 
 private:
 			CayaProtocolMessengerInterface*

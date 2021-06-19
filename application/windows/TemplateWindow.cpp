@@ -17,6 +17,7 @@
 #include <TextControl.h>
 #include <String.h>
 
+#include "CayaUtils.h"
 #include "TemplateView.h"
 
 
@@ -26,7 +27,7 @@ const uint32 kAccSelected = 'JWas';
 
 
 TemplateWindow::TemplateWindow(const char* title, const char* templateType,
-	BMessage* msg, Server* server)
+	BMessage* msg, Server* server, bigtime_t instance)
 	:
 	BWindow(BRect(0, 0, 400, 100), title, B_FLOATING_WINDOW,
 		B_NOT_RESIZABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
@@ -38,9 +39,30 @@ TemplateWindow::TemplateWindow(const char* title, const char* templateType,
 	fMessage(msg),
 	fTarget(NULL)
 {
-	_InitInterface();
+	_InitInterface(instance);
 	_LoadTemplate();
 	CenterOnScreen();
+}
+
+
+TemplateWindow::TemplateWindow(const char* title, ProtocolTemplate* temp,
+	BMessage* msg, Server* server, bigtime_t instance)
+	:
+	BWindow(BRect(0, 0, 400, 100), title, B_FLOATING_WINDOW,
+		B_NOT_RESIZABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
+	fServer(server),
+	fAccounts(server->GetAccounts()),
+	fSelectedAcc(0),
+	fTemplate(temp),
+	fMessage(msg)
+{
+	_InitInterface(instance);
+	CenterOnScreen();
+
+	fTemplate = temp;
+	fTemplate->Load(fTemplateView);
+	fTemplateView->AttachedToWindow();
+	fTemplateView->MakeFocus(true);
 }
 
 
@@ -60,7 +82,6 @@ TemplateWindow::MessageReceived(BMessage* msg)
 			// Save account settings
 			if (fTemplate == NULL || fTemplateView == NULL)
 				break;
-
 			BString error = "Some items are empty. Please make sure to fill "
 				"out every item.";
 			BMessage* settings = new BMessage(*fMessage);
@@ -96,10 +117,20 @@ TemplateWindow::SetTarget(BHandler* target)
 
 
 void
-TemplateWindow::_InitInterface()
+TemplateWindow::_InitInterface(bigtime_t instance)
 {
 	fTemplateView = new TemplateView("template");
-	fMenuField = new BMenuField("accountMenuField", NULL, _CreateAccountMenu());
+	BMenu* menu = CreateAccountMenu(fAccounts, BMessage(kAccSelected));
+	fMenuField = new BMenuField("accountMenuField", NULL, menu);
+
+	if (instance > -1) {
+		for (int i = 0; i < fAccounts.CountItems(); i++)
+			if (fAccounts.ValueAt(i) == instance) {
+				menu->ItemAt(i)->SetMarked(true);
+				break;
+			}
+		fMenuField->SetEnabled(false);
+	}
 
 	BButton* fOkButton = new BButton("OK", new BMessage(kOK));
 	if (fAccounts.CountItems() <= 0)
@@ -124,7 +155,7 @@ TemplateWindow::_InitInterface()
 void
 TemplateWindow::_LoadTemplate()
 {
-	if (fAccounts.CountItems() == 0)
+	if (fAccounts.CountItems() == 0 || fTemplateType.IsEmpty() == true)
 		return;
 
 	ProtocolLooper* looper
@@ -140,24 +171,4 @@ TemplateWindow::_LoadTemplate()
 	fTemplate->Load(fTemplateView);
 	fTemplateView->AttachedToWindow();
 	fTemplateView->MakeFocus(true);
-}
-
-
-BMenu*
-TemplateWindow::_CreateAccountMenu()
-{
-	BMenu* menu = new BMenu("accountMenu");
-
-	for (int i = 0; i < fAccounts.CountItems(); i++)
-		menu->AddItem(new BMenuItem(fAccounts.KeyAt(i).String(),
-									new BMessage(kAccSelected)));
-
-	menu->SetRadioMode(true);
-	menu->SetLabelFromMarked(true);
-	menu->ItemAt(fSelectedAcc)->SetMarked(true);
-
-	if (fAccounts.CountItems() == 0)
-		menu->SetEnabled(false);
-
-	return menu;
 }

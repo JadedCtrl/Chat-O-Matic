@@ -31,6 +31,7 @@
 #include "NotifyMessage.h"
 #include "PreferencesWindow.h"
 #include "ReplicantStatusView.h"
+#include "RosterEditWindow.h"
 #include "RosterWindow.h"
 #include "Server.h"
 #include "StatusView.h"
@@ -46,6 +47,7 @@ MainWindow::MainWindow()
 	fWorkspaceChanged(false),
 	fConversation(NULL),
 	fRosterWindow(NULL),
+	fRosterEditWindow(NULL),
 	fServer(NULL)
 {
 	_InitInterface();
@@ -156,6 +158,12 @@ MainWindow::MessageReceived(BMessage* message)
 				plooper->GetInstance());
 
 			fRosterWindow->Show();
+			break;
+		}
+		case CAYA_EDIT_ROSTER:
+		{
+			fRosterEditWindow = new RosterEditWindow(fServer);
+			fRosterEditWindow->Show();
 			break;
 		}
 		case CAYA_MOVE_UP:
@@ -271,7 +279,10 @@ MainWindow::ImMessage(BMessage* msg)
 		case IM_CONTACT_INFO:
 		case IM_EXTENDED_CONTACT_INFO:
 		case IM_STATUS_SET:
-			fRosterWindow->PostMessage(msg);
+			if (fRosterWindow != NULL)
+				fRosterWindow->PostMessage(msg);
+			if (fRosterEditWindow != NULL)
+				fRosterEditWindow->PostMessage(msg);
 			break;
 
 		case IM_PROTOCOL_READY:
@@ -454,23 +465,23 @@ MainWindow::_CreateMenuBar()
 
 	// Chat
 	BMenu* chatMenu = new BMenu("Chat");
-	BMenuItem* joinRoom = new BMenuItem("Join room" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_JOIN_ROOM), 'J', B_COMMAND_KEY);
-	BMenuItem* invite = new BMenuItem("Invite user" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_SEND_INVITE), 'I', B_COMMAND_KEY);
-
-	BMenuItem* newChat = new BMenuItem("New chat" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY);
-	BMenuItem* newRoom = new BMenuItem("New room" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_NEW_ROOM), 'N', B_COMMAND_KEY);
-
-	chatMenu->AddItem(joinRoom);
+	chatMenu->AddItem(new BMenuItem("Join room" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_JOIN_ROOM), 'J', B_COMMAND_KEY));
 	chatMenu->AddSeparatorItem();
-	chatMenu->AddItem(newChat);
-	chatMenu->AddItem(newRoom);
-	chatMenu->AddSeparatorItem();
-	chatMenu->AddItem(invite);
+	chatMenu->AddItem(new BMenuItem("New room" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_NEW_ROOM), 'N', B_COMMAND_KEY));
+	chatMenu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY));
 	chatMenu->SetTargetForItems(this);
+
+	// Roster
+	BMenu* rosterMenu = new BMenu("Roster");
+	rosterMenu->AddItem(new BMenuItem("Edit roster" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_EDIT_ROSTER), 'R', B_COMMAND_KEY));
+	rosterMenu->AddSeparatorItem();
+	rosterMenu->AddItem(new BMenuItem("Invite user" B_UTF8_ELLIPSIS,
+		new BMessage(CAYA_SEND_INVITE), 'I', B_COMMAND_KEY));
+	rosterMenu->SetTargetForItems(this);
 
 	// Window
 	BMenu* windowMenu = new BMenu("Window");
@@ -482,6 +493,7 @@ MainWindow::_CreateMenuBar()
 
 	menuBar->AddItem(programMenu);
 	menuBar->AddItem(chatMenu);
+	menuBar->AddItem(rosterMenu);
 	menuBar->AddItem(windowMenu);
 
 	return menuBar;

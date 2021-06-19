@@ -36,9 +36,15 @@ enum im_what_code {
 	//	Requires:	Stringlist "user_id"
 	IM_CONTACT_LIST						= 2,
 
-	//!	Contact(s) was added to the server-side list →Caya
-	//	Requires:	String "user_id"
+	//!	Add a contact to the roster		→Protocol
+	//	The slots for this message are determined by the protocol's
+	//	"roster" template (CayaProtocol::SettingsTemplate("roster"))
 	IM_CONTACT_LIST_ADD_CONTACT			= 3,
+
+	//! Someone has been added			→Caya
+	//	Requires:	String "user_id"
+	//	Allows:		String "user_name"
+	IM_CONTACT_LIST_CONTACT_ADDED		= 4,
 
 	//!	Contact(s) removed from the server-side list →Caya
 	//	Requires:	String "user_id"
@@ -113,7 +119,8 @@ enum im_what_code {
 	IM_GET_EXTENDED_CONTACT_INFO		= 64,
 
 	//!	Received contact information	→Caya
-	//	Requires:	String "user_id"
+	//	Requires:	String "user_id",
+	//				non-standard slots used by "roster" template
 	//	Accepts:	String "user_name", String "full_name"
 	IM_EXTENDED_CONTACT_INFO			= 65,
 

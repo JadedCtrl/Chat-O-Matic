@@ -52,6 +52,8 @@ JabberProtocol::SettingsTemplate(const char* name)
 		return JabberHandler::_SettingsTemplate("Jabber identifier:", true);
 	if (name == BString("room"))
 		return JabberHandler::_RoomTemplate();
+	if (name == BString("roster"))
+		return JabberHandler::_RosterTemplate();
 	else
 		return BMessage();
 }

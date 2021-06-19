@@ -56,4 +56,7 @@ const uint32 CAYA_REQUEST_HELP = 'CYhm';
 //! Display a "user info" window
 const uint32 CAYA_USER_INFO = 'CYuw';
 
+//! Edit the contact roster
+const uint32 CAYA_EDIT_ROSTER = 'CYer';
+
 #endif	// _CAYA_MESSAGES_H
