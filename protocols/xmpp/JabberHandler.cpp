@@ -345,6 +345,34 @@ JabberHandler::GetName()
 }
 
 
+BObjectList<BMessage>
+JabberHandler::Commands()
+{
+	return BObjectList<BMessage>();
+}
+
+
+BObjectList<BMessage>
+JabberHandler::ChatPopUpItems()
+{
+	return BObjectList<BMessage>();
+}
+
+
+BObjectList<BMessage>
+JabberHandler::UserPopUpItems()
+{
+	return BObjectList<BMessage>();
+}
+
+
+BObjectList<BMessage>
+JabberHandler::MenuBarItems()
+{
+	return BObjectList<BMessage>();
+}
+
+
 status_t
 JabberHandler::UpdateSettings(BMessage* msg)
 {

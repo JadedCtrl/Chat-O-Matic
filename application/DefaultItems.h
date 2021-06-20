@@ -7,13 +7,12 @@
 
 #include <ObjectList.h>
 
-class BLooper;
 class BMessage;
 
 
-void					DefaultCommands(BLooper* target);
-void					DefaultChatPopUpItems(BLooper* target);
-void					DefaultUserPopUpItems(BLooper* target);
+BObjectList<BMessage>	DefaultCommands();
+BObjectList<BMessage>	DefaultChatPopUpItems();
+BObjectList<BMessage>	DefaultUserPopUpItems();
 BMessage*				_UserMenuItem(const char* label, BMessage* msg,
 									  int32 user_perms, int32 target_perms,
 									  int32 target_lacks, bool ignorePriority,

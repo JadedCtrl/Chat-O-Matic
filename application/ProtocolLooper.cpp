@@ -29,6 +29,8 @@ ProtocolLooper::ProtocolLooper(CayaProtocol* protocol, int64 instance)
 	Account* account = reinterpret_cast<Account*>(
 		protocol->MessengerInterface());
 
+	_InitCommands();
+
 	BString name(protocol->FriendlySignature());
 	name << " - " << account->Name();
 
@@ -165,55 +167,6 @@ ProtocolLooper::CommandById(BString id)
 }
 
 
-void
-ProtocolLooper::AddCommand(ChatCommand* cmd)
-{
-	fCommands.AddItem(cmd->GetName(), cmd);
-}
-
-
-BObjectList<BMessage>
-ProtocolLooper::UserPopUpItems() const
-{
-	return fUserItems;
-}
-
-
-void
-ProtocolLooper::AddUserPopUpItem(BMessage* archived)
-{
-	fUserItems.AddItem(archived);
-}
-
-
-BObjectList<BMessage>
-ProtocolLooper::ChatPopUpItems() const
-{
-	return fChatItems;
-}
-
-
-void
-ProtocolLooper::AddChatPopUpItem(BMessage* archived)
-{
-	fChatItems.AddItem(archived);
-}
-
-
-BObjectList<BMessage>
-ProtocolLooper::MenuBarItems() const
-{
-	return fMenuItems;
-}
-
-
-void
-ProtocolLooper::AddMenuBarItem(BMessage* archived)
-{
-	fMenuItems.AddItem(archived);
-}
-
-
 BString
 ProtocolLooper::GetOwnId()
 {
@@ -245,3 +198,12 @@ ProtocolLooper::GetListItem()
 }
 
 
+void
+ProtocolLooper::_InitCommands()
+{
+	BObjectList<BMessage> commands = fProtocol->Commands();
+	for (int i = 0; i < commands.CountItems(); i++) {
+		ChatCommand* cmd = new ChatCommand(commands.ItemAt(i));
+		fCommands.AddItem(cmd->GetName(), cmd);
+	}
+}

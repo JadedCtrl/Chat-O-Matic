@@ -54,11 +54,6 @@ MainWindow::MainWindow()
 	fServer = new Server();
 	AddFilter(fServer);
 
-	// Register default commands & items
-	DefaultCommands(this);
-	DefaultUserPopUpItems(this);
-	DefaultChatPopUpItems(this);
-
 	// Also through the editing filter (enter to send)
 	AddCommonFilter(new EditingFilter(fSendView));
 	fSendView->MakeFocus(true);
@@ -382,7 +377,7 @@ MainWindow::SetConversation(Conversation* chat)
 	// Add and populate "Protocol" menu, if appropriate
 	if (fConversation != NULL) {
 		ProtocolLooper* looper = fConversation->GetProtocolLooper();
-		BObjectList<BMessage> menuItems = looper->MenuBarItems();
+		BObjectList<BMessage> menuItems = looper->Protocol()->MenuBarItems();
 		for (int i = 0; i < menuItems.CountItems(); i++) {
 			BMessage* itemMsg = menuItems.ItemAt(i);
 			BMessage* msg = new BMessage(*itemMsg);

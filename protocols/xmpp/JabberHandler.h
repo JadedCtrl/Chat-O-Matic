@@ -68,6 +68,11 @@ public:
 	virtual void					SetName(const char* name);
 	virtual const char*				GetName();
 
+	virtual BObjectList<BMessage>	Commands();
+	virtual BObjectList<BMessage>	ChatPopUpItems();
+	virtual BObjectList<BMessage>	UserPopUpItems();
+	virtual BObjectList<BMessage>	MenuBarItems();
+
 	virtual	status_t				UpdateSettings(BMessage* msg);
 
 	virtual	uint32					GetEncoding();

@@ -388,44 +388,6 @@ enum im_what_code {
 
 	//!	Protocol is ready to receive messages
 	IM_PROTOCOL_READY					= 1002,
-
-
-	/*
-	 * GUI-related messages
-	 */
-
-	//! Register a chat command			→Caya
-	//	Just an archived ChatCommand; if "instance" isn't specified, the command
-	//	is global, rather than protocol-only.
-	//	Requires: String "_name", String "_desc", Bool "_proto",
-	//			  Message "_msg", int32s "_argtype",
-	//			  String "class" = "ChatCommand"
-	//	Allowed:  int64 "instance"
-	IM_REGISTER_COMMAND					= 1100,
-
-	//! Register a pop-up item			→Caya
-	//	Just an archived BMenuItem with extra slots; if "instance" isn't
-	//	specified, the item is global, rather than protocol-only.
-	//	Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
-	//			  Bool "x_to_protocol", Bool "x_priority", int32 "x_perms",
-	//			  int32 "x_target_perms", int32 "x_target_antiperms"
-	//	Allowed:  int64 "instance"
-	IM_REGISTER_USERLIST_ITEM			= 1101,
-
-	//! Register a pop-up item			→Caya
-	//	Just an archived BMenuItem with extra slots; if "instance" isn't
-	//	specified, the item is global, rather than protocol-only.
-	//	Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
-	//			  Bool "x_to_protocol", int32 "x_perms"
-	//	Allowed:  int64 "instance"
-	IM_REGISTER_CHATLIST_ITEM			= 1102,
-
-	//! Register a "Protocol" menu item	→Caya
-	//	Just an archived BMenuItem with extra slots; it adds a menu item to
-	//	the menubar's "Protocol" menu.
-	//	Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
-	//			  Bool "x_to_protocol", int64 "instance"
-	IM_REGISTER_MENUBAR_ITEM			= 1103
 };
 
 

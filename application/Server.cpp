@@ -42,8 +42,15 @@
 
 Server::Server()
 	:
-	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
+	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE),
+	fChatItems(DefaultChatPopUpItems()),
+	fUserItems(DefaultUserPopUpItems())
 {
+	BObjectList<BMessage> commands = DefaultCommands();
+	for (int i = 0; i < commands.CountItems(); i++) {
+		ChatCommand* cmd = new ChatCommand(commands.ItemAt(i));
+		fCommands.AddItem(cmd->GetName(), cmd);
+	}
 }
 
 
@@ -535,43 +542,6 @@ Server::ImMessage(BMessage* msg)
 
 			break;
 		}
-		case IM_REGISTER_COMMAND:
-		{
-			ChatCommand* cmd = new ChatCommand(msg);
-			if (cmd == NULL)	break;
-
-			ProtocolLooper* looper = _LooperFromMessage(msg);
-			if (looper == NULL)
-				fCommands.AddItem(cmd->GetName(), cmd);
-			else
-				looper->AddCommand(cmd);
-			break;
-		}
-		case IM_REGISTER_USERLIST_ITEM:
-		{
-			ProtocolLooper* looper = _LooperFromMessage(msg);
-			if (looper == NULL)
-				fUserItems.AddItem(new BMessage(*msg));
-			else
-				looper->AddUserPopUpItem(new BMessage(*msg));
-			break;
-		}
-		case IM_REGISTER_CHATLIST_ITEM:
-		{
-			ProtocolLooper* looper = _LooperFromMessage(msg);
-			if (looper == NULL)
-				fChatItems.AddItem(new BMessage(*msg));
-			else
-				looper->AddChatPopUpItem(new BMessage(*msg));
-			break;
-		}
-		case IM_REGISTER_MENUBAR_ITEM:
-		{
-			ProtocolLooper* looper = _LooperFromMessage(msg);
-			if (looper != NULL)
-				looper->AddMenuBarItem(new BMessage(*msg));
-			break;
-		}
 		case IM_PROTOCOL_READY:
 		{
 			// Ready notification
@@ -956,5 +926,3 @@ Server::_GetRole(BMessage* msg)
 
 	return new Role(title, perms, priority);
 }
-
-

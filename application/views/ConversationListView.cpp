@@ -167,7 +167,7 @@ ConversationListView::_ConversationPopUp()
 
 	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
 	BObjectList<BMessage> items = server->ChatPopUpItems();
-	BObjectList<BMessage> protoItems = looper->ChatPopUpItems();
+	BObjectList<BMessage> protoItems = looper->Protocol()->ChatPopUpItems();
 	items.AddList(&protoItems);
 
 	for (int i = 0; i < items.CountItems(); i++) {

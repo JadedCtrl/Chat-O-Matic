@@ -52,19 +52,6 @@ public:
 
 			CommandMap		Commands() const;
 			ChatCommand*	CommandById(BString id);
-			void			AddCommand(ChatCommand* cmd);
-
-			BObjectList<BMessage>
-							UserPopUpItems() const;
-			void			AddUserPopUpItem(BMessage* archived);
-
-			BObjectList<BMessage>
-							ChatPopUpItems() const;
-			void			AddChatPopUpItem(BMessage* archived);
-
-			BObjectList<BMessage>
-							MenuBarItems() const;
-			void			AddMenuBarItem(BMessage* archived);
 
 			BString			GetOwnId();
 			void			SetOwnId(BString user_id);
@@ -75,6 +62,8 @@ public:
 							GetListItem();
 
 private:
+			void			_InitCommands();
+
 			CayaProtocol*	fProtocol;
 			int64			fInstance;
 
@@ -83,11 +72,7 @@ private:
 			ChatMap			fChatMap;
 			RosterMap		fRosterMap;
 			UserMap			fUserMap;
-
 			CommandMap		fCommands;
-			BObjectList<BMessage> fUserItems;
-			BObjectList<BMessage> fChatItems;
-			BObjectList<BMessage> fMenuItems;
 
 			ConversationAccountItem*
 							fListItem;
