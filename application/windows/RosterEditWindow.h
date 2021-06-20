@@ -19,23 +19,32 @@
 class BMenuField;
 class RosterItem;
 class RosterView;
+class TemplateWindow;
 
 
 /* A window with the a list of the user's contacts, will send a message to
    the server with contact info, once a contact is selected. */
 class RosterEditWindow : public BWindow {
 public:
-	RosterEditWindow(Server* server);
-			void		MessageReceived(BMessage* message);
+								RosterEditWindow(Server* server);
+								~RosterEditWindow();
+	static	RosterEditWindow*	Get(Server* server);
+	static	bool				Check();
 
-			void		UpdateListItem(RosterItem* item);		
+			void				MessageReceived(BMessage* message);
+			void				UpdateListItem(RosterItem* item);		
 
 private:
 	BMenuField*			fAccountField;
 	AccountInstances	fAccounts;
 
+	BString				fEditingUser;
+	TemplateWindow*		fEditingWindow;
+
 	Server*				fServer;
 	RosterView*			fRosterView;
+
+	static	RosterEditWindow* fInstance;
 };
 
 #endif // _ROSTER_EDIT_WINDOW_H

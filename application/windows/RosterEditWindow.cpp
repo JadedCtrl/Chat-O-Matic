@@ -36,12 +36,15 @@ const uint32 kEditMember = 'RWEM';
 const uint32 kSelAccount = 'RWSA';
 const uint32 kSelNoAccount = 'RWNA';
 
+RosterEditWindow* RosterEditWindow::fInstance = NULL;
+
 
 RosterEditWindow::RosterEditWindow(Server* server)
 	:
 	BWindow(BRect(0, 0, 300, 400), "Roster", B_FLOATING_WINDOW, 0),
 	fAccounts(server->GetAccounts()),
-	fServer(server)
+	fServer(server),
+	fEditingWindow(NULL)
 {
 	fRosterView = new RosterView("buddyView", server);
 	fRosterView->SetInvocationMessage(new BMessage(kEditMember));
@@ -85,22 +88,69 @@ RosterEditWindow::RosterEditWindow(Server* server)
 }
 
 
+RosterEditWindow::~RosterEditWindow()
+{
+	fInstance = NULL;
+}
+
+
+RosterEditWindow*
+RosterEditWindow::Get(Server* server)
+{
+	if (fInstance == NULL) {
+		fInstance = new RosterEditWindow(server);
+	}
+	return fInstance;
+}
+
+
+bool
+RosterEditWindow::Check()
+{
+	return (fInstance != NULL);
+}
+
+
 void
 RosterEditWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kEditMember:
 		{
+			if (fEditingWindow != NULL && fEditingWindow->Lock()) {
+				fEditingWindow->Quit();
+				fEditingUser.SetTo("");
+			}
+
 			int index = message->FindInt32("index");
 			RosterItem* ritem = fRosterView->ListView()->RosterItemAt(index);
 			if (ritem == NULL)
 				return;
-			User* user = ritem->GetContact();
 
-			TemplateWindow* win =
-				new TemplateWindow("Editing contact", "roster", new BMessage(),
-					fServer, user->GetProtocolLooper()->GetInstance());
-			win->Show();
+			User* user = ritem->GetContact();
+			fEditingUser.SetTo(user->GetId().String());
+
+			// The response IM_EXTENDED_CONTACT_INFO is used to populate the
+			// TemplateWindow.
+			BMessage* request = new BMessage(IM_MESSAGE);
+			request->AddInt32("im_what", IM_GET_EXTENDED_CONTACT_INFO);
+			request->AddString("user_id", user->GetId());
+			user->GetProtocolLooper()->PostMessage(request);
+
+			BMessage* edit = new BMessage(IM_MESSAGE);
+			edit->AddInt32("im_what", IM_CONTACT_LIST_EDIT_CONTACT);
+
+			fEditingWindow =
+				new TemplateWindow("Editing contact", "roster", edit, fServer,
+					user->GetProtocolLooper()->GetInstance());
+			fEditingWindow->Show();
+			break;
+		}
+		case IM_MESSAGE: {
+			if (message->GetInt32("im_what", 0) == IM_EXTENDED_CONTACT_INFO)
+				if (message->GetString("user_id", "") == fEditingUser)
+					fEditingWindow->PostMessage(message);
+			fRosterView->MessageReceived(message);
 			break;
 		}
 		case kAddMember:

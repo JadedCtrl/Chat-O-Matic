@@ -46,7 +46,6 @@ MainWindow::MainWindow()
 	fWorkspaceChanged(false),
 	fConversation(NULL),
 	fRosterWindow(NULL),
-	fRosterEditWindow(NULL),
 	fServer(NULL)
 {
 	_InitInterface();
@@ -173,8 +172,7 @@ MainWindow::MessageReceived(BMessage* message)
 		}
 		case CAYA_EDIT_ROSTER:
 		{
-			fRosterEditWindow = new RosterEditWindow(fServer);
-			fRosterEditWindow->Show();
+			RosterEditWindow::Get(fServer)->Show();
 			break;
 		}
 		case CAYA_MOVE_UP:
@@ -292,8 +290,8 @@ MainWindow::ImMessage(BMessage* msg)
 		case IM_STATUS_SET:
 			if (fRosterWindow != NULL)
 				fRosterWindow->PostMessage(msg);
-			if (fRosterEditWindow != NULL)
-				fRosterEditWindow->PostMessage(msg);
+			if (RosterEditWindow::Check() == true)
+				RosterEditWindow::Get(fServer)->PostMessage(msg);
 			break;
 
 		case IM_PROTOCOL_READY:

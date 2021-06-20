@@ -242,6 +242,13 @@ JabberHandler::Process(BMessage* msg)
 			_MUCModeration(msg);
 			break;
 
+		case IM_GET_EXTENDED_CONTACT_INFO: {
+			BString user_id;
+			if (msg->FindString("user_id", &user_id) == B_OK)
+				fVCardManager->fetchVCard(gloox::JID(user_id.String()), this);
+			break;
+		}
+
 		case IM_CONTACT_LIST_ADD_CONTACT: {
 			BString user_name = msg->FindString("user_name");
 			BString user_id;
@@ -254,6 +261,24 @@ JabberHandler::Process(BMessage* msg)
 			fClient->rosterManager()->synchronize();
 			break;
 		}
+
+		case IM_CONTACT_LIST_EDIT_CONTACT: {
+			BString user_id;
+			BString user_name = msg->FindString("user_name");
+			if (msg->FindString("user_id", &user_id) != B_OK)
+				break;
+
+			gloox::JID jid(user_id.String());
+			gloox::RosterItem* item =
+				fClient->rosterManager()->getRosterItem(jid);
+
+			if (item != NULL && user_name.IsEmpty() == false) {
+				item->setName(user_name.String());
+				fClient->rosterManager()->synchronize();
+			}
+			break;
+		}
+
 		default:
 			return B_ERROR;
 	}
@@ -1761,13 +1786,18 @@ JabberHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
 
 	gloox::VCard::Name name = card->name();
 	gloox::VCard::Photo photo = card->photo();
+	BString nick(card->nickname().c_str());
+
+	gloox::RosterItem* item = fClient->rosterManager()->getRosterItem(jid);
+	if (item != NULL)
+		nick = item->name().c_str();
 
 	std::string fullName = name.family + " " + name.given;
 
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_EXTENDED_CONTACT_INFO);
 	msg.AddString("user_id", jid.bare().c_str());
-	msg.AddString("user_name", card->nickname().c_str());
+	msg.AddString("user_name", nick);
 	msg.AddString("family_name", name.family.c_str());
 	msg.AddString("given_name", name.given.c_str());
 	msg.AddString("middle_name", name.middle.c_str());

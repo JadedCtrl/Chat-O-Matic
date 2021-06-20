@@ -41,14 +41,18 @@ enum im_what_code {
 	//	"roster" template (CayaProtocol::SettingsTemplate("roster"))
 	IM_CONTACT_LIST_ADD_CONTACT			= 3,
 
-	//! Someone has been added			→Caya
+	//!	Remove a contact				→Protocol
 	//	Requires:	String "user_id"
-	//	Allows:		String "user_name"
-	IM_CONTACT_LIST_CONTACT_ADDED		= 4,
+	IM_CONTACT_LIST_REMOVE_CONTACT		= 4,
 
 	//!	Contact(s) removed from the server-side list →Caya
 	//	Requires:	String "user_id"
-	IM_CONTACT_LIST_REMOVED_CONTACT		= 4,
+	IM_CONTACT_LIST_REMOVED_CONTACT		= 5,
+
+	//! Edit some data on contact		→Protocol
+	//	The slots for this message are determined by the protocol's
+	//	"roster" template (CayaProtocol::SettingsTemplate("roster"))
+	IM_CONTACT_LIST_EDIT_CONTACT		= 6,
 
 
 	/*

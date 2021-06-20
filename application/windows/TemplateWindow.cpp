@@ -17,6 +17,7 @@
 #include <TextControl.h>
 #include <String.h>
 
+#include "CayaProtocolMessages.h"
 #include "CayaUtils.h"
 #include "TemplateView.h"
 
@@ -69,12 +70,13 @@ void
 TemplateWindow::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
-		case kAccSelected:
-		{
-			int32 index;
-			if (msg->FindInt32("index", &index) == B_OK)
-				fSelectedAcc = index;
-			_LoadTemplate();
+		case IM_MESSAGE: {
+			// If IM_MESSAGE, assume it should be treated as current settings
+			if (fTemplate == NULL)
+				break;
+			for (int i = 0; fTemplateView->CountChildren(); i++)
+				fTemplateView->RemoveChild(fTemplateView->ChildAt(i));
+			fTemplate->Load(fTemplateView, msg);
 			break;
 		}
 		case kOK: {
@@ -100,8 +102,14 @@ TemplateWindow::MessageReceived(BMessage* msg)
 			Close();
 			break;
 		}
-		case kChanged:
+		case kAccSelected:
+		{
+			int32 index;
+			if (msg->FindInt32("index", &index) == B_OK)
+				fSelectedAcc = index;
+			_LoadTemplate();
 			break;
+		}
 		default:
 			BWindow::MessageReceived(msg);
 	}
