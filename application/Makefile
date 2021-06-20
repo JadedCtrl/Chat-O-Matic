@@ -88,14 +88,13 @@ SRCS = \
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
 RDEFS = Caya.rdef \
-	data/icons/Caya.rdef \
 	data/icons/status/Away.rdef \
 	data/icons/status/Busy.rdef \
 	data/icons/status/Offline.rdef \
 	data/icons/status/Online.rdef \
 	data/icons/replicant/Away.rdef \
 	data/icons/replicant/Busy.rdef \
-	data/icons/replicant/CayaIcon.rdef \
+	data/icons/replicant/Icon.rdef \
 	data/icons/replicant/ExitMenu.rdef \
 	data/icons/replicant/MessageReceived.rdef \
 	data/icons/replicant/Offline.rdef \
