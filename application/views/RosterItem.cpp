@@ -11,17 +11,17 @@
 
 #include <libinterface/BitmapUtils.h>
 
-#include "CayaUtils.h"
-#include "CayaResources.h"
+#include "AppResources.h"
 #include "Contact.h"
 #include "NotifyMessage.h"
 #include "RosterItem.h"
+#include "Utils.h"
 
 
 RosterItem::RosterItem(const char*  name, Contact* contact)
 	: BStringItem(name),
 	fBitmap(NULL),
-	fStatus(CAYA_OFFLINE),
+	fStatus(STATUS_OFFLINE),
 	contactLinker(contact),
 	fVisible(true)
 {
@@ -85,7 +85,7 @@ RosterItem::ObserveInteger(int32 what, int32 val)
 {
 	switch (what) {
 		case INT_CONTACT_STATUS:
-			SetStatus((CayaStatus)val);
+			SetStatus((UserStatus)val);
 			break;
 	}
 }
@@ -114,18 +114,18 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 
 	// Draw contact status
 	switch (fStatus) {
-		case CAYA_ONLINE:
-			owner->SetHighColor(CAYA_GREEN_COLOR);
+		case STATUS_ONLINE:
+			owner->SetHighColor(APP_GREEN_COLOR);
 			break;
-		case CAYA_CUSTOM_STATUS:
-		case CAYA_AWAY:
-			owner->SetHighColor(CAYA_ORANGE_COLOR);
+		case STATUS_CUSTOM_STATUS:
+		case STATUS_AWAY:
+			owner->SetHighColor(APP_ORANGE_COLOR);
 			break;
-		case CAYA_DO_NOT_DISTURB:
-			owner->SetHighColor(CAYA_RED_COLOR);
+		case STATUS_DO_NOT_DISTURB:
+			owner->SetHighColor(APP_RED_COLOR);
 			break;
-		case CAYA_INVISIBLE:
-		case CAYA_OFFLINE:
+		case STATUS_INVISIBLE:
+		case STATUS_OFFLINE:
 			break;
 		default:
 	   		break;
@@ -156,7 +156,7 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 		fBaselineOffset + 3);
 	owner->SetHighColor(tint_color(lowColor, B_DARKEN_2_TINT));
 	if (fPersonalStatus.Length() == 0)
-		owner->DrawString(CayaStatusToString(fStatus));
+		owner->DrawString(UserStatusToString(fStatus));
 	else
 		owner->DrawString(fPersonalStatus);
 
@@ -193,7 +193,7 @@ RosterItem::Update(BView* owner, const BFont* font)
 
 
 void
-RosterItem::SetStatus(CayaStatus status)
+RosterItem::SetStatus(UserStatus status)
 {
 	if (fStatus != status)
 		fStatus = status;

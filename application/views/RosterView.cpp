@@ -16,9 +16,9 @@
 #include <Notification.h>
 #include <ScrollView.h>
 
-#include "CayaMessages.h"
-#include "CayaPreferences.h"
-#include "CayaProtocolMessages.h"
+#include "AppMessages.h"
+#include "AppPreferences.h"
+#include "ChatProtocolMessages.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
 
@@ -113,9 +113,9 @@ RosterView::ImMessage(BMessage* msg)
 
 				// Add or remove item
 				switch (status) {
-					/*case CAYA_OFFLINE:
+					/*case STATUS_OFFLINE:
 						// By default offline contacts are hidden
-						if (!CayaPreferences::Item()->HideOffline)
+						if (!AppPreferences::Item()->HideOffline)
 							break;
 						if (HasItem(rosterItem))
 							RemoveItem(rosterItem);
@@ -132,18 +132,18 @@ RosterView::ImMessage(BMessage* msg)
 				fListView->Sort();
 
 				// Check if the user want the notification
-				if (!CayaPreferences::Item()->NotifyContactStatus)
+				if (!AppPreferences::Item()->NotifyContactStatus)
 					break;
 
 				switch (status) {
-					case CAYA_ONLINE:
-					case CAYA_OFFLINE:
+					case STATUS_ONLINE:
+					case STATUS_OFFLINE:
 						// Notify when contact is online or offline
-						if (status == CAYA_ONLINE) {
+						if (status == STATUS_ONLINE) {
 							BString message;
 							message << rosterItem->GetContact()->GetName();
 
-							if (status == CAYA_ONLINE)
+							if (status == STATUS_ONLINE)
 								message << " is available!";
 							else
 								message << " is offline!";

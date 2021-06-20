@@ -19,7 +19,7 @@
 #include "ConversationAccountItem.h"
 
 
-ProtocolLooper::ProtocolLooper(CayaProtocol* protocol, int64 instance)
+ProtocolLooper::ProtocolLooper(ChatProtocol* protocol, int64 instance)
 	:
 	BLooper(),
 	fProtocol(protocol),
@@ -54,7 +54,7 @@ ProtocolLooper::MessageReceived(BMessage* msg)
 }
 
 
-CayaProtocol*
+ChatProtocol*
 ProtocolLooper::Protocol()
 {
 	return fProtocol;

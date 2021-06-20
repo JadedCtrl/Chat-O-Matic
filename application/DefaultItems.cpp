@@ -8,8 +8,8 @@
 #include <Looper.h>
 #include <InterfaceDefs.h>
 
-#include "CayaMessages.h"
-#include "CayaProtocolMessages.h"
+#include "AppMessages.h"
+#include "ChatProtocolMessages.h"
 #include "ChatCommand.h"
 #include "Role.h"
 
@@ -80,7 +80,7 @@ DefaultCommands()
 	invite->SetDesc("Invite a user to the current room.");
 	commands.AddItem("invite", invite);
 
-	BMessage helpMsg(CAYA_REQUEST_HELP);
+	BMessage helpMsg(APP_REQUEST_HELP);
 	ChatCommand* help = new ChatCommand("help", helpMsg, false, List<int>());
 	help->SetDesc("List all current commands, or get help for certain command.");
 	commands.AddItem("help", help);
@@ -119,7 +119,7 @@ DefaultUserPopUpItems()
 {
 	BObjectList<BMessage> items;
 
-	BMessage* infoMsg = new BMessage(CAYA_USER_INFO);
+	BMessage* infoMsg = new BMessage(APP_USER_INFO);
 	items.AddItem(_UserMenuItem("User info" B_UTF8_ELLIPSIS, infoMsg, 0,
 		0, 0, false, false));
 

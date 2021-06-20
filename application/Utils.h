@@ -4,8 +4,8 @@
  * Copyright 2021, Jaidyn Levesque
  * Distributed under the terms of the MIT License.
  */
-#ifndef _CAYA_UTILS_H
-#define _CAYA_UTILS_H
+#ifndef _APP_UTILS_H
+#define _APP_UTILS_H
 
 #include <image.h>
 
@@ -13,36 +13,36 @@
 #include <Mime.h>
 #include <Resources.h>
 
-#include "CayaConstants.h"
+#include "AppConstants.h"
 #include "Server.h"
 
 class BMenu;
 
 
-const char* CayaStatusToString(CayaStatus status);
+const char* UserStatusToString(UserStatus status);
 
 bool		IsCommand(BString line);
 BString		CommandName(BString line);
 BString		CommandArgs(BString line);
 
-BResources* CayaResources();
+BResources* ChatResources();
 
 BMenu* CreateAccountMenu(AccountInstances accounts, BMessage msg,
 			BMessage* allMsg = NULL);
 
-const char*	CayaAccountsPath();
-const char*	CayaAccountPath(const char* signature);
-const char*	CayaAccountPath(const char* signature, const char* subsignature);
+const char*	AccountsPath();
+const char*	AccountPath(const char* signature);
+const char*	AccountPath(const char* signature, const char* subsignature);
 
-const char* CayaCachePath();
-const char* CayaAccountCachePath(const char* accountName);
-const char* CayaRoomsCachePath(const char* accountName);
-const char* CayaRoomCachePath(const char* accountName, const char* roomIdentifier);
-const char* CayaUserCachePath(const char* accountName, const char* userIdentifier);
-const char* CayaContactCachePath(const char* accountName, const char* userIdentifier);
+const char* CachePath();
+const char* AccountCachePath(const char* accountName);
+const char* RoomsCachePath(const char* accountName);
+const char* RoomCachePath(const char* accountName, const char* roomIdentifier);
+const char* UserCachePath(const char* accountName, const char* userIdentifier);
+const char* ContactCachePath(const char* accountName, const char* userIdentifier);
 
-rgb_color	CayaTintColor(rgb_color color, int severity);
-rgb_color	CayaForegroundColor(rgb_color background);
+rgb_color	TintColor(rgb_color color, int severity);
+rgb_color	ForegroundColor(rgb_color background);
 
 // Borrowed from BePodder's own libfunky. Groovy B)
 status_t	ReadAttributeData(BNode* node, const char* name, char** buffer, int32 *size);
@@ -52,5 +52,5 @@ status_t	ReadAttributeMessage(BNode* node, const char* name, BMessage* data);
 extern "C" status_t our_image(image_info& image);
 
 
-#endif	// _CAYA_UTILS_H
+#endif	// _APP_UTILS_H
 

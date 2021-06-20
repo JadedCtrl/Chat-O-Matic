@@ -11,7 +11,7 @@
 #include <View.h>
 #include <String.h>
 
-#include "CayaConstants.h"
+#include "AppConstants.h"
 #include "Contact.h"
 #include "Observer.h"
 
@@ -30,8 +30,8 @@ public:
 
 	Contact*	GetContact() { return contactLinker;}
 
-	CayaStatus		Status() const { return fStatus; }
-	void			SetStatus(CayaStatus status);
+	UserStatus		Status() const { return fStatus; }
+	void			SetStatus(UserStatus status);
 
 	BString			PersonalStatus() const { return fPersonalStatus; }
 	void			SetPersonalStatus(BString str) { fPersonalStatus = str; }
@@ -48,7 +48,7 @@ private:
 	Contact*	contactLinker;
 	float			fBaselineOffset;
 	BString			fPersonalStatus;
-	CayaStatus		fStatus;
+	UserStatus		fStatus;
 	BBitmap*		fBitmap;
 	bool			fVisible;	
 	BGradientLinear	fGradient;

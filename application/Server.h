@@ -11,14 +11,14 @@
 
 #include <libsupport/KeyMap.h>
 
-#include "CayaConstants.h"
+#include "AppConstants.h"
 #include "ChatCommand.h"
 #include "Contact.h"
 #include "Conversation.h"
 #include "ProtocolLooper.h"
 #include "User.h"
 
-class CayaProtocol;
+class ChatProtocol;
 class RosterItem;
 class ProtocolLooper;
 
@@ -37,7 +37,7 @@ public:
 			filter_result	ImMessage(BMessage* msg);
 
 			void			AddProtocolLooper(bigtime_t instanceId,
-								CayaProtocol* cayap);
+								ChatProtocol* cayap);
 			void			RemoveProtocolLooper(bigtime_t instanceId);
 			ProtocolLooper*	GetProtocolLooper(bigtime_t instanceId);
 
@@ -74,7 +74,7 @@ private:
 
 			Role*			_GetRole(BMessage* msg);
 
-			void			_ReplicantStatusNotify(CayaStatus status);
+			void			_ReplicantStatusNotify(UserStatus status);
 
 			ProtocolLoopers	fLoopers;
 			AccountInstances

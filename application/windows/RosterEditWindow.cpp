@@ -19,14 +19,14 @@
 #include <ScrollView.h>
 #include <SeparatorView.h>
 
-#include "CayaMessages.h"
-#include "CayaPreferences.h"
-#include "CayaProtocolMessages.h"
-#include "CayaUtils.h"
+#include "AppMessages.h"
+#include "AppPreferences.h"
+#include "ChatProtocolMessages.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
 #include "RosterView.h"
 #include "TemplateWindow.h"
+#include "Utils.h"
 
 
 const uint32 kSendMessage = 'RWSM';

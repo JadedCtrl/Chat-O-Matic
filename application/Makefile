@@ -34,8 +34,7 @@ APP_MIME_SIG = application/x-vnd.caya.Caya
 SRCS = \
 	application/Account.cpp \
 	application/AccountManager.cpp \
-	application/CayaProtocolAddOn.cpp \
-	application/CayaUtils.cpp \
+	application/ChatProtocolAddOn.cpp \
 	application/ChatCommand.cpp \
 	application/Contact.cpp \
 	application/Conversation.cpp \
@@ -51,14 +50,15 @@ SRCS = \
 	application/Server.cpp \
 	application/TheApp.cpp \
 	application/User.cpp \
+	application/Utils.cpp \
 	application/preferences/AccountDialog.cpp \
 	application/preferences/AccountListItem.cpp \
-	application/preferences/CayaPreferences.cpp \
+	application/preferences/AppPreferences.cpp \
 	application/preferences/PreferencesChatWindow.cpp \
 	application/preferences/PreferencesAccounts.cpp \
 	application/preferences/PreferencesBehavior.cpp \
 	application/preferences/PreferencesReplicant.cpp \
-	application/views/CayaRenderView.cpp \
+	application/views/RenderView.cpp \
 	application/views/ConversationAccountItem.cpp \
 	application/views/ConversationItem.cpp \
 	application/views/ConversationListView.cpp \

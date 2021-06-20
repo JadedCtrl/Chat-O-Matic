@@ -28,12 +28,12 @@
 
 #include "AccountManager.h"
 #include "Caya.h"
-#include "CayaMessages.h"
-#include "CayaPreferences.h"
-#include "CayaProtocolMessages.h"
-#include "CayaUtils.h"
+#include "AppMessages.h"
+#include "AppPreferences.h"
+#include "ChatProtocolMessages.h"
 #include "NicknameTextControl.h"
 #include "ReplicantMenuItem.h"
+#include "Utils.h"
 
 
 extern "C" _EXPORT BView *instantiate_deskbar_item(void);
@@ -61,7 +61,7 @@ public:
 
 				if (message->FindInt32("status", &status) != B_OK)
 					return;
-				fTarget->SetStatus((CayaStatus)status);
+				fTarget->SetStatus((UserStatus)status);
 				break;
 			}
 			default:
@@ -100,7 +100,7 @@ ReplicantStatusView::~ReplicantStatusView()
 	// TODO: Use a list for that
 	// maybe our List wrapper to std::list
 	delete fConnectingIcon;
-	delete fCayaIcon;
+	delete fIcon;
 	delete fOfflineIcon;
 	delete fBusyIcon;
 	delete fAwayIcon;
@@ -111,21 +111,21 @@ void
 ReplicantStatusView::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
-		case CAYA_REPLICANT_STATUS_SET:
+		case APP_REPLICANT_STATUS_SET:
 		{
 			int32 status;
 
 			if (msg->FindInt32("status", &status) != B_OK)
 				return;
 
-			SetStatus((CayaStatus)status);
+			SetStatus((UserStatus)status);
 			fCayaMsg->SendMessage(msg);
 			break;
 		}
-		case CAYA_REPLICANT_EXIT:
-		case CAYA_SHOW_SETTINGS:
-		case CAYA_REPLICANT_SHOW_WINDOW:
-		case CAYA_REPLICANT_MESSENGER:
+		case APP_REPLICANT_EXIT:
+		case APP_SHOW_SETTINGS:
+		case APP_REPLICANT_SHOW_WINDOW:
+		case APP_REPLICANT_MESSENGER:
 			fCayaMsg->SendMessage(msg);
 			break;
 		default:
@@ -135,7 +135,7 @@ ReplicantStatusView::MessageReceived(BMessage* msg)
 
 
 void
-ReplicantStatusView::SetStatus(CayaStatus status)
+ReplicantStatusView::SetStatus(UserStatus status)
 {
 	for (int32 i = 0; i < fReplicantMenu->CountItems(); i++) {
 		ReplicantMenuItem* item
@@ -152,21 +152,21 @@ ReplicantStatusView::SetStatus(CayaStatus status)
 	}
 
 	switch (status) {
-		case CAYA_AWAY:
+		case STATUS_AWAY:
 			fIcon = fAwayIcon;
 		break;
-		case CAYA_DO_NOT_DISTURB:
+		case STATUS_DO_NOT_DISTURB:
 			fIcon = fBusyIcon;
 		break;
-		case CAYA_CUSTOM_STATUS:
-			fIcon = fCayaIcon;
+		case STATUS_CUSTOM_STATUS:
+			fIcon = fAppIcon;
 		break;
-		case CAYA_INVISIBLE:
-		case CAYA_OFFLINE:
+		case STATUS_INVISIBLE:
+		case STATUS_OFFLINE:
 			fIcon = fOfflineIcon;
 		break;
 		default:
-			fIcon = fCayaIcon;
+			fIcon = fIcon;
 		break;
 	}
 	Invalidate();
@@ -199,7 +199,7 @@ ReplicantStatusView::Archive(BMessage* archive, bool deep) const
 	status_t status = BView::Archive(archive, deep);
 
 	if (status == B_OK)
-		status = archive->AddString("add_on", CAYA_SIGNATURE);
+		status = archive->AddString("add_on", APP_SIGNATURE);
 
 	if (status == B_OK)
 		status = archive->AddString("class", "ReplicantStatusView");
@@ -225,7 +225,7 @@ ReplicantStatusView::AttachedToWindow()
         Window()->Unlock();
 	}
 
-	BMessage msg(CAYA_REPLICANT_MESSENGER);
+	BMessage msg(APP_REPLICANT_MESSENGER);
 	BMessenger messenger(fReplicantHandler);
 	if (!messenger.IsValid())
 		return;
@@ -255,7 +255,7 @@ ReplicantStatusView::MouseDown(BPoint point)
 	}
 	if (buttons & B_PRIMARY_MOUSE_BUTTON) {
 		// Show / Hide Window command
-		BMessage msg(CAYA_REPLICANT_SHOW_WINDOW);
+		BMessage msg(APP_REPLICANT_SHOW_WINDOW);
 		fCayaMsg->SendMessage(&msg);
 	} else if(buttons & B_SECONDARY_MOUSE_BUTTON) {
 		// Build replicant menu
@@ -273,13 +273,13 @@ ReplicantStatusView::_Init()
 	// a messenger targeting this to Caya.
 	// This will allow the Replicant to communicate
 	// whith Caya.
-	fCayaMsg = new BMessenger(CAYA_SIGNATURE);
+	fCayaMsg = new BMessenger(APP_SIGNATURE);
 
-	fResources = CayaResources();
+	fResources = ChatResources();
 
 	//Get icons from resources
 	fConnectingIcon = _GetIcon(kOnlineReplicant);
-	fCayaIcon = _GetIcon(kCayaIconReplicant);
+	fAppIcon = _GetIcon(kIconReplicant);
 	fOfflineIcon = _GetIcon(kOfflineReplicant);
 	fIcon = fOfflineIcon;
 	fBusyIcon = _GetIcon(kBusyReplicant);
@@ -307,17 +307,17 @@ ReplicantStatusView::_BuildMenu()
 
 	fReplicantMenu = new BPopUpMenu(" -  ", false, false);
 	// Add status menu items
-	int32 s = CAYA_ONLINE;
-	while (s >= CAYA_ONLINE && s < CAYA_STATUSES) {
-		BMessage* msg = new BMessage(CAYA_REPLICANT_STATUS_SET);
+	int32 s = STATUS_ONLINE;
+	while (s >= STATUS_ONLINE && s < STATUS_STATUSES) {
+		BMessage* msg = new BMessage(APP_REPLICANT_STATUS_SET);
 		msg->AddInt32("status", s);
 
 		ReplicantMenuItem* item = new ReplicantMenuItem(
-			CayaStatusToString((CayaStatus)s), (CayaStatus)s);
+			UserStatusToString((UserStatus)s), (UserStatus)s);
 		fReplicantMenu->AddItem(item);
 
 		// Mark offline status by default
-		if (s == CAYA_OFFLINE)
+		if (s == STATUS_OFFLINE)
 			item->SetMarked(true);
 		s++;
 	}
@@ -325,10 +325,10 @@ ReplicantStatusView::_BuildMenu()
 	fReplicantMenu->AddItem(new BSeparatorItem());
 
 	fReplicantMenu->AddItem(new BitmapMenuItem("Preferences ",
-		new BMessage(CAYA_SHOW_SETTINGS), fPreferencesIcon));
+		new BMessage(APP_SHOW_SETTINGS), fPreferencesIcon));
 
 	fReplicantMenu->AddItem(new BitmapMenuItem("Exit",
-		new BMessage(CAYA_REPLICANT_EXIT), fExitMenuIcon));
+		new BMessage(APP_REPLICANT_EXIT), fExitMenuIcon));
 
 	fReplicantMenu->SetTargetForItems(this);
 }
@@ -356,7 +356,7 @@ instantiate_deskbar_item(void)
 status_t
 ReplicantStatusView::InstallReplicant()
 {
-	if (CayaPreferences::Item()->DisableReplicant == true)
+	if (AppPreferences::Item()->DisableReplicant == true)
 		return B_OK;
 	
 	BDeskbar deskbar;

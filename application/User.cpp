@@ -15,9 +15,8 @@
 #include <TranslationUtils.h>
 #include <TranslatorRoster.h>
 
-#include "CayaProtocolAddOn.h"
-#include "CayaResources.h"
-#include "CayaUtils.h"
+#include "ChatProtocolAddOn.h"
+#include "AppResources.h"
 #include "Conversation.h"
 #include "ImageCache.h"
 #include "NotifyMessage.h"
@@ -25,6 +24,7 @@
 #include "ProtocolManager.h"
 #include "UserItem.h"
 #include "UserPopUp.h"
+#include "Utils.h"
 
 
 User::User(BString id, BMessenger msgn)
@@ -34,8 +34,8 @@ User::User(BString id, BMessenger msgn)
 	fMessenger(msgn),
 	fLooper(NULL),
 	fListItem(NULL),
-	fItemColor(CayaForegroundColor(ui_color(B_LIST_BACKGROUND_COLOR))),
-	fStatus(CAYA_OFFLINE),
+	fItemColor(ForegroundColor(ui_color(B_LIST_BACKGROUND_COLOR))),
+	fStatus(STATUS_OFFLINE),
 	fAvatarBitmap(NULL),
 	fPopUp(NULL)
 {
@@ -140,8 +140,8 @@ User::AvatarBitmap() const
 BBitmap*
 User::ProtocolBitmap() const
 {
-	CayaProtocol* protocol = fLooper->Protocol();
-	CayaProtocolAddOn* addOn
+	ChatProtocol* protocol = fLooper->Protocol();
+	ChatProtocolAddOn* addOn
 		= ProtocolManager::Get()->ProtocolAddOn(protocol->Signature());
 
 	return addOn->ProtoIcon();
@@ -159,7 +159,7 @@ User::GetListItem()
 }
 
 
-CayaStatus
+UserStatus
 User::GetNotifyStatus() const
 {
 	return fStatus;
@@ -209,7 +209,7 @@ User::SetNotifyAvatarBitmap(BBitmap* bitmap)
 
 
 void
-User::SetNotifyStatus(CayaStatus status)
+User::SetNotifyStatus(UserStatus status)
 {
 	if (fStatus != status) {
 		fStatus = status;
@@ -240,7 +240,7 @@ User::_EnsureCachePath()
 {
 	if (fCachePath.InitCheck() == B_OK)
 		return;
-	fCachePath.SetTo(CayaUserCachePath(fLooper->Protocol()->GetName(),
+	fCachePath.SetTo(UserCachePath(fLooper->Protocol()->GetName(),
 									   fID.String()));
 }
 

@@ -11,8 +11,8 @@
 
 #include <libsupport/KeyMap.h>
 
-#include "CayaProtocol.h"
-#include "CayaProtocolAddOn.h"
+#include "ChatProtocol.h"
+#include "ChatProtocolAddOn.h"
 
 class BBitmap;
 class BDirectory;
@@ -25,30 +25,30 @@ public:
 	static	ProtocolManager*	Get();
 
 			uint32				CountProtocolAddOns() const;
-			CayaProtocolAddOn*	ProtocolAddOnAt(uint32 i) const;
-			CayaProtocolAddOn*	ProtocolAddOn(const char* signature);
+			ChatProtocolAddOn*	ProtocolAddOnAt(uint32 i) const;
+			ChatProtocolAddOn*	ProtocolAddOn(const char* signature);
 
 			uint32				CountProtocolInstances() const;
-			CayaProtocol*		ProtocolInstanceAt(uint32 i) const;
-			CayaProtocol*		ProtocolInstance(bigtime_t identifier);
+			ChatProtocol*		ProtocolInstanceAt(uint32 i) const;
+			ChatProtocol*		ProtocolInstance(bigtime_t identifier);
 
-			void				AddAccount(CayaProtocolAddOn* addOn,
+			void				AddAccount(ChatProtocolAddOn* addOn,
 									const char* account,
 									BHandler* target);
 
 private:
-	typedef KeyMap<BString, CayaProtocolAddOn*> AddOnMap;
-	typedef KeyMap<bigtime_t, CayaProtocol*> ProtocolMap;
+	typedef KeyMap<BString, ChatProtocolAddOn*> AddOnMap;
+	typedef KeyMap<bigtime_t, ChatProtocol*> ProtocolMap;
 
 								ProtocolManager();
 
 			void				_LoadAccounts(const char* image_path,
-									CayaProtocolAddOn* addOn, int protoIndex,
+									ChatProtocolAddOn* addOn, int protoIndex,
 									BHandler* target);
 			void				_LoadAccount(const char* imagePath,
 									BEntry accountEntry, int protoIndex,
 									BHandler* target);
-			void				_LoadAccount(CayaProtocolAddOn* addOn,
+			void				_LoadAccount(ChatProtocolAddOn* addOn,
 									BEntry accountEntry, BHandler* target);
 
 			AddOnMap			fAddOnMap;

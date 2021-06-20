@@ -8,10 +8,10 @@
 #include <InterfaceDefs.h>
 #include <View.h>
 
-#include "CayaConstants.h"
-#include "CayaUtils.h"
+#include "AppConstants.h"
 #include "NotifyMessage.h"
 #include "User.h"
+#include "Utils.h"
 
 
 UserItem::UserItem(const char* name, User* user, int32 status)
@@ -71,13 +71,13 @@ UserItem::_GetTextColor(rgb_color highColor)
 {
 	switch (fStatus)
 	{
-		case CAYA_AWAY:
-			return CayaTintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 1);
-		case CAYA_INVISIBLE:
-		case CAYA_DO_NOT_DISTURB:
-			return CayaTintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 2);
-		case CAYA_OFFLINE:
-			return CayaTintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 3);
+		case STATUS_AWAY:
+			return TintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 1);
+		case STATUS_INVISIBLE:
+		case STATUS_DO_NOT_DISTURB:
+			return TintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 2);
+		case STATUS_OFFLINE:
+			return TintColor(ui_color(B_LIST_ITEM_TEXT_COLOR), 3);
 	}
 	return highColor;
 }

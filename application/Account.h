@@ -10,11 +10,11 @@
 #include <Messenger.h>
 #include <String.h>
 
-#include "CayaProtocol.h"
+#include "ChatProtocol.h"
 
-class Account : public CayaProtocolMessengerInterface {
+class Account : public ChatProtocolMessengerInterface {
 public:
-							Account(bigtime_t instanceId, CayaProtocol* cayap,
+							Account(bigtime_t instanceId, ChatProtocol* cayap,
 									const char* name, const char* addOnSignature,
 									BHandler* target);
 	virtual					~Account();
@@ -26,7 +26,7 @@ public:
 
 private:
 			bigtime_t		fIdentifier;
-			CayaProtocol*	fProtocol;
+			ChatProtocol*	fProtocol;
 			BString			fName;
 			BMessenger		fMessenger;
 			BMessage*		fSettings;

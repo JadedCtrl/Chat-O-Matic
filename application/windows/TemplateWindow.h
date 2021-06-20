@@ -23,7 +23,7 @@ class TemplateView;
 class TemplateWindow : public BWindow {
 public:
 						/*! Get template from selected account's protocol
-						 * 	via CayaProtocol::SettingsTemplate() */
+						 * 	via ChatProtocol::SettingsTemplate() */
 						TemplateWindow(const char* title,
 							const char* templateType, BMessage* msg,
 							Server* server, bigtime_t instance = -1);

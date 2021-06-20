@@ -1,4 +1,4 @@
-#include "application/CayaResources.h"
+#include "application/AppResources.h"
 
 resource(kReplicantMessageReceived) #'VICN' array {
 	$"6E636966050500020106033D835C3C19B2BA8B0B3C20794769624A510E00FFCE"

@@ -14,23 +14,23 @@
 #include <Path.h>
 
 enum {
-	CAYA_PREFERENCES_TYPE = 'CPTY'
+	APP_PREFERENCES_TYPE = 'CPTY'
 };
 
 // TODO: added to main singleton class?
 template<typename T> T* Singleton<T>::fInstance = 0;
 
 
-template<class CayaPreferencesData>
+template<class AppPreferencesData>
 class PreferencesContainer
-	: public Singleton<PreferencesContainer<CayaPreferencesData> > {
+	: public Singleton<PreferencesContainer<AppPreferencesData> > {
 
 public:
 
-	static CayaPreferencesData*
+	static AppPreferencesData*
 	Item()
 	{
-		return &(Singleton<PreferencesContainer<CayaPreferencesData> >
+		return &(Singleton<PreferencesContainer<AppPreferencesData> >
 			::Get()->fSettings);
 	}
 
@@ -40,7 +40,7 @@ public:
 		if (fPreferencesFile.SetTo(&fDirectory, fFilename,
 			B_READ_WRITE | B_FAIL_IF_EXISTS) == B_OK) {
 
-			return fSettings.Unflatten(CAYA_PREFERENCES_TYPE,
+			return fSettings.Unflatten(APP_PREFERENCES_TYPE,
 				&fPreferencesFile);
 		}
 		return B_ERROR;
@@ -58,8 +58,8 @@ public:
 	}
 
 private:
-	PreferencesContainer<CayaPreferencesData>()
-		: Singleton<PreferencesContainer<CayaPreferencesData> >()
+	PreferencesContainer<AppPreferencesData>()
+		: Singleton<PreferencesContainer<AppPreferencesData> >()
 	{
 		BPath path;
 
@@ -70,14 +70,14 @@ private:
    		Load();
 	}
 
-	CayaPreferencesData		fSettings;
+	AppPreferencesData		fSettings;
 	BFile					fPreferencesFile;
 	BDirectory				fDirectory;
 
 	static const char*		fFilename;
 	static const char*		fFolder;
 
-	friend class Singleton<PreferencesContainer<CayaPreferencesData> >;
+	friend class Singleton<PreferencesContainer<AppPreferencesData> >;
 };
 
 

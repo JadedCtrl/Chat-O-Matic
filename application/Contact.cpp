@@ -9,7 +9,7 @@
  */
 #include "Contact.h"
 
-#include "CayaUtils.h"
+#include "Utils.h"
 #include "ProtocolLooper.h"
 #include "RosterItem.h"
 
@@ -44,7 +44,7 @@ Contact::_EnsureCachePath()
 {
 	if (fCachePath.InitCheck() == B_OK)
 		return;
-	fCachePath.SetTo(CayaContactCachePath(fLooper->Protocol()->GetName(),
+	fCachePath.SetTo(ContactCachePath(fLooper->Protocol()->GetName(),
 										  fID.String()));
 }
 

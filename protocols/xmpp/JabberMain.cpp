@@ -13,23 +13,23 @@
 #include "JabberProtocol.h"
 
 
-extern "C" _EXPORT CayaProtocol* protocol_at(int32 i);
+extern "C" _EXPORT ChatProtocol* protocol_at(int32 i);
 extern "C" _EXPORT int32 protocol_count();
 extern "C" _EXPORT const char* signature();
 extern "C" _EXPORT const char* friendly_signature();
 extern "C" _EXPORT uint32 version();
 
 
-CayaProtocol*
+ChatProtocol*
 protocol_at(int32 i)
 {
 	switch(i) {
 		case 0:
-			return (CayaProtocol*)new JabberProtocol();
+			return (ChatProtocol*)new JabberProtocol();
 		case 1:
-			return (CayaProtocol*)new FacebookProtocol();
+			return (ChatProtocol*)new FacebookProtocol();
 		case 2:
-			return (CayaProtocol*)new GoogleTalkProtocol();
+			return (ChatProtocol*)new GoogleTalkProtocol();
 	}
 	return NULL;
 }
@@ -59,7 +59,7 @@ friendly_signature()
 uint32
 version()
 {
-	return CAYA_VERSION_1_PRE_ALPHA_1;
+	return APP_VERSION_1_PRE_ALPHA_1;
 }
 
 

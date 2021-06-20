@@ -7,7 +7,7 @@
 
 #include <Messenger.h>
 
-#include "CayaConstants.h"
+#include "AppConstants.h"
 #include "Notifier.h"
 
 
@@ -17,18 +17,18 @@ public:
 
 			void			SetNickname(BString nick);
 
-			CayaStatus		Status() const;
-			void			SetStatus(CayaStatus status,
+			UserStatus		Status() const;
+			void			SetStatus(UserStatus status,
 								const char* str = NULL);
 
 			void			SetReplicantMessenger(BMessenger* messenger);
-			void			ReplicantStatusNotify(CayaStatus status,
+			void			ReplicantStatusNotify(UserStatus status,
 								bool wait = false);
 private:
 							AccountManager();
 							~AccountManager();
 
-	CayaStatus				fStatus;
+	UserStatus				fStatus;
 	BMessenger*				fReplicantMessenger;
 
 };

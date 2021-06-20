@@ -18,10 +18,10 @@
 #include <Notification.h>
 #include <ScrollView.h>
 
-#include "CayaMessages.h"
-#include "CayaPreferences.h"
-#include "CayaProtocolMessages.h"
-#include "CayaUtils.h"
+#include "AppMessages.h"
+#include "AppPreferences.h"
+#include "ChatProtocolMessages.h"
+#include "Utils.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
 #include "RosterView.h"

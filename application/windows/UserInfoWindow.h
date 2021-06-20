@@ -13,7 +13,7 @@
 #include <StringView.h>
 #include "Observer.h"
 
-#include "CayaConstants.h"
+#include "AppConstants.h"
 
 class BitmapView;
 class User;

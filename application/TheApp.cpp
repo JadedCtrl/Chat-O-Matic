@@ -20,7 +20,7 @@
 
 #include "AboutWindow.h"
 #include "Caya.h"
-#include "CayaMessages.h"
+#include "AppMessages.h"
 #include "FilePanel.h"
 #include "MainWindow.h"
 #include "ProtocolManager.h"
@@ -30,7 +30,7 @@
 
 TheApp::TheApp()
 	:
-	BApplication(CAYA_SIGNATURE),
+	BApplication(APP_SIGNATURE),
 	fMainWin(NULL)
 {
 }
@@ -100,6 +100,7 @@ TheApp::AboutRequested()
 		"Andrea Anzani",
 		"Dario Casalinuovo",
 		"Pier Luigi Fiorini",
+		"Jaidyn Levesque",
 		NULL
 	};
 
@@ -126,14 +127,14 @@ void
 TheApp::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case CAYA_REPLICANT_STATUS_SET:
-		case CAYA_REPLICANT_SHOW_WINDOW:
-		case CAYA_SHOW_SETTINGS:
-		case CAYA_REPLICANT_MESSENGER:
+		case APP_REPLICANT_STATUS_SET:
+		case APP_REPLICANT_SHOW_WINDOW:
+		case APP_SHOW_SETTINGS:
+		case APP_REPLICANT_MESSENGER:
 			DetachCurrentMessage();
 			fMainWin->PostMessage(message);
 			break;
-		case CAYA_REPLICANT_EXIT:
+		case APP_REPLICANT_EXIT:
 			// TODO BAlert here
 			PostMessage(B_QUIT_REQUESTED);
 			break;

@@ -13,15 +13,15 @@
 
 #include <libinterface/BitmapUtils.h>
 
-#include "CayaResources.h"
-#include "CayaUtils.h"
+#include "AppResources.h"
 #include "StatusMenuItem.h"
+#include "Utils.h"
 
 const float kSize	= 16;
 const float kCircle	= 12;
 
 
-StatusMenuItem::StatusMenuItem(const char* label, CayaStatus status,
+StatusMenuItem::StatusMenuItem(const char* label, UserStatus status,
 	bool custom, char shortcut, uint32 modifiers)
 	:
 	BitmapMenuItem(label, NULL, NULL, shortcut, modifiers),
@@ -37,7 +37,7 @@ StatusMenuItem::StatusMenuItem(const char* label, CayaStatus status,
 }
 
 
-CayaStatus
+UserStatus
 StatusMenuItem::Status() const
 {
 	return fStatus;
@@ -54,27 +54,27 @@ StatusMenuItem::IsCustom() const
 void
 StatusMenuItem::SetIcon()
 {
-	BResources* res = CayaResources();
+	BResources* res = ChatResources();
 	if (!res)
 		return;
 
 	int32 num = 0;
 
 	switch (fStatus) {
-		case CAYA_ONLINE:
+		case STATUS_ONLINE:
 			num = kOnlineReplicant;
 			break;
-		case CAYA_AWAY:
+		case STATUS_AWAY:
 			num = kAwayReplicant;
 			break;
-		case CAYA_DO_NOT_DISTURB:
+		case STATUS_DO_NOT_DISTURB:
 			num = kBusyReplicant;
 			break;
-		case CAYA_CUSTOM_STATUS:
-			num = kCayaIconReplicant;
+		case STATUS_CUSTOM_STATUS:
+			num = kIconReplicant;
 			break;
-		case CAYA_INVISIBLE:
-		case CAYA_OFFLINE:
+		case STATUS_INVISIBLE:
+		case STATUS_OFFLINE:
 			num = kOfflineReplicant;
 			break;
 		default:

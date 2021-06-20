@@ -4,8 +4,8 @@
  * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef _CAYA_PROTOCOL_H
-#define _CAYA_PROTOCOL_H
+#ifndef _APP_PROTOCOL_H
+#define _APP_PROTOCOL_H
 
 #include <Messenger.h>
 #include <ObjectList.h>
@@ -14,21 +14,21 @@ class BBitmap;
 
 
 // Caya protocol interface version
-#define CAYA_VERSION_1_PRE_ALPHA_1		0x00000001
-#define CAYA_VERSION_1_ALPHA_1			0x00000100
+#define APP_VERSION_1_PRE_ALPHA_1		0x00000001
+#define APP_VERSION_1_ALPHA_1			0x00000100
 
-#define CAYA_VERSION 					CAYA_VERSION_1_PRE_ALPHA_1
+#define APP_VERSION 					APP_VERSION_1_PRE_ALPHA_1
 
 
-class CayaProtocolMessengerInterface {
+class ChatProtocolMessengerInterface {
 public:
 	virtual status_t SendMessage(BMessage* message) = 0;
 };
 
-class CayaProtocol {
+class ChatProtocol {
 public:
 	//! Messenger
-	virtual status_t Init(CayaProtocolMessengerInterface*) = 0;
+	virtual status_t Init(ChatProtocolMessengerInterface*) = 0;
 
 	//! Called before unloading from memory
 	virtual status_t Shutdown() = 0;
@@ -93,7 +93,7 @@ public:
 	virtual uint32 GetEncoding() = 0;
 
 	//! Messenger interface used
-	virtual CayaProtocolMessengerInterface* MessengerInterface() const = 0;
+	virtual ChatProtocolMessengerInterface* MessengerInterface() const = 0;
 };
 
-#endif	// _CAYA_PROTOCOL_H
+#endif	// _APP_PROTOCOL_H

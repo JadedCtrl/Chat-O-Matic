@@ -18,11 +18,11 @@
 #include <ObjectList.h>
 #include <Path.h>
 
-#include "CayaProtocolAddOn.h"
-#include "CayaUtils.h"
+#include "ChatProtocolAddOn.h"
+#include "Utils.h"
 
 
-ProtocolSettings::ProtocolSettings(CayaProtocolAddOn* addOn)
+ProtocolSettings::ProtocolSettings(ChatProtocolAddOn* addOn)
 	:
 	fTemplate(addOn->Protocol(), "account"),
 	fAddOn(addOn)
@@ -37,7 +37,7 @@ ProtocolSettings::InitCheck() const
 }
 
 
-CayaProtocolAddOn*
+ChatProtocolAddOn*
 ProtocolSettings::AddOn() const
 {
 	return fAddOn;
@@ -49,7 +49,7 @@ ProtocolSettings::Accounts() const
 {
 	BObjectList<BString> list(true);
 
-	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
+	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 
 	if (path.InitCheck() != B_OK)
 		return list;
@@ -99,7 +99,7 @@ ProtocolSettings::Save(const char* account, BView* parent, BString* errorText)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
+	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
@@ -117,7 +117,7 @@ ProtocolSettings::Rename(const char* from, const char* to)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
+	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
@@ -139,7 +139,7 @@ ProtocolSettings::Delete(const char* account)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
+	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
@@ -166,7 +166,7 @@ ProtocolSettings::_Load(const char* account, BMessage** settings)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
+	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;

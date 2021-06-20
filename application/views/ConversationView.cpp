@@ -19,16 +19,16 @@
 
 #include <libinterface/BitmapView.h>
 
-#include "CayaMessages.h"
-#include "CayaPreferences.h"
-#include "CayaProtocolMessages.h"
-#include "CayaRenderView.h"
-#include "CayaUtils.h"
+#include "AppMessages.h"
+#include "AppPreferences.h"
+#include "ChatProtocolMessages.h"
+#include "RenderView.h"
 #include "Conversation.h"
 #include "NotifyMessage.h"
 #include "User.h"
 #include "UserItem.h"
 #include "UserListView.h"
+#include "Utils.h"
 
 
 ConversationView::ConversationView()
@@ -52,7 +52,7 @@ ConversationView::ConversationView(Conversation* chat)
 bool
 ConversationView::QuitRequested()
 {
-	BMessage msg(CAYA_CLOSE_CHAT_WINDOW);
+	BMessage msg(APP_CLOSE_CHAT_WINDOW);
 	msg.AddString("chat_id", fConversation->GetId());
 	fConversation->Messenger().SendMessage(&msg);
 	return false;
@@ -73,7 +73,7 @@ void
 ConversationView::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case CAYA_CHAT:
+		case APP_CHAT:
 		{
 			BString text = message->FindString("body");
 			if (text == "")
@@ -118,7 +118,7 @@ ConversationView::ImMessage(BMessage* msg)
 
 			// Send a notification, if it's appropriate
 			if ((Window() == NULL || Window()->IsActive() == false)
-				&& (!CayaPreferences::Item()->NotifyNewMessage)
+				&& (!AppPreferences::Item()->NotifyNewMessage)
 				&& sender != NULL)
 			{
 				fMessageCount++;
@@ -139,7 +139,7 @@ ConversationView::ImMessage(BMessage* msg)
 				notification.SetMessageID(sender->GetName());
 				notification.Send();
 				// Check if the user want the notification
-				if (!CayaPreferences::Item()->NotifyNewMessage)
+				if (!AppPreferences::Item()->NotifyNewMessage)
 					break;
 			}
 
@@ -260,7 +260,7 @@ ConversationView::ObserveString(int32 what, BString str)
 void
 ConversationView::_InitInterface()
 {
-	fReceiveView = new CayaRenderView("fReceiveView");
+	fReceiveView = new RenderView("fReceiveView");
 	BScrollView* scrollViewReceive = new BScrollView("receiveScrollView",
 		fReceiveView, B_WILL_DRAW, false, true);
 

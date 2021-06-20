@@ -12,25 +12,25 @@
 class BMessage;
 class BString;
 class BView;
-class CayaProtocol;
+class ChatProtocol;
 
 
 class ProtocolTemplate {
 public:
-						ProtocolTemplate(CayaProtocol* protocol,
+						ProtocolTemplate(ChatProtocol* protocol,
 							const char* type);
 						ProtocolTemplate(BMessage pTemplate);
 						~ProtocolTemplate();
 
 	status_t			InitCheck() const;
-	CayaProtocol*		Protocol() const;
+	ChatProtocol*		Protocol() const;
 
 	status_t			Load(BView* parent, BMessage* settings = NULL);
 	status_t			Save(BView* parent, BMessage* settings,
 							BString* errorText = NULL);
 
 private:
-	CayaProtocol*		fProtocol;
+	ChatProtocol*		fProtocol;
 	BMessage*			fTemplate;
 };
 

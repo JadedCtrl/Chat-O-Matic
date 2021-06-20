@@ -7,7 +7,7 @@
  */
 
 #include "AccountManager.h"
-#include "CayaProtocolMessages.h"
+#include "ChatProtocolMessages.h"
 #include "MainWindow.h"
 #include "NotifyMessage.h"
 #include "Server.h"
@@ -20,7 +20,7 @@ static AccountManager* fInstance = NULL;
 
 AccountManager::AccountManager()
 	:
-	fStatus(CAYA_OFFLINE),
+	fStatus(STATUS_OFFLINE),
 	fReplicantMessenger(NULL)
 {
 	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
@@ -67,7 +67,7 @@ AccountManager::SetReplicantMessenger(BMessenger* messenger)
 }
 
 
-CayaStatus
+UserStatus
 AccountManager::Status() const
 {
 	return fStatus;
@@ -75,7 +75,7 @@ AccountManager::Status() const
 
 
 void
-AccountManager::SetStatus(CayaStatus status, const char* str)
+AccountManager::SetStatus(UserStatus status, const char* str)
 {
 	if (fStatus != status) {
 		// Create status change message
@@ -93,13 +93,13 @@ AccountManager::SetStatus(CayaStatus status, const char* str)
 		// Notify status change
 		fStatus = status;
 		NotifyInteger(INT_ACCOUNT_STATUS, (int32)fStatus);
-		ReplicantStatusNotify((CayaStatus)status);
+		ReplicantStatusNotify((UserStatus)status);
 	}
 }
 
 
 void
-AccountManager::ReplicantStatusNotify(CayaStatus status, bool wait)
+AccountManager::ReplicantStatusNotify(UserStatus status, bool wait)
 {
 	if(fReplicantMessenger != NULL && fReplicantMessenger->IsValid()) {
 		printf("notification sent\n");

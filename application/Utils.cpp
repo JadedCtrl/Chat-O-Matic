@@ -18,24 +18,24 @@
 
 #include <kernel/fs_attr.h>
 
-#include "CayaUtils.h"
+#include "Utils.h"
 
 
 const char*
-CayaStatusToString(CayaStatus status)
+UserStatusToString(UserStatus status)
 {
 	switch (status) {
-		case CAYA_ONLINE:
+		case STATUS_ONLINE:
 			return "Available";
-		case CAYA_AWAY:
+		case STATUS_AWAY:
 			return "Away";
-		case CAYA_DO_NOT_DISTURB:
+		case STATUS_DO_NOT_DISTURB:
 			return "Busy";
-		case CAYA_CUSTOM_STATUS:
+		case STATUS_CUSTOM_STATUS:
 			return "Custom Status";
-		case CAYA_INVISIBLE:
+		case STATUS_INVISIBLE:
 			return "Invisible";
-		case CAYA_OFFLINE:
+		case STATUS_OFFLINE:
 			return "Offline";
 		default:
 			return NULL;
@@ -70,7 +70,7 @@ CommandArgs(BString line)
 
 
 BResources*
-CayaResources()
+ChatResources()
 {
 	image_info info;
 	if (our_image(info) != B_OK)
@@ -111,7 +111,7 @@ CreateAccountMenu(AccountInstances accounts, BMessage msg, BMessage* allMsg)
 
 
 const char*
-CayaAccountsPath()
+AccountsPath()
 {
 	BPath path;
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
@@ -126,12 +126,12 @@ CayaAccountsPath()
 
 
 const char*
-CayaAccountPath(const char* signature)
+AccountPath(const char* signature)
 {
 	if (!signature)
 		return NULL;
 
-	BPath path(CayaAccountsPath());
+	BPath path(AccountsPath());
 	if (path.InitCheck() != B_OK)
 		return NULL;
 
@@ -144,13 +144,13 @@ CayaAccountPath(const char* signature)
 
 
 const char*
-CayaAccountPath(const char* signature, const char* subsignature)
+AccountPath(const char* signature, const char* subsignature)
 {
 	if (BString(signature) == BString(subsignature)
 		|| BString(subsignature).IsEmpty() == true)
-		return CayaAccountPath(signature);
+		return AccountPath(signature);
 
-	BPath path(CayaAccountPath(signature));
+	BPath path(AccountPath(signature));
 
 	path.Append(subsignature);
 	if (create_directory(path.Path(), 0755) != B_OK)
@@ -161,7 +161,7 @@ CayaAccountPath(const char* signature, const char* subsignature)
 
 
 const char*
-CayaCachePath()
+CachePath()
 {
 	BPath path;
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
@@ -174,9 +174,9 @@ CayaCachePath()
 
 
 const char*
-CayaAccountCachePath(const char* accountName)
+AccountCachePath(const char* accountName)
 {
-	BPath path(CayaCachePath());
+	BPath path(CachePath());
 	if (path.InitCheck() != B_OK)
 		return NULL;
 	path.Append(accountName);
@@ -187,9 +187,9 @@ CayaAccountCachePath(const char* accountName)
 
 
 const char*
-CayaRoomsCachePath(const char* accountName)
+RoomsCachePath(const char* accountName)
 {
-	BPath path(CayaAccountCachePath(accountName));
+	BPath path(AccountCachePath(accountName));
 	if (path.InitCheck() != B_OK)
 		return NULL;
 	path.Append("Rooms");
@@ -200,9 +200,9 @@ CayaRoomsCachePath(const char* accountName)
 
 
 const char*
-CayaRoomCachePath(const char* accountName, const char* roomIdentifier)
+RoomCachePath(const char* accountName, const char* roomIdentifier)
 {
-	BPath path(CayaRoomsCachePath(accountName));
+	BPath path(RoomsCachePath(accountName));
 	if (path.InitCheck() != B_OK)	return NULL;
 	path.Append(roomIdentifier);
 	return path.Path();
@@ -210,9 +210,9 @@ CayaRoomCachePath(const char* accountName, const char* roomIdentifier)
 
 
 const char*
-CayaUserCachePath(const char* accountName, const char* userIdentifier)
+UserCachePath(const char* accountName, const char* userIdentifier)
 {
-	BPath path(CayaAccountCachePath(accountName));
+	BPath path(AccountCachePath(accountName));
 	if (path.InitCheck() != B_OK)	return NULL;
 	path.Append("Users");
 	if (create_directory(path.Path(), 0755) != B_OK)	return NULL;
@@ -222,9 +222,9 @@ CayaUserCachePath(const char* accountName, const char* userIdentifier)
 
 
 const char*
-CayaContactCachePath(const char* accountName, const char* userIdentifier)
+ContactCachePath(const char* accountName, const char* userIdentifier)
 {
-	BPath path(CayaAccountCachePath(accountName));
+	BPath path(AccountCachePath(accountName));
 	if (path.InitCheck() != B_OK)	return NULL;
 	path.Append("People");
 	if (create_directory(path.Path(), 0755) != B_OK)	return NULL;
@@ -234,7 +234,7 @@ CayaContactCachePath(const char* accountName, const char* userIdentifier)
 
 
 rgb_color
-CayaTintColor(rgb_color color, int severity)
+TintColor(rgb_color color, int severity)
 {
 	bool dark = false;
 	if (color.Brightness() < 127)
@@ -263,7 +263,7 @@ CayaTintColor(rgb_color color, int severity)
 
 
 rgb_color
-CayaForegroundColor(rgb_color background)
+ForegroundColor(rgb_color background)
 {
 	rgb_color foreground;
 	int32 brighter;

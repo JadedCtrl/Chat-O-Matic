@@ -25,11 +25,10 @@
 
 #include "Account.h"
 #include "AccountManager.h"
-#include "CayaMessages.h"
-#include "CayaProtocol.h"
-#include "CayaPreferences.h"
-#include "CayaProtocolMessages.h"
-#include "CayaUtils.h"
+#include "AppMessages.h"
+#include "ChatProtocol.h"
+#include "AppPreferences.h"
+#include "ChatProtocolMessages.h"
 #include "DefaultItems.h"
 #include "ImageCache.h"
 #include "InviteDialogue.h"
@@ -38,6 +37,7 @@
 #include "RoomFlags.h"
 #include "RosterItem.h"
 #include "UserInfoWindow.h"
+#include "Utils.h"
 
 
 Server::Server()
@@ -70,7 +70,7 @@ Server::LoginAll()
 
 		BMessage* msg = new BMessage(IM_MESSAGE);
 		msg->AddInt32("im_what", IM_SET_OWN_STATUS);
-		msg->AddInt32("status", CAYA_ONLINE);
+		msg->AddInt32("status", STATUS_ONLINE);
 		looper->PostMessage(msg);
 	}
 }
@@ -82,7 +82,7 @@ Server::Filter(BMessage* message, BHandler **target)
 	filter_result result = B_DISPATCH_MESSAGE;
 
 	switch (message->what) {
-		case CAYA_CLOSE_CHAT_WINDOW:
+		case APP_CLOSE_CHAT_WINDOW:
 		{
 			BString id = message->FindString("chat_id");
 			if (id.Length() > 0) {
@@ -96,7 +96,7 @@ Server::Filter(BMessage* message, BHandler **target)
 			result = ImMessage(message);
 			break;
 
-		case CAYA_REPLICANT_MESSENGER:
+		case APP_REPLICANT_MESSENGER:
 		{
 			BMessenger* messenger = new BMessenger();
 
@@ -113,7 +113,7 @@ Server::Filter(BMessage* message, BHandler **target)
 			break;
 		}
 
-		case CAYA_DISABLE_ACCOUNT:
+		case APP_DISABLE_ACCOUNT:
 		{
 			int64 instance = 0;
 			if (message->FindInt64("instance", &instance) != B_OK) {
@@ -124,7 +124,7 @@ Server::Filter(BMessage* message, BHandler **target)
 			break;
 		}
 
-		case CAYA_USER_INFO:
+		case APP_USER_INFO:
 		{
 			User* user = _EnsureUser(message);
 			if (user != NULL) {
@@ -134,7 +134,7 @@ Server::Filter(BMessage* message, BHandler **target)
 			break;
 		}
 
-		case CAYA_REQUEST_HELP:
+		case APP_REQUEST_HELP:
 		{
 			BString body;
 			BString cmd_name = message->FindString("misc_str");
@@ -222,7 +222,7 @@ Server::ImMessage(BMessage* msg)
 				return B_SKIP_MESSAGE;
 
 			AccountManager* accountManager = AccountManager::Get();
-			accountManager->SetStatus((CayaStatus)status);
+			accountManager->SetStatus((UserStatus)status);
 
 			break;
 		}
@@ -237,7 +237,7 @@ Server::ImMessage(BMessage* msg)
 			if (!user)
 				break;
 
-			user->SetNotifyStatus((CayaStatus)status);
+			user->SetNotifyStatus((UserStatus)status);
 			BString statusMsg;
 			if (msg->FindString("message", &statusMsg) == B_OK) {
 				user->SetNotifyPersonalStatus(statusMsg);
@@ -495,10 +495,10 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindFloat("progress", &progress) != B_OK)
 				return result;
 
-			if (!CayaPreferences::Item()->NotifyProtocolStatus)
+			if (!AppPreferences::Item()->NotifyProtocolStatus)
 				break;
 
-			CayaProtocolAddOn* addOn
+			ChatProtocolAddOn* addOn
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
 
 			BNotification notification(B_PROGRESS_NOTIFICATION);
@@ -527,10 +527,10 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindString("message", &message) != B_OK)
 				return result;
 
-			if (!CayaPreferences::Item()->NotifyProtocolStatus)
+			if (!AppPreferences::Item()->NotifyProtocolStatus)
 				break;
 
-			CayaProtocolAddOn* addOn
+			ChatProtocolAddOn* addOn
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
 
 			BNotification notification((notification_type)type);
@@ -548,7 +548,7 @@ Server::ImMessage(BMessage* msg)
 			ProtocolLooper* looper = _LooperFromMessage(msg);
 			if (looper == NULL)
 				break;
-			CayaProtocol* proto = looper->Protocol();
+			ChatProtocol* proto = looper->Protocol();
 
 			BString content("%user% has connected!");
 			content.ReplaceAll("%user%", looper->Protocol()->GetName());
@@ -563,7 +563,7 @@ Server::ImMessage(BMessage* msg)
 			// Join cached rooms
 			BEntry entry;
 			char fileName[B_FILE_NAME_LENGTH] = {'\0'};
-			BDirectory dir(CayaRoomsCachePath(proto->GetName()));
+			BDirectory dir(RoomsCachePath(proto->GetName()));
 
 			while (dir.GetNextEntry(&entry, true) == B_OK)
 				if (entry.GetName(fileName) == B_OK) {
@@ -572,7 +572,7 @@ Server::ImMessage(BMessage* msg)
 					if (file.InitCheck() != B_OK)
 						continue;
 
-					if (file.ReadAttr("Caya:flags", B_INT32_TYPE, 0, &flags,
+					if (file.ReadAttr("Chat:flags", B_INT32_TYPE, 0, &flags,
 							sizeof(int32)) < 0)
 						continue;
 
@@ -601,7 +601,7 @@ Server::ImMessage(BMessage* msg)
 
 
 void
-Server::AddProtocolLooper(bigtime_t instanceId, CayaProtocol* cayap)
+Server::AddProtocolLooper(bigtime_t instanceId, ChatProtocol* cayap)
 {
 	ProtocolLooper* looper = new ProtocolLooper(cayap, instanceId);
 	fLoopers.AddItem(instanceId, looper);

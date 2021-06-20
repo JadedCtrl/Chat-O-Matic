@@ -3,16 +3,16 @@
  * Copyright 2012, Casalinuovo Dario. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef _CAYA_PREFERENCES_H
-#define _CAYA_PREFERENCES_H
+#ifndef _APP_PREFERENCES_H
+#define _APP_PREFERENCES_H
 
 #include "PreferencesContainer.h"
 
 
-class CayaPreferencesData : public BFlattenable {
+class AppPreferencesData : public BFlattenable {
 public:
-							CayaPreferencesData();
-	virtual					~CayaPreferencesData();
+							AppPreferencesData();
+	virtual					~AppPreferencesData();
 
 	virtual	bool			IsFixedSize() const;
 	virtual	type_code		TypeCode() const;
@@ -33,7 +33,7 @@ public:
 			bool 			NotifyContactStatus;
 			bool			NotifyNewMessage;
 
-			bool 			HideCayaDeskbar;
+			bool 			HideDeskbar;
 			bool 			DisableReplicant;
 			bool			DisableQuitConfirm;
 
@@ -49,6 +49,6 @@ private:
 			const char* 	_ReadString(BPositionIO* data);
 };
 
-typedef PreferencesContainer<CayaPreferencesData> CayaPreferences;
+typedef PreferencesContainer<AppPreferencesData> AppPreferences;
 
-#endif	// _CAYA_PREFERENCES_H
+#endif	// _APP_PREFERENCES_H

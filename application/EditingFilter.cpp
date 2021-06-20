@@ -10,7 +10,7 @@
 #include <Message.h>
 #include <Window.h>
 
-#include "CayaMessages.h"
+#include "AppMessages.h"
 #include "EditingFilter.h"
 
 
@@ -39,7 +39,7 @@ EditingFilter::Filter(BMessage* message, BHandler** target)
 		fView->Insert("\n");
 		return B_SKIP_MESSAGE;
 	} else if ((modifiers & B_COMMAND_KEY) == 0 && byte == B_ENTER) {
-		fView->Window()->PostMessage(CAYA_CHAT);
+		fView->Window()->PostMessage(APP_CHAT);
 		return B_SKIP_MESSAGE;
 	}
 

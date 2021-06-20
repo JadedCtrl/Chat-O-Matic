@@ -9,8 +9,8 @@
 #include <MenuItem.h>
 #include <Window.h>
 
-#include "CayaMessages.h"
-#include "CayaProtocolMessages.h"
+#include "AppMessages.h"
+#include "ChatProtocolMessages.h"
 #include "Conversation.h"
 #include "ConversationAccountItem.h"
 #include "ConversationItem.h"
@@ -201,7 +201,7 @@ ConversationListView::_BlankPopUp()
 
 	BPopUpMenu* menu = new BPopUpMenu("blankPopUp");
 	BMenuItem* newChat = new BMenuItem("New chat" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY);
+		new BMessage(APP_NEW_CHAT), 'M', B_COMMAND_KEY);
 	newChat->SetEnabled(enabled);
 
 	menu->AddItem(newChat);

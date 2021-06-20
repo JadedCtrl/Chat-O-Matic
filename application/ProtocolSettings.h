@@ -13,15 +13,15 @@
 #include "ProtocolTemplate.h"
 
 class BMessage;
-class CayaProtocolAddOn;
+class ChatProtocolAddOn;
 
 class ProtocolSettings {
 public:
-						ProtocolSettings(CayaProtocolAddOn* addOn);
+						ProtocolSettings(ChatProtocolAddOn* addOn);
 
 	status_t			InitCheck() const;
 
-	CayaProtocolAddOn*	AddOn() const;
+	ChatProtocolAddOn*	AddOn() const;
 	BObjectList<BString> Accounts() const;
 
 	status_t			Load(const char* account, BView* parent);
@@ -34,7 +34,7 @@ public:
 private:
 	status_t			_Load(const char* account, BMessage** settings);
 
-	CayaProtocolAddOn*	fAddOn;
+	ChatProtocolAddOn*	fAddOn;
 	ProtocolTemplate	fTemplate;
 	status_t			fStatus;
 };

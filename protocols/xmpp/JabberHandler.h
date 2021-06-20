@@ -32,8 +32,8 @@
 #include <gloox/vcardhandler.h>
 #include <gloox/vcardmanager.h>
 
-#include <CayaProtocol.h>
-#include <CayaConstants.h>
+#include <AppConstants.h>
+#include <ChatProtocol.h>
 #include <libsupport/KeyMap.h>
 
 class BList;
@@ -43,7 +43,7 @@ class InviteHandler;
 typedef KeyMap<BString, gloox::MUCRoom*> RoomMap;
 
 
-class JabberHandler : public CayaProtocol, gloox::RosterListener, gloox::ConnectionListener,
+class JabberHandler : public ChatProtocol, gloox::RosterListener, gloox::ConnectionListener,
 								gloox::LogHandler, gloox::MessageSessionHandler,
 								gloox::MessageHandler, gloox::MessageEventHandler,
 								gloox::ChatStateHandler, gloox::VCardHandler,
@@ -52,8 +52,8 @@ public:
 									JabberHandler();
 	virtual							~JabberHandler();
 
-			// CayaProtocol inheritance
-	virtual	status_t				Init(CayaProtocolMessengerInterface*);
+			// ChatProtocol inheritance
+	virtual	status_t				Init(ChatProtocolMessengerInterface*);
 
 	virtual	status_t				Process(BMessage* msg);
 
@@ -77,7 +77,7 @@ public:
 
 	virtual	uint32					GetEncoding();
 
-	virtual CayaProtocolMessengerInterface*
+	virtual ChatProtocolMessengerInterface*
 									MessengerInterface() const;
 
 			// Functions for gloox
@@ -105,7 +105,7 @@ protected:
 			BMessage				_RosterTemplate();
 
 private:
-			CayaProtocolMessengerInterface*
+			ChatProtocolMessengerInterface*
 									fServerMessenger;
 
 			gloox::Client*			fClient;
@@ -148,7 +148,7 @@ private:
 			void					_CacheAvatar(const char* id, const char* binval, size_t length);
 			void					_AvatarChanged(const char*id, const char* filename);
 
-			CayaStatus				_GlooxStatusToCaya(gloox::Presence::PresenceType type);
+			UserStatus				_GlooxStatusToApp(gloox::Presence::PresenceType type);
 
 			BString					_MUCChatId(gloox::MUCRoom* room);
 			bool					_MUCUserId(BString chat_id, const char* nick, BString* id);

@@ -18,9 +18,9 @@
 #include <TranslationUtils.h>
 
 #include "AccountManager.h"
-#include "CayaMessages.h"
-#include "CayaPreferences.h"
-#include "CayaProtocolMessages.h"
+#include "AppMessages.h"
+#include "AppPreferences.h"
+#include "ChatProtocolMessages.h"
 #include "ConversationItem.h"
 #include "ConversationListView.h"
 #include "ConversationView.h"
@@ -77,7 +77,7 @@ bool
 MainWindow::QuitRequested()
 {
 	int32 button_index = 0;
-	if(!CayaPreferences::Item()->DisableQuitConfirm)
+	if(!AppPreferences::Item()->DisableQuitConfirm)
 	{
 		BAlert* alert = new BAlert("Closing", "Are you sure you want to quit?",
 			"Yes", "No", NULL, B_WIDTH_AS_USUAL, B_OFFSET_SPACING,
@@ -88,7 +88,7 @@ MainWindow::QuitRequested()
 
 	if(button_index == 0) {
 		fServer->Quit();
-		CayaPreferences::Get()->Save();
+		AppPreferences::Get()->Save();
 		ReplicantStatusView::RemoveReplicant();
 		be_app->PostMessage(B_QUIT_REQUESTED);
 		return true;
@@ -101,13 +101,13 @@ void
 MainWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case CAYA_SHOW_SETTINGS:
+		case APP_SHOW_SETTINGS:
 		{
 			PreferencesWindow* win = new PreferencesWindow();
 			win->Show();
 			break;
 		}
-		case CAYA_NEW_CHAT:
+		case APP_NEW_CHAT:
 		{
 			BMessage* newMsg = new BMessage(IM_MESSAGE);
 			newMsg->AddInt32("im_what", IM_CREATE_CHAT);
@@ -117,7 +117,7 @@ MainWindow::MessageReceived(BMessage* message)
 			fRosterWindow->Show();
 			break;
 		}
-		case CAYA_NEW_ROOM:
+		case APP_NEW_ROOM:
 		{
 			BMessage* createMsg = new BMessage(IM_MESSAGE);
 			createMsg->AddInt32("im_what", IM_CREATE_ROOM);
@@ -127,7 +127,7 @@ MainWindow::MessageReceived(BMessage* message)
 			win->Show();
 			break;
 		}
-		case CAYA_JOIN_ROOM:
+		case APP_JOIN_ROOM:
 		{
 			BMessage temp;
 			BMessage roomId;
@@ -146,7 +146,7 @@ MainWindow::MessageReceived(BMessage* message)
 			win->Show();
 			break;
 		}
-		case CAYA_SEND_INVITE:
+		case APP_SEND_INVITE:
 		{
 			if (fConversation == NULL)
 				break;
@@ -165,12 +165,12 @@ MainWindow::MessageReceived(BMessage* message)
 			fRosterWindow->Show();
 			break;
 		}
-		case CAYA_EDIT_ROSTER:
+		case APP_EDIT_ROSTER:
 		{
 			RosterEditWindow::Get(fServer)->Show();
 			break;
 		}
-		case CAYA_MOVE_UP:
+		case APP_MOVE_UP:
 		{
 			if (fConversation == NULL)
 				break;
@@ -180,7 +180,7 @@ MainWindow::MessageReceived(BMessage* message)
 				fListView->SelectConversation(index - 1);
 			break;
 		}
-		case CAYA_MOVE_DOWN:
+		case APP_MOVE_DOWN:
 		{
 			if (fConversation == NULL)
 				break;
@@ -191,15 +191,15 @@ MainWindow::MessageReceived(BMessage* message)
 				fListView->SelectConversation(index + 1);
 			break;
 		}
-		case CAYA_REPLICANT_STATUS_SET:
+		case APP_REPLICANT_STATUS_SET:
 		{
 			int32 status;
 			message->FindInt32("status", &status);
 			AccountManager* accountManager = AccountManager::Get();
-			accountManager->SetStatus((CayaStatus)status);
+			accountManager->SetStatus((UserStatus)status);
 			break;
 		}
-		case CAYA_REPLICANT_SHOW_WINDOW:
+		case APP_REPLICANT_SHOW_WINDOW:
 		{
 			if (LockLooper()) {
 				SetWorkspaces(B_CURRENT_WORKSPACE);
@@ -217,14 +217,14 @@ MainWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case CAYA_CHAT:
+		case APP_CHAT:
 		{
 			message->AddString("body", fSendView->Text());
 			fChatView->MessageReceived(message);
 			fSendView->SetText("");
 			break;
 		}
-		case CAYA_DISABLE_ACCOUNT:
+		case APP_DISABLE_ACCOUNT:
 			_ToggleMenuItems();
 			break;
 		case IM_MESSAGE:
@@ -322,7 +322,7 @@ MainWindow::ObserveInteger(int32 what, int32 val)
 {
 	switch (what) {
 		case INT_ACCOUNT_STATUS:
-			fStatusView->SetStatus((CayaStatus)val);
+			fStatusView->SetStatus((UserStatus)val);
 			break;
 	}
 }
@@ -462,7 +462,7 @@ MainWindow::_CreateMenuBar()
 	programMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
 		new BMessage(B_ABOUT_REQUESTED)));
 	programMenu->AddItem(new BMenuItem("Preferences" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_SHOW_SETTINGS), ',', B_COMMAND_KEY));
+		new BMessage(APP_SHOW_SETTINGS), ',', B_COMMAND_KEY));
 	programMenu->AddItem(new BSeparatorItem());
 	programMenu->AddItem(new BMenuItem("Quit",
 		new BMessage(B_QUIT_REQUESTED), 'Q', B_COMMAND_KEY));
@@ -471,29 +471,29 @@ MainWindow::_CreateMenuBar()
 	// Chat
 	BMenu* chatMenu = new BMenu("Chat");
 	chatMenu->AddItem(new BMenuItem("Join room" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_JOIN_ROOM), 'J', B_COMMAND_KEY));
+		new BMessage(APP_JOIN_ROOM), 'J', B_COMMAND_KEY));
 	chatMenu->AddSeparatorItem();
 	chatMenu->AddItem(new BMenuItem("New room" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_NEW_ROOM), 'N', B_COMMAND_KEY));
+		new BMessage(APP_NEW_ROOM), 'N', B_COMMAND_KEY));
 	chatMenu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_NEW_CHAT), 'M', B_COMMAND_KEY));
+		new BMessage(APP_NEW_CHAT), 'M', B_COMMAND_KEY));
 	chatMenu->SetTargetForItems(this);
 
 	// Roster
 	BMenu* rosterMenu = new BMenu("Roster");
 	rosterMenu->AddItem(new BMenuItem("Edit roster" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_EDIT_ROSTER), 'R', B_COMMAND_KEY));
+		new BMessage(APP_EDIT_ROSTER), 'R', B_COMMAND_KEY));
 	rosterMenu->AddSeparatorItem();
 	rosterMenu->AddItem(new BMenuItem("Invite user" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_SEND_INVITE), 'I', B_COMMAND_KEY));
+		new BMessage(APP_SEND_INVITE), 'I', B_COMMAND_KEY));
 	rosterMenu->SetTargetForItems(this);
 
 	// Window
 	BMenu* windowMenu = new BMenu("Window");
 	windowMenu->AddItem(new BMenuItem("Up",
-		new BMessage(CAYA_MOVE_UP), B_UP_ARROW, B_COMMAND_KEY));
+		new BMessage(APP_MOVE_UP), B_UP_ARROW, B_COMMAND_KEY));
 	windowMenu->AddItem(new BMenuItem("Down",
-		new BMessage(CAYA_MOVE_DOWN), B_DOWN_ARROW, B_COMMAND_KEY));
+		new BMessage(APP_MOVE_DOWN), B_DOWN_ARROW, B_COMMAND_KEY));
 	windowMenu->SetTargetForItems(this);
 
 	menuBar->AddItem(programMenu);

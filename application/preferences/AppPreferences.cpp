@@ -2,13 +2,13 @@
  * Copyright 2012, Casalinuovo Dario. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#include "CayaPreferences.h"
+#include "AppPreferences.h"
 
 #include <string.h>
 #include <stdlib.h>
 
-template<> const char* CayaPreferences::fFolder = "Caya";
-template<> const char* CayaPreferences::fFilename = "preferences";
+template<> const char* AppPreferences::fFolder = "Caya";
+template<> const char* AppPreferences::fFilename = "preferences";
 
 /* TODO update _Add* methods to 
  don't take the BPositionIO argument
@@ -23,13 +23,13 @@ template<> const char* CayaPreferences::fFilename = "preferences";
  size become very minimal : ).
 */
 
-CayaPreferencesData::CayaPreferencesData()
+AppPreferencesData::AppPreferencesData()
 	:
 	MoveToCurrentWorkspace(true),
 	RaiseOnMessageReceived(false),
 	RaiseUserIsTyping(false),
 	MarkUnreadWindow(true),
-	HideCayaDeskbar(false),
+	HideDeskbar(false),
 	DisableReplicant(false),
 	IgnoreEmoticons(false),
 	NotifyProtocolStatus(true),
@@ -41,29 +41,29 @@ CayaPreferencesData::CayaPreferencesData()
 }
 
 
-CayaPreferencesData::~CayaPreferencesData()
+AppPreferencesData::~AppPreferencesData()
 {
 }
 
 
 bool
-CayaPreferencesData::IsFixedSize() const
+AppPreferencesData::IsFixedSize() const
 {
 	return false;
 }
 
 
 type_code
-CayaPreferencesData::TypeCode() const
+AppPreferencesData::TypeCode() const
 {
-	return CAYA_PREFERENCES_TYPE;
+	return APP_PREFERENCES_TYPE;
 }
 
 
 bool
-CayaPreferencesData::AllowsTypeCode(type_code code) const
+AppPreferencesData::AllowsTypeCode(type_code code) const
 {
-	if (code == CAYA_PREFERENCES_TYPE)
+	if (code == APP_PREFERENCES_TYPE)
 		return true;
 
 	return false;
@@ -71,7 +71,7 @@ CayaPreferencesData::AllowsTypeCode(type_code code) const
 
 
 ssize_t
-CayaPreferencesData::FlattenedSize() const
+AppPreferencesData::FlattenedSize() const
 {
 	// NOTE add the size of every settings
 	// you added.
@@ -83,13 +83,13 @@ CayaPreferencesData::FlattenedSize() const
 
 
 status_t
-CayaPreferencesData::Flatten(BPositionIO* flatData) const
+AppPreferencesData::Flatten(BPositionIO* flatData) const
 {
 	if (flatData == NULL)
 		return B_BAD_VALUE;
 
 	// Write our type code
-	type_code code = CAYA_PREFERENCES_TYPE;
+	type_code code = APP_PREFERENCES_TYPE;
 	flatData->Write(&code, sizeof(type_code));
 
 	// Behaviour
@@ -104,7 +104,7 @@ CayaPreferencesData::Flatten(BPositionIO* flatData) const
 	_AddBool(flatData, DisableQuitConfirm);
 
 	// Replicant
-	_AddBool(flatData, HideCayaDeskbar);
+	_AddBool(flatData, HideDeskbar);
 	_AddBool(flatData, DisableReplicant);
 
 	// Chat window
@@ -124,7 +124,7 @@ CayaPreferencesData::Flatten(BPositionIO* flatData) const
 
 
 status_t
-CayaPreferencesData::Flatten(void* buffer, ssize_t size) const
+AppPreferencesData::Flatten(void* buffer, ssize_t size) const
 {
 	if (buffer == NULL)
 		return B_BAD_VALUE;
@@ -136,7 +136,7 @@ CayaPreferencesData::Flatten(void* buffer, ssize_t size) const
 
 
 status_t
-CayaPreferencesData::Unflatten(type_code code, const void* buffer, ssize_t size)
+AppPreferencesData::Unflatten(type_code code, const void* buffer, ssize_t size)
 {
 	if (buffer == NULL)
 		return B_BAD_VALUE;
@@ -147,9 +147,9 @@ CayaPreferencesData::Unflatten(type_code code, const void* buffer, ssize_t size)
 
 
 status_t
-CayaPreferencesData::Unflatten(type_code code, BPositionIO* flatData)
+AppPreferencesData::Unflatten(type_code code, BPositionIO* flatData)
 {
-	if (code != CAYA_PREFERENCES_TYPE || flatData == NULL)
+	if (code != APP_PREFERENCES_TYPE || flatData == NULL)
 		return B_BAD_VALUE;
 
 	// Reading our type code
@@ -172,7 +172,7 @@ CayaPreferencesData::Unflatten(type_code code, BPositionIO* flatData)
 	DisableQuitConfirm = _ReadBool(flatData);
 
 	// Replicant
-	HideCayaDeskbar = _ReadBool(flatData);
+	HideDeskbar = _ReadBool(flatData);
 	DisableReplicant = _ReadBool(flatData);
 
 	// Chat window
@@ -193,14 +193,14 @@ CayaPreferencesData::Unflatten(type_code code, BPositionIO* flatData)
 
 
 void
-CayaPreferencesData::_AddBool(BPositionIO* data, bool value) const
+AppPreferencesData::_AddBool(BPositionIO* data, bool value) const
 {
 	data->Write(&value, sizeof(value));
 }
 
 
 void
-CayaPreferencesData::_AddString(BPositionIO* data, const char* value) const
+AppPreferencesData::_AddString(BPositionIO* data, const char* value) const
 {
 	size_t len = strlen(value);
 	data->Write(&len, sizeof(size_t));
@@ -209,7 +209,7 @@ CayaPreferencesData::_AddString(BPositionIO* data, const char* value) const
 
 
 bool
-CayaPreferencesData::_ReadBool(BPositionIO* data)
+AppPreferencesData::_ReadBool(BPositionIO* data)
 {
 	bool ret;
 	data->Read(&ret, sizeof(bool));
@@ -218,7 +218,7 @@ CayaPreferencesData::_ReadBool(BPositionIO* data)
 
 
 const char*
-CayaPreferencesData::_ReadString(BPositionIO* data)
+AppPreferencesData::_ReadString(BPositionIO* data)
 {
 	size_t len;
 	data->Read(&len, sizeof(size_t));

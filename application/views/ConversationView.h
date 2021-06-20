@@ -8,7 +8,7 @@
 #include <GroupView.h>
 #include <ObjectList.h>
 
-#include "CayaConstants.h"
+#include "AppConstants.h"
 #include "Conversation.h"
 #include "Observer.h"
 
@@ -16,7 +16,7 @@ class BStringView;
 class BTextView;
 
 class BitmapView;
-class CayaRenderView;
+class RenderView;
 class User;
 class UserListView;
 
@@ -62,7 +62,7 @@ private:
 		BitmapView*		fProtocolView;
 		BitmapView*		fIcon;
 
-		CayaRenderView*	fReceiveView;
+		RenderView*	fReceiveView;
 		UserListView*	fUserList;
 };
 

@@ -11,7 +11,7 @@
 #include <Messenger.h>
 #include <Path.h>
 
-#include "CayaConstants.h"
+#include "AppConstants.h"
 #include "User.h"
 
 class BBitmap;

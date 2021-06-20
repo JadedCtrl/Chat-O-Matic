@@ -17,8 +17,8 @@
 #include <TextControl.h>
 #include <String.h>
 
-#include "CayaProtocolMessages.h"
-#include "CayaUtils.h"
+#include "ChatProtocolMessages.h"
+#include "Utils.h"
 #include "TemplateView.h"
 
 

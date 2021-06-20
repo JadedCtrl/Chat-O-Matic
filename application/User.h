@@ -15,7 +15,7 @@
 
 #include <libsupport/KeyMap.h>
 
-#include "CayaConstants.h"
+#include "AppConstants.h"
 #include "Notifier.h"
 
 class BBitmap;
@@ -55,12 +55,12 @@ public:
 
 	BString			GetName() const;
 	BBitmap*		AvatarBitmap() const;
-	CayaStatus		GetNotifyStatus() const;
+	UserStatus		GetNotifyStatus() const;
 	BString			GetNotifyPersonalStatus() const;
 
 	void			SetNotifyName(BString name);
 	void			SetNotifyAvatarBitmap(BBitmap* bitmap);
-	void			SetNotifyStatus(CayaStatus status);
+	void			SetNotifyStatus(UserStatus status);
 	void			SetNotifyPersonalStatus(BString personalStatus);
 
 	ChatMap			Conversations();
@@ -84,7 +84,7 @@ protected:
 	BString			fPersonalStatus;
 	BBitmap*		fAvatarBitmap;
 	BPath			fCachePath;
-	CayaStatus		fStatus;
+	UserStatus		fStatus;
 	UserPopUp*		fPopUp;
 	ChatMap			fConversations;
 };

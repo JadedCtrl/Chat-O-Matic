@@ -16,7 +16,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "CayaProtocolMessages.h"
+#include "ChatProtocolMessages.h"
 #include "Contact.h"
 #include "ProtocolLooper.h"
 #include "RosterItem.h"

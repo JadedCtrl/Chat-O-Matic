@@ -7,7 +7,7 @@
 
 #include <View.h>
 
-#include "CayaConstants.h"
+#include "AppConstants.h"
 
 class BPopUpMenu;
 
@@ -22,7 +22,7 @@ public:
 	virtual	void			MessageReceived(BMessage* msg);
 
 			void			SetName(BString name);
-			void			SetStatus(CayaStatus status);
+			void			SetStatus(UserStatus status);
 			void			SetAvatarIcon(const BBitmap* bitmap);
 
 private:

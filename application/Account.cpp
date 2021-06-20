@@ -15,10 +15,10 @@
 #include <Path.h>
 
 #include "Account.h"
-#include "CayaUtils.h"
+#include "Utils.h"
 
 
-Account::Account(bigtime_t instanceId, CayaProtocol* cayap,
+Account::Account(bigtime_t instanceId, ChatProtocol* cayap,
 	const char* name, const char* addOnSignature, BHandler* target)
 	:
 	fIdentifier(instanceId),
@@ -30,7 +30,7 @@ Account::Account(bigtime_t instanceId, CayaProtocol* cayap,
 	fProtocol->Init(this);
 
 	// Find user's settings path
-	BPath path(CayaAccountPath(addOnSignature, fProtocol->Signature()));
+	BPath path(AccountPath(addOnSignature, fProtocol->Signature()));
 	if (path.InitCheck() == B_OK) {
 		path.Append(name);
 

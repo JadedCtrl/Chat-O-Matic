@@ -12,11 +12,11 @@
 
 #include <libinterface/BitmapUtils.h>
 
-#include "CayaProtocol.h"
-#include "CayaProtocolAddOn.h"
+#include "ChatProtocol.h"
+#include "ChatProtocolAddOn.h"
 
 
-CayaProtocolAddOn::CayaProtocolAddOn(image_id image, const char* path, int32 subProto)
+ChatProtocolAddOn::ChatProtocolAddOn(image_id image, const char* path, int32 subProto)
 	:
 	fImage(image),
 	fPath(path),
@@ -28,67 +28,67 @@ CayaProtocolAddOn::CayaProtocolAddOn(image_id image, const char* path, int32 sub
 
 
 status_t
-CayaProtocolAddOn::InitCheck() const
+ChatProtocolAddOn::InitCheck() const
 {
 	return fStatus;
 }
 
 
 const char*
-CayaProtocolAddOn::Path() const
+ChatProtocolAddOn::Path() const
 {
 	return fPath.String();
 }
 
 
-CayaProtocol*
-CayaProtocolAddOn::Protocol() const
+ChatProtocol*
+ChatProtocolAddOn::Protocol() const
 {
 	return ProtocolAt(fProtoIndex);
 }
 
 
-CayaProtocol*
-CayaProtocolAddOn::ProtocolAt(int32 i) const
+ChatProtocol*
+ChatProtocolAddOn::ProtocolAt(int32 i) const
 {
-	CayaProtocol* proto = fGetProtocol(i);
+	ChatProtocol* proto = fGetProtocol(i);
 	proto->SetAddOnPath(BPath(fPath.String()));
 	return proto;
 }
 
 
 int32
-CayaProtocolAddOn::CountProtocols() const
+ChatProtocolAddOn::CountProtocols() const
 {
 	return fCountProtocols();
 }
 
 
 const char*
-CayaProtocolAddOn::Signature() const
+ChatProtocolAddOn::Signature() const
 {
 	return fSignature.String();
 }
 
 
 const char*
-CayaProtocolAddOn::FriendlySignature() const
+ChatProtocolAddOn::FriendlySignature() const
 {
 	return fFriendlySignature.String();
 }
 
 
 BBitmap*
-CayaProtocolAddOn::Icon() const
+ChatProtocolAddOn::Icon() const
 {
 	return ReadNodeIcon(fPath, B_LARGE_ICON, true);
 }
 
 
 const char*
-CayaProtocolAddOn::ProtoSignature() const
+ChatProtocolAddOn::ProtoSignature() const
 {
-	CayaProtocol* proto = Protocol();
+	ChatProtocol* proto = Protocol();
 	const char* signature = proto->Signature();
 	delete proto;
 	return signature;
@@ -96,9 +96,9 @@ CayaProtocolAddOn::ProtoSignature() const
 
 
 const char*
-CayaProtocolAddOn::ProtoFriendlySignature() const
+ChatProtocolAddOn::ProtoFriendlySignature() const
 {
-	CayaProtocol* proto = Protocol();
+	ChatProtocol* proto = Protocol();
 	const char* signature = proto->FriendlySignature();
 	delete proto;
 	return signature;
@@ -106,9 +106,9 @@ CayaProtocolAddOn::ProtoFriendlySignature() const
 
 
 BBitmap*
-CayaProtocolAddOn::ProtoIcon() const
+ChatProtocolAddOn::ProtoIcon() const
 {
-	CayaProtocol* proto = Protocol();
+	ChatProtocol* proto = Protocol();
 	BBitmap* icon = proto->Icon();
 	delete proto;
 	return icon;
@@ -116,14 +116,14 @@ CayaProtocolAddOn::ProtoIcon() const
 
 
 uint32
-CayaProtocolAddOn::Version() const
+ChatProtocolAddOn::Version() const
 {
 	return fVersion;
 }
 
 
 void
-CayaProtocolAddOn::_Init()
+ChatProtocolAddOn::_Init()
 {
 	const char* (*signature)();
 	const char* (*friendly_signature)();

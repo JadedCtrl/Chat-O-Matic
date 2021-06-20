@@ -13,8 +13,8 @@
 #include <Resources.h>
 #include <View.h>
 
-#include "CayaConstants.h"
-#include "CayaResources.h"
+#include "AppConstants.h"
+#include "AppResources.h"
 
 
 class BPopUpMenu;
@@ -36,7 +36,7 @@ public:
 
 	virtual void			Draw(BRect rect);
 
-			void			SetStatus(CayaStatus status);
+			void			SetStatus(UserStatus status);
 
 	virtual status_t		Archive(BMessage* archive, bool deep) const;
 
@@ -53,10 +53,10 @@ private:
 			void			_ShowMenu(BPoint point);
 			BBitmap*		_GetIcon(const uint32 id);
 
-			BBitmap*		fIcon;
+			BBitmap*		fAppIcon;
 
 			BBitmap*		fConnectingIcon;
-			BBitmap*		fCayaIcon;
+			BBitmap*		fIcon;
 			BBitmap*		fOfflineIcon;
 			BBitmap*		fBusyIcon;
 			BBitmap*		fAwayIcon;

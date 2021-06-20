@@ -22,7 +22,7 @@ private:
 	BStringView*	fReplicantString;
 	BCheckBox*		fDisableReplicant;
 	BCheckBox*		fPermanentReplicant;
-	BCheckBox*		fHideCayaDeskbar;
+	BCheckBox*		fHideDeskbar;
 
 };
 

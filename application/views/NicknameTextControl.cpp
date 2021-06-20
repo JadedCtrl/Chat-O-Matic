@@ -6,7 +6,7 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
-#include "CayaConstants.h"
+#include "AppConstants.h"
 #include "NicknameTextControl.h"
 
 #include <Font.h>

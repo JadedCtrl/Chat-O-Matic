@@ -25,14 +25,14 @@
 
 #include <libinterface/NotifyingTextView.h>
 
-#include "CayaProtocol.h"
-#include "CayaProtocolAddOn.h"
+#include "ChatProtocol.h"
+#include "ChatProtocolAddOn.h"
 
 
 const float kDividerWidth = 1.0f;
 
 
-ProtocolTemplate::ProtocolTemplate(CayaProtocol* protocol, const char* type)
+ProtocolTemplate::ProtocolTemplate(ChatProtocol* protocol, const char* type)
 	:
 	fProtocol(protocol),
 	fTemplate(new BMessage())
@@ -58,7 +58,7 @@ ProtocolTemplate::~ProtocolTemplate()
 }
 
 
-CayaProtocol*
+ChatProtocol*
 ProtocolTemplate::Protocol() const
 {
 	return fProtocol;

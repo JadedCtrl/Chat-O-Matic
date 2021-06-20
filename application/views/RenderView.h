@@ -1,5 +1,5 @@
-#ifndef _CayaRenderView_H
-#define _CayaRenderView_H_
+#ifndef _RenderView_H
+#define _RenderView_H_
 
 #include <librunview/RunView.h>
 
@@ -9,7 +9,7 @@ class RunView;
 class Theme;
 
 
-enum CayaRenderViewColors {
+enum RenderViewColors {
 	COL_URL =	 0,
 	COL_TIMESTAMP,
 	COL_TEXT,
@@ -32,10 +32,10 @@ enum {
 };
 
 
-class CayaRenderView : public RunView 
+class RenderView : public RunView 
 {
 	public:
-				CayaRenderView(const char* name, const char* smileyConfig = NULL);
+				RenderView(const char* name, const char* smileyConfig = NULL);
 		
 		void	AppendMessage(const char* nick, const char* message,
 							  rgb_color nameColor, time_t time = 0);

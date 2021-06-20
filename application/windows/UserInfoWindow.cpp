@@ -22,11 +22,11 @@
 
 #include <libinterface/BitmapView.h>
 
-#include "CayaMessages.h"
-#include "CayaProtocolMessages.h"
-#include "CayaConstants.h"
-#include "CayaRenderView.h"
-#include "CayaUtils.h"
+#include "AppMessages.h"
+#include "ChatProtocolMessages.h"
+#include "AppConstants.h"
+#include "RenderView.h"
+#include "Utils.h"
 #include "NotifyMessage.h"
 #include "User.h"
 
@@ -48,7 +48,7 @@ UserInfoWindow::UserInfoWindow(User* user)
 	fPersonalMessage->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 
 	BString status(fUser->GetName());
-	status << CayaStatusToString(fUser->GetNotifyStatus());
+	status << UserStatusToString(fUser->GetNotifyStatus());
 
 	status << "\n\n ID : ";
 	status << fUser->GetId();

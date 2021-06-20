@@ -1,4 +1,4 @@
-#include "application/CayaResources.h"
+#include "application/AppResources.h"
 
 resource(kBusyIcon) #'VICN' array {
 	$"6E636966010201040400E9060655E1CECEA9C43A3AFF752F2F0102044030C345"

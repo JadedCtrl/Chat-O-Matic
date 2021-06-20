@@ -1,4 +1,4 @@
-#include "application/CayaResources.h"
+#include "application/AppResources.h"
 
 resource(kExitMenuReplicant) #'VICN' array {
 	$"6E63696606040165020006023B17A83B6361BEF4563EB24E4B75B044DE8200F3"

@@ -10,9 +10,9 @@
 #include <GroupLayoutBuilder.h>
 #include <StringView.h>
 
-#include "CayaProtocol.h"
+#include "ChatProtocol.h"
 #include "PreferencesChatWindow.h"
-#include "CayaPreferences.h"
+#include "AppPreferences.h"
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
 #include "MainWindow.h"
@@ -55,7 +55,7 @@ PreferencesChatWindow::AttachedToWindow()
 {
 	fIgnoreEmoticons->SetTarget(this);
 	fIgnoreEmoticons->SetValue(
-		CayaPreferences::Item()->IgnoreEmoticons);
+		AppPreferences::Item()->IgnoreEmoticons);
 
 }
 
@@ -65,7 +65,7 @@ PreferencesChatWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kIgnoreEmoticons:
-			CayaPreferences::Item()->IgnoreEmoticons
+			AppPreferences::Item()->IgnoreEmoticons
 				= fIgnoreEmoticons->Value();
 			break;
 		default:

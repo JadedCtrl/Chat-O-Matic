@@ -13,7 +13,7 @@
 
 #include <libsupport/KeyMap.h>
 
-#include "CayaProtocol.h"
+#include "ChatProtocol.h"
 #include "ChatCommand.h"
 
 class Contact;
@@ -29,12 +29,12 @@ typedef KeyMap<BString, User*> UserMap;
 
 class ProtocolLooper : public BLooper {
 public:		
-							ProtocolLooper(CayaProtocol* protocol, int64 instance);
+							ProtocolLooper(ChatProtocol* protocol, int64 instance);
 							~ProtocolLooper();
 
 			void			MessageReceived(BMessage* msg);
 
-			CayaProtocol*	Protocol();
+			ChatProtocol*	Protocol();
 
 			ChatMap			Conversations() const;
 			Conversation*	ConversationById(BString id);
@@ -64,7 +64,7 @@ public:
 private:
 			void			_InitCommands();
 
-			CayaProtocol*	fProtocol;
+			ChatProtocol*	fProtocol;
 			int64			fInstance;
 
 			BString			fMySelf;

@@ -21,9 +21,9 @@
 #include <libinterface/BitmapView.h>
 
 #include "AccountManager.h"
-#include "CayaUtils.h"
 #include "NicknameTextControl.h"
 #include "StatusMenuItem.h"
+#include "Utils.h"
 
 
 const int32 kSetNickname = 'stnk';
@@ -41,21 +41,21 @@ StatusView::StatusView(const char* name)
 	fStatusMenu = new BPopUpMenu("-");
 
 	// Add status menu items
-	int32 s = CAYA_ONLINE;
-	while (s >= CAYA_ONLINE && s < CAYA_STATUSES) {
-		StatusMenuItem* item = new StatusMenuItem(CayaStatusToString(
-			(CayaStatus)s), (CayaStatus)s);
+	int32 s = STATUS_ONLINE;
+	while (s >= STATUS_ONLINE && s < STATUS_STATUSES) {
+		StatusMenuItem* item = new StatusMenuItem(UserStatusToString(
+			(UserStatus)s), (UserStatus)s);
 		fStatusMenu->AddItem(item);
 
 		/*// Add items for custom messages
-		if (s == CAYA_ONLINE || s == CAYA_DO_NOT_DISTURB) {
-			item = new StatusMenuItem("Custom...", (CayaStatus)s, true);
+		if (s == STATUS_ONLINE || s == STATUS_DO_NOT_DISTURB) {
+			item = new StatusMenuItem("Custom...", (UserStatus)s, true);
 			fStatusMenu->AddItem(item);
 			fStatusMenu->AddItem(new BSeparatorItem());
 		}*/
 
 		// Mark offline status by default
-		if (s == CAYA_OFFLINE)
+		if (s == STATUS_OFFLINE)
 			item->SetMarked(true);
 
 		s++;
@@ -109,7 +109,7 @@ StatusView::MessageReceived(BMessage* msg)
 				return;
 
 			AccountManager* accountManager = AccountManager::Get();
-			accountManager->SetStatus((CayaStatus)status, "");
+			accountManager->SetStatus((UserStatus)status, "");
 			break;
 		}
 		default:
@@ -126,7 +126,7 @@ StatusView::SetName(BString name)
 
 
 void
-StatusView::SetStatus(CayaStatus status)
+StatusView::SetStatus(UserStatus status)
 {
 	for (int32 i = 0; i < fStatusMenu->CountItems(); i++) {
 		StatusMenuItem* item

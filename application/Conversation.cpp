@@ -9,10 +9,9 @@
 #include <Locale.h>
 #include <StringList.h>
 
-#include "CayaPreferences.h"
-#include "CayaProtocolMessages.h"
-#include "CayaRenderView.h"
-#include "CayaUtils.h"
+#include "AppPreferences.h"
+#include "ChatProtocolMessages.h"
+#include "RenderView.h"
 #include "ChatCommand.h"
 #include "ConversationItem.h"
 #include "ConversationView.h"
@@ -23,6 +22,7 @@
 #include "RoomFlags.h"
 #include "Server.h"
 #include "TheApp.h"
+#include "Utils.h"
 
 
 Conversation::Conversation(BString id, BMessenger msgn)
@@ -235,8 +235,8 @@ Conversation::SetProtocolLooper(ProtocolLooper* looper)
 BBitmap*
 Conversation::ProtocolBitmap() const
 {
-	CayaProtocol* protocol = fLooper->Protocol();
-	CayaProtocolAddOn* addOn
+	ChatProtocol* protocol = fLooper->Protocol();
+	ChatProtocolAddOn* addOn
 		= ProtocolManager::Get()->ProtocolAddOn(protocol->Signature());
 
 	return addOn->ProtoIcon();
@@ -405,7 +405,7 @@ Conversation::_LogChatMessage(BMessage* msg)
 		newLogMsg.AddInt64("when", times[i]);
 
 	BFile logFile(fCachePath.Path(), B_READ_WRITE | B_OPEN_AT_END | B_CREATE_FILE);
-	WriteAttributeMessage(&logFile, "Caya:logs", &newLogMsg);
+	WriteAttributeMessage(&logFile, "Chat:logs", &newLogMsg);
 
 	// Plain-text logs
 	BString uname;
@@ -428,7 +428,7 @@ Conversation::_GetChatLogs(BMessage* msg)
 
 	BFile logFile(fCachePath.Path(), B_READ_WRITE | B_CREATE_FILE);
 
-	return ReadAttributeMessage(&logFile, "Caya:logs", msg);
+	return ReadAttributeMessage(&logFile, "Chat:logs", msg);
 }
 
 
@@ -440,7 +440,7 @@ Conversation::_CacheRoomFlags()
 	if (cacheFile.InitCheck() != B_OK)
 		return;
 
-	cacheFile.WriteAttr("Caya:flags", B_INT32_TYPE, 0, &fRoomFlags, sizeof(int32));
+	cacheFile.WriteAttr("Chat:flags", B_INT32_TYPE, 0, &fRoomFlags, sizeof(int32));
 }
 
 
@@ -452,7 +452,7 @@ Conversation::_LoadRoomFlags()
 	if (cacheFile.InitCheck() != B_OK)
 		return;
 
-	cacheFile.ReadAttr("Caya:flags", B_INT32_TYPE, 0, &fRoomFlags, sizeof(int32));
+	cacheFile.ReadAttr("Chat:flags", B_INT32_TYPE, 0, &fRoomFlags, sizeof(int32));
 }
 
 
@@ -461,7 +461,7 @@ Conversation::_EnsureCachePath()
 {
 	if (fCachePath.InitCheck() == B_OK)
 		return;
-	fCachePath.SetTo(CayaRoomCachePath(fLooper->Protocol()->GetName(),
+	fCachePath.SetTo(RoomCachePath(fLooper->Protocol()->GetName(),
 									   fID.String()));
 }
 

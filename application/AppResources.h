@@ -2,8 +2,8 @@
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef _CAYA_RESOURCES_H
-#define _CAYA_RESOURCES_H
+#ifndef _APP_RESOURCES_H
+#define _APP_RESOURCES_H
 
 enum {
 	kOnlineIcon					= 10,
@@ -17,7 +17,7 @@ enum {
 	kProtocolSettingsTemplate	= 1000,
 
 	kOnlineReplicant			= 1200,
-	kCayaIconReplicant			= 1220,
+	kIconReplicant				= 1220,
 	kOfflineReplicant			= 1300,
 	kBusyReplicant				= 1333,
 	kAwayReplicant				= 1400,
@@ -27,4 +27,4 @@ enum {
 	kPersonIcon					= 1500
 };
 
-#endif	// _CAYA_RESOURCES_H
+#endif	// _APP_RESOURCES_H

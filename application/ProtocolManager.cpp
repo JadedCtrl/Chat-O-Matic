@@ -15,11 +15,11 @@
 
 #include "Account.h"
 #include "ProtocolManager.h"
-#include "CayaProtocol.h"
-#include "CayaUtils.h"
+#include "ChatProtocol.h"
 #include "MainWindow.h"
 #include "Server.h"
 #include "TheApp.h"
+#include "Utils.h"
 
 static ProtocolManager*	fInstance = NULL;
 
@@ -41,17 +41,17 @@ ProtocolManager::Init(BDirectory dir, BHandler* target)
 			continue;
 
 		// If add-on's API version fits then load accounts...
-		CayaProtocolAddOn* addOn = new CayaProtocolAddOn(id, path.Path());
-		if (addOn->Version() != CAYA_VERSION)
+		ChatProtocolAddOn* addOn = new ChatProtocolAddOn(id, path.Path());
+		if (addOn->Version() != APP_VERSION)
 			continue;
 
 		// If add-on has multiple protocols, also load them
 		for (int32 i = 0; i < addOn->CountProtocols(); i++) {
-			CayaProtocolAddOn* subAddOn = addOn;
+			ChatProtocolAddOn* subAddOn = addOn;
 			if (i > 0)
-				subAddOn = new CayaProtocolAddOn(id, path.Path(), i);
+				subAddOn = new ChatProtocolAddOn(id, path.Path(), i);
 
-			CayaProtocol* proto = subAddOn->Protocol();
+			ChatProtocol* proto = subAddOn->Protocol();
 
 			fAddOnMap.AddItem(proto->Signature(), subAddOn);
 			_LoadAccounts(path.Path(), subAddOn, i, target);
@@ -82,14 +82,14 @@ ProtocolManager::CountProtocolAddOns() const
 }
 
 
-CayaProtocolAddOn*
+ChatProtocolAddOn*
 ProtocolManager::ProtocolAddOnAt(uint32 i) const
 {
 	return fAddOnMap.ValueAt(i);
 }
 
 
-CayaProtocolAddOn*
+ChatProtocolAddOn*
 ProtocolManager::ProtocolAddOn(const char* signature)
 {
 	return fAddOnMap.ValueFor(signature);
@@ -103,14 +103,14 @@ ProtocolManager::CountProtocolInstances() const
 }
 
 
-CayaProtocol*
+ChatProtocol*
 ProtocolManager::ProtocolInstanceAt(uint32 i) const
 {
 	return fProtocolMap.ValueAt(i);
 }
 
 
-CayaProtocol*	
+ChatProtocol*	
 ProtocolManager::ProtocolInstance(bigtime_t identifier)
 {
 	return fProtocolMap.ValueFor(identifier);
@@ -118,11 +118,11 @@ ProtocolManager::ProtocolInstance(bigtime_t identifier)
 
 
 void
-ProtocolManager::AddAccount(CayaProtocolAddOn* addOn, const char* account,
+ProtocolManager::AddAccount(ChatProtocolAddOn* addOn, const char* account,
 							BHandler* target)
 {
 	bigtime_t instanceId = system_time();
-	CayaProtocol* cayap = addOn->Protocol();
+	ChatProtocol* cayap = addOn->Protocol();
 	(void)new Account(instanceId, cayap, account, addOn->Signature(), target);
 	fProtocolMap.AddItem(instanceId, cayap);
 
@@ -133,11 +133,11 @@ ProtocolManager::AddAccount(CayaProtocolAddOn* addOn, const char* account,
 
 
 void
-ProtocolManager::_LoadAccounts(const char* image_path, CayaProtocolAddOn* addOn,
+ProtocolManager::_LoadAccounts(const char* image_path, ChatProtocolAddOn* addOn,
 							   int protoIndex, BHandler* target)
 {
 	// Find accounts path for this protocol
-	BPath path(CayaAccountPath(addOn->Signature(), addOn->Protocol()->Signature()));
+	BPath path(AccountPath(addOn->Signature(), addOn->Protocol()->Signature()));
 	if (path.InitCheck() != B_OK)
 		return;
 
@@ -160,8 +160,8 @@ ProtocolManager::_LoadAccount(const char* imagePath, BEntry accountEntry,
 		return;
 
 	// If add-on's API version fits then load accounts...
-	CayaProtocolAddOn* addOn = new CayaProtocolAddOn(id, imagePath, protoIndex);
-	if (addOn->Version() != CAYA_VERSION)
+	ChatProtocolAddOn* addOn = new ChatProtocolAddOn(id, imagePath, protoIndex);
+	if (addOn->Version() != APP_VERSION)
 		return;
 
 	_LoadAccount(addOn, accountEntry, target);
@@ -169,7 +169,7 @@ ProtocolManager::_LoadAccount(const char* imagePath, BEntry accountEntry,
 
 
 void
-ProtocolManager::_LoadAccount(CayaProtocolAddOn* addOn, BEntry accountEntry,
+ProtocolManager::_LoadAccount(ChatProtocolAddOn* addOn, BEntry accountEntry,
 							  BHandler* target)
 {
 	BFile file(&accountEntry, B_READ_ONLY);

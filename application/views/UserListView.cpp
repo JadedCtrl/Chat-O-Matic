@@ -9,8 +9,8 @@
 #include <MenuItem.h>
 #include <Window.h>
 
-#include "CayaMessages.h"
-#include "CayaProtocolMessages.h"
+#include "AppMessages.h"
+#include "ChatProtocolMessages.h"
 #include "Conversation.h"
 #include "MainWindow.h"
 #include "ProtocolLooper.h"
@@ -82,7 +82,7 @@ UserListView::_BlankPopUp()
 	BPopUpMenu* menu = new BPopUpMenu("blankPopUp");
 
 	BMenuItem* invite = new BMenuItem("Invite user…" B_UTF8_ELLIPSIS,
-		new BMessage(CAYA_SEND_INVITE), 'I', B_COMMAND_KEY);
+		new BMessage(APP_SEND_INVITE), 'I', B_COMMAND_KEY);
 	if (fChat == NULL)
 		invite->SetEnabled(false);
 

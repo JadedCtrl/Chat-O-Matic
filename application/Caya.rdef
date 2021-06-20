@@ -1,6 +1,6 @@
 #include "Caya.h"
 
-resource app_signature CAYA_SIGNATURE;
+resource app_signature APP_SIGNATURE;
 
 resource app_version {
 	major  = 0,

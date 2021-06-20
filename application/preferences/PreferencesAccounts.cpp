@@ -18,8 +18,8 @@
 
 #include "AccountDialog.h"
 #include "AccountListItem.h"
-#include "CayaMessages.h"
-#include "CayaProtocol.h"
+#include "AppMessages.h"
+#include "ChatProtocol.h"
 #include "PreferencesAccounts.h"
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
@@ -59,7 +59,7 @@ PreferencesAccounts::PreferencesAccounts()
 
 	fProtosMenu = new BPopUpMenu(NULL, true);
 	for (uint32 i = 0; i < pm->CountProtocolAddOns(); i++) {
-		CayaProtocolAddOn* addOn = pm->ProtocolAddOnAt(i);
+		ChatProtocolAddOn* addOn = pm->ProtocolAddOnAt(i);
 		ProtocolSettings* settings = new ProtocolSettings(addOn);
 
 		// Add accounts to list view
@@ -197,7 +197,7 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 			if (found == false)
 				return;
 
-			BMessage* remove = new BMessage(CAYA_DISABLE_ACCOUNT);
+			BMessage* remove = new BMessage(APP_DISABLE_ACCOUNT);
 			remove->AddInt64("instance", instance);
 			((TheApp*)be_app)->GetMainWindow()->PostMessage(remove);
 

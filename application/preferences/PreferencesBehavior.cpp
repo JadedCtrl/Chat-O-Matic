@@ -14,9 +14,9 @@
 #include <StringView.h>
 
 #include "AccountManager.h"
-#include "CayaProtocol.h"
+#include "ChatProtocol.h"
 #include "PreferencesBehavior.h"
-#include "CayaPreferences.h"
+#include "AppPreferences.h"
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
 #include "MainWindow.h"
@@ -139,23 +139,23 @@ PreferencesBehavior::AttachedToWindow()
 	fDisableQuitConfirm->SetTarget(this);
 	
 	fHideOffline->SetValue(
-		CayaPreferences::Item()->HideOffline);
+		AppPreferences::Item()->HideOffline);
 	fToCurrentWorkspace->SetValue(
-		CayaPreferences::Item()->MoveToCurrentWorkspace);
+		AppPreferences::Item()->MoveToCurrentWorkspace);
 	fRaiseUserIsTyping->SetValue(
-		CayaPreferences::Item()->RaiseUserIsTyping);
+		AppPreferences::Item()->RaiseUserIsTyping);
 	fRaiseOnMessageReceived->SetValue(
-		CayaPreferences::Item()->RaiseOnMessageReceived);
+		AppPreferences::Item()->RaiseOnMessageReceived);
 	fMarkUnreadWindow->SetValue(
-		CayaPreferences::Item()->MarkUnreadWindow);
+		AppPreferences::Item()->MarkUnreadWindow);
 	fNotifyProtocols->SetValue(
-		CayaPreferences::Item()->NotifyProtocolStatus);
+		AppPreferences::Item()->NotifyProtocolStatus);
 	fNotifyContactStatus->SetValue(
-		CayaPreferences::Item()->NotifyContactStatus);
+		AppPreferences::Item()->NotifyContactStatus);
 	fNotifyNewMessage->SetValue(
-		CayaPreferences::Item()->NotifyNewMessage);
+		AppPreferences::Item()->NotifyNewMessage);
 	fDisableQuitConfirm->SetValue(
-		CayaPreferences::Item()->DisableQuitConfirm);
+		AppPreferences::Item()->DisableQuitConfirm);
 }
 
 
@@ -164,39 +164,39 @@ PreferencesBehavior::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kHideOffline:
-			CayaPreferences::Item()->HideOffline
+			AppPreferences::Item()->HideOffline
 				= fHideOffline->Value();
 			break;
 		case kToCurrentWorkspace:
-			CayaPreferences::Item()->MoveToCurrentWorkspace
+			AppPreferences::Item()->MoveToCurrentWorkspace
 				= fToCurrentWorkspace->Value();
 			break;
 		case kRaiseOnMessageReceived:
-			CayaPreferences::Item()->RaiseOnMessageReceived
+			AppPreferences::Item()->RaiseOnMessageReceived
 				= fRaiseOnMessageReceived->Value();
 			break;
 		case kRaiseUserIsTyping:
-			CayaPreferences::Item()->RaiseUserIsTyping
+			AppPreferences::Item()->RaiseUserIsTyping
 				= fRaiseUserIsTyping->Value();
 			break;
 		case kNotifyProtocolsLogin:
-			CayaPreferences::Item()->NotifyProtocolStatus
+			AppPreferences::Item()->NotifyProtocolStatus
 				= fNotifyProtocols->Value();
 			break;
 		case kNotifyContactStatus:
-			CayaPreferences::Item()->NotifyContactStatus
+			AppPreferences::Item()->NotifyContactStatus
 				= fNotifyContactStatus->Value();
 			break;
 		case kNotifyNewMessage:
-			CayaPreferences::Item()->NotifyNewMessage
+			AppPreferences::Item()->NotifyNewMessage
 				= fNotifyNewMessage->Value();
 			break;
 		case kMarkUnreadWindow:
-			CayaPreferences::Item()->MarkUnreadWindow
+			AppPreferences::Item()->MarkUnreadWindow
 				= fMarkUnreadWindow->Value();
 			break;
 		case kDisablePrompt:
-			CayaPreferences::Item()->DisableQuitConfirm
+			AppPreferences::Item()->DisableQuitConfirm
 				= fDisableQuitConfirm->Value();
 			break;
 		default:

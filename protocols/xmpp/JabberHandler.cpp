@@ -17,7 +17,7 @@
 
 #include <libsupport/SHA1.h>
 
-#include <CayaProtocolMessages.h>
+#include <ChatProtocolMessages.h>
 #include <Role.h>
 #include <RoomFlags.h>
 
@@ -72,7 +72,7 @@ JabberHandler::~JabberHandler()
 
 
 status_t
-JabberHandler::Init(CayaProtocolMessengerInterface* messenger)
+JabberHandler::Init(ChatProtocolMessengerInterface* messenger)
 {
 	fServerMessenger = messenger;
 
@@ -96,11 +96,11 @@ JabberHandler::Process(BMessage* msg)
 			BString status_msg = msg->FindString("message");
 
 			switch (status) {
-				case CAYA_ONLINE:
+				case STATUS_ONLINE:
 					// Log in if we still need to
 					resume_thread(fRecvThread);
 					break;
-				case CAYA_OFFLINE:
+				case STATUS_OFFLINE:
 					kill_thread(fRecvThread);
 					break;
 				default:
@@ -436,7 +436,7 @@ JabberHandler::GetEncoding()
 }
 
 
-CayaProtocolMessengerInterface*
+ChatProtocolMessengerInterface*
 JabberHandler::MessengerInterface() const
 {
 	return fServerMessenger;
@@ -906,7 +906,7 @@ JabberHandler::_StatusSetMsg(const char* user_id, gloox::Presence::PresenceType 
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_STATUS_SET);
 	msg.AddString("user_id", user_id);
-	msg.AddInt32("status", _GlooxStatusToCaya(type));
+	msg.AddInt32("status", _GlooxStatusToApp(type));
 
 	if (BString(resource).IsEmpty() == false)
 		msg.AddString("resource", resource);
@@ -1060,26 +1060,26 @@ JabberHandler::_AvatarChanged(const char* id, const char* filename)
 }
 
 
-CayaStatus
-JabberHandler::_GlooxStatusToCaya(gloox::Presence::PresenceType type)
+UserStatus
+JabberHandler::_GlooxStatusToApp(gloox::Presence::PresenceType type)
 {
 	switch (type) {
 		case gloox::Presence::Available:
 		case gloox::Presence::Chat:
-			return CAYA_ONLINE;
+			return STATUS_ONLINE;
 		case gloox::Presence::Away:
-			return CAYA_AWAY;
+			return STATUS_AWAY;
 		case gloox::Presence::XA:
-			return CAYA_CUSTOM_STATUS;
+			return STATUS_CUSTOM_STATUS;
 		case gloox::Presence::DND:
-			return CAYA_DO_NOT_DISTURB;
+			return STATUS_DO_NOT_DISTURB;
 		case gloox::Presence::Unavailable:
-			return CAYA_OFFLINE;
+			return STATUS_OFFLINE;
 		default:
 			break;
 	}
 
-	return CAYA_OFFLINE;
+	return STATUS_OFFLINE;
 }
 
 
@@ -1308,7 +1308,7 @@ JabberHandler::onConnect()
 	// We are online
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
-	msg.AddInt32("status", CAYA_ONLINE);
+	msg.AddInt32("status", STATUS_ONLINE);
 	_SendMessage(&msg);
 
 	fVCardManager->fetchVCard(fJid, this);
@@ -1321,7 +1321,7 @@ JabberHandler::onDisconnect(gloox::ConnectionError e)
 	// We are offline
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_OWN_STATUS_SET);
-	msg.AddInt32("status", CAYA_OFFLINE);
+	msg.AddInt32("status", STATUS_OFFLINE);
 	_SendMessage(&msg);
 
 	if (e == gloox::ConnNoError) {
@@ -1373,7 +1373,7 @@ JabberHandler::handleRoster(const gloox::Roster& roster)
 		infoMsg.AddInt32("im_what", IM_CONTACT_INFO);
 		infoMsg.AddString("user_id", jid);
 		infoMsg.AddString("user_name", name);
-		infoMsg.AddInt32("status", CAYA_OFFLINE);
+		infoMsg.AddInt32("status", STATUS_OFFLINE);
 
 		// Groups
 		gloox::StringList g = (*it).second->groups();
@@ -1767,7 +1767,7 @@ JabberHandler::handleSelfPresence(const gloox::RosterItem& item, const std::stri
 	msg.AddString("user_id", item.jidJID().full().c_str());
 	msg.AddString("user_name", item.name().c_str());
 	msg.AddInt32("subscription", item.subscription());
-	msg.AddInt32("status", _GlooxStatusToCaya(type));
+	msg.AddInt32("status", _GlooxStatusToApp(type));
 	msg.AddString("message", presenceMsg.c_str());
 
 	// Groups

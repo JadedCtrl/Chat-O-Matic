@@ -9,7 +9,7 @@
 
 #include <libinterface/BitmapMenuItem.h>
 
-#include "CayaConstants.h"
+#include "AppConstants.h"
 
 class BBitmap;
 
@@ -17,15 +17,15 @@ const int32 kSetStatus = 'SEST';
 
 class StatusMenuItem : public BitmapMenuItem {
 public:
-				StatusMenuItem(const char* label, CayaStatus status, 
+				StatusMenuItem(const char* label, UserStatus status, 
 					bool custom = false, char shortcut = 0,
 					uint32 modifiers = 0);
 
-	CayaStatus	Status() const;
+	UserStatus	Status() const;
 	bool		IsCustom() const;
 
 private:
-	CayaStatus	fStatus;
+	UserStatus	fStatus;
 	bool		fCustom;
 
 	void		SetIcon();

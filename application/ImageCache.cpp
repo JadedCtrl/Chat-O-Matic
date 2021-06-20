@@ -17,8 +17,8 @@
 
 #include <libinterface/BitmapUtils.h>
 
-#include "CayaResources.h"
-#include "CayaUtils.h"
+#include "AppResources.h"
+#include "Utils.h"
 
 
 ImageCache* ImageCache::fInstance = NULL;
@@ -93,7 +93,7 @@ ImageCache::Release()
 void
 ImageCache::_LoadResource(int identifier, const char* key)
 {
-	BResources* res = CayaResources();
+	BResources* res = ChatResources();
 	BBitmap* bitmap = IconFromResources(res, identifier, B_LARGE_ICON);
 	if (bitmap != NULL && bitmap->IsValid() == true)
 		fBitmaps.AddItem(BString(key), bitmap);

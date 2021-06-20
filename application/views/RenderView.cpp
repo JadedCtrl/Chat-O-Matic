@@ -1,12 +1,12 @@
-#include "CayaRenderView.h"
+#include "RenderView.h"
 
 #include <librunview/RunView.h>
 #include <librunview/Theme.h>
 
-#include "CayaPreferences.h"
+#include "AppPreferences.h"
 
 
-CayaRenderView::CayaRenderView(const char *name,  const char* smileyConfig)
+RenderView::RenderView(const char *name,  const char* smileyConfig)
 	:
 	RunView(BRect(0, 0, 1, 1), name,
 			fTheme = new Theme(name, COL_MAX_COLORS + 1, COL_MAX_COLORS + 1,
@@ -26,7 +26,7 @@ CayaRenderView::CayaRenderView(const char *name,  const char* smileyConfig)
 
 
 void
-CayaRenderView::AppendMessage(const char* nick, const char* message,
+RenderView::AppendMessage(const char* nick, const char* message,
 							  rgb_color nameColor, time_t time)
 {
 	rgb_color bg = ui_color(B_PANEL_BACKGROUND_COLOR);
@@ -43,7 +43,7 @@ CayaRenderView::AppendMessage(const char* nick, const char* message,
 
 
 void
-CayaRenderView::AppendGenericMessage(const char* message)
+RenderView::AppendGenericMessage(const char* message)
 {
 	rgb_color bg = ui_color(B_PANEL_BACKGROUND_COLOR);
 	rgb_color fg = ui_color(B_PANEL_TEXT_COLOR);
@@ -54,9 +54,9 @@ CayaRenderView::AppendGenericMessage(const char* message)
 
 
 void
-CayaRenderView::AddEmoticText(const char * txt, rgb_color fore, rgb_color bg)
+RenderView::AddEmoticText(const char * txt, rgb_color fore, rgb_color bg)
 {
-	if (CayaPreferences::Item()->IgnoreEmoticons)
+	if (AppPreferences::Item()->IgnoreEmoticons)
 		Append(txt, fore, bg, fore);
 	else
 		Emoticor::Get()->AddText(this, txt, fore, fore, bg, fore);
@@ -64,7 +64,7 @@ CayaRenderView::AddEmoticText(const char * txt, rgb_color fore, rgb_color bg)
 
 
 void
-CayaRenderView::PrepareTheme(Theme *fTheme)
+RenderView::PrepareTheme(Theme *fTheme)
 {
 	Theme::TimestampFore = COL_TIMESTAMP_DUMMY;
 	Theme::TimestampBack = COL_TIMESTAMP_DUMMY;
