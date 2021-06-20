@@ -110,6 +110,14 @@ ProtocolLooper::AddContact(Contact* contact)
 }
 
 
+void
+ProtocolLooper::RemoveContact(Contact* contact)
+{
+	fRosterMap.RemoveItemFor(contact->GetId());
+	fUserMap.AddItem(contact->GetId(), (User*)contact);
+}
+
+
 UserMap
 ProtocolLooper::Users() const
 {

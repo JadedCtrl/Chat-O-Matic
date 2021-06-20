@@ -60,9 +60,7 @@ RosterEditWindow::RosterEditWindow(Server* server)
 	BButton* fAddButton = new BButton("+", new BMessage(kAddMember));
 	BButton* fRemoveButton = new BButton("-", new BMessage(kRemoveMember));
 	fAddButton->SetExplicitSize(charButtonSize);
-	fAddButton->SetEnabled(true);
 	fRemoveButton->SetExplicitSize(charButtonSize);
-	fRemoveButton->SetEnabled(false);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.SetInsets(B_USE_DEFAULT_SPACING)
@@ -146,13 +144,6 @@ RosterEditWindow::MessageReceived(BMessage* message)
 			fEditingWindow->Show();
 			break;
 		}
-		case IM_MESSAGE: {
-			if (message->GetInt32("im_what", 0) == IM_EXTENDED_CONTACT_INFO)
-				if (message->GetString("user_id", "") == fEditingUser)
-					fEditingWindow->PostMessage(message);
-			fRosterView->MessageReceived(message);
-			break;
-		}
 		case kAddMember:
 		{
 			BMessage* add = new BMessage(IM_MESSAGE);
@@ -160,6 +151,28 @@ RosterEditWindow::MessageReceived(BMessage* message)
 			TemplateWindow* win =
 				new TemplateWindow("Adding contact", "roster", add, fServer);
 			win->Show();
+			break;
+		}
+		case kRemoveMember:
+		{
+			int index = message->FindInt32("index");
+			RosterItem* ritem = fRosterView->ListView()->RosterItemAt(index);
+			if (ritem == NULL)
+				return;
+			User* user = ritem->GetContact();
+
+			BMessage* rem = new BMessage(IM_MESSAGE);
+			rem->AddInt32("im_what", IM_CONTACT_LIST_REMOVE_CONTACT);
+			rem->AddString("user_id", user->GetId());
+
+			user->GetProtocolLooper()->PostMessage(rem);
+			break;
+		}
+		case IM_MESSAGE: {
+			if (message->GetInt32("im_what", 0) == IM_EXTENDED_CONTACT_INFO)
+				if (message->GetString("user_id", "") == fEditingUser)
+					fEditingWindow->PostMessage(message);
+			fRosterView->MessageReceived(message);
 			break;
 		}
 		case kSelAccount:

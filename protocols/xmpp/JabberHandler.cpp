@@ -262,6 +262,21 @@ JabberHandler::Process(BMessage* msg)
 			break;
 		}
 
+		case IM_CONTACT_LIST_REMOVE_CONTACT: {
+			BString user_id;
+			if (msg->FindString("user_id", &user_id) != B_OK)
+				break;
+			fClient->rosterManager()->remove(gloox::JID(user_id.String()));
+			fClient->rosterManager()->unsubscribe(gloox::JID(user_id.String()));
+			fClient->rosterManager()->synchronize();
+
+			BMessage rm(IM_MESSAGE);
+			rm.AddInt32("im_what", IM_CONTACT_LIST_CONTACT_REMOVED);
+			rm.AddString("user_id", user_id);
+			_SendMessage(&rm);
+			break;
+		}
+
 		case IM_CONTACT_LIST_EDIT_CONTACT: {
 			BString user_id;
 			BString user_name = msg->FindString("user_name");

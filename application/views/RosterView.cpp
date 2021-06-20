@@ -162,6 +162,22 @@ RosterView::ImMessage(BMessage* msg)
 			}
 			break;
 		}
+		case IM_CONTACT_LIST_CONTACT_REMOVED:
+		{
+			int32 status = -1;
+			int64 instance;
+			BString user_id = msg->FindString("user_id");
+			if (msg->FindInt32("status", &status) != B_OK
+				|| msg->FindInt64("instance", &instance) != B_OK
+				|| user_id.IsEmpty() == true)
+				return;
+			Contact* contact = fServer->ContactById(user_id, instance);
+			if (contact == NULL)
+				return;
+			RosterItem*	rosterItem = contact->GetRosterItem();
+			if (rosterItem)
+				fListView->RemoveItem(rosterItem);
+		}
 		case IM_AVATAR_SET:
 		case IM_CONTACT_INFO:
 		case IM_EXTENDED_CONTACT_INFO:
@@ -200,7 +216,6 @@ RosterView::SetInvocationMessage(BMessage* msg)
 {
 	fListView->SetInvocationMessage(msg);
 }
-
 
 void
 RosterView::SetAccount(bigtime_t instance_id)

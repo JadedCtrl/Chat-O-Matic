@@ -47,7 +47,7 @@ enum im_what_code {
 
 	//!	Contact(s) removed from the server-side list →Caya
 	//	Requires:	String "user_id"
-	IM_CONTACT_LIST_REMOVED_CONTACT		= 5,
+	IM_CONTACT_LIST_CONTACT_REMOVED		= 5,
 
 	//! Edit some data on contact		→Protocol
 	//	The slots for this message are determined by the protocol's

@@ -44,6 +44,7 @@ public:
 			RosterMap		Contacts() const;
 			Contact*		ContactById(BString id);
 			void			AddContact(Contact* contact);
+			void			RemoveContact(Contact* contact);
 
 			UserMap			Users() const;
 			User*			UserById(BString id);

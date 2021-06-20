@@ -193,6 +193,18 @@ Server::ImMessage(BMessage* msg)
 			result = B_SKIP_MESSAGE;
 			break;
 		}
+		case IM_CONTACT_LIST_CONTACT_REMOVED:
+		{
+			Contact* contact = _EnsureContact(msg);
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+
+			if (looper == NULL || contact == NULL) {
+				result = B_SKIP_MESSAGE;
+				break;
+			}
+			looper->RemoveContact(contact);
+			break;
+		}
 		case IM_OWN_STATUS_SET:
 		{
 			int32 status;

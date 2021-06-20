@@ -218,9 +218,11 @@ RosterListView::Draw(BRect updateRect)
 bool
 RosterListView::AddRosterItem(RosterItem* item)
 {
+	bool ret = false;
 	if (HasItem(item) == false)
-		return AddItem(item);
-	return false;
+		ret = AddItem(item);
+	Sort();
+	return ret;
 }
 
 
