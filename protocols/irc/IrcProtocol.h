@@ -18,6 +18,14 @@
 status_t connect_thread(void* data);
 
 
+typedef struct
+{
+	BString nick;
+	BString id;
+} irc_ctx_t;
+
+
+
 class IrcProtocol : public ChatProtocol {
 public:
 						IrcProtocol();
@@ -51,6 +59,9 @@ public:
 
 	virtual	ChatProtocolMessengerInterface*
 						MessengerInterface() const;
+	// IRC
+	BMessage* fSettings;
+	irc_session_t* fSession;
 
 private:
 	ChatProtocolMessengerInterface* fMessenger;
@@ -69,11 +80,26 @@ void	event_connect(irc_session_t* session, const char* event,
 						const char* origin, const char** params,
 						unsigned int count);
 
-void	event_numeric(irc_session_t* session, unsigned int blah,
+void	event_numeric(irc_session_t* session, unsigned int event,
 			const char* origin, const char** params, unsigned int count);
 
 void	event_join(irc_session_t* session, const char* event,
-			const char* origin, const char** params, unsigned int count);
+			const char* joiner, const char** channel, unsigned int count);
+void	event_part(irc_session_t* session, const char* event,
+			const char* quitter, const char** chanReason, unsigned int count);
 
+void	event_channel(irc_session_t* session, const char* event,
+			const char* sender, const char** chanBody, unsigned int count);
+void	event_privmsg(irc_session_t* session, const char* event,
+			const char* sender, const char** selfBody, unsigned int count);
+
+void	event_nick(irc_session_t* session, const char* event,
+			const char* oldNick, const char** newNick, unsigned int count);
+
+
+BString	_UserNick(const char* userId);
+bool	_IsOwnUser(const char* userId, irc_session_t* session);
+
+void	_SendMessage(BMessage* msg);
 
 #endif // _IRC_PROTOCOL_H
