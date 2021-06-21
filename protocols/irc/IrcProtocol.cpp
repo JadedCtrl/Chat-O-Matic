@@ -302,20 +302,26 @@ void
 event_numeric(irc_session_t* session, unsigned int event,
 	const char* origin, const char** params, unsigned int count)
 {
+	irc_ctx_t* ctx = (irc_ctx_t*)irc_get_ctx(session);
+
 	switch (event) {
 		case LIBIRC_RFC_RPL_NAMREPLY:
 		{
 			BStringList user_id;
-			BStringList user_name;
 
 			BString user_list(params[3]);
 			user_list.Split(" ", false, user_id);
+
+			BStringList user_name(user_id);
+			int32 index = user_name.IndexOf(ctx->nick);
+			if (index >= 0)
+				user_id.Replace(index, BString(ctx->id));
 
 			BMessage list(IM_MESSAGE);
 			list.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
 			list.AddString("chat_id", params[2]);
 			list.AddStrings("user_id", user_id);
-			list.AddStrings("user_name", user_id);
+			list.AddStrings("user_name", user_name);
 			_SendMessage(&list);
 			break;
 		}
@@ -419,7 +425,11 @@ _UserNick(const char* userId)
 	BString id(userId);
 	id.Split("!", false, split);
 
-	return split.StringAt(0);
+	BString name = split.StringAt(0);
+	if (name.StartsWith("@") == true)
+		name.RemoveFirst("@");
+
+	return name;
 }
 
 
