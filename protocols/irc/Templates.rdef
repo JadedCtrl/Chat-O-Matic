@@ -1,0 +1,69 @@
+// "account" settings template
+resource(1000, "account") message('IMst')
+{
+	"setting" = message
+	{
+		"name" = "nick",
+		"description" = "Nickname:",
+		"default" = "Haikunaut",
+		"error" = "You need a default nickname― The Nameless are not welcome on IRC.",
+		int32 "type" = 'CSTR'
+	},
+	"setting" = message
+	{
+		"name" = "ident",
+		"description" = "Ident:",
+		int32 "type" = 'CSTR'
+	},
+	"setting" = message
+	{
+		"name" = "password",
+		"description" = "Password:",
+		int32 "type" = 'CSTR'
+	},
+	"setting" = message
+	{
+		"name" = "real_name",
+		"description" = "Real Name:",
+		"default" = "Mx. Catbird",
+		int32 "type" = 'CSTR'
+	},
+	"setting" = message
+	{
+		"name" = "server",
+		"description" = "Server:",
+		"default" = "127.0.0.1",
+		"error" = "Please enter a valid server address.",
+		int32 "type" = 'CSTR'
+	},
+	"setting" = message
+	{
+		"name" = "port",
+		"description" = "Port:",
+		int32 "default" = 10025,
+		"error" = "Without a port, we don't know which door to knock on.\nIt's likely 10025/6667.",
+		int32 "type" = 'LONG'
+	}
+};
+
+resource(1001, "roster") message('IMst')
+{
+	"setting" = message
+	{
+		"name" = "user_id",
+		"description" = "Nickname:",
+		"error" = "You can't friend someone without a nick.",
+		int32 "type" = 'CSTR'
+	}
+};
+
+resource(1002, "room") message('IMst')
+{
+	"setting" = message
+	{
+		"name" = "room_id",
+		"description" = "Room:",
+		"error" = "You can't friend someone without a nick.",
+		int32 "type" = 'CSTR'
+	}
+};
