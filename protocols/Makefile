@@ -6,6 +6,6 @@ irc:
 xmpp:
 	$(MAKE) -f protocols/xmpp/Makefile
 
-all: xmpp
+all: xmpp irc
 
 default: all

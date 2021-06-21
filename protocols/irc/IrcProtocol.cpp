@@ -5,7 +5,7 @@
 
 #include "IrcProtocol.h"
 
-#include <iostream>
+#include <cstdio>
 
 #include <StringList.h>
 
@@ -319,6 +319,15 @@ event_numeric(irc_session_t* session, unsigned int event,
 			_SendMessage(&list);
 			break;
 		}
+		case LIBIRC_RFC_RPL_TOPIC:
+		{
+			BMessage topic(IM_MESSAGE);
+			topic.AddInt32("im_what", IM_ROOM_SUBJECT_SET);
+			topic.AddString("chat_id", params[1]);
+			topic.AddString("subject", params[2]);
+			_SendMessage(&topic);
+			break;
+		}
 	}
 }
 
@@ -430,7 +439,6 @@ _IsOwnUser(const char* userId, irc_session_t* session)
 			BMessage ownInfo(IM_MESSAGE);
 			ownInfo.AddInt32("im_what", IM_OWN_CONTACT_INFO);
 			ownInfo.AddString("user_id", userId);
-			ownInfo.AddString("user_name", ctx->nick);
 			_SendMessage(&ownInfo);
 		}
 	}
