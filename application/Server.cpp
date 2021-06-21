@@ -250,6 +250,9 @@ Server::ImMessage(BMessage* msg)
 			if (contact != NULL) {
 				contact->GetProtocolLooper()->SetOwnId(contact->GetId());
 			}
+			BString name;
+			if (msg->FindString("user_name", &name) == B_OK)
+					contact->SetNotifyName(name);
 			break;
 		}
 		case IM_CONTACT_INFO:

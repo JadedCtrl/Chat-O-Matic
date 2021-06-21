@@ -257,6 +257,13 @@ Conversation::GetName() const
 }
 
 
+BString
+Conversation::GetSubject() const
+{
+	return fSubject;
+}
+
+
 ConversationView*
 Conversation::GetView()
 {

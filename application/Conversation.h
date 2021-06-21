@@ -50,9 +50,11 @@ public:
 	ProtocolLooper*		GetProtocolLooper() const;
 	void				SetProtocolLooper(ProtocolLooper* looper);
 
+	BString				GetName() const;
+	BString				GetSubject() const;
+
 	BBitmap*			ProtocolBitmap() const;
 	BBitmap*			IconBitmap() const;
-	BString				GetName() const;
 
 	ConversationView*	GetView();
 	void				ShowView(bool typing, bool userAction);

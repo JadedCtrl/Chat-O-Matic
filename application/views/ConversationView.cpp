@@ -66,6 +66,12 @@ ConversationView::AttachedToWindow()
 		BMessage* msg = fMessageQueue.RemoveItemAt(0);
 		ImMessage(msg);
 	}
+	if (fConversation != NULL) {
+		if (fNameTextView->Text() != fConversation->GetName())
+			fNameTextView->SetText(fConversation->GetName());
+		if (fSubjectTextView->Text() != fConversation->GetSubject())
+			fSubjectTextView->SetText(fConversation->GetSubject());
+	}
 }
 
 
@@ -206,6 +212,7 @@ ConversationView::SetConversation(Conversation* chat)
 {
 	fConversation =  chat;
 	fNameTextView->SetText(chat->GetName());
+	fSubjectTextView->SetText(chat->GetSubject());
 	fProtocolView->SetBitmap(chat->ProtocolBitmap());
 }
 
