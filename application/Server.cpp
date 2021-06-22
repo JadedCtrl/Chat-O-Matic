@@ -26,6 +26,7 @@
 #include "Account.h"
 #include "AccountManager.h"
 #include "AppMessages.h"
+#include "Cardie.h"
 #include "ChatProtocol.h"
 #include "AppPreferences.h"
 #include "ChatProtocolMessages.h"
@@ -505,7 +506,7 @@ Server::ImMessage(BMessage* msg)
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
 
 			BNotification notification(B_PROGRESS_NOTIFICATION);
-			notification.SetGroup(BString("Caya"));
+			notification.SetGroup(BString(APP_NAME));
 			notification.SetTitle(title);
 			notification.SetIcon(addOn->ProtoIcon());
 			notification.SetContent(message);
@@ -537,7 +538,7 @@ Server::ImMessage(BMessage* msg)
 				= ProtocolManager::Get()->ProtocolAddOn(protocol);
 
 			BNotification notification((notification_type)type);
-			notification.SetGroup(BString("Caya"));
+			notification.SetGroup(BString(APP_NAME));
 			notification.SetTitle(title);
 			notification.SetIcon(addOn->ProtoIcon());
 			notification.SetContent(message);
@@ -557,7 +558,7 @@ Server::ImMessage(BMessage* msg)
 			content.ReplaceAll("%user%", looper->Protocol()->GetName());
 
 			BNotification notification(B_INFORMATION_NOTIFICATION);
-			notification.SetGroup(BString("Caya"));
+			notification.SetGroup(BString(APP_NAME));
 			notification.SetTitle("Connected");
 			notification.SetContent(content);
 			notification.SetIcon(proto->Icon());

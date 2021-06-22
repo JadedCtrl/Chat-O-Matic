@@ -19,7 +19,7 @@
 #include <librunview/Emoticor.h>
 
 #include "AboutWindow.h"
-#include "Caya.h"
+#include "Cardie.h"
 #include "AppMessages.h"
 #include "FilePanel.h"
 #include "MainWindow.h"
@@ -93,6 +93,7 @@ TheApp::AboutRequested()
 		"2009-2010 Andrea Anzani",
 		"2010-2015 Dario Casalinuovo",
 		"2009-2010 Pier Luigi Fiorini",
+		"2021 Jaidyn Levesque",
 		NULL
 	};
 
@@ -105,11 +106,12 @@ TheApp::AboutRequested()
 	};
 
 	BString extraInfo;
-	extraInfo << "Caya is released under the GNU GPL License." << "\n";
-	extraInfo << "Some parts of Caya are available under MIT license." << "\n";
+	extraInfo << "%app% is released under the GNU GPL License." << "\n";
+	extraInfo << "Some parts of %app% are available under MIT license." << "\n";
 	extraInfo << "Built: " << BUILD_DATE;
+	extraInfo.ReplaceAll("%app%", APP_NAME);
 
-	AboutWindow* about = new AboutWindow("Caya", holders,
+	AboutWindow* about = new AboutWindow(APP_NAME, holders,
 		authors, extraInfo.String());
 	about->Show();
 	delete about;

@@ -18,6 +18,7 @@
 
 #include <kernel/fs_attr.h>
 
+#include "Cardie.h"
 #include "Utils.h"
 
 
@@ -117,7 +118,7 @@ AccountsPath()
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
 		return NULL;
 
-	path.Append("Caya/Protocols");
+	path.Append(APP_NAME "/Protocols");
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
 
@@ -166,7 +167,7 @@ CachePath()
 	BPath path;
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
 		return NULL;
-	path.Append("Caya/Cache");
+	path.Append(APP_NAME "/Cache");
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
 	return path.Path();

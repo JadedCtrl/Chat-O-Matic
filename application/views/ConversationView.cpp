@@ -21,6 +21,7 @@
 
 #include "AppMessages.h"
 #include "AppPreferences.h"
+#include "Cardie.h"
 #include "ChatProtocolMessages.h"
 #include "RenderView.h"
 #include "Conversation.h"
@@ -138,7 +139,7 @@ ConversationView::ImMessage(BMessage* msg)
 				notify_message << sender->GetName();
 
 				BNotification notification(B_INFORMATION_NOTIFICATION);
-				notification.SetGroup(BString("Caya"));
+				notification.SetGroup(BString(APP_NAME));
 				notification.SetTitle(BString("New message"));
 				notification.SetIcon(sender->AvatarBitmap());
 				notification.SetContent(notify_message);

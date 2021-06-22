@@ -18,6 +18,7 @@
 
 #include "AppMessages.h"
 #include "AppPreferences.h"
+#include "Cardie.h"
 #include "ChatProtocolMessages.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
@@ -149,7 +150,7 @@ RosterView::ImMessage(BMessage* msg)
 								message << " is offline!";
 
 							BNotification notification(B_INFORMATION_NOTIFICATION);
-							notification.SetGroup(BString("Caya"));
+							notification.SetGroup(BString(APP_NAME));
 							notification.SetTitle(BString("Presence"));
 							notification.SetIcon(rosterItem->Bitmap());
 							notification.SetContent(message);

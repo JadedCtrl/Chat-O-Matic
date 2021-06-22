@@ -27,7 +27,7 @@
 #include <libinterface/BitmapView.h>
 
 #include "AccountManager.h"
-#include "Caya.h"
+#include "Cardie.h"
 #include "AppMessages.h"
 #include "AppPreferences.h"
 #include "ChatProtocolMessages.h"

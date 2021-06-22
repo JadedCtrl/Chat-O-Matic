@@ -1,4 +1,4 @@
-#include "Caya.h"
+#include "Cardie.h"
 
 resource app_signature APP_SIGNATURE;
 
@@ -10,8 +10,8 @@ resource app_version {
 	variety = B_APPV_ALPHA,
 	internal = 0,
 
-	short_info = "Caya",
-	long_info = "©2009-2015 Andrea Anzani, Pier Luigi Fiorini, Dario Casalinuovo"
+	short_info = APP_NAME,
+	long_info = "©2009-2021 Andrea Anzani, Pier Luigi Fiorini, Dario Casalinuovo, Jaidyn Levesque"
 };
 
 resource app_flags B_SINGLE_LAUNCH;

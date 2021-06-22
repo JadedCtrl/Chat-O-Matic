@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := default
 
-caya:
+app:
 	$(MAKE) -f application/Makefile
 
 protocols:
@@ -11,7 +11,7 @@ libs:
 clean:
 	$(MAKE) -f application/Makefile clean
 
-all: libs protocols caya
+all: libs protocols app
 
 .PHONY: libs protocols
 

@@ -8,7 +8,7 @@
 ## file:///system/develop/documentation/makefile-engine.html
 
 # The name of the binary.
-NAME = Caya
+NAME = Cardie
 
 # The type of binary, must be one of:
 #	APP:	Application
@@ -18,7 +18,7 @@ NAME = Caya
 TYPE = APP
 
 # If you plan to use localization, specify the application's MIME signature.
-APP_MIME_SIG = application/x-vnd.caya.Caya
+APP_MIME_SIG = application/x-vnd.cardie
 
 #	The following lines tell Pe and Eddie where the SRCS, RDEFS, and RSRCS are
 #	so that Pe and Eddie can fill them in for you.
@@ -87,7 +87,7 @@ SRCS = \
 
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
-RDEFS = Caya.rdef \
+RDEFS = Cardie.rdef \
 	data/icons/status/Away.rdef \
 	data/icons/status/Busy.rdef \
 	data/icons/status/Offline.rdef \

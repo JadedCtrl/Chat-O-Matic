@@ -3,11 +3,12 @@
  * Distributed under the terms of the MIT License.
  */
 #include "AppPreferences.h"
+#include "Cardie.h"
 
 #include <string.h>
 #include <stdlib.h>
 
-template<> const char* AppPreferences::fFolder = "Caya";
+template<> const char* AppPreferences::fFolder = APP_NAME;
 template<> const char* AppPreferences::fFilename = "preferences";
 
 /* TODO update _Add* methods to 

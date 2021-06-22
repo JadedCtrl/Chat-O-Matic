@@ -20,6 +20,7 @@
 #include "AccountManager.h"
 #include "AppMessages.h"
 #include "AppPreferences.h"
+#include "Cardie.h"
 #include "ChatProtocolMessages.h"
 #include "ConversationItem.h"
 #include "ConversationListView.h"
@@ -42,7 +43,7 @@ const uint32 kLogin			= 'LOGI';
 
 MainWindow::MainWindow()
 	:
-	BWindow(BRect(0, 0, 600, 400), "Caya", B_TITLED_WINDOW, 0),
+	BWindow(BRect(0, 0, 600, 400), APP_NAME, B_TITLED_WINDOW, 0),
 	fWorkspaceChanged(false),
 	fConversation(NULL),
 	fRosterWindow(NULL),
@@ -353,11 +354,11 @@ MainWindow::SetConversation(Conversation* chat)
 		fConversation = chat;
 
 		BString title(chat->GetName());
-		title << " ― Caya";
+		title << " ― " << APP_NAME;
 		SetTitle(title.String());
 	}
 	else
-		SetTitle("Caya");
+		SetTitle(APP_NAME);
 
 	fRightView->AddChild(fChatView, 9);
 	fRightView->AddChild(fSendScroll, 1);

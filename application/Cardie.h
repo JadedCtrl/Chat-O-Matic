@@ -5,6 +5,7 @@
 #ifndef _APP_H
 #define _APP_H
 
-#define APP_SIGNATURE "application/x-vnd.caya.Caya"
+#define APP_SIGNATURE "application/x-vnd.cardie"
+#define APP_NAME "Cardie"
 
 #endif	// _APP_H
