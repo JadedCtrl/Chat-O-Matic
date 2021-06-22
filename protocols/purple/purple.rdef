@@ -1,0 +1,13 @@
+
+resource app_version {
+	major  = 0,
+	middle = 0,
+	minor  = 1,
+
+	variety = B_APPV_ALPHA,
+	internal = 0,
+
+	short_info = "Libpurple add-on for Cardie",
+	long_info = "©2021 Jaidyn Levesque"
+};
+
