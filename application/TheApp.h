@@ -10,6 +10,10 @@
 
 class MainWindow;
 
+
+int main(int argc, char* argv[]);
+
+
 class TheApp : public BApplication {
 public:
 						TheApp();

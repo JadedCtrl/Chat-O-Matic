@@ -41,7 +41,6 @@ SRCS = \
 	application/DefaultItems.cpp \
 	application/EditingFilter.cpp \
 	application/ImageCache.cpp \
-	application/Main.cpp \
 	application/Notifier.cpp \
 	application/ProtocolLooper.cpp \
 	application/ProtocolManager.cpp \

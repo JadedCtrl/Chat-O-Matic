@@ -28,6 +28,16 @@
 #include "Server.h"
 
 
+int
+main(int argc, char* argv[])
+{
+	TheApp app;
+	app.Run();
+
+	return 0;
+}
+
+
 TheApp::TheApp()
 	:
 	BApplication(APP_SIGNATURE),
