@@ -27,14 +27,16 @@ enum purple_message {
 	 */
 
 	/*! Request a count of protocols.		→Server
-	 *  Response is sent directly to the requesting thread,
-	 *  use receive_data() to catch it.
+	 *  Response is sent directly to the requesting thread
+	 *  as a message's code, use receive_data() to catch it.
 	 *  Requires:	int64 thread_id */
 	PURPLE_REQUEST_PROTOCOL_COUNT			= 1,
 
 	/*! Request protocol metadata.			→Server
-	 *  Response is sent directly to the requesting thread,
-	 *  use receive_data() to catch it.
+	 *  Response is sent directly to the requesting thread
+	 *  with two subsquent messages (using receive_data())―
+	 *  the first sending the size of the subsequently sent
+	 *  flattened BMessage.
 	 *  Requires:	int32 protocol_index, int64 thread_id */
 	PURPLE_REQUEST_PROTOCOL_INFO			= 2
 };

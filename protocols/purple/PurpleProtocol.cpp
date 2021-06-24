@@ -13,7 +13,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
  */
 
 #include "PurpleProtocol.h"
@@ -41,12 +42,16 @@ protocol_at(int32 i)
 
 	thread_id sender;
 
-	char name[512] = { '\0' };
-	char id[512] = { '\0' };
-	receive_data(&sender, name, sizeof(char) * 512);
-	receive_data(&sender, id, sizeof(char) * 512);
+	int32 size = receive_data(&sender, NULL, 0);
+	char buffer[size];
+	receive_data(&sender, buffer, size);
+	BMessage temp;
+	temp.Unflatten(buffer);
 
-	return (ChatProtocol*)new PurpleProtocol(name, id);
+	BString name = temp.FindString("name");
+	BString id = temp.FindString("id");
+
+	return (ChatProtocol*)new PurpleProtocol(name, id, temp);
 }
 
 
@@ -120,10 +125,11 @@ connect_thread(void* data)
 }
 
 
-PurpleProtocol::PurpleProtocol(char name[512], char id[512])
+PurpleProtocol::PurpleProtocol(BString name, BString id, BMessage settings)
 	:
 	fSignature(id),
-	fFriendlySignature(name)
+	fFriendlySignature(name),
+	fSettingsTemplate(settings)
 {
 }
 
@@ -167,7 +173,7 @@ PurpleProtocol::UpdateSettings(BMessage* msg)
 BMessage
 PurpleProtocol::SettingsTemplate(const char* name)
 {
-	return BMessage();
+	return fSettingsTemplate;
 }
 
 

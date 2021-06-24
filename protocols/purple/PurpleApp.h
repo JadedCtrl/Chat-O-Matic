@@ -14,7 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
  */
 
 #ifndef _PURPLE_APP_H
@@ -42,6 +43,7 @@ typedef struct _PurpleGLibIOClosure {
 typedef struct _ProtocolInfo {
 	BString name;
 	BString id;
+	BMessage settingsTemplate;
 } ProtocolInfo;
 
 
@@ -55,8 +57,8 @@ public:
 
 private:
 			void		_GetProtocolsInfo();
-			void		_SaveProtocolInfo(PurplePluginInfo* info);
-			
+			void		_SaveProtocolInfo(PurplePlugin* plugin);
+			BMessage	_ParseProtoOptions(PurplePluginProtocolInfo* info);
 
 	BObjectList<ProtocolInfo> fProtocols;
 };

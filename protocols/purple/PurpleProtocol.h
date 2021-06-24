@@ -13,7 +13,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
  */
 
 #ifndef _PURPLE_PROTOCOL_H
@@ -40,7 +41,8 @@ status_t connect_thread(void* data);
 
 class PurpleProtocol : public ChatProtocol {
 public:
-						PurpleProtocol(char name[512], char id[512]);
+						PurpleProtocol(BString name, BString id,
+							BMessage settings);
 
 	// ChatProtocol inheritance
 	virtual	status_t	Init(ChatProtocolMessengerInterface* interface);
@@ -81,6 +83,7 @@ private:
 
 	BString fSignature;
 	BString fFriendlySignature;
+	BMessage fSettingsTemplate;
 };
 
 

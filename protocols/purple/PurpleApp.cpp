@@ -14,7 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
  */
 
 #include "PurpleApp.h"
@@ -64,19 +65,21 @@ PurpleApp::MessageReceived(BMessage* msg)
 			int32 index = msg->FindInt32("index", 0);
 			ProtocolInfo* info = fProtocols.ItemAt(index);
 
-			const char* nameConst = info->name.String();
-			const char* idConst = info->id.String();
-			char name[512] = { '\0' };
-			char id[512] = { '\0' };
-			strncpy(name, nameConst, 512);
-			strncpy(id, idConst, 512);
+			BMessage protocolInfo = info->settingsTemplate;
+			protocolInfo.AddString("name", info->name);
+			protocolInfo.AddString("id", info->id);
 
-			send_data(thread_id, 0, name, sizeof(char) * 512);
-			send_data(thread_id, 0, id, sizeof(char) * 512);
+			// Send message to requester
+			ssize_t size = protocolInfo.FlattenedSize();
+			char buffer[size];
+
+			send_data(thread_id, size, NULL, 0);
+			protocolInfo.Flatten(buffer, size);
+			send_data(thread_id, 0, buffer, size);
 			break;
 		}
 		default:
-		BApplication::MessageReceived(msg);
+			BApplication::MessageReceived(msg);
 	}
 }
 
@@ -87,20 +90,78 @@ PurpleApp::_GetProtocolsInfo()
 	GList* listIter = purple_plugins_get_protocols();
 	for (int i = 0; listIter; listIter = listIter->next) {
 		PurplePlugin* plugin = (PurplePlugin*)listIter->data;
-		PurplePluginInfo* info = (PurplePluginInfo*)plugin->info;
-		if (info)
-			_SaveProtocolInfo(info);
+		if (plugin)
+			_SaveProtocolInfo(plugin);
 	}
 }
 
 
 void
-PurpleApp::_SaveProtocolInfo(PurplePluginInfo* info)
+PurpleApp::_SaveProtocolInfo(PurplePlugin* plugin)
 {
 	ProtocolInfo* proto = new ProtocolInfo;
-	proto->id = info->id;
-	proto->name = info->name;
+	proto->id = plugin->info->id;
+	proto->name = plugin->info->name;
+
+	PurplePluginProtocolInfo* info = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
+	proto->settingsTemplate = _ParseProtoOptions(info);
+
 	fProtocols.AddItem(proto);
+}
+
+
+BMessage
+PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
+{
+	BMessage temp;
+
+	GList* prefIter = info->protocol_options;
+	for (int i = 0; prefIter != NULL; prefIter = prefIter->next)
+	{
+		PurpleAccountOption* pref = (PurpleAccountOption*)prefIter->data;
+		PurplePrefType type = pref->type;
+		int32 bType;
+
+		BMessage setting;
+		setting.AddString("name", pref->pref_name);
+		setting.AddString("description", pref->text);
+
+		switch (type)
+		{
+			case PURPLE_PREF_BOOLEAN:
+			{
+				bType = B_BOOL_TYPE;
+				setting.AddBool("default", pref->default_value.boolean);
+				break;
+			}
+			case PURPLE_PREF_INT:
+			{
+				bType = B_INT32_TYPE;
+				setting.AddInt32("default", pref->default_value.integer);
+				break;
+			}
+			case PURPLE_PREF_STRING_LIST: {
+				bType = B_STRING_TYPE;
+				BString implicit;
+				GList* lists;
+				for (int j = 0; lists != NULL; lists = lists->next)
+					implicit << " " << lists->data;
+				setting.AddString("default", implicit);
+				break;
+			}
+			default:
+				bType = B_STRING_TYPE;
+				setting.AddString("default", pref->default_value.string);
+		}
+		if (pref->masked)
+			setting.AddBool("is_hidden", true);
+		setting.AddString("error",
+			BString(pref->text).Append(" needs to be specified."));
+		setting.AddInt32("type", bType);
+		temp.AddMessage("setting", &setting);
+	}
+
+	return temp;
 }
 
 
