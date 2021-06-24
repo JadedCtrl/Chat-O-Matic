@@ -1,20 +1,20 @@
 /*
- Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
-
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- as published by the Free Software Foundation; either version 2
- of the License, or (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+ * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 
 #ifndef _PURPLE_PROTOCOL_H
 #define _PURPLE_PROTOCOL_H
@@ -25,9 +25,22 @@
 #include <ChatProtocol.h>
 
 
+// Required protocol exports
+extern "C" _EXPORT ChatProtocol* protocol_at(int32 i);
+extern "C" _EXPORT int32 protocol_count();
+extern "C" _EXPORT const char* signature();
+extern "C" _EXPORT const char* friendly_signature();
+extern "C" _EXPORT uint32 version();
+
+BMessenger* ensure_app_messenger();
+void ensure_app();
+
+status_t connect_thread(void* data);
+
+
 class PurpleProtocol : public ChatProtocol {
 public:
-						PurpleProtocol();
+						PurpleProtocol(char name[512], char id[512]);
 
 	// ChatProtocol inheritance
 	virtual	status_t	Init(ChatProtocolMessengerInterface* interface);
@@ -61,11 +74,13 @@ public:
 
 private:
 	ChatProtocolMessengerInterface* fMessenger;
-
 	thread_id fServerThread;
 
 	BString fName;
 	BPath fAddOnPath;
+
+	BString fSignature;
+	BString fFriendlySignature;
 };
 
 

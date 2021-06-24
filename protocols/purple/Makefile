@@ -15,10 +15,10 @@ NAME = protocols/purple
 #	SHARED:	Shared library or add-on
 #	STATIC:	Static library archive
 #	DRIVER: Kernel driver
-TYPE = SHARED
+TYPE = APP
 
 # If you plan to use localization, specify the application's MIME signature.
-APP_MIME_SIG =
+APP_MIME_SIG = application/x-vnd.caya.purple
 
 #	The following lines tell Pe and Eddie where the SRCS, RDEFS, and RSRCS are
 #	so that Pe and Eddie can fill them in for you.
@@ -32,7 +32,7 @@ APP_MIME_SIG =
 #	same name (source.c or source.cpp) are included from different directories.
 #	Also note that spaces in folder names do not work well with this Makefile.
 SRCS = \
-	protocols/purple/PurpleMain.cpp \
+	protocols/purple/PurpleApp.cpp \
 	protocols/purple/PurpleProtocol.cpp \
 
 #	Specify the resource definition files to use. Full or relative paths can be

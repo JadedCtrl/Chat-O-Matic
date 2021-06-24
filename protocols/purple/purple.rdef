@@ -11,3 +11,4 @@ resource app_version {
 	long_info = "©2021 Jaidyn Levesque"
 };
 
+resource app_flags B_SINGLE_LAUNCH | B_BACKGROUND_APP;
