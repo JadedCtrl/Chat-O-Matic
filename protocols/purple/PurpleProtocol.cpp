@@ -63,8 +63,7 @@ protocol_count()
 	ensure_app_messenger()->SendMessage(msg);
 
 	thread_id sender;
-	int32 count = receive_data(&sender, NULL, 0);
-	return count;
+	return receive_data(&sender, NULL, 0);
 }
 
 
@@ -159,13 +158,17 @@ PurpleProtocol::Process(BMessage* msg)
 status_t
 PurpleProtocol::UpdateSettings(BMessage* msg)
 {
-	thread_id thread = spawn_thread(connect_thread, "connect_thread",
-		B_NORMAL_PRIORITY, (void*)this);
+	ensure_app();
+	fPrplMessenger = new BMessenger("application/x-vnd.cardie.purple");
+	msg->what = PURPLE_LOAD_ACCOUNT;
+	_SendPrplMessage(msg);
+//	thread_id thread = spawn_thread(connect_thread, "connect_thread",
+//		B_NORMAL_PRIORITY, (void*)this);
 
-	if (thread < B_OK)
-		return B_ERROR;
+//	if (thread < B_OK)
+//		return B_ERROR;
 
-	resume_thread(thread);
+//	resume_thread(thread);
 	return B_OK;
 }
 
@@ -264,4 +267,14 @@ ChatProtocolMessengerInterface*
 PurpleProtocol::MessengerInterface() const
 {
 	return fMessenger;
+}
+
+
+void
+PurpleProtocol::_SendPrplMessage(BMessage* msg)
+{
+	msg->AddString("account_name", fName);
+	msg->AddString("signature", fSignature);
+	if (fPrplMessenger->IsValid())
+		fPrplMessenger->SendMessage(msg);
 }

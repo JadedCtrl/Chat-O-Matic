@@ -50,18 +50,18 @@ void
 PurpleApp::MessageReceived(BMessage* msg)
 {
 	int64 thread_id;
-	if (msg->FindInt64("thread_id", &thread_id) != B_OK)
-		return;
 
 	switch (msg->what)
 	{
 		case PURPLE_REQUEST_PROTOCOL_COUNT:
 		{
+			if (msg->FindInt64("thread_id", &thread_id) != B_OK)	return;
 			send_data(thread_id, fProtocols.CountItems(), NULL, 0);
 			break;
 		}
 		case PURPLE_REQUEST_PROTOCOL_INFO:
 		{
+			if (msg->FindInt64("thread_id", &thread_id) != B_OK)	return;
 			int32 index = msg->FindInt32("index", 0);
 			ProtocolInfo* info = fProtocols.ItemAt(index);
 
@@ -76,6 +76,11 @@ PurpleApp::MessageReceived(BMessage* msg)
 			send_data(thread_id, size, NULL, 0);
 			protocolInfo.Flatten(buffer, size);
 			send_data(thread_id, 0, buffer, size);
+			break;
+		}
+		case PURPLE_LOAD_ACCOUNT:
+		{
+			_ParseCardieSettings(msg);
 			break;
 		}
 		default:
@@ -115,7 +120,45 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 {
 	BMessage temp;
 
+	// Add a "username" setting, if not explicitly specified
 	GList* prefIter = info->protocol_options;
+	for (int i = 0; prefIter != NULL; prefIter = prefIter->next) {
+		PurpleAccountOption* pref = (PurpleAccountOption*)prefIter->data;
+
+		if (pref->pref_name == BString("username"))
+			break;
+		else if (prefIter->next == NULL) {
+			BMessage setting;
+			setting.AddString("name", "username");
+			setting.AddString("description", "Username");
+			setting.AddString("error", "A username needs to be specified!");
+			setting.AddInt32("type", B_STRING_TYPE);
+			temp.AddMessage("setting", &setting);
+		}
+	}
+
+	// Add any UserSplits (that is, parts of the protocols 'username' format)
+	GList* splitIter = info->user_splits;
+	for (int i = 0; splitIter != NULL; splitIter = splitIter->next)
+	{
+		PurpleAccountUserSplit* split = (PurpleAccountUserSplit*)splitIter->data;
+		BMessage setting;
+		setting.AddString("name", "username_split");
+		setting.AddString("description", split->text);
+		setting.AddString("default", split->default_value);
+		setting.AddInt32("type", B_STRING_TYPE);
+		temp.AddMessage("setting", &setting);
+	}
+
+	// Password setting
+	BMessage passwd;
+	passwd.AddString("name", "password");
+	passwd.AddString("description", "Password");
+	passwd.AddInt32("type", B_STRING_TYPE);
+	temp.AddMessage("setting", &passwd);
+
+	// Whatever custom settings the protocol might like!
+	prefIter = info->protocol_options;
 	for (int i = 0; prefIter != NULL; prefIter = prefIter->next)
 	{
 		PurpleAccountOption* pref = (PurpleAccountOption*)prefIter->data;
@@ -140,15 +183,6 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 				setting.AddInt32("default", pref->default_value.integer);
 				break;
 			}
-			case PURPLE_PREF_STRING_LIST: {
-				bType = B_STRING_TYPE;
-				BString implicit;
-				GList* lists;
-				for (int j = 0; lists != NULL; lists = lists->next)
-					implicit << " " << lists->data;
-				setting.AddString("default", implicit);
-				break;
-			}
 			default:
 				bType = B_STRING_TYPE;
 				setting.AddString("default", pref->default_value.string);
@@ -160,8 +194,89 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 		setting.AddInt32("type", bType);
 		temp.AddMessage("setting", &setting);
 	}
-
 	return temp;
+}
+
+
+void
+PurpleApp::_ParseCardieSettings(BMessage* settings)
+{
+	PurplePlugin* plugin = _PluginFromMessage(settings);
+	PurplePluginProtocolInfo* info = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
+	const char* protoId = settings->FindString("signature");
+
+	if (plugin == NULL || info == NULL)
+		return;
+
+	// Fetch and cobble together the username & password
+	BString username, password;
+	settings->FindString("username", &username);
+	settings->FindString("password", &password);
+
+	GList* splitIter = info->user_splits;
+	for (int i = 0; splitIter != NULL; splitIter = splitIter->next)
+	{
+		PurpleAccountUserSplit* split = (PurpleAccountUserSplit*)splitIter->data;
+		username << split->field_sep;
+
+		BString opt;
+		if (settings->FindString("username_split", i, &opt) == B_OK)
+			username << opt;
+		else
+			username << split->default_value;
+		i++;
+	}
+	std::cout << username << " of \n";
+
+	// Create/fetch the account itself
+	PurpleAccount* account = purple_accounts_find(username.String(), protoId);
+	if (account == NULL) {
+		account = purple_account_new(username.String(), protoId);
+		purple_account_set_password(account, password.String());
+		purple_accounts_add(account);
+	}
+
+	// Set all protocol settings
+	GList* prefIter = info->protocol_options;
+	for (int i = 0; prefIter != NULL; prefIter = prefIter->next)
+	{
+		PurpleAccountOption* pref = (PurpleAccountOption*)prefIter->data;
+		PurplePrefType type = pref->type;
+
+		switch (type)
+		{
+			case PURPLE_PREF_BOOLEAN:
+			{
+				bool value;
+				if (settings->FindBool(pref->pref_name, &value) == B_OK)
+					purple_account_set_bool(account, pref->pref_name, value);
+				break;
+			}
+			case PURPLE_PREF_INT:
+			{
+				int32 value;
+				if (settings->FindInt32(pref->pref_name, &value) == B_OK)
+					purple_account_set_int(account, pref->pref_name, value);
+				break;
+			}
+			default:
+			{
+				BString value;
+				if (settings->FindString(pref->pref_name, &value) == B_OK)
+					purple_account_set_string(account, pref->pref_name,
+						value.String());
+			}
+		}
+	}
+
+	fAccounts.AddItem(settings->FindString("account_name"), username);
+}
+
+
+PurplePlugin*
+PurpleApp::_PluginFromMessage(BMessage* msg)
+{
+	return purple_plugins_find_with_id(msg->FindString("signature"));
 }
 
 

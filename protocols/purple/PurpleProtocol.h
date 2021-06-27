@@ -75,7 +75,9 @@ public:
 						MessengerInterface() const;
 
 private:
+			void		_SendPrplMessage(BMessage* msg);
 	ChatProtocolMessengerInterface* fMessenger;
+	BMessenger* fPrplMessenger;
 	thread_id fServerThread;
 
 	BString fName;

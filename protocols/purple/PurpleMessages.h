@@ -30,7 +30,7 @@ enum purple_message {
 	 *  Response is sent directly to the requesting thread
 	 *  as a message's code, use receive_data() to catch it.
 	 *  Requires:	int64 thread_id */
-	PURPLE_REQUEST_PROTOCOL_COUNT			= 1,
+	PURPLE_REQUEST_PROTOCOL_COUNT			= 'PApc',
 
 	/*! Request protocol metadata.			→Server
 	 *  Response is sent directly to the requesting thread
@@ -38,8 +38,14 @@ enum purple_message {
 	 *  the first sending the size of the subsequently sent
 	 *  flattened BMessage.
 	 *  Requires:	int32 protocol_index, int64 thread_id */
-	PURPLE_REQUEST_PROTOCOL_INFO			= 2
+	PURPLE_REQUEST_PROTOCOL_INFO			= 'PApi',
+
+	/*! Load/start connecting the account	→Server
+	 *	Just the account's settings message from Cardie's end.
+	 *	It's the server's job to tie the Cardie account name
+	 *	to the PurpleAccount. */
+	PURPLE_LOAD_ACCOUNT						= 'PAla'
 };
 
 
-#endif // _PURPLE_MESSAGESH
+#endif // _PURPLE_MESSAGES_H

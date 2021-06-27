@@ -27,7 +27,12 @@
 #include <ObjectList.h>
 #include <StringList.h>
 
+#include <libsupport/KeyMap.h>
+
 #include "PurpleMessages.h"
+
+
+typedef KeyMap<BString, BString> Accounts;
 
 
 #define PURPLE_GLIB_READ_COND  (G_IO_IN | G_IO_HUP | G_IO_ERR)
@@ -58,8 +63,13 @@ public:
 private:
 			void		_GetProtocolsInfo();
 			void		_SaveProtocolInfo(PurplePlugin* plugin);
-			BMessage	_ParseProtoOptions(PurplePluginProtocolInfo* info);
 
+			BMessage	_ParseProtoOptions(PurplePluginProtocolInfo* info);
+			void		_ParseCardieSettings(BMessage* settings);
+
+		PurplePlugin*	_PluginFromMessage(BMessage* msg);
+
+	Accounts fAccounts;
 	BObjectList<ProtocolInfo> fProtocols;
 };
 
