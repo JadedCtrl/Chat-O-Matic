@@ -24,6 +24,7 @@
 
 #include <ChatProtocolMessages.h>
 
+#include "Purple.h"
 #include "PurpleMessages.h"
 
 
@@ -40,18 +41,11 @@ protocol_at(int32 i)
 	msg->AddInt32("index", i);
 	msgr->SendMessage(msg);
 
-	thread_id sender;
+	BMessage protoInfo = receive_message();
+	BString name = protoInfo.FindString("name");
+	BString id = protoInfo.FindString("id");
 
-	int32 size = receive_data(&sender, NULL, 0);
-	char buffer[size];
-	receive_data(&sender, buffer, size);
-	BMessage temp;
-	temp.Unflatten(buffer);
-
-	BString name = temp.FindString("name");
-	BString id = temp.FindString("id");
-
-	return (ChatProtocol*)new PurpleProtocol(name, id, temp);
+	return (ChatProtocol*)new PurpleProtocol(name, id, protoInfo);
 }
 
 
@@ -93,7 +87,7 @@ ensure_app_messenger()
 {
 	if (kAppMessenger == NULL || kAppMessenger->IsValid() == false) {
 		ensure_app();
-		kAppMessenger = new BMessenger("application/x-vnd.cardie.purple");
+		kAppMessenger = new BMessenger(PURPLE_SIGNATURE);
 	}
 	return kAppMessenger;
 }
@@ -103,7 +97,7 @@ void
 ensure_app()
 {
 	BRoster roster;
-	if (roster.IsRunning("application/x-vnd.cardie.purple") == true)
+	if (roster.IsRunning(PURPLE_SIGNATURE) == true)
 		return;
 
 	app_info aInfo;
@@ -115,12 +109,32 @@ ensure_app()
 	entry_ref protoRef;
 	BEntry(protoPath.Path()).GetRef(&protoRef);
 	roster.Launch(&protoRef);
+	snooze(100000);
 }
 
 
 status_t
 connect_thread(void* data)
 {
+	PurpleProtocol* protocol = (PurpleProtocol*)data;
+
+	while (true) {
+		BMessage msg = receive_message();
+		protocol->SendMessage(new BMessage(msg));
+	}
+}
+
+
+BMessage
+receive_message()
+{
+	thread_id sender;
+	int32 size = receive_data(&sender, NULL, 0);
+	char buffer[size];
+	receive_data(&sender, buffer, size);
+	BMessage temp;
+	temp.Unflatten(buffer);
+	return temp;
 }
 
 
@@ -159,16 +173,21 @@ status_t
 PurpleProtocol::UpdateSettings(BMessage* msg)
 {
 	ensure_app();
-	fPrplMessenger = new BMessenger("application/x-vnd.cardie.purple");
+	fPrplMessenger = new BMessenger(PURPLE_SIGNATURE);
 	msg->what = PURPLE_LOAD_ACCOUNT;
 	_SendPrplMessage(msg);
-//	thread_id thread = spawn_thread(connect_thread, "connect_thread",
-//		B_NORMAL_PRIORITY, (void*)this);
 
-//	if (thread < B_OK)
-//		return B_ERROR;
+	thread_id thread = spawn_thread(connect_thread, "bird_superiority",
+		B_NORMAL_PRIORITY, (void*)this);
 
-//	resume_thread(thread);
+	if (thread < B_OK)
+		return B_ERROR;
+
+	BMessage* account = new BMessage(PURPLE_REGISTER_THREAD);
+	account->AddInt64("thread_id", thread);
+	_SendPrplMessage(account);
+
+	resume_thread(thread);
 	return B_OK;
 }
 
@@ -271,10 +290,20 @@ PurpleProtocol::MessengerInterface() const
 
 
 void
+PurpleProtocol::SendMessage(BMessage* msg)
+{
+	if (!msg)
+		return;
+	msg->AddString("protocol", fSignature);
+	fMessenger->SendMessage(msg);
+}
+
+
+void
 PurpleProtocol::_SendPrplMessage(BMessage* msg)
 {
 	msg->AddString("account_name", fName);
-	msg->AddString("signature", fSignature);
+	msg->AddString("protocol", fSignature);
 	if (fPrplMessenger->IsValid())
 		fPrplMessenger->SendMessage(msg);
 }

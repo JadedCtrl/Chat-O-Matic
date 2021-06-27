@@ -1,3 +1,6 @@
+#include "Purple.h"
+
+resource app_signature PURPLE_SIGNATURE;
 
 resource app_version {
 	major  = 0,

@@ -37,7 +37,7 @@ BMessenger* ensure_app_messenger();
 void ensure_app();
 
 status_t connect_thread(void* data);
-
+BMessage receive_message();
 
 class PurpleProtocol : public ChatProtocol {
 public:
@@ -74,8 +74,11 @@ public:
 	virtual	ChatProtocolMessengerInterface*
 						MessengerInterface() const;
 
+			void		SendMessage(BMessage* msg);
+
 private:
 			void		_SendPrplMessage(BMessage* msg);
+
 	ChatProtocolMessengerInterface* fMessenger;
 	BMessenger* fPrplMessenger;
 	thread_id fServerThread;

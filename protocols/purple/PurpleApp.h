@@ -29,14 +29,16 @@
 
 #include <libsupport/KeyMap.h>
 
-#include "PurpleMessages.h"
 
+typedef KeyMap<BString, BString> Accounts; // Cardie username → Purple username
+typedef KeyMap<BString, thread_id> AccountThreads; // Purple username → Thread
 
-typedef KeyMap<BString, BString> Accounts;
+const uint32 G_MAIN_LOOP = 'GLml';
 
 
 #define PURPLE_GLIB_READ_COND  (G_IO_IN | G_IO_HUP | G_IO_ERR)
 #define PURPLE_GLIB_WRITE_COND (G_IO_OUT | G_IO_HUP | G_IO_ERR | G_IO_NVAL)
+#define PURPLE_UI_ID "cardie"
 
 
 typedef struct _PurpleGLibIOClosure {
@@ -59,6 +61,8 @@ class PurpleApp : public BApplication {
 public:
 						PurpleApp();
 	virtual	void		MessageReceived(BMessage* msg);
+			void		SendMessage(thread_id thread, BMessage msg);
+			void		SendMessage(PurpleAccount* account, BMessage msg);
 
 private:
 			void		_GetProtocolsInfo();
@@ -68,18 +72,29 @@ private:
 			void		_ParseCardieSettings(BMessage* settings);
 
 		PurplePlugin*	_PluginFromMessage(BMessage* msg);
+		PurpleAccount*	_AccountFromMessage(BMessage* msg);
 
 	Accounts fAccounts;
+	AccountThreads fAccountThreads;
 	BObjectList<ProtocolInfo> fProtocols;
+
+	GMainLoop* fGloop;
+	BMessageRunner* fGRunner;
 };
 
 
 status_t init_libpurple();
+void init_ui_ops();
+void init_signals();
+
+// Connection signals
+static void signal_signed_on(PurpleConnection* gc);
+static void signal_connection_error(PurpleConnection* gc,
+				PurpleConnectionError err, const gchar* desc);
 
 static guint _purple_glib_input_add(gint fd, PurpleInputCondition condition,
 				PurpleInputFunction function, gpointer data);
 static gboolean _purple_glib_io_invoke(GIOChannel *source,
 					GIOCondition condition, gpointer data);
-
 
 #endif // _PURPLE_APP_H

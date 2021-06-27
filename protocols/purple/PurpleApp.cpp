@@ -25,6 +25,13 @@
 #include <glib.h>
 #include <libpurple/purple.h>
 
+#include <MessageRunner.h>
+
+#include <ChatProtocolMessages.h>
+
+#include "Purple.h"
+#include "PurpleMessages.h"
+
 
 int
 main(int arc, char** argv)
@@ -37,30 +44,32 @@ main(int arc, char** argv)
 
 PurpleApp::PurpleApp()
 	:
-	BApplication("application/x-vnd.cardie.purple")
+	BApplication(PURPLE_SIGNATURE),
+	fGloop(g_main_loop_new(NULL, false))
 {
 	if (init_libpurple() != B_OK)
 		std::cerr << "libpurple initialization failed. Please report!\n";
 
 	_GetProtocolsInfo();
+	fGRunner = new BMessageRunner(this, new BMessage(G_MAIN_LOOP), 100000, -1);
 }
 
 
 void
 PurpleApp::MessageReceived(BMessage* msg)
 {
-	int64 thread_id;
-
 	switch (msg->what)
 	{
 		case PURPLE_REQUEST_PROTOCOL_COUNT:
 		{
+			int64 thread_id;
 			if (msg->FindInt64("thread_id", &thread_id) != B_OK)	return;
 			send_data(thread_id, fProtocols.CountItems(), NULL, 0);
 			break;
 		}
 		case PURPLE_REQUEST_PROTOCOL_INFO:
 		{
+			int64 thread_id;
 			if (msg->FindInt64("thread_id", &thread_id) != B_OK)	return;
 			int32 index = msg->FindInt32("index", 0);
 			ProtocolInfo* info = fProtocols.ItemAt(index);
@@ -68,14 +77,8 @@ PurpleApp::MessageReceived(BMessage* msg)
 			BMessage protocolInfo = info->settingsTemplate;
 			protocolInfo.AddString("name", info->name);
 			protocolInfo.AddString("id", info->id);
+			SendMessage(thread_id, protocolInfo);
 
-			// Send message to requester
-			ssize_t size = protocolInfo.FlattenedSize();
-			char buffer[size];
-
-			send_data(thread_id, size, NULL, 0);
-			protocolInfo.Flatten(buffer, size);
-			send_data(thread_id, 0, buffer, size);
 			break;
 		}
 		case PURPLE_LOAD_ACCOUNT:
@@ -83,9 +86,48 @@ PurpleApp::MessageReceived(BMessage* msg)
 			_ParseCardieSettings(msg);
 			break;
 		}
+		case PURPLE_REGISTER_THREAD:
+		{
+			msg->PrintToStream();
+			BString accName = msg->FindString("account_name");
+			BString username = fAccounts.ValueFor(accName);
+			int64 thread;
+			if (username.IsEmpty() == true
+					|| msg->FindInt64("thread_id", &thread) != B_OK)
+				break;
+			fAccountThreads.AddItem(username, thread);
+			break;
+		}
+		case G_MAIN_LOOP:
+			g_main_context_iteration(g_main_loop_get_context(fGloop), false);
+			break;
 		default:
 			BApplication::MessageReceived(msg);
 	}
+}
+
+
+void
+PurpleApp::SendMessage(thread_id thread, BMessage msg)
+{
+	ssize_t size = msg.FlattenedSize();
+	char buffer[size];
+
+	send_data(thread, size, NULL, 0);
+	msg.Flatten(buffer, size);
+	send_data(thread, 0, buffer, size);
+}
+
+
+void
+PurpleApp::SendMessage(PurpleAccount* account, BMessage msg)
+{
+	const char* username = purple_account_get_username(account);
+	thread_id thread = fAccountThreads.ValueFor(BString(username));
+	if (thread > 0)
+		SendMessage(thread, msg);
+	else
+		std::cerr << "Failed to send message: " << msg.what << std::endl;
 }
 
 
@@ -217,7 +259,7 @@ PurpleApp::_ParseCardieSettings(BMessage* settings)
 {
 	PurplePlugin* plugin = _PluginFromMessage(settings);
 	PurplePluginProtocolInfo* info = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
-	const char* protoId = settings->FindString("signature");
+	const char* protoId = settings->FindString("protocol");
 
 	if (plugin == NULL || info == NULL)
 		return;
@@ -245,9 +287,10 @@ PurpleApp::_ParseCardieSettings(BMessage* settings)
 	PurpleAccount* account = purple_accounts_find(username.String(), protoId);
 	if (account == NULL) {
 		account = purple_account_new(username.String(), protoId);
-		purple_account_set_password(account, password.String());
 		purple_accounts_add(account);
 	}
+
+	purple_account_set_password(account, password.String());
 
 	// Set all protocol settings
 	GList* prefIter = info->protocol_options;
@@ -295,15 +338,24 @@ PurpleApp::_ParseCardieSettings(BMessage* settings)
 						value.String());
 		}
 	}
-
 	fAccounts.AddItem(settings->FindString("account_name"), username);
+	purple_account_set_enabled(account, PURPLE_UI_ID, true);
 }
 
 
 PurplePlugin*
 PurpleApp::_PluginFromMessage(BMessage* msg)
 {
-	return purple_plugins_find_with_id(msg->FindString("signature"));
+	return purple_plugins_find_with_id(msg->FindString("protocol"));
+}
+
+
+PurpleAccount*
+PurpleApp::_AccountFromMessage(BMessage* msg)
+{
+	BString protocol = msg->FindString("protocol");
+	BString username = fAccounts.ValueFor(msg->FindString("account_name"));
+	return purple_accounts_find(username.String(), protocol.String());
 }
 
 
@@ -324,11 +376,53 @@ static PurpleEventLoopUiOps _glib_eventloops =
 status_t
 init_libpurple()
 {
-	purple_eventloop_set_ui_ops(&_glib_eventloops);
+	init_ui_ops();
 
-	if (!purple_core_init("cardie"))
+	if (!purple_core_init(PURPLE_UI_ID))
 		return B_ERROR;
+
+	purple_set_blist(purple_blist_new());
+	purple_blist_load();
+
+	init_signals();
 	return B_OK;
+}
+
+
+void
+init_ui_ops()
+{
+	purple_eventloop_set_ui_ops(&_glib_eventloops);
+}
+
+
+void
+init_signals()
+{
+	int handle;
+	purple_signal_connect(purple_connections_get_handle(), "signed-on", &handle,
+		PURPLE_CALLBACK(signal_signed_on), NULL);
+	purple_signal_connect(purple_connections_get_handle(), "connection-error", &handle,
+		PURPLE_CALLBACK(signal_connection_error), NULL);
+}
+
+
+static void
+signal_signed_on(PurpleConnection* gc)
+{
+	BMessage readyMsg(IM_MESSAGE);
+	readyMsg.AddInt32("im_what", IM_PROTOCOL_READY);
+
+	PurpleApp* app = (PurpleApp*)be_app;
+	app->SendMessage(purple_connection_get_account(gc), readyMsg);
+}
+
+
+static void
+signal_connection_error(PurpleConnection* gc, PurpleConnectionError err,
+	const gchar* desc)
+{
+	std::cout << "Connection failed: " << (const char*)desc << std::endl;
 }
 
 
