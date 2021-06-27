@@ -309,5 +309,9 @@ ProtocolTemplate::Save(BView* parent, BMessage* settings, BString* errorText)
 			settings->AddString(name, textView->Text());
 	}
 
+	BMessage hidden;
+	if (fTemplate->FindMessage("hidden", &hidden) == B_OK)
+		settings->AddMessage("hidden", &hidden);
+
 	return B_OK;
 }
