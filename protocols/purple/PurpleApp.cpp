@@ -183,6 +183,20 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 				setting.AddInt32("default", pref->default_value.integer);
 				break;
 			}
+			case PURPLE_PREF_PATH_LIST:
+			case PURPLE_PREF_STRING_LIST:
+			{
+				bType = B_STRING_TYPE;
+				GList* list = pref->default_value.list;
+				for (int i = 0; list != NULL; list = list->next) {
+					PurpleKeyValuePair* pair = (PurpleKeyValuePair*)list->data;
+					setting.AddString("valid_value", pair->key);
+					if (pair->value ==
+							purple_account_option_get_default_list_value(pref))
+						temp.AddString(pref->pref_name, pair->key);
+				}
+				break;
+			}
 			default:
 				bType = B_STRING_TYPE;
 				setting.AddString("default", pref->default_value.string);
@@ -226,7 +240,6 @@ PurpleApp::_ParseCardieSettings(BMessage* settings)
 			username << split->default_value;
 		i++;
 	}
-	std::cout << username << " of \n";
 
 	// Create/fetch the account itself
 	PurpleAccount* account = purple_accounts_find(username.String(), protoId);
@@ -259,13 +272,27 @@ PurpleApp::_ParseCardieSettings(BMessage* settings)
 					purple_account_set_int(account, pref->pref_name, value);
 				break;
 			}
-			default:
+			case PURPLE_PREF_PATH_LIST:
+			case PURPLE_PREF_STRING_LIST:
 			{
+				GList* list = pref->default_value.list;
+				BString value = settings->FindString(pref->pref_name);
+
+				for (int i = 0; list != NULL; list = list->next) {
+					PurpleKeyValuePair* pair = (PurpleKeyValuePair*)list->data;
+					if (pair->key == value) {
+						purple_account_set_string(account, pref->pref_name,
+							(const char*)pair->value);
+						break;
+					}
+				}
+				break;
+			}
+			default:
 				BString value;
 				if (settings->FindString(pref->pref_name, &value) == B_OK)
 					purple_account_set_string(account, pref->pref_name,
 						value.String());
-			}
 		}
 	}
 
