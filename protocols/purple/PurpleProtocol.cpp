@@ -19,6 +19,8 @@
 
 #include "PurpleProtocol.h"
 
+#include <iostream>
+
 #include <Application.h>
 #include <Roster.h>
 
@@ -117,11 +119,8 @@ status_t
 connect_thread(void* data)
 {
 	PurpleProtocol* protocol = (PurpleProtocol*)data;
-
-	while (true) {
-		BMessage msg = receive_message();
-		protocol->SendMessage(new BMessage(msg));
-	}
+	while (true)
+		protocol->SendMessage(new BMessage(receive_message()));
 }
 
 
@@ -147,6 +146,12 @@ PurpleProtocol::PurpleProtocol(BString name, BString id, BMessage settings)
 }
 
 
+PurpleProtocol::~PurpleProtocol()
+{
+	Shutdown();
+}
+
+
 status_t
 PurpleProtocol::Init(ChatProtocolMessengerInterface* interface)
 {
@@ -158,6 +163,10 @@ PurpleProtocol::Init(ChatProtocolMessengerInterface* interface)
 status_t
 PurpleProtocol::Shutdown()
 {
+	BMessage* disconnect = new BMessage(PURPLE_REQUEST_DISCONNECT);
+	_SendPrplMessage(disconnect);
+
+	kill_thread(fBirdThread);
 	return B_OK;
 }
 
@@ -174,7 +183,7 @@ PurpleProtocol::UpdateSettings(BMessage* msg)
 {
 	ensure_app();
 	fPrplMessenger = new BMessenger(PURPLE_SIGNATURE);
-	msg->what = PURPLE_LOAD_ACCOUNT;
+	msg->what = PURPLE_CONNECT_ACCOUNT;
 	_SendPrplMessage(msg);
 
 	thread_id thread = spawn_thread(connect_thread, "bird_superiority",

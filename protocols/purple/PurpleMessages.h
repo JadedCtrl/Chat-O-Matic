@@ -44,7 +44,7 @@ enum purple_message {
 	 *	Just the account's settings message from Cardie's end.
 	 *	It's the server's job to tie the Cardie account name
 	 *	to the PurpleAccount. */
-	PURPLE_LOAD_ACCOUNT						= 'PAla',
+	PURPLE_CONNECT_ACCOUNT					= 'PAla',
 
 	/*! Associate account with thread		→Server
 	 *	Makes the server associate the given account with
@@ -52,7 +52,11 @@ enum purple_message {
 	 *	messages related to the account will be sent to this
 	 *	thread.
 	 *	Requires:	String account_name, int64 thread_id */
-	PURPLE_REGISTER_THREAD					= 'PArl'
+	PURPLE_REGISTER_THREAD					= 'PArl',
+
+	/*! Disconnect add-on's account			→Server
+	 *	Requires:	String account_name */
+	PURPLE_REQUEST_DISCONNECT				= 'Axwx'
 };
 
 #endif // _PURPLE_MESSAGES_H

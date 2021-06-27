@@ -26,7 +26,9 @@
 #include <libpurple/purple.h>
 
 #include <MessageRunner.h>
+#include <Roster.h>
 
+#include <Cardie.h>
 #include <ChatProtocolMessages.h>
 
 #include "Purple.h"
@@ -51,7 +53,8 @@ PurpleApp::PurpleApp()
 		std::cerr << "libpurple initialization failed. Please report!\n";
 
 	_GetProtocolsInfo();
-	fGRunner = new BMessageRunner(this, new BMessage(G_MAIN_LOOP), 100000, -1);
+	new BMessageRunner(this, new BMessage(G_MAIN_LOOP), 100000, -1);
+	new BMessageRunner(this, new BMessage(CHECK_APP), 60000000, -1);
 }
 
 
@@ -81,14 +84,13 @@ PurpleApp::MessageReceived(BMessage* msg)
 
 			break;
 		}
-		case PURPLE_LOAD_ACCOUNT:
+		case PURPLE_CONNECT_ACCOUNT:
 		{
 			_ParseCardieSettings(msg);
 			break;
 		}
 		case PURPLE_REGISTER_THREAD:
 		{
-			msg->PrintToStream();
 			BString accName = msg->FindString("account_name");
 			BString username = fAccounts.ValueFor(accName);
 			int64 thread;
@@ -96,6 +98,29 @@ PurpleApp::MessageReceived(BMessage* msg)
 					|| msg->FindInt64("thread_id", &thread) != B_OK)
 				break;
 			fAccountThreads.AddItem(username, thread);
+			break;
+		}
+		case PURPLE_REQUEST_DISCONNECT:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			if (account == NULL)
+				return;
+
+			BString account_name = msg->FindString("account_name");
+			const char* username = purple_account_get_username(account);
+			fAccountThreads.RemoveItemFor(BString(username));
+			fAccounts.RemoveItemFor(account_name);
+
+			purple_account_disconnect(account);
+
+			if (fAccountThreads.CountItems() == 0 || fAccounts.CountItems() == 0)
+				Quit();
+		}
+		case CHECK_APP:
+		{
+			BRoster roster;
+			if (roster.IsRunning(APP_SIGNATURE) == false)
+				Quit();
 			break;
 		}
 		case G_MAIN_LOOP:

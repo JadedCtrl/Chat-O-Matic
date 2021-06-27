@@ -34,6 +34,7 @@ typedef KeyMap<BString, BString> Accounts; // Cardie username → Purple usernam
 typedef KeyMap<BString, thread_id> AccountThreads; // Purple username → Thread
 
 const uint32 G_MAIN_LOOP = 'GLml';
+const uint32 CHECK_APP = 'Paca';
 
 
 #define PURPLE_GLIB_READ_COND  (G_IO_IN | G_IO_HUP | G_IO_ERR)
@@ -60,6 +61,7 @@ int main(int argc, char** argv);
 class PurpleApp : public BApplication {
 public:
 						PurpleApp();
+
 	virtual	void		MessageReceived(BMessage* msg);
 			void		SendMessage(thread_id thread, BMessage msg);
 			void		SendMessage(PurpleAccount* account, BMessage msg);
@@ -79,7 +81,6 @@ private:
 	BObjectList<ProtocolInfo> fProtocols;
 
 	GMainLoop* fGloop;
-	BMessageRunner* fGRunner;
 };
 
 

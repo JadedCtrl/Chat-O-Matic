@@ -44,6 +44,8 @@ public:
 						PurpleProtocol(BString name, BString id,
 							BMessage settings);
 
+						~PurpleProtocol();
+
 	// ChatProtocol inheritance
 	virtual	status_t	Init(ChatProtocolMessengerInterface* interface);
 	virtual	status_t	Shutdown();
@@ -81,7 +83,7 @@ private:
 
 	ChatProtocolMessengerInterface* fMessenger;
 	BMessenger* fPrplMessenger;
-	thread_id fServerThread;
+	thread_id fBirdThread;
 
 	BString fName;
 	BPath fAddOnPath;
