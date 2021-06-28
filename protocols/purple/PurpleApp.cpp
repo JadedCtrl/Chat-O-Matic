@@ -55,7 +55,7 @@ PurpleApp::PurpleApp()
 
 	_GetProtocolsInfo();
 	new BMessageRunner(this, new BMessage(G_MAIN_LOOP), 100000, -1);
-	new BMessageRunner(this, new BMessage(CHECK_APP), 60000000, -1);
+	new BMessageRunner(this, new BMessage(CHECK_APP), 30000000, -1);
 }
 
 
@@ -230,7 +230,7 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 		}
 	}
 
-	// Add any UserSplits (that is, parts of the protocols 'username' format)
+	// Add any UserSplits (that is, parts of the protocol's "username" format)
 	GList* splitIter = info->user_splits;
 	for (int i = 0; splitIter != NULL; splitIter = splitIter->next)
 	{
@@ -452,24 +452,22 @@ init_signals()
 {
 	int handle;
 
-	purple_signal_connect(purple_connections_get_handle(), "signed-on",
-		&handle, PURPLE_CALLBACK(signal_signed_on), NULL);
 	purple_signal_connect(purple_connections_get_handle(), "connection-error",
 		&handle, PURPLE_CALLBACK(signal_connection_error), NULL);
 
-	purple_signal_connect(purple_connections_get_handle(), "account-status-changed",
+	purple_signal_connect(purple_accounts_get_handle(), "account-signed-on",
+		&handle, PURPLE_CALLBACK(signal_account_signed_on), NULL);
+	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed",
 		&handle, PURPLE_CALLBACK(signal_account_status_changed), NULL);
-}
 
-
-static void
-signal_signed_on(PurpleConnection* gc)
-{
-	BMessage readyMsg(IM_MESSAGE);
-	readyMsg.AddInt32("im_what", IM_PROTOCOL_READY);
-
-	PurpleApp* app = (PurpleApp*)be_app;
-	app->SendMessage(purple_connection_get_account(gc), readyMsg);
+	purple_signal_connect(purple_conversations_get_handle(), "chat-joined",
+		&handle, PURPLE_CALLBACK(signal_chat_joined), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "chat-left",
+		&handle, PURPLE_CALLBACK(signal_chat_left), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "received-chat-msg",
+		&handle, PURPLE_CALLBACK(signal_received_chat_msg), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "received-im-msg",
+		&handle, PURPLE_CALLBACK(signal_received_chat_msg), NULL);
 }
 
 
@@ -477,7 +475,23 @@ static void
 signal_connection_error(PurpleConnection* gc, PurpleConnectionError err,
 	const gchar* desc)
 {
-	std::cout << "Connection failed: " << (const char*)desc << std::endl;
+	std::cerr << "Connection failed: " << (const char*)desc << std::endl;
+}
+
+
+static void
+signal_account_signed_on(PurpleAccount* account)
+{
+	BMessage readyMsg(IM_MESSAGE);
+	readyMsg.AddInt32("im_what", IM_PROTOCOL_READY);
+	PurpleApp* app = (PurpleApp*)be_app;
+	((PurpleApp*)be_app)->SendMessage(account, readyMsg);
+
+	BMessage info(IM_MESSAGE);
+	info.AddInt32("im_what", IM_OWN_CONTACT_INFO);
+	info.AddString("user_id", purple_account_get_username(account));
+	info.AddString("user_name", purple_account_get_alias(account));
+	((PurpleApp*)be_app)->SendMessage(account, info);
 }
 
 
@@ -489,6 +503,41 @@ signal_account_status_changed(PurpleAccount* account, PurpleStatus* old,
 	own.AddInt32("im_what", IM_OWN_STATUS_SET);
 	own.AddInt32("status", purple_status_to_cardie(cur));
 	((PurpleApp*)be_app)->SendMessage(account, own);
+}
+
+
+static void
+signal_chat_joined(PurpleConversation* conv)
+{
+	BMessage join(IM_MESSAGE);
+	join.AddInt32("im_what", IM_ROOM_JOINED);
+	join.AddString("chat_id", purple_conversation_get_name(conv));
+	((PurpleApp*)be_app)->SendMessage(purple_conversation_get_account(conv),
+		join);
+}
+
+
+static void
+signal_chat_left(PurpleConversation* conv)
+{
+	BMessage left(IM_MESSAGE);
+	left.AddInt32("im_what", IM_ROOM_LEFT);
+	left.AddString("chat_id", purple_conversation_get_name(conv));
+	((PurpleApp*)be_app)->SendMessage(purple_conversation_get_account(conv),
+		left);
+}
+
+
+static void
+signal_received_chat_msg(PurpleAccount* account, char* sender, char* message,
+	PurpleConversation* conv, PurpleMessageFlags flags)
+{
+	BMessage chat(IM_MESSAGE);
+	chat.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+	chat.AddString("chat_id", purple_conversation_get_name(conv));
+	chat.AddString("user_id", sender);
+	chat.AddString("body", message);
+	((PurpleApp*)be_app)->SendMessage(account, chat);
 }
 
 

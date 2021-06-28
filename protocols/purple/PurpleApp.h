@@ -96,25 +96,34 @@ private:
 };
 
 
-status_t init_libpurple();
-void init_ui_ops();
-void init_signals();
+			status_t	init_libpurple();
+			void		init_ui_ops();
+			void		init_signals();
 
 // Connection signals
-static void signal_signed_on(PurpleConnection* gc);
-static void signal_connection_error(PurpleConnection* gc,
-				PurpleConnectionError err, const gchar* desc);
+	 static void		signal_connection_error(PurpleConnection* gc,
+							PurpleConnectionError err, const gchar* desc);
 
 // Account signals
-static void signal_account_status_changed(PurpleAccount* account,
-				PurpleStatus* old, PurpleStatus* cur);
+	 static void		signal_account_signed_on(PurpleAccount* account);
+	 static void		signal_account_status_changed(PurpleAccount* account,
+							PurpleStatus* old, PurpleStatus* cur);
 
-PurpleStatusPrimitive cardie_status_to_purple(UserStatus status);
-UserStatus purple_status_to_cardie(PurpleStatus* status);
+// Conversation signals
+	 static void		signal_chat_joined(PurpleConversation* conv);
+	 static void		signal_chat_left(PurpleConversation* conv);
+	 static void		signal_received_chat_msg(PurpleAccount* account,
+	 						char* sender, char* message,
+							PurpleConversation* conv, PurpleMessageFlags flags);
 
-static guint _purple_glib_input_add(gint fd, PurpleInputCondition condition,
-				PurpleInputFunction function, gpointer data);
-static gboolean _purple_glib_io_invoke(GIOChannel *source,
-					GIOCondition condition, gpointer data);
+// Util
+PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);
+		UserStatus		purple_status_to_cardie(PurpleStatus* status);
+
+	static guint		_purple_glib_input_add(gint fd,
+							PurpleInputCondition condition,
+							PurpleInputFunction function, gpointer data);
+	static gboolean		_purple_glib_io_invoke(GIOChannel *source,
+							GIOCondition condition, gpointer data);
 
 #endif // _PURPLE_APP_H
