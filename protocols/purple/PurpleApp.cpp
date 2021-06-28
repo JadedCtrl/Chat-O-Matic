@@ -24,6 +24,7 @@
 
 #include <glib.h>
 #include <libpurple/purple.h>
+#include <libpurple/status.h>
 
 #include <MessageRunner.h>
 #include <Roster.h>
@@ -63,6 +64,9 @@ PurpleApp::MessageReceived(BMessage* msg)
 {
 	switch (msg->what)
 	{
+		case IM_MESSAGE:
+			ImMessage(msg);
+			break;
 		case PURPLE_REQUEST_PROTOCOL_COUNT:
 		{
 			int64 thread_id;
@@ -128,6 +132,28 @@ PurpleApp::MessageReceived(BMessage* msg)
 			break;
 		default:
 			BApplication::MessageReceived(msg);
+	}
+}
+
+
+void
+PurpleApp::ImMessage(BMessage* msg)
+{
+	switch (msg->FindInt32("im_what"))
+	{
+		case IM_SET_OWN_STATUS:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			UserStatus status = (UserStatus)msg->FindInt32("status");
+			PurpleStatusPrimitive prim = cardie_status_to_purple(status);
+			const char* primId = purple_primitive_get_id_from_type(prim);
+
+			std::cout << "setting status to " << primId << "…\n";
+			purple_account_set_status(account, primId, true);
+			break;
+		}
+		default:
+			msg->PrintToStream();
 	}
 }
 
@@ -425,10 +451,14 @@ void
 init_signals()
 {
 	int handle;
-	purple_signal_connect(purple_connections_get_handle(), "signed-on", &handle,
-		PURPLE_CALLBACK(signal_signed_on), NULL);
-	purple_signal_connect(purple_connections_get_handle(), "connection-error", &handle,
-		PURPLE_CALLBACK(signal_connection_error), NULL);
+
+	purple_signal_connect(purple_connections_get_handle(), "signed-on",
+		&handle, PURPLE_CALLBACK(signal_signed_on), NULL);
+	purple_signal_connect(purple_connections_get_handle(), "connection-error",
+		&handle, PURPLE_CALLBACK(signal_connection_error), NULL);
+
+	purple_signal_connect(purple_connections_get_handle(), "account-status-changed",
+		&handle, PURPLE_CALLBACK(signal_account_status_changed), NULL);
 }
 
 
@@ -448,6 +478,70 @@ signal_connection_error(PurpleConnection* gc, PurpleConnectionError err,
 	const gchar* desc)
 {
 	std::cout << "Connection failed: " << (const char*)desc << std::endl;
+}
+
+
+static void
+signal_account_status_changed(PurpleAccount* account, PurpleStatus* old,
+	PurpleStatus* cur)
+{
+	BMessage own(IM_MESSAGE);
+	own.AddInt32("im_what", IM_OWN_STATUS_SET);
+	own.AddInt32("status", purple_status_to_cardie(cur));
+	((PurpleApp*)be_app)->SendMessage(account, own);
+}
+
+
+PurpleStatusPrimitive
+cardie_status_to_purple(UserStatus status)
+{
+	PurpleStatusPrimitive type = PURPLE_STATUS_UNSET;
+	switch (status)
+	{
+		case STATUS_ONLINE:
+			type = PURPLE_STATUS_AVAILABLE;
+			break;
+		case STATUS_AWAY:
+			type = PURPLE_STATUS_AWAY;
+			break;
+		case STATUS_DO_NOT_DISTURB:
+			type = PURPLE_STATUS_UNAVAILABLE;
+			break;
+		case STATUS_CUSTOM_STATUS:
+			type = PURPLE_STATUS_AVAILABLE;
+			break;
+		case STATUS_INVISIBLE:
+			type = PURPLE_STATUS_INVISIBLE;
+			break;
+		case STATUS_OFFLINE:
+			type = PURPLE_STATUS_OFFLINE;
+			break;
+	}
+
+	return type;
+}
+
+
+UserStatus
+purple_status_to_cardie(PurpleStatus* status)
+{
+	PurpleStatusPrimitive prim =
+		purple_status_type_get_primitive(purple_status_get_type(status));
+
+	switch (prim)
+	{
+		case PURPLE_STATUS_AWAY:
+			return STATUS_AWAY;
+		case PURPLE_STATUS_UNAVAILABLE:
+			return STATUS_DO_NOT_DISTURB;
+			break;
+		case PURPLE_STATUS_INVISIBLE:
+			return STATUS_INVISIBLE;
+			break;
+		case PURPLE_STATUS_OFFLINE:
+			return STATUS_OFFLINE;
+	}
+	return STATUS_ONLINE;
 }
 
 

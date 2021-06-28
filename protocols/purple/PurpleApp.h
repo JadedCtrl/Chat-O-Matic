@@ -28,6 +28,7 @@
 #include <StringList.h>
 
 #include <libsupport/KeyMap.h>
+#include <AppConstants.h>
 
 
 typedef KeyMap<BString, BString> Accounts; // Cardie username → Purple username
@@ -48,6 +49,15 @@ typedef struct _PurpleGLibIOClosure {
 	gpointer data;
 } PurpleGLibIOClosure;
 
+struct _PurpleStatus
+{
+	PurpleStatusType *type;
+	PurplePresence *presence;
+
+	gboolean active;
+	GHashTable *attr_values;
+};
+
 typedef struct _ProtocolInfo {
 	BString name;
 	BString id;
@@ -63,6 +73,8 @@ public:
 						PurpleApp();
 
 	virtual	void		MessageReceived(BMessage* msg);
+			void		ImMessage(BMessage* msg);
+
 			void		SendMessage(thread_id thread, BMessage msg);
 			void		SendMessage(PurpleAccount* account, BMessage msg);
 
@@ -92,6 +104,13 @@ void init_signals();
 static void signal_signed_on(PurpleConnection* gc);
 static void signal_connection_error(PurpleConnection* gc,
 				PurpleConnectionError err, const gchar* desc);
+
+// Account signals
+static void signal_account_status_changed(PurpleAccount* account,
+				PurpleStatus* old, PurpleStatus* cur);
+
+PurpleStatusPrimitive cardie_status_to_purple(UserStatus status);
+UserStatus purple_status_to_cardie(PurpleStatus* status);
 
 static guint _purple_glib_input_add(gint fd, PurpleInputCondition condition,
 				PurpleInputFunction function, gpointer data);

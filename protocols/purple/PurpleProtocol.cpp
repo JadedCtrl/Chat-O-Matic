@@ -174,7 +174,11 @@ PurpleProtocol::Shutdown()
 status_t
 PurpleProtocol::Process(BMessage* msg)
 {
-	return B_OK;
+	if (msg->what == IM_MESSAGE) {
+		_SendPrplMessage(msg);
+		return B_OK;
+	}
+	return B_ERROR;
 }
 
 
