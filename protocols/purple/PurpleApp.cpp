@@ -152,7 +152,23 @@ PurpleApp::ImMessage(BMessage* msg)
 			purple_account_set_status(account, primId, true);
 			break;
 		}
+		case IM_SEND_MESSAGE:
+		{
+			BString body;
+			if (msg->FindString("body", &body) != B_OK)	return;
+
+			PurpleConversation* conv = _ConversationFromMessage(msg);
+			PurpleConvChat* chat = purple_conversation_get_chat_data(conv);
+			PurpleConvIm* im = purple_conversation_get_im_data(conv);
+
+			if (chat != NULL)
+				purple_conv_chat_send(chat, body.String());
+			else if (im != NULL)
+				purple_conv_im_send(im, body.String());
+			break;
+		}
 		default:
+			std::cout << "IM_MESSAGE unhandled by Purple:\n";
 			msg->PrintToStream();
 	}
 }
@@ -410,6 +426,17 @@ PurpleApp::_AccountFromMessage(BMessage* msg)
 }
 
 
+PurpleConversation*
+PurpleApp::_ConversationFromMessage(BMessage* msg)
+{
+	PurpleAccount* account = _AccountFromMessage(msg);
+	BString chat_id = msg->FindString("chat_id");
+
+	return purple_find_conversation_with_account(PURPLE_CONV_TYPE_ANY,
+		chat_id.String(), account);
+}
+
+
 static PurpleEventLoopUiOps _glib_eventloops =
 {
 	g_timeout_add,
@@ -538,6 +565,34 @@ signal_received_chat_msg(PurpleAccount* account, char* sender, char* message,
 	chat.AddString("user_id", sender);
 	chat.AddString("body", message);
 	((PurpleApp*)be_app)->SendMessage(account, chat);
+}
+
+
+static void
+signal_sent_chat_msg(PurpleAccount* account, const char* message, int conv_id)
+{
+	PurpleConnection* gc = purple_account_get_connection(account);
+	PurpleConversation* conv = purple_find_chat(gc, conv_id);
+
+	BMessage sent(IM_MESSAGE);
+	sent.AddInt32("im_what", IM_MESSAGE_SENT);
+	sent.AddString("chat_id", purple_conversation_get_name(conv));
+	sent.AddString("user_id", purple_account_get_username(account));
+	sent.AddString("body", message);
+	((PurpleApp*)be_app)->SendMessage(account, sent);
+}
+
+
+static void
+signal_sent_im_msg(PurpleAccount* account, const char* receiver,
+	const char* message)
+{
+	BMessage sent(IM_MESSAGE);
+	sent.AddInt32("im_what", IM_MESSAGE_SENT);
+	sent.AddString("chat_id", receiver);
+	sent.AddString("user_id", purple_account_get_username(account));
+	sent.AddString("body", message);
+	((PurpleApp*)be_app)->SendMessage(account, sent);
 }
 
 

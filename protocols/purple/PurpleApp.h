@@ -87,6 +87,7 @@ private:
 
 		PurplePlugin*	_PluginFromMessage(BMessage* msg);
 		PurpleAccount*	_AccountFromMessage(BMessage* msg);
+	PurpleConversation*	_ConversationFromMessage(BMessage* msg);
 
 	Accounts fAccounts;
 	AccountThreads fAccountThreads;
@@ -115,6 +116,10 @@ private:
 	 static void		signal_received_chat_msg(PurpleAccount* account,
 	 						char* sender, char* message,
 							PurpleConversation* conv, PurpleMessageFlags flags);
+	 static void		signal_sent_chat_msg(PurpleAccount* account,
+							const char* message, int conv_id);
+	 static void		signal_sent_im_msg(PurpleAccount* account,
+							const char* receiver, const char* message);
 
 // Util
 PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);
