@@ -35,7 +35,7 @@ User::User(BString id, BMessenger msgn)
 	fLooper(NULL),
 	fListItem(NULL),
 	fItemColor(ForegroundColor(ui_color(B_LIST_BACKGROUND_COLOR))),
-	fStatus(STATUS_OFFLINE),
+	fStatus(STATUS_ONLINE),
 	fAvatarBitmap(NULL),
 	fPopUp(NULL)
 {
