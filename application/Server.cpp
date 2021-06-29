@@ -356,9 +356,8 @@ Server::ImMessage(BMessage* msg)
 			for (int i = 0; i < ids.CountStrings(); i++) {
 				User* user = _EnsureUser(ids.StringAt(i), protoLooper);
 
-				if (name.CountStrings() >= i) {
+				if (name.CountStrings() >= i && !name.StringAt(i).IsEmpty())
 					user->SetNotifyName(name.StringAt(i));
-				}
 				chat->AddUser(user);
 			}
 			break;
