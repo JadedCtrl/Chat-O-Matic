@@ -120,6 +120,9 @@ private:
 							const char* message, int conv_id);
 	 static void		signal_sent_im_msg(PurpleAccount* account,
 							const char* receiver, const char* message);
+	 static void		signal_chat_buddy_joined(PurpleConversation* conv,
+							const char* name, PurpleConvChatBuddyFlags flags,
+							gboolean new_arrival);
 
 // Util
 PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);

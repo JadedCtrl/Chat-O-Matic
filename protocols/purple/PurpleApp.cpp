@@ -167,6 +167,41 @@ PurpleApp::ImMessage(BMessage* msg)
 				purple_conv_im_send(im, body.String());
 			break;
 		}
+		case IM_GET_ROOM_METADATA:
+		{
+			PurpleConversation* conv = _ConversationFromMessage(msg);
+			PurpleConvChat* chat = purple_conversation_get_chat_data(conv);
+
+			BMessage meta(IM_MESSAGE);
+			meta.AddInt32("im_what", IM_ROOM_METADATA);
+			meta.AddString("chat_id", purple_conversation_get_name(conv));
+			meta.AddString("chat_name", purple_conversation_get_title(conv));
+			if (chat != NULL)
+				meta.AddString("subject", purple_conv_chat_get_topic(chat));
+			SendMessage(purple_conversation_get_account(conv), meta);
+			break;
+		}
+		case IM_GET_ROOM_PARTICIPANTS:
+		{
+			PurpleConversation* conv = _ConversationFromMessage(msg);
+			PurpleConvChat* chat = purple_conversation_get_chat_data(conv);
+			if (chat == NULL)	return;
+
+
+			BStringList user_ids;
+			GList* users = purple_conv_chat_get_users(chat);
+			for (int i = 0; users != NULL; users = users->next) {
+				PurpleConvChatBuddy* user = (PurpleConvChatBuddy*)users->data;
+				user_ids.Add(BString(purple_conv_chat_cb_get_name(user)));
+			}
+
+			BMessage parts(IM_MESSAGE);
+			parts.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
+			parts.AddString("chat_id", purple_conversation_get_name(conv));
+			parts.AddStrings("user_id", user_ids);
+			SendMessage(purple_conversation_get_account(conv), parts);
+			break;
+		}
 		default:
 			std::cout << "IM_MESSAGE unhandled by Purple:\n";
 			msg->PrintToStream();
@@ -495,6 +530,8 @@ init_signals()
 		&handle, PURPLE_CALLBACK(signal_received_chat_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "received-im-msg",
 		&handle, PURPLE_CALLBACK(signal_received_chat_msg), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "chat-buddy-joined",
+		&handle, PURPLE_CALLBACK(signal_chat_buddy_joined), NULL);
 }
 
 
@@ -539,8 +576,9 @@ signal_chat_joined(PurpleConversation* conv)
 	BMessage join(IM_MESSAGE);
 	join.AddInt32("im_what", IM_ROOM_JOINED);
 	join.AddString("chat_id", purple_conversation_get_name(conv));
-	((PurpleApp*)be_app)->SendMessage(purple_conversation_get_account(conv),
-		join);
+
+	PurpleAccount* account = purple_conversation_get_account(conv);
+	((PurpleApp*)be_app)->SendMessage(account, join);
 }
 
 
@@ -550,8 +588,9 @@ signal_chat_left(PurpleConversation* conv)
 	BMessage left(IM_MESSAGE);
 	left.AddInt32("im_what", IM_ROOM_LEFT);
 	left.AddString("chat_id", purple_conversation_get_name(conv));
-	((PurpleApp*)be_app)->SendMessage(purple_conversation_get_account(conv),
-		left);
+
+	PurpleAccount* account = purple_conversation_get_account(conv);
+	((PurpleApp*)be_app)->SendMessage(account, left);
 }
 
 
@@ -594,6 +633,23 @@ signal_sent_im_msg(PurpleAccount* account, const char* receiver,
 	sent.AddString("body", message);
 	((PurpleApp*)be_app)->SendMessage(account, sent);
 }
+
+
+static void
+signal_chat_buddy_joined(PurpleConversation* conv, const char* name,
+	PurpleConvChatBuddyFlags flags, gboolean new_arrival)
+{
+	BMessage joined(IM_MESSAGE);
+	if (new_arrival)
+		joined.AddInt32("im_what", IM_ROOM_PARTICIPANT_JOINED);
+	else
+		joined.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
+	joined.AddString("chat_id", purple_conversation_get_name(conv));
+	joined.AddString("user_id", name);
+	PurpleAccount* account = purple_conversation_get_account(conv);
+	((PurpleApp*)be_app)->SendMessage(account, joined);
+}
+
 
 
 PurpleStatusPrimitive
