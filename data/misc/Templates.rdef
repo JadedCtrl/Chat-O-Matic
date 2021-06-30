@@ -1,0 +1,175 @@
+#include "Flags.h"
+
+// User pop-up menu items
+resource(1100) message
+{
+	"class" = "BMenuItem",
+	"_label" = "User info…",
+	"_msg" = message('CYuw'),
+	int32 "x_perms" = PERM_KICK,
+	int32 "x_target_perms" = 0,
+	int32 "x_target_antiperms" = 0,
+	bool "x_priority" = false,
+	bool "x_to_protocol" = false
+};
+resource(1101) message
+{
+	"class" = "BMenuItem",
+	"_label" = "Kick user",
+	"_msg" = message('IMme') { int32 "im_what" = 191 },
+	int32 "x_perms" = PERM_KICK,
+	int32 "x_target_perms" = 0,
+	int32 "x_target_antiperms" = 0,
+	bool "x_priority" = false,
+	bool "x_to_protocol" = true
+};
+resource(1102) message
+{
+	"class" = "BMenuItem",
+	"_label" = "Ban user",
+	"_msg" = message('IMme') { int32 "im_what" = 193 },
+	int32 "x_perms" = PERM_BAN,
+	int32 "x_target_perms" = 0,
+	int32 "x_target_antiperms" = 0,
+	bool "x_priority" = false,
+	bool "x_to_protocol" = true
+};
+resource(1103) message
+{
+	"class" = "BMenuItem",
+	"_label" = "Mute user",
+	"_msg" = message('IMme') { int32 "im_what" = 196 },
+	int32 "x_perms" = PERM_MUTE,
+	int32 "x_target_perms" = PERM_WRITE,
+	int32 "x_target_antiperms" = 0,
+	bool "x_priority" = false,
+	bool "x_to_protocol" = true
+};
+resource(1104) message
+{
+	"class" = "BMenuItem",
+	"_label" = "Unmute user",
+	"_msg" = message('IMme') { int32 "im_what" = 197 },
+	int32 "x_perms" = PERM_MUTE,
+	int32 "x_target_perms" = 0,
+	int32 "x_target_antiperms" = PERM_WRITE,
+	bool "x_priority" = false,
+	bool "x_to_protocol" = true
+};
+resource(1105) message
+{
+	"class" = "BMenuItem",
+	"_label" = "Deafen user",
+	"_msg" = message('IMme') { int32 "im_what" = 198 },
+	int32 "x_perms" = PERM_DEAFEN,
+	int32 "x_target_perms" = PERM_READ,
+	int32 "x_target_antiperms" = 0,
+	bool "x_priority" = false,
+	bool "x_to_protocol" = true
+};
+resource(1106) message
+{
+	"class" = "BMenuItem",
+	"_label" = "Undeafen user",
+	"_msg" = message('IMme') { int32 "im_what" = 199 },
+	int32 "x_perms" = PERM_DEAFEN,
+	int32 "x_target_perms" = 0,
+	int32 "x_target_antiperms" = PERM_READ,
+	bool "x_priority" = false,
+	bool "x_to_protocol" = true
+};
+
+
+// Room pop-up menu items
+resource(1120) message
+{
+	"class" = "BMenuItem",
+	"_label" = "Leave chat",
+	"_msg" = message('IMme') { int32 "im_what" = 156 },
+	bool "x_to_protocol" = true
+};
+
+
+// Chat commands
+resource(1140) message
+{
+	"class" = "ChatCommand",
+	"_name" = "ban",
+	"_desc" = "Kick a user out of the room and slam the door behind them― locking it while you're at it.",
+	"_msg" = message('IMme') { int32 "im_what" = 193 },
+	bool "_proto" = true,
+        int32 "_argtype" = 1128362608,
+        int32 "_argtype" = 1128358515
+};
+resource(1141) message
+{
+	"class" = "ChatCommand",
+	"_name" = "help",
+        "_desc" = "List all current commands, or get help for certain command.",
+	"_msg" = message('CYhm'),
+	bool "_proto" = false
+};
+resource(1142) message
+{
+	"class" = "ChatCommand",
+	"_name" = "deafen",
+	"_desc" = "Disallow a user from reading the conversation.",
+	"_msg" = message('IMme') { int32 "im_what" = 198 },
+	bool "_proto" = true,
+	int32 "_argtype" = 1128362608
+};
+resource(1143) message
+{
+	"class" = "ChatCommand",
+	"_name" = "invite",
+	"_desc" = "Invite a user to the current room.",
+	"_msg" = message('IMme') { int32 "im_what" = 162 },
+	bool "_proto" = true,
+	int32 "_argtype" = 1128360821
+};
+resource(1144) message
+{
+	"class" = "ChatCommand",
+	"_name" = "kick",
+	"_desc" = "Force a user to temporarily leave the room, assuming your power level's high enough.",
+	"_msg" = message('IMme') { int32 "im_what" = 191 },
+	bool "_proto" = true,
+	int32 "_argtype" = 1128362608,
+	int32 "_argtype" = 1128358515
+};
+resource(1145) message
+{
+	"class" = "ChatCommand",
+	"_name" = "mute",
+	"_desc" = "Disallow a user from sending visible messages.",
+	"_msg" = message('IMme') { int32 "im_what" = 196 },
+	bool "_proto" = true,
+	int32 "_argtype" = 1128362608
+};
+resource(1146) message
+{
+	"class" = "ChatCommand",
+	"_name" = "unban",
+	"_desc" = "Undo a previous ban, allowing the user to rejoin (if they still want to).",
+	"_msg" = message('IMme') { int32 "im_what" = 195 },
+	bool "_proto" = true,
+	int32 "_argtype" = 1128358261
+};
+resource(1147) message
+{
+	"class" = "ChatCommand",
+	"_name" = "undeafen",
+	"_desc" = "Restore a user's ability to receive messages.",
+	"_msg" = message('IMme') { int32 "im_what" = 199 },
+	bool "_proto" = true,
+	int32 "_argtype" = 1128362608
+};
+resource(1148) message
+{
+	"class" = "ChatCommand",
+	"_name" = "unmute",
+	"_desc" = "Restore a user's ability to send messages.",
+	"_msg" = message('IMme') { int32 "im_what" = 197 },
+	bool "_proto" = true,
+	int32 "_argtype" = 1128362608
+};
