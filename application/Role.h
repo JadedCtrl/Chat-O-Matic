@@ -5,6 +5,7 @@
 #ifndef _ROLE_H
 #define _ROLE_H
 
+#include <String.h>
 #include <SupportDefs.h>
 
 #include "Flags.h"
