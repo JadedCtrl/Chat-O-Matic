@@ -25,7 +25,6 @@
 #include "ConversationItem.h"
 #include "ConversationListView.h"
 #include "ConversationView.h"
-#include "DefaultItems.h"
 #include "EditingFilter.h"
 #include "MainWindow.h"
 #include "NotifyMessage.h"
@@ -343,8 +342,8 @@ void
 MainWindow::SetConversation(Conversation* chat)
 {
 	// Save current size of chat and textbox
-	float weightChat = fRightView->ItemWeight(0);
-	float weightSend = fRightView->ItemWeight(1);
+	float weightChat = fRightView->ItemWeight((int32)0);
+	float weightSend = fRightView->ItemWeight((int32)1);
 
 	fRightView->RemoveChild(fRightView->FindView("chatView"));
 	fRightView->RemoveChild(fRightView->FindView("fSendScroll"));

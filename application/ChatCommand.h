@@ -10,6 +10,7 @@
 #include <String.h>
 
 #include <libsupport/KeyMap.h>
+#include <libsupport/List.h>
 
 class Conversation;
 

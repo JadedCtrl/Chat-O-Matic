@@ -27,7 +27,7 @@
 #include <GraphicsDefs.h>
 #include <List.h>
 
-#include "TextRender.h"
+#include <librunview/TextRender.h>
 
 class BView;
 class NormalTextRender;

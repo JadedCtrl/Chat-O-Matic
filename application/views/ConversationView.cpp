@@ -35,7 +35,8 @@
 ConversationView::ConversationView()
 	:
 	BGroupView("chatView", B_VERTICAL, B_USE_DEFAULT_SPACING),
-	fMessageQueue()
+	fMessageQueue(),
+	fConversation(NULL)
 {
 	fMessageCount = 0;
 	_InitInterface();
@@ -43,7 +44,13 @@ ConversationView::ConversationView()
 
 
 ConversationView::ConversationView(Conversation* chat)
-	: ConversationView()
+	:
+	#if defined(__i386__) && !defined(__x86_64__)
+	BGroupView("chatView", B_VERTICAL, B_USE_DEFAULT_SPACING),
+	fMessageQueue()
+	#else
+	ConversationView()
+	#endif
 {
 	SetConversation(chat);
 	fUserList->SetConversation(chat);
@@ -211,6 +218,8 @@ ConversationView::GetConversation()
 void
 ConversationView::SetConversation(Conversation* chat)
 {
+	if (chat == NULL)
+		return;
 	fConversation =  chat;
 	fNameTextView->SetText(chat->GetName());
 	fSubjectTextView->SetText(chat->GetSubject());

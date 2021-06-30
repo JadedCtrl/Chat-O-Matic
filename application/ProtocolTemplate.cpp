@@ -13,6 +13,7 @@
 #include "ProtocolTemplate.h"
 
 #include <cstdio>
+#include <stdlib.h>
 
 #include <CheckBox.h>
 #include <GroupLayoutBuilder.h>

@@ -1,10 +1,10 @@
 #ifndef _Emoticor_h_
 #define _Emoticor_h_
 
-
 #include <String.h>
-#include "RunView.h"
-#include "Emoconfig.h"
+#include <librunview/RunView.h>
+#include <librunview/Emoconfig.h>
+
 
 class Emoticor
 {

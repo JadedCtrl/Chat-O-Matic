@@ -26,8 +26,6 @@ public:
 
 	void		AddList(KeyMap<KEY, TYPE> appendList);
 
-	List<TYPE>	Values() const;
-
 private:
 	std::map<KEY, TYPE> fMap;
 	typedef typename std::map<KEY, TYPE>::iterator fIter;
@@ -126,17 +124,5 @@ KeyMap<KEY, TYPE>::AddList(KeyMap<KEY, TYPE> appendList)
 		AddItem(appendList.KeyAt(i), appendList.ValueAt(i));
 }
 
-
-template<class KEY, class TYPE>
-inline List<TYPE>
-KeyMap<KEY, TYPE>::Values() const
-{
-	List<TYPE> list;
-
-	for (fIter i = fMap.begin(); i != fMap.end(); ++i)
-		list.AddItem(i->second);
-
-	return list;
-}
 
 #endif	// _KEY_MAP_H

@@ -1,7 +1,6 @@
 #ifndef _SmileTextRender_H_
 #define _SmileTextRender_H_
 
-#include "TextRender.h"
 #include <Font.h>
 #include <View.h>
 
@@ -10,7 +9,9 @@
 #include <Resources.h>
 #include <String.h>
 
-#include "Emoticor.h"
+#include <librunview/TextRender.h>
+#include <librunview/Emoticor.h>
+
 
 class SmileTextRender : public TextRender
 {
@@ -34,6 +35,7 @@ public:
 
 
 	virtual float Size() {
+		printf("GETTING EMOTICOR SIZE!!!!\n");
 		return Emoticor::Get()->Config()->GetEmoticonSize();
 	}
 
