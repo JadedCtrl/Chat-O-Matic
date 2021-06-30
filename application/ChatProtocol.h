@@ -9,6 +9,7 @@
 
 #include <Messenger.h>
 #include <ObjectList.h>
+#include <Path.h>
 
 class BBitmap;
 
