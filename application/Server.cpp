@@ -30,12 +30,11 @@
 #include "ChatProtocol.h"
 #include "AppPreferences.h"
 #include "ChatProtocolMessages.h"
-#include "DefaultItems.h"
+#include "Flags.h"
 #include "ImageCache.h"
 #include "InviteDialogue.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
-#include "RoomFlags.h"
 #include "RosterItem.h"
 #include "UserInfoWindow.h"
 #include "Utils.h"
@@ -43,13 +42,37 @@
 
 Server::Server()
 	:
-	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE),
-	fChatItems(DefaultChatPopUpItems()),
-	fUserItems(DefaultUserPopUpItems())
+	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
 {
-	BObjectList<BMessage> commands = DefaultCommands();
-	for (int i = 0; i < commands.CountItems(); i++) {
-		ChatCommand* cmd = new ChatCommand(commands.ItemAt(i));
+	if (fChatItems.IsEmpty() == false || fUserItems.IsEmpty() == false
+			|| fCommands.CountItems() > 0)
+		return;
+
+	BResources* res = ChatResources();
+
+	// Loading user pop-up items
+	for (int i = 0; i < 6; i++) {
+		size_t size;
+		BMessage temp;
+		const void* buff = res->LoadResource(B_MESSAGE_TYPE, 1100 + i, &size);
+		temp.Unflatten((const char*)buff);
+		fUserItems.AddItem(new BMessage(temp));
+	}
+
+	// Loading room pop-up items
+	BMessage leave;
+	size_t leaveSize;
+	const void* leaveBuff = res->LoadResource(B_MESSAGE_TYPE, 1120, &leaveSize);
+	leave.Unflatten((const char*)leaveBuff);
+	fChatItems.AddItem(new BMessage(leave));
+
+	// Loading default chat commands
+	for (int i = 0; i < 9; i++) {
+		size_t size;
+		BMessage temp;
+		const void* buff = res->LoadResource(B_MESSAGE_TYPE, 1140 + i, &size);
+		temp.Unflatten((const char*)buff);
+		ChatCommand* cmd = new ChatCommand(&temp);
 		fCommands.AddItem(cmd->GetName(), cmd);
 	}
 }

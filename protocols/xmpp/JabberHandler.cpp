@@ -18,8 +18,8 @@
 #include <libsupport/SHA1.h>
 
 #include <ChatProtocolMessages.h>
+#include <Flags.h>
 #include <Role.h>
-#include <RoomFlags.h>
 
 #include <gloox/chatstatefilter.h>
 #include <gloox/messageeventfilter.h>

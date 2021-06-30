@@ -38,7 +38,6 @@ SRCS = \
 	application/ChatCommand.cpp \
 	application/Contact.cpp \
 	application/Conversation.cpp \
-	application/DefaultItems.cpp \
 	application/EditingFilter.cpp \
 	application/ImageCache.cpp \
 	application/Notifier.cpp \
@@ -87,6 +86,7 @@ SRCS = \
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
 RDEFS = Cardie.rdef \
+	data/misc/Templates.rdef \
 	data/icons/status/Away.rdef \
 	data/icons/status/Busy.rdef \
 	data/icons/status/Offline.rdef \

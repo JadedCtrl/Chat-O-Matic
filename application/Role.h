@@ -2,29 +2,12 @@
  * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef PERMS_H
-#define PERMS_H
+#ifndef _ROLE_H
+#define _ROLE_H
 
 #include <SupportDefs.h>
 
-// NAME, SUBJECT, ROLECHANGE, BAN, KICK, DEAFEN, MUTE, NICK, READ, WRITE
-// Set name of room, set subject, change user's "role" (permission presets
-// defined by the protocol), etc…
-
-// NSRBKDMNRW
-// 0000000000
-
-#define PERM_WRITE			1
-#define PERM_READ			2
-#define PERM_NICK			4
-#define PERM_MUTE			8
-#define PERM_DEAFEN			16
-#define PERM_KICK			32
-#define PERM_BAN			64
-#define PERM_ROLECHANGE		128
-#define PERM_ROOM_SUBJECT	256
-#define PERM_ROOM_NAME		512
-#define PERM_ALL			1023
+#include "Flags.h"
 
 
 class Role {
@@ -49,6 +32,4 @@ public:
 						// simulated in add-ons.
 };
 
-
-#endif // PERMS_H
-
+#endif // _ROLE_H
