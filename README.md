@@ -10,12 +10,16 @@ You can make Cardie and its protocols with:
 
 `$ make`
 
-Cardie itself requires the `expat_devel` package, the XMPP protocol requires
-`gloox_devel`, and the (provisional) IRC protocol requires `libircclient_devel`.
-The (unusable and experimental) libpurple add-on requires `libpurple_devel` and
-`glib2_devel`. You can also build either independent of the other:
+`$ make libs; make app; make protocols`
 
-`$ make caya; make libs; make protocols`
+Cardie itself requires the `expat_devel` package, the XMPP protocol requires
+`gloox_devel`, and the (provisional) IRC protocol requires `libircclient_devel`,
+`openssl_devel`, and `zlib_devel`.
+
+The (experimental) libpurple add-on requires `libpurple_devel` and
+`glib2_devel`. You have to build this one manually:
+
+`$ make -f protocols/purple/Makefile`
 
 ## License
 Cardie itself is under the MIT license, but licenses vary for the included
