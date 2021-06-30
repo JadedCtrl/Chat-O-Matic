@@ -55,7 +55,7 @@ PurpleApp::PurpleApp()
 
 	_GetProtocolsInfo();
 	new BMessageRunner(this, new BMessage(G_MAIN_LOOP), 100000, -1);
-	new BMessageRunner(this, new BMessage(CHECK_APP), 30000000, -1);
+	new BMessageRunner(this, new BMessage(CHECK_APP), 10000000, -1);
 }
 
 
@@ -185,14 +185,18 @@ PurpleApp::ImMessage(BMessage* msg)
 		{
 			PurpleConversation* conv = _ConversationFromMessage(msg);
 			PurpleConvChat* chat = purple_conversation_get_chat_data(conv);
-			if (chat == NULL)	return;
-
+			PurpleConvIm* im = purple_conversation_get_im_data(conv);
+			if (chat == NULL && im == NULL) return;
 
 			BStringList user_ids;
-			GList* users = purple_conv_chat_get_users(chat);
-			for (int i = 0; users != NULL; users = users->next) {
-				PurpleConvChatBuddy* user = (PurpleConvChatBuddy*)users->data;
-				user_ids.Add(BString(purple_conv_chat_cb_get_name(user)));
+			if (im != NULL)
+				user_ids.Add(BString(purple_conversation_get_name(conv)));
+			else {
+				GList* users = purple_conv_chat_get_users(chat);
+				for (int i = 0; users != NULL; users = users->next) {
+					PurpleConvChatBuddy* user = (PurpleConvChatBuddy*)users->data;
+					user_ids.Add(BString(purple_conv_chat_cb_get_name(user)));
+				}
 			}
 
 			BMessage parts(IM_MESSAGE);
@@ -530,6 +534,10 @@ init_signals()
 		&handle, PURPLE_CALLBACK(signal_received_chat_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "received-im-msg",
 		&handle, PURPLE_CALLBACK(signal_received_chat_msg), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "sent-chat-msg",
+		&handle, PURPLE_CALLBACK(signal_sent_chat_msg), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "sent-im-msg",
+		&handle, PURPLE_CALLBACK(signal_sent_im_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-buddy-joined",
 		&handle, PURPLE_CALLBACK(signal_chat_buddy_joined), NULL);
 }
@@ -598,9 +606,13 @@ static void
 signal_received_chat_msg(PurpleAccount* account, char* sender, char* message,
 	PurpleConversation* conv, PurpleMessageFlags flags)
 {
+	BString chat_id = BString(purple_conversation_get_name(conv));
+	if (chat_id.IsEmpty() == true)
+		chat_id = sender;
+
 	BMessage chat(IM_MESSAGE);
 	chat.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-	chat.AddString("chat_id", purple_conversation_get_name(conv));
+	chat.AddString("chat_id", chat_id);
 	chat.AddString("user_id", sender);
 	chat.AddString("body", message);
 	((PurpleApp*)be_app)->SendMessage(account, chat);
@@ -631,6 +643,7 @@ signal_sent_im_msg(PurpleAccount* account, const char* receiver,
 	sent.AddString("chat_id", receiver);
 	sent.AddString("user_id", purple_account_get_username(account));
 	sent.AddString("body", message);
+	sent.PrintToStream();
 	((PurpleApp*)be_app)->SendMessage(account, sent);
 }
 
