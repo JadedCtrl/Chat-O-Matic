@@ -111,6 +111,10 @@ private:
 	 static void		signal_account_status_changed(PurpleAccount* account,
 							PurpleStatus* old, PurpleStatus* cur);
 
+// Buddy-list signals
+	 static void		signal_blist_node_added(PurpleBlistNode* node);
+	 static void		signal_blist_node_removed(PurpleBlistNode* node);
+
 // Conversation signals
 	 static void		signal_chat_joined(PurpleConversation* conv);
 	 static void		signal_chat_left(PurpleConversation* conv);

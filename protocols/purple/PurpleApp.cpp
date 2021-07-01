@@ -207,6 +207,22 @@ PurpleApp::ImMessage(BMessage* msg)
 			SendMessage(purple_conversation_get_account(conv), parts);
 			break;
 		}
+		case IM_GET_CONTACT_LIST:
+		{
+			msg->PrintToStream();
+			BStringList user_ids;
+			GSList* buddies = purple_blist_get_buddies();
+			for (int i = 0; buddies != NULL; buddies = buddies->next) {
+				PurpleBuddy* buddy = (PurpleBuddy*)buddies->data;
+				user_ids.Add(BString(purple_buddy_get_name(buddy)));
+			}
+
+			BMessage roster(IM_MESSAGE);
+			roster.AddInt32("im_what", IM_CONTACT_LIST);
+			roster.AddStrings("user_id", user_ids);
+			SendMessage(_AccountFromMessage(msg), roster);
+			break;
+		}
 		default:
 			std::cout << "IM_MESSAGE unhandled by Purple:\n";
 			msg->PrintToStream();
@@ -498,9 +514,10 @@ init_libpurple()
 
 	purple_util_set_user_dir(purple_cache());
 
-
 	BString cachePlugin = BString(purple_cache()).Append("/plugins/");
 	purple_plugins_add_search_path(cachePlugin.String());
+	purple_plugins_add_finddir(B_USER_LIB_DIRECTORY);
+	purple_plugins_add_finddir(B_SYSTEM_LIB_DIRECTORY);
 	purple_plugins_add_finddir(B_USER_NONPACKAGED_LIB_DIRECTORY);
 	purple_plugins_add_finddir(B_SYSTEM_NONPACKAGED_LIB_DIRECTORY);
 
@@ -534,6 +551,11 @@ init_signals()
 		&handle, PURPLE_CALLBACK(signal_account_signed_on), NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed",
 		&handle, PURPLE_CALLBACK(signal_account_status_changed), NULL);
+
+	purple_signal_connect(purple_blist_get_handle(), "blist-node-added",
+		&handle, PURPLE_CALLBACK(signal_blist_node_added), NULL);
+	purple_signal_connect(purple_blist_get_handle(), "blist-node-removed",
+		&handle, PURPLE_CALLBACK(signal_blist_node_removed), NULL);
 
 	purple_signal_connect(purple_conversations_get_handle(), "chat-joined",
 		&handle, PURPLE_CALLBACK(signal_chat_joined), NULL);
@@ -584,6 +606,53 @@ signal_account_status_changed(PurpleAccount* account, PurpleStatus* old,
 	own.AddInt32("im_what", IM_OWN_STATUS_SET);
 	own.AddInt32("status", purple_status_to_cardie(cur));
 	((PurpleApp*)be_app)->SendMessage(account, own);
+}
+
+
+static void
+signal_blist_node_added(PurpleBlistNode* node)
+{
+	PurpleBuddy* buddy;
+	if (PURPLE_BLIST_NODE_IS_BUDDY(node))
+		buddy = PURPLE_BUDDY(node);
+	else if (PURPLE_BLIST_NODE_IS_CONTACT(node))
+		buddy = purple_contact_get_priority_buddy(PURPLE_CONTACT(node));
+	else
+		return;
+
+	BMessage add(IM_MESSAGE);
+	add.AddInt32("im_what", IM_CONTACT_LIST);
+	add.AddString("user_id", purple_buddy_get_name(buddy));
+	((PurpleApp*)be_app)->SendMessage(purple_buddy_get_account(buddy), add);
+
+	BString alias = purple_buddy_get_local_alias(buddy);
+	if (alias.IsEmpty() == true)
+		alias.SetTo(purple_buddy_get_server_alias(buddy));
+
+	BMessage name(IM_MESSAGE);
+	name.AddInt32("im_what", IM_CONTACT_INFO);
+	name.AddString("user_id", purple_buddy_get_name(buddy));
+	if (alias.IsEmpty() == false)
+		name.AddString("user_name", alias);
+	((PurpleApp*)be_app)->SendMessage(purple_buddy_get_account(buddy), name);
+}
+
+
+static void
+signal_blist_node_removed(PurpleBlistNode* node)
+{
+	PurpleBuddy* buddy;
+	if (PURPLE_BLIST_NODE_IS_BUDDY(node))
+		buddy = PURPLE_BUDDY(node);
+	else if (PURPLE_BLIST_NODE_IS_CONTACT(node))
+		buddy = purple_contact_get_priority_buddy(PURPLE_CONTACT(node));
+	else
+		return;
+
+	BMessage rem(IM_MESSAGE);
+	rem.AddInt32("im_what", IM_CONTACT_LIST_CONTACT_REMOVED);
+	rem.AddString("user_id", purple_buddy_get_name(buddy));
+	((PurpleApp*)be_app)->SendMessage(purple_buddy_get_account(buddy), rem);
 }
 
 
@@ -744,7 +813,7 @@ purple_plugins_add_finddir(directory_which finddir)
 {
 	BPath path;
 	if (find_directory(finddir, &path) == B_OK) {
-		path.Append("purple2");
+		path.Append("purple-2");
 		purple_plugins_add_search_path(path.Path());
 	}
 }
