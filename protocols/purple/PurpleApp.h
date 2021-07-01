@@ -24,6 +24,7 @@
 #include <libpurple/purple.h>
 
 #include <Application.h>
+#include <FindDirectory.h>
 #include <ObjectList.h>
 #include <StringList.h>
 
@@ -127,6 +128,9 @@ private:
 // Util
 PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);
 		UserStatus		purple_status_to_cardie(PurpleStatus* status);
+
+		const char*		purple_cache();
+			void		purple_plugins_add_finddir(directory_which finddir);
 
 	static guint		_purple_glib_input_add(gint fd,
 							PurpleInputCondition condition,

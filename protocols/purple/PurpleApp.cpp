@@ -26,7 +26,9 @@
 #include <libpurple/purple.h>
 #include <libpurple/status.h>
 
+#include <Directory.h>
 #include <MessageRunner.h>
+#include <Path.h>
 #include <Roster.h>
 
 #include <Cardie.h>
@@ -85,7 +87,6 @@ PurpleApp::MessageReceived(BMessage* msg)
 			protocolInfo.AddString("name", info->name);
 			protocolInfo.AddString("id", info->id);
 			SendMessage(thread_id, protocolInfo);
-
 			break;
 		}
 		case PURPLE_CONNECT_ACCOUNT:
@@ -495,6 +496,14 @@ init_libpurple()
 {
 	init_ui_ops();
 
+	purple_util_set_user_dir(purple_cache());
+
+
+	BString cachePlugin = BString(purple_cache()).Append("/plugins/");
+	purple_plugins_add_search_path(cachePlugin.String());
+	purple_plugins_add_finddir(B_USER_NONPACKAGED_LIB_DIRECTORY);
+	purple_plugins_add_finddir(B_SYSTEM_NONPACKAGED_LIB_DIRECTORY);
+
 	if (!purple_core_init(PURPLE_UI_ID))
 		return B_ERROR;
 
@@ -643,7 +652,6 @@ signal_sent_im_msg(PurpleAccount* account, const char* receiver,
 	sent.AddString("chat_id", receiver);
 	sent.AddString("user_id", purple_account_get_username(account));
 	sent.AddString("body", message);
-	sent.PrintToStream();
 	((PurpleApp*)be_app)->SendMessage(account, sent);
 }
 
@@ -715,6 +723,30 @@ purple_status_to_cardie(PurpleStatus* status)
 			return STATUS_OFFLINE;
 	}
 	return STATUS_ONLINE;
+}
+
+
+const char*
+purple_cache()
+{
+	BPath path;
+	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
+		return NULL;
+	path.Append(APP_NAME "/Cache/Add-Ons/" PURPLE_ADDON);
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
+	return path.Path();
+}
+
+
+void
+purple_plugins_add_finddir(directory_which finddir)
+{
+	BPath path;
+	if (find_directory(finddir, &path) == B_OK) {
+		path.Append("purple2");
+		purple_plugins_add_search_path(path.Path());
+	}
 }
 
 

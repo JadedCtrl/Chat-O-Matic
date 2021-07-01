@@ -66,7 +66,7 @@ protocol_count()
 const char*
 signature()
 {
-	return "purple";
+	return PURPLE_ADDON;
 }
 
 

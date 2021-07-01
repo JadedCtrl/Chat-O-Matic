@@ -936,8 +936,7 @@ JabberHandler::_SetupAvatarCache()
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
 		return B_ERROR;
 
-	path.Append("Caya");
-	path.Append("Cache");
+	path.Append("Cardie/Cache/Accounts");
 	path.Append(GetName());
 
 	if (create_directory(path.Path(), 0755) != B_OK)

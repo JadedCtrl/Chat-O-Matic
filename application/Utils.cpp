@@ -118,25 +118,7 @@ AccountsPath()
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
 		return NULL;
 
-	path.Append(APP_NAME "/Protocols");
-	if (create_directory(path.Path(), 0755) != B_OK)
-		return NULL;
-
-	return path.Path();
-}
-
-
-const char*
-AccountPath(const char* signature)
-{
-	if (!signature)
-		return NULL;
-
-	BPath path(AccountsPath());
-	if (path.InitCheck() != B_OK)
-		return NULL;
-
-	path.Append(signature);
+	path.Append(APP_NAME "/Accounts");
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
 
@@ -147,16 +129,17 @@ AccountPath(const char* signature)
 const char*
 AccountPath(const char* signature, const char* subsignature)
 {
-	if (BString(signature) == BString(subsignature)
-		|| BString(subsignature).IsEmpty() == true)
-		return AccountPath(signature);
-
-	BPath path(AccountPath(signature));
-
-	path.Append(subsignature);
-	if (create_directory(path.Path(), 0755) != B_OK)
+	BPath path(AccountsPath());
+	if (path.InitCheck() != B_OK)
 		return NULL;
 
+	path.Append(signature);
+	if (BString(signature) != BString(subsignature)
+			&& BString(subsignature).IsEmpty() == false)
+		path.Append(subsignature);
+
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
 	return path.Path();
 }
 
@@ -178,6 +161,7 @@ const char*
 AccountCachePath(const char* accountName)
 {
 	BPath path(CachePath());
+	path.Append("Accounts");
 	if (path.InitCheck() != B_OK)
 		return NULL;
 	path.Append(accountName);
