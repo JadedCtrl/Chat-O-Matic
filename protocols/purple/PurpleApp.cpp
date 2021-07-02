@@ -222,6 +222,23 @@ PurpleApp::ImMessage(BMessage* msg)
 			SendMessage(_AccountFromMessage(msg), roster);
 			break;
 		}
+		case IM_ROOM_SEND_INVITE:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			PurpleConversation* conv = _ConversationFromMessage(msg);
+			PurpleConvChat* chat = purple_conversation_get_chat_data(conv);
+			BString user_id = msg->FindString("user");
+			BString body = msg->FindString("body");
+
+			if (chat == NULL || user_id.IsEmpty() == true)
+				break;
+			if (body.IsEmpty() == true)
+				body = "(Invite)";
+
+			purple_conv_chat_invite_user(chat, user_id.String(), body.String(),
+				false);
+			break;
+		}
 		case IM_ROOM_INVITE_ACCEPT:
 		{
 			PurpleAccount* account = _AccountFromMessage(msg);
