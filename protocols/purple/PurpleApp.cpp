@@ -80,7 +80,7 @@ PurpleApp::MessageReceived(BMessage* msg)
 		{
 			int64 thread_id;
 			if (msg->FindInt64("thread_id", &thread_id) != B_OK)	return;
-			int32 index = msg->FindInt32("index", 0);
+			int32 index = msg->GetInt32("index", 0);
 			ProtocolInfo* info = fProtocols.ItemAt(index);
 
 			BMessage protocolInfo = info->settingsTemplate;
