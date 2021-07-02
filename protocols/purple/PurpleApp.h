@@ -34,6 +34,7 @@
 
 typedef KeyMap<BString, BString> Accounts; // Cardie username → Purple username
 typedef KeyMap<BString, thread_id> AccountThreads; // Purple username → Thread
+typedef KeyMap<BString, GHashTable*> GHashList;
 
 const uint32 G_MAIN_LOOP = 'GLml';
 const uint32 CHECK_APP = 'Paca';
@@ -78,6 +79,8 @@ public:
 
 			void		SendMessage(thread_id thread, BMessage msg);
 			void		SendMessage(PurpleAccount* account, BMessage msg);
+
+	GHashList fInviteList;
 
 private:
 			void		_GetProtocolsInfo();
@@ -128,6 +131,9 @@ private:
 	 static void		signal_chat_buddy_joined(PurpleConversation* conv,
 							const char* name, PurpleConvChatBuddyFlags flags,
 							gboolean new_arrival);
+	static void			signal_chat_invited(PurpleAccount* account,
+							const char* inviter, const char* chat,
+							const char* message, const GHashTable* components);
 
 // Util
 PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);

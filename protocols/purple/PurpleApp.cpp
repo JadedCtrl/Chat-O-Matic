@@ -209,7 +209,6 @@ PurpleApp::ImMessage(BMessage* msg)
 		}
 		case IM_GET_CONTACT_LIST:
 		{
-			msg->PrintToStream();
 			BStringList user_ids;
 			GSList* buddies = purple_blist_get_buddies();
 			for (int i = 0; buddies != NULL; buddies = buddies->next) {
@@ -221,6 +220,28 @@ PurpleApp::ImMessage(BMessage* msg)
 			roster.AddInt32("im_what", IM_CONTACT_LIST);
 			roster.AddStrings("user_id", user_ids);
 			SendMessage(_AccountFromMessage(msg), roster);
+			break;
+		}
+		case IM_ROOM_INVITE_ACCEPT:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			BString key(purple_account_get_username(account));
+			key = key.Append("-invite-").Append(msg->FindString("chat_id"));
+			GHashTable* data = fInviteList.ValueFor(key);
+
+			if (data != NULL)
+				serv_join_chat(purple_account_get_connection(account), data);
+			break;
+		}
+		case IM_ROOM_INVITE_REFUSE:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			BString key(purple_account_get_username(account));
+			key = key.Append("-invite-").Append(msg->FindString("chat_id"));
+			GHashTable* data = fInviteList.ValueFor(key);
+
+			if (data != NULL)
+				serv_reject_chat(purple_account_get_connection(account), data);
 			break;
 		}
 		default:
@@ -571,6 +592,8 @@ init_signals()
 		&handle, PURPLE_CALLBACK(signal_sent_im_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-buddy-joined",
 		&handle, PURPLE_CALLBACK(signal_chat_buddy_joined), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "chat-invited",
+		&handle, PURPLE_CALLBACK(signal_chat_invited), NULL);
 }
 
 
@@ -593,7 +616,7 @@ signal_account_signed_on(PurpleAccount* account)
 	BMessage info(IM_MESSAGE);
 	info.AddInt32("im_what", IM_OWN_CONTACT_INFO);
 	info.AddString("user_id", purple_account_get_username(account));
-	info.AddString("user_name", purple_account_get_alias(account));
+	info.AddString("user_name", purple_account_get_name_for_display(account));
 	((PurpleApp*)be_app)->SendMessage(account, info);
 }
 
@@ -740,6 +763,26 @@ signal_chat_buddy_joined(PurpleConversation* conv, const char* name,
 	((PurpleApp*)be_app)->SendMessage(account, joined);
 }
 
+
+// inviter == user_id, not user_name
+static void
+signal_chat_invited(PurpleAccount* account, const char* inviter,
+	const char* chat, const char* message, const GHashTable* components)
+{
+	PurpleApp* app = (PurpleApp*)be_app;
+	BString key(purple_account_get_username(account));
+	key = key.Append("-invite-").Append(chat);
+
+	GHashTable* data = (GHashTable*)components;
+	app->fInviteList.AddItem(key, data);
+
+	BMessage invited(IM_MESSAGE);
+	invited.AddInt32("im_what", IM_ROOM_INVITE_RECEIVED);
+	invited.AddString("chat_id", chat);
+	invited.AddString("user_id", inviter);
+	invited.AddString("body", message);
+	app->SendMessage(account, invited);
+}
 
 
 PurpleStatusPrimitive
