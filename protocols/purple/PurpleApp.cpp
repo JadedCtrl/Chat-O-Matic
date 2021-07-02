@@ -388,6 +388,7 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 	passwd.AddString("name", "password");
 	passwd.AddString("description", "Password");
 	passwd.AddInt32("type", B_STRING_TYPE);
+	passwd.AddBool("is_secret", true);
 	temp.AddMessage("setting", &passwd);
 
 	// Whatever custom settings the protocol might like!

@@ -19,6 +19,7 @@ resource(1000, "account") message('IMst')
 	{
 		"name" = "password",
 		"description" = "Password:",
+		bool "is_secret" = true,
 		int32 "type" = 'CSTR'
 	},
 	"setting" = message
