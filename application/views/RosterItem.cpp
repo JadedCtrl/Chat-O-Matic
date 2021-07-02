@@ -91,7 +91,8 @@ RosterItem::ObserveInteger(int32 what, int32 val)
 }
 
 
-void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
+void
+RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 {
 	if (Text() == NULL)
 	       return;
@@ -136,6 +137,7 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 			frame.left + 5, frame.top + h - 1
 			));
 
+
 	// Draw avatar icon
 	if (fBitmap != NULL) {
 		BRect rect(frame.left + 6, frame.top,
@@ -167,12 +169,14 @@ void RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 	// Draw protocol bitmpap
 	BBitmap* protocolBitmap = contactLinker->ProtocolBitmap();
 
-	BRect rect(frame.right - 19, frame.top + 2,
-		frame.right - 2, frame.top + 19 );;
-	owner->SetDrawingMode(B_OP_ALPHA);
-	owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
-	owner->DrawBitmap(protocolBitmap, protocolBitmap->Bounds(),
-		rect, B_FILTER_BITMAP_BILINEAR);
+	if (protocolBitmap != NULL) {
+		BRect rect(frame.right - 19, frame.top + 2,
+			frame.right - 2, frame.top + 19 );;
+		owner->SetDrawingMode(B_OP_ALPHA);
+		owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
+		owner->DrawBitmap(protocolBitmap, protocolBitmap->Bounds(),
+			rect, B_FILTER_BITMAP_BILINEAR);
+	}
 
 	owner->SetHighColor(highColor);
 	owner->SetLowColor(lowColor);
