@@ -168,6 +168,36 @@ PurpleApp::ImMessage(BMessage* msg)
 				purple_conv_im_send(im, body.String());
 			break;
 		}
+		case IM_JOIN_ROOM:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			PurpleConnection* conn =  purple_account_get_connection(account);
+			BString chat_id = msg->FindString("chat_id");
+			if (account == NULL || conn == NULL || chat_id.IsEmpty() == true)
+				break;
+
+			PurplePluginProtocolInfo* info =
+				PURPLE_PLUGIN_PROTOCOL_INFO(purple_connection_get_prpl(conn));
+
+			if (info->chat_info_defaults != NULL) {
+				GHashTable* hash = info->chat_info_defaults(conn,
+					chat_id.String());
+				serv_join_chat(conn, hash);
+			}
+			break;
+		}
+		case IM_LEAVE_ROOM:
+		{
+			PurpleConversation* conv = _ConversationFromMessage(msg);
+			BString chat_id = msg->FindString("chat_id");
+			if (conv == NULL || chat_id.IsEmpty() == true) break;
+
+			PurpleConvChat* chat = purple_conversation_get_chat_data(conv);
+			if (chat != NULL)
+				serv_chat_leave(purple_conversation_get_gc(conv),
+					purple_conv_chat_get_id(chat));
+			break;
+		}
 		case IM_GET_ROOM_METADATA:
 		{
 			PurpleConversation* conv = _ConversationFromMessage(msg);
