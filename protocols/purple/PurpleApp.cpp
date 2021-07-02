@@ -363,7 +363,7 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 		else if (prefIter->next == NULL) {
 			BMessage setting;
 			setting.AddString("name", "username");
-			setting.AddString("description", "Username");
+			setting.AddString("description", "Username:");
 			setting.AddString("error", "A username needs to be specified!");
 			setting.AddInt32("type", B_STRING_TYPE);
 			temp.AddMessage("setting", &setting);
@@ -377,7 +377,7 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 		PurpleAccountUserSplit* split = (PurpleAccountUserSplit*)splitIter->data;
 		BMessage setting;
 		setting.AddString("name", "username_split");
-		setting.AddString("description", split->text);
+		setting.AddString("description", BString(split->text).Append(":"));
 		setting.AddString("default", split->default_value);
 		setting.AddInt32("type", B_STRING_TYPE);
 		temp.AddMessage("setting", &setting);
@@ -386,7 +386,7 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 	// Password setting
 	BMessage passwd;
 	passwd.AddString("name", "password");
-	passwd.AddString("description", "Password");
+	passwd.AddString("description", "Password:");
 	passwd.AddInt32("type", B_STRING_TYPE);
 	passwd.AddBool("is_secret", true);
 	temp.AddMessage("setting", &passwd);
@@ -401,12 +401,13 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 
 		BMessage setting;
 		setting.AddString("name", pref->pref_name);
-		setting.AddString("description", pref->text);
+		BString description = BString(pref->text).Append(":");
 
 		switch (type)
 		{
 			case PURPLE_PREF_BOOLEAN:
 			{
+				description = pref->text;
 				bType = B_BOOL_TYPE;
 				setting.AddBool("default", pref->default_value.boolean);
 				break;
@@ -435,11 +436,13 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 				bType = B_STRING_TYPE;
 				setting.AddString("default", pref->default_value.string);
 		}
+
 		if (pref->masked)
 			setting.AddBool("is_hidden", true);
 		setting.AddString("error",
 			BString(pref->text).Append(" needs to be specified."));
 		setting.AddInt32("type", bType);
+		setting.AddString("description", description);
 		temp.AddMessage("setting", &setting);
 	}
 	return temp;
