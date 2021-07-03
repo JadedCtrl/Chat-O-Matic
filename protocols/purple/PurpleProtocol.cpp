@@ -208,6 +208,8 @@ PurpleProtocol::UpdateSettings(BMessage* msg)
 BMessage
 PurpleProtocol::SettingsTemplate(const char* name)
 {
+	if (strcmp(name, "roster") == 0)
+		return _RosterTemplate();
 	return fSettingsTemplate;
 }
 
@@ -319,4 +321,25 @@ PurpleProtocol::_SendPrplMessage(BMessage* msg)
 	msg->AddString("protocol", fSignature);
 	if (fPrplMessenger->IsValid())
 		fPrplMessenger->SendMessage(msg);
+}
+
+
+BMessage
+PurpleProtocol::_RosterTemplate()
+{
+	BMessage temp;
+	BMessage id;
+	id.AddString("name", "user_id");
+	id.AddString("description", "Username:");
+	id.AddString("error", "You can't friend someone without a nick.");
+	id.AddInt32("type", B_STRING_TYPE);
+	temp.AddMessage("setting", &id);
+
+	BMessage name;
+	name.AddString("name", "user_name");
+	name.AddString("description", "Alias:");
+	name.AddInt32("type", B_STRING_TYPE);
+	temp.AddMessage("setting", &name);
+
+	return temp;
 }

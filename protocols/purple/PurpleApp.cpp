@@ -33,6 +33,7 @@
 
 #include <Cardie.h>
 #include <ChatProtocolMessages.h>
+#include <Flags.h>
 
 #include "Purple.h"
 #include "PurpleMessages.h"
@@ -156,7 +157,7 @@ PurpleApp::ImMessage(BMessage* msg)
 		case IM_SEND_MESSAGE:
 		{
 			BString body;
-			if (msg->FindString("body", &body) != B_OK)	return;
+			if (msg->FindString("body", &body) != B_OK)	break;
 
 			PurpleConversation* conv = _ConversationFromMessage(msg);
 			PurpleConvChat* chat = purple_conversation_get_chat_data(conv);
@@ -217,7 +218,7 @@ PurpleApp::ImMessage(BMessage* msg)
 			PurpleConversation* conv = _ConversationFromMessage(msg);
 			PurpleConvChat* chat = purple_conversation_get_chat_data(conv);
 			PurpleConvIm* im = purple_conversation_get_im_data(conv);
-			if (chat == NULL && im == NULL) return;
+			if (chat == NULL && im == NULL) break;
 
 			BStringList user_ids;
 			if (im != NULL)
@@ -239,17 +240,73 @@ PurpleApp::ImMessage(BMessage* msg)
 		}
 		case IM_GET_CONTACT_LIST:
 		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+
 			BStringList user_ids;
 			GSList* buddies = purple_blist_get_buddies();
 			for (int i = 0; buddies != NULL; buddies = buddies->next) {
 				PurpleBuddy* buddy = (PurpleBuddy*)buddies->data;
-				user_ids.Add(BString(purple_buddy_get_name(buddy)));
+				if (purple_buddy_get_account(buddy) == account)
+					user_ids.Add(BString(purple_buddy_get_name(buddy)));
 			}
 
 			BMessage roster(IM_MESSAGE);
 			roster.AddInt32("im_what", IM_CONTACT_LIST);
 			roster.AddStrings("user_id", user_ids);
 			SendMessage(_AccountFromMessage(msg), roster);
+			break;
+		}
+		case IM_CONTACT_LIST_ADD_CONTACT:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			BString user_id = msg->FindString("user_id");
+			const char* user_name = msg->FindString("user_name");
+			if (user_id.IsEmpty() == true || account == NULL) break;
+
+			PurpleGroup* group = purple_find_group("Buddies");
+			if (group == NULL) {
+				group = purple_group_new("Buddies");
+				purple_blist_add_group(group, NULL);
+			}
+
+			PurpleBuddy* buddy =
+				purple_buddy_new(account, user_id.String(), user_name);
+
+			purple_blist_add_buddy(buddy, NULL, group, NULL);
+			purple_account_add_buddy_with_invite(account, buddy, NULL);
+			break;
+		}
+		case IM_CONTACT_LIST_REMOVE_CONTACT:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			BString user_id = msg->FindString("user_id");
+			if (user_id.IsEmpty() == true || account == NULL) break;
+
+			PurpleBuddy* buddy = purple_find_buddy(account, user_id.String());
+			if (buddy == NULL) return;
+			purple_blist_remove_buddy(buddy);
+			purple_account_remove_buddy(account, buddy, NULL);
+			break;
+		}
+		case IM_GET_EXTENDED_CONTACT_INFO:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			BString user_id = msg->FindString("user_id");
+			if (user_id.IsEmpty() == true || account == NULL) break;
+
+			PurpleBuddy* buddy = purple_find_buddy(account, user_id.String());
+			if (buddy == NULL) return;
+
+			BString user_name = purple_buddy_get_alias(buddy);
+			if (user_name.IsEmpty() == true)
+				user_name = purple_buddy_get_server_alias(buddy);
+
+			BMessage info(IM_MESSAGE);
+			info.AddInt32("im_what", IM_EXTENDED_CONTACT_INFO);
+			info.AddString("user_id", user_id);
+			if (user_name.IsEmpty() == false)
+				info.AddString("user_name", user_name);
+			SendMessage(account, info);
 			break;
 		}
 		case IM_ROOM_SEND_INVITE:

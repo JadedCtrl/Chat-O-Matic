@@ -81,6 +81,8 @@ public:
 private:
 			void		_SendPrplMessage(BMessage* msg);
 
+			BMessage	_RosterTemplate();
+
 	ChatProtocolMessengerInterface* fMessenger;
 	BMessenger* fPrplMessenger;
 	thread_id fBirdThread;
