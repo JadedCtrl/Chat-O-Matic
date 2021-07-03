@@ -169,6 +169,22 @@ PurpleApp::ImMessage(BMessage* msg)
 				purple_conv_im_send(im, body.String());
 			break;
 		}
+		case IM_CREATE_CHAT:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			const char* user_id = msg->FindString("user_id");
+			if (user_id == NULL || purple_find_buddy(account, user_id) == NULL)
+				break;
+
+			purple_conversation_new(PURPLE_CONV_TYPE_IM, account, user_id);
+
+			BMessage created(IM_MESSAGE);
+			created.AddInt32("im_what", IM_CHAT_CREATED);
+			created.AddString("user_id", user_id);
+			created.AddString("chat_id", user_id);
+			SendMessage(account, created);
+			break;
+		}
 		case IM_JOIN_ROOM:
 		{
 			PurpleAccount* account = _AccountFromMessage(msg);
@@ -208,6 +224,8 @@ PurpleApp::ImMessage(BMessage* msg)
 			meta.AddInt32("im_what", IM_ROOM_METADATA);
 			meta.AddString("chat_id", purple_conversation_get_name(conv));
 			meta.AddString("chat_name", purple_conversation_get_title(conv));
+			meta.AddInt32("room_default_flags",
+				0 | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
 			if (chat != NULL)
 				meta.AddString("subject", purple_conv_chat_get_topic(chat));
 			SendMessage(purple_conversation_get_account(conv), meta);
