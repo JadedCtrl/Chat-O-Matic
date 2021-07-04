@@ -92,7 +92,7 @@ private:
 
 	BString fSignature;
 	BString fFriendlySignature;
-	BMessage fSettingsTemplate;
+	BMessage fTemplates;
 };
 
 

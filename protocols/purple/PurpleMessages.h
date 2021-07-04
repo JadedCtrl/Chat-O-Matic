@@ -27,35 +27,35 @@ enum purple_message {
 	 */
 
 	/*! Request a count of protocols.		→Server
-	 *  Response is sent directly to the requesting thread
-	 *  as a message's code, use receive_data() to catch it.
-	 *  Requires:	int64 thread_id */
+		Response is sent directly to the requesting thread
+		as a message's code, use receive_data() to catch it.
+		Requires:	int64 thread_id */
 	PURPLE_REQUEST_PROTOCOL_COUNT			= 'PApc',
 
 	/*! Request protocol metadata.			→Server
-	 *  Response is sent directly to the requesting thread
-	 *  with two subsquent messages (using receive_data())―
-	 *  the first sending the size of the subsequently sent
-	 *  flattened BMessage.
-	 *  Requires:	int32 protocol_index, int64 thread_id */
+		Response is sent directly to the requesting thread
+		with two subsquent messages (using receive_data())―
+		the first sending the size of the subsequently sent
+		flattened BMessage.
+		Requires:	int32 protocol_index, int64 thread_id */
 	PURPLE_REQUEST_PROTOCOL_INFO			= 'PApi',
 
 	/*! Load/start connecting the account	→Server
-	 *	Just the account's settings message from Cardie's end.
-	 *	It's the server's job to tie the Cardie account name
-	 *	to the PurpleAccount. */
+		Just the account's settings message from Cardie's end.
+		It's the server's job to tie the Cardie account name
+		to the PurpleAccount. */
 	PURPLE_CONNECT_ACCOUNT					= 'PAla',
 
 	/*! Associate account with thread		→Server
-	 *	Makes the server associate the given account with
-	 *	the given thread. All subsequent Server→Add-On
-	 *	messages related to the account will be sent to this
-	 *	thread.
-	 *	Requires:	String account_name, int64 thread_id */
+		Makes the server associate the given account with
+		the given thread. All subsequent Server→Add-On
+		messages related to the account will be sent to this
+		thread.
+		Requires:	String account_name, int64 thread_id */
 	PURPLE_REGISTER_THREAD					= 'PArl',
 
 	/*! Disconnect add-on's account			→Server
-	 *	Requires:	String account_name */
+		Requires:	String account_name */
 	PURPLE_REQUEST_DISCONNECT				= 'Axwx'
 };
 

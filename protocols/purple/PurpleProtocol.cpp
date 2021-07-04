@@ -46,8 +46,10 @@ protocol_at(int32 i)
 	BMessage protoInfo = receive_message();
 	BString name = protoInfo.FindString("name");
 	BString id = protoInfo.FindString("id");
+	BMessage templates;
+	protoInfo.FindMessage("templates", &templates);
 
-	return (ChatProtocol*)new PurpleProtocol(name, id, protoInfo);
+	return (ChatProtocol*)new PurpleProtocol(name, id, templates);
 }
 
 
@@ -141,7 +143,7 @@ PurpleProtocol::PurpleProtocol(BString name, BString id, BMessage settings)
 	:
 	fSignature(id),
 	fFriendlySignature(name),
-	fSettingsTemplate(settings)
+	fTemplates(settings)
 {
 }
 
@@ -208,9 +210,15 @@ PurpleProtocol::UpdateSettings(BMessage* msg)
 BMessage
 PurpleProtocol::SettingsTemplate(const char* name)
 {
+	BMessage temp;
+
 	if (strcmp(name, "roster") == 0)
 		return _RosterTemplate();
-	return fSettingsTemplate;
+	else if (strcmp(name, "account") == 0)
+		fTemplates.FindMessage("account", &temp);
+	else if (strcmp(name, "room") == 0 || strcmp(name, "join") == 0)
+		fTemplates.FindMessage("room", &temp);
+	return temp;
 }
 
 

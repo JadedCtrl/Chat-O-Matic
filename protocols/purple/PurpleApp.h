@@ -63,7 +63,8 @@ struct _PurpleStatus
 typedef struct _ProtocolInfo {
 	BString name;
 	BString id;
-	BMessage settingsTemplate;
+	BMessage accountTemplate;
+	BMessage roomTemplate;
 } ProtocolInfo;
 
 
@@ -86,8 +87,11 @@ private:
 			void		_GetProtocolsInfo();
 			void		_SaveProtocolInfo(PurplePlugin* plugin);
 
-			BMessage	_ParseProtoOptions(PurplePluginProtocolInfo* info);
-			void		_ParseCardieSettings(BMessage* settings);
+			BMessage	_GetAccountTemplate(PurplePluginProtocolInfo* info);
+			BMessage	_GetRoomTemplate(PurplePluginProtocolInfo* info);
+
+			void		_ParseAccountTemplate(BMessage* settings);
+			void		_ParseRoomTemplate(BMessage* msg);
 
 		PurplePlugin*	_PluginFromMessage(BMessage* msg);
 		PurpleAccount*	_AccountFromMessage(BMessage* msg);

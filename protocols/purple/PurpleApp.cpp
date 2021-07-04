@@ -84,15 +84,20 @@ PurpleApp::MessageReceived(BMessage* msg)
 			int32 index = msg->GetInt32("index", 0);
 			ProtocolInfo* info = fProtocols.ItemAt(index);
 
-			BMessage protocolInfo = info->settingsTemplate;
-			protocolInfo.AddString("name", info->name);
-			protocolInfo.AddString("id", info->id);
-			SendMessage(thread_id, protocolInfo);
+			BMessage protoInfo;
+			BMessage temps;
+			temps.AddMessage("account", new BMessage(info->accountTemplate));
+			temps.AddMessage("room", new BMessage(info->roomTemplate));
+			protoInfo.AddMessage("templates", &temps);
+			protoInfo.AddString("name", info->name);
+			protoInfo.AddString("id", info->id);
+
+			SendMessage(thread_id, protoInfo);
 			break;
 		}
 		case PURPLE_CONNECT_ACCOUNT:
 		{
-			_ParseCardieSettings(msg);
+			_ParseAccountTemplate(msg);
 			break;
 		}
 		case PURPLE_REGISTER_THREAD:
@@ -417,14 +422,14 @@ PurpleApp::_SaveProtocolInfo(PurplePlugin* plugin)
 	proto->name = plugin->info->name;
 
 	PurplePluginProtocolInfo* info = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
-	proto->settingsTemplate = _ParseProtoOptions(info);
-
+	proto->accountTemplate = _GetAccountTemplate(info);
+	proto->roomTemplate = _GetRoomTemplate(info);
 	fProtocols.AddItem(proto);
 }
 
 
 BMessage
-PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
+PurpleApp::_GetAccountTemplate(PurplePluginProtocolInfo* info)
 {
 	BMessage temp;
 
@@ -524,8 +529,44 @@ PurpleApp::_ParseProtoOptions(PurplePluginProtocolInfo* info)
 }
 
 
+BMessage
+PurpleApp::_GetRoomTemplate(PurplePluginProtocolInfo* info)
+{
+	BMessage settings;
+	if (info->chat_info == NULL) {
+		settings.AddString("name", "chat_id");
+		settings.AddString("description", "Room ID");
+		settings.AddInt32("type", B_STRING_TYPE);
+		return settings;
+	}
+
+	GList* prefs = info->chat_info(NULL);
+
+	for (int i = 0; prefs != NULL; prefs = prefs->next) {
+		BMessage setting;
+		proto_chat_entry* pref = (proto_chat_entry*)prefs->data;
+
+		setting.AddString("name", pref->identifier);
+		setting.AddString("description", pref->label);
+
+		if (pref->required)
+			setting.AddString("error",
+				BString(pref->identifier).Append(" is necessary."));
+		if (pref->secret)
+			setting.AddBool("is_secret", true);
+		if (pref->is_int)
+			setting.AddInt32("type", B_INT32_TYPE);
+		else
+			setting.AddInt32("type", B_STRING_TYPE);
+
+		settings.AddMessage("setting", &setting);
+	}
+	return settings;
+}
+
+
 void
-PurpleApp::_ParseCardieSettings(BMessage* settings)
+PurpleApp::_ParseAccountTemplate(BMessage* settings)
 {
 	PurplePlugin* plugin = _PluginFromMessage(settings);
 	PurplePluginProtocolInfo* info = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
