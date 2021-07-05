@@ -8,8 +8,6 @@
 
 #include <BeBuild.h>
 
-#include "FacebookProtocol.h"
-#include "GoogleTalkProtocol.h"
 #include "JabberProtocol.h"
 
 
@@ -23,14 +21,8 @@ extern "C" _EXPORT uint32 version();
 ChatProtocol*
 protocol_at(int32 i)
 {
-	switch(i) {
-		case 0:
-			return (ChatProtocol*)new JabberProtocol();
-		case 1:
-			return (ChatProtocol*)new FacebookProtocol();
-		case 2:
-			return (ChatProtocol*)new GoogleTalkProtocol();
-	}
+	if (i == 0)
+		return (ChatProtocol*)new JabberProtocol();
 	return NULL;
 }
 
@@ -38,7 +30,7 @@ protocol_at(int32 i)
 int32
 protocol_count()
 {
-	return 3;
+	return 1;
 }
 
 
