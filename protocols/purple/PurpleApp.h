@@ -91,9 +91,10 @@ private:
 			BMessage	_GetRoomTemplate(PurplePluginProtocolInfo* info);
 
 			void		_ParseAccountTemplate(BMessage* settings);
-			void		_ParseRoomTemplate(BMessage* msg);
+			GHashTable*	_ParseRoomTemplate(BMessage* msg);
 
 		PurplePlugin*	_PluginFromMessage(BMessage* msg);
+	PurpleConnection*	_ConnectionFromMessage(BMessage* msg);
 		PurpleAccount*	_AccountFromMessage(BMessage* msg);
 	PurpleConversation*	_ConversationFromMessage(BMessage* msg);
 

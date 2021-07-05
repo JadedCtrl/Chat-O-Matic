@@ -190,13 +190,16 @@ PurpleApp::ImMessage(BMessage* msg)
 			SendMessage(account, created);
 			break;
 		}
+		case IM_CREATE_ROOM:
+		{
+			serv_join_chat(_ConnectionFromMessage(msg), _ParseRoomTemplate(msg));
+			break;
+		}
 		case IM_JOIN_ROOM:
 		{
-			PurpleAccount* account = _AccountFromMessage(msg);
-			PurpleConnection* conn =  purple_account_get_connection(account);
+			PurpleConnection* conn =  _ConnectionFromMessage(msg);
 			BString chat_id = msg->FindString("chat_id");
-			if (account == NULL || conn == NULL || chat_id.IsEmpty() == true)
-				break;
+			if (conn == NULL || chat_id.IsEmpty() == true) break;
 
 			PurplePluginProtocolInfo* info =
 				PURPLE_PLUGIN_PROTOCOL_INFO(purple_connection_get_prpl(conn));
@@ -418,8 +421,8 @@ void
 PurpleApp::_SaveProtocolInfo(PurplePlugin* plugin)
 {
 	ProtocolInfo* proto = new ProtocolInfo;
-	proto->id = plugin->info->id;
-	proto->name = plugin->info->name;
+	proto->id = purple_plugin_get_id(plugin);
+	proto->name = purple_plugin_get_name(plugin);
 
 	PurplePluginProtocolInfo* info = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
 	proto->accountTemplate = _GetAccountTemplate(info);
@@ -654,10 +657,43 @@ PurpleApp::_ParseAccountTemplate(BMessage* settings)
 }
 
 
+GHashTable*
+PurpleApp::_ParseRoomTemplate(BMessage* msg)
+{
+	PurplePlugin* plugin = _PluginFromMessage(msg);
+	PurplePluginProtocolInfo* info = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
+
+	if (info->chat_info == NULL && info->chat_info_defaults != NULL)
+		return info->chat_info_defaults(_ConnectionFromMessage(msg),
+			msg->FindString("chat_id"));
+	else if (info->chat_info == NULL)
+		return NULL;
+
+	GHashTable* table
+		= g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_free);
+
+	GList* prefs = info->chat_info(NULL);
+	for (int i = 0; prefs != NULL; prefs = prefs->next) {
+		BString setting;
+		proto_chat_entry* pref = (proto_chat_entry*)prefs->data;
+		if (msg->FindString(pref->identifier, &setting) == B_OK)
+			g_hash_table_insert(table, (void*)pref->identifier, g_strdup(setting.String()));
+	}
+	return table;
+}
+
+
 PurplePlugin*
 PurpleApp::_PluginFromMessage(BMessage* msg)
 {
 	return purple_plugins_find_with_id(msg->FindString("protocol"));
+}
+
+
+PurpleConnection*
+PurpleApp::_ConnectionFromMessage(BMessage* msg)
+{
+	return purple_account_get_connection(_AccountFromMessage(msg));
 }
 
 
@@ -1039,11 +1075,6 @@ static guint _purple_glib_input_add(gint fd, PurpleInputCondition condition,
 	closure->function = function;
 	closure->data = data;
 
-//	if (condition & PURPLE_INPUT_READ)
-//		cond |= PURPLE_GLIB_READ_COND;
-//	if (condition & PURPLE_INPUT_WRITE)
-//		cond |= PURPLE_GLIB_WRITE_COND;
-
 	channel = g_io_channel_unix_new(fd);
 	closure->result = g_io_add_watch_full(channel, G_PRIORITY_DEFAULT, cond,
 					      _purple_glib_io_invoke, closure, g_free);
@@ -1057,11 +1088,6 @@ static gboolean _purple_glib_io_invoke(GIOChannel *source, GIOCondition conditio
 {
 	PurpleGLibIOClosure *closure = (PurpleGLibIOClosure*)data;
 	PurpleInputCondition purple_cond = (PurpleInputCondition)0;
-
-//	if (condition & PURPLE_GLIB_READ_COND)
-//		purple_cond |= PURPLE_INPUT_READ;
-//	if (condition & PURPLE_GLIB_WRITE_COND)
-//		purple_cond |= PURPLE_INPUT_WRITE;
 
 	closure->function(closure->data, g_io_channel_unix_get_fd(source),
 			  purple_cond);
