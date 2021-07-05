@@ -278,16 +278,10 @@ PurpleApp::ImMessage(BMessage* msg)
 			const char* user_name = msg->FindString("user_name");
 			if (user_id.IsEmpty() == true || account == NULL) break;
 
-			PurpleGroup* group = purple_find_group("Buddies");
-			if (group == NULL) {
-				group = purple_group_new("Buddies");
-				purple_blist_add_group(group, NULL);
-			}
-
 			PurpleBuddy* buddy =
 				purple_buddy_new(account, user_id.String(), user_name);
 
-			purple_blist_add_buddy(buddy, NULL, group, NULL);
+			purple_blist_add_buddy(buddy, NULL, NULL, NULL);
 			purple_account_add_buddy_with_invite(account, buddy, NULL);
 			break;
 		}
@@ -301,6 +295,18 @@ PurpleApp::ImMessage(BMessage* msg)
 			if (buddy == NULL) return;
 			purple_blist_remove_buddy(buddy);
 			purple_account_remove_buddy(account, buddy, NULL);
+			break;
+		}
+		case IM_CONTACT_LIST_EDIT_CONTACT:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			BString user_id = msg->FindString("user_id");
+			BString user_name = msg->FindString("user_name");
+			PurpleBuddy* buddy = purple_find_buddy(account, user_id.String());
+			if (buddy == NULL) return;
+
+			if (user_name.IsEmpty() == false)
+				purple_blist_alias_buddy(buddy, user_name.String());
 			break;
 		}
 		case IM_GET_EXTENDED_CONTACT_INFO:
