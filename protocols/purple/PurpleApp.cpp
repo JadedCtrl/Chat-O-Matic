@@ -197,18 +197,7 @@ PurpleApp::ImMessage(BMessage* msg)
 		}
 		case IM_JOIN_ROOM:
 		{
-			PurpleConnection* conn =  _ConnectionFromMessage(msg);
-			BString chat_id = msg->FindString("chat_id");
-			if (conn == NULL || chat_id.IsEmpty() == true) break;
-
-			PurplePluginProtocolInfo* info =
-				PURPLE_PLUGIN_PROTOCOL_INFO(purple_connection_get_prpl(conn));
-
-			if (info->chat_info_defaults != NULL) {
-				GHashTable* hash = info->chat_info_defaults(conn,
-					chat_id.String());
-				serv_join_chat(conn, hash);
-			}
+			serv_join_chat(_ConnectionFromMessage(msg), _ParseRoomTemplate(msg));
 			break;
 		}
 		case IM_LEAVE_ROOM:

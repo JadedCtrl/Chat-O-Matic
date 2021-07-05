@@ -1264,7 +1264,7 @@ JabberHandler::_RoomTemplate()
 	BMessage roomIdentifier;
 	roomIdentifier.AddString("name", "chat_id");
 	roomIdentifier.AddString("description", "Room ID:");
-	roomIdentifier.AddString("error", "You can't create a room without a JID!\n"
+	roomIdentifier.AddString("error", "You can't have a room without a JID!\n"
 		"Use the \"name@server\" format.");
 	roomIdentifier.AddInt32("type", 'CSTR');
 	stemplate.AddMessage("setting", &roomIdentifier);

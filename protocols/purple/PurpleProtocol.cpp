@@ -216,7 +216,7 @@ PurpleProtocol::SettingsTemplate(const char* name)
 		return _RosterTemplate();
 	else if (strcmp(name, "account") == 0)
 		fTemplates.FindMessage("account", &temp);
-	else if (strcmp(name, "room") == 0 || strcmp(name, "join") == 0)
+	else if (strcmp(name, "create_room") == 0 || strcmp(name, "join_room") == 0)
 		fTemplates.FindMessage("room", &temp);
 	return temp;
 }

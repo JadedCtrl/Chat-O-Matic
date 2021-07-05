@@ -28,6 +28,7 @@
 
 #include "ChatProtocol.h"
 #include "ChatProtocolAddOn.h"
+#include "Utils.h"
 
 
 const float kDividerWidth = 1.0f;
@@ -40,6 +41,15 @@ ProtocolTemplate::ProtocolTemplate(ChatProtocol* protocol, const char* type)
 {
 	// Load protocol's settings template
 	BMessage settingsTemplate = fProtocol->SettingsTemplate(type);
+	if (settingsTemplate.IsEmpty() == true) {
+		size_t size;
+		const void* buff =
+			ChatResources()->LoadResource(B_MESSAGE_TYPE, type, &size);
+
+		if (buff != NULL)
+			settingsTemplate.Unflatten((const char*)buff);
+	}
+
 	*fTemplate = settingsTemplate;
 }
 

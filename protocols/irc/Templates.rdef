@@ -46,25 +46,3 @@ resource(1000, "account") message('IMst')
 		int32 "type" = 'LONG'
 	}
 };
-
-resource(1001, "roster") message('IMst')
-{
-	"setting" = message
-	{
-		"name" = "user_id",
-		"description" = "Nickname:",
-		"error" = "You can't friend someone without a nick.",
-		int32 "type" = 'CSTR'
-	}
-};
-
-resource(1002, "room") message('IMst')
-{
-	"setting" = message
-	{
-		"name" = "room_id",
-		"description" = "Room:",
-		"error" = "You can't friend someone without a nick.",
-		int32 "type" = 'CSTR'
-	}
-};

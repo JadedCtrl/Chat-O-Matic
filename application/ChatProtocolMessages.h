@@ -226,8 +226,8 @@ enum im_what_code {
 	/*!	Create a room					→Protocol
 		The required slots for this message are completely determined by the
 		protocol itself― the protocol will just receive data from the
-		"room" template (which is fetched via
-		ChatProtocol::SettingsTemplate("room") */
+		"create_room" template (which is fetched via
+		ChatProtocol::SettingsTemplate("create_room") */
 	IM_CREATE_ROOM						= 152,
 
 	/*!	Inform App room was created	→App
@@ -236,7 +236,8 @@ enum im_what_code {
 	IM_ROOM_CREATED						= 153,
 
 	/*!	Join a room						→Protocol
-		Requires:	String "chat_id" */
+		The required slots for this message are completely determined by the
+		protocol itself― like IM_CREATE_ROOM― with the "join_room" template. */
 	IM_JOIN_ROOM						= 154,
 
 	/*!	Confirm the room's been joined	→App
@@ -308,6 +309,11 @@ enum im_what_code {
 		The idea is that all other metadata-related messages should only be
 		called either from a request, or from a change.
 		This shouldn't be sent automatically upon joining a room.
+
+		Recommendations on default room flags: Unless your protocol has remote
+		logs, ROOM_LOG_LOCALLY and ROOM_POPULATE_LOGS should be enabled; and for
+		multi-user rooms, ROOM_AUTOJOIN should be enabled by default (again,
+		unless the protocol manages auto-joins).
 		Requires:	String "chat_id"
 		Allows:		String "chat_name", String "subject",
 					int32 "room_default_flags", int32 "room_disallowed_flags" */

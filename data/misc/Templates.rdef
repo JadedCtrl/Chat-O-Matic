@@ -1,5 +1,40 @@
 #include "Flags.h"
 
+// Default templates
+resource(1001, "roster") message('IMst')
+{
+	"setting" = message
+	{
+		"name" = "user_id",
+		"description" = "Username:",
+		"error" = "You can't friend someone without a username.",
+		int32 "type" = 'CSTR'
+	}
+};
+
+resource(1002, "create_room") message('IMst')
+{
+	"setting" = message
+	{
+		"name" = "chat_id",
+		"description" = "Room:",
+		"error" = "You can't quite seem to find ' ' on the map.",
+		int32 "type" = 'CSTR'
+	}
+};
+
+resource(1003, "join_room") message('IMst')
+{
+	"setting" = message
+	{
+		"name" = "chat_id",
+		"description" = "Room:",
+		"error" = "You can't quite seem to find ' ' on the map.",
+		int32 "type" = 'CSTR'
+	}
+};
+
+
 // User pop-up menu items
 resource(1100) message
 {
@@ -173,3 +208,6 @@ resource(1148) message
 	bool "_proto" = true,
 	int32 "_argtype" = 1128362608
 };
+
+
+

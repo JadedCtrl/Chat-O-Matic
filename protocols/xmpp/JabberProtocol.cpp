@@ -48,11 +48,11 @@ JabberProtocol::Icon() const
 BMessage
 JabberProtocol::SettingsTemplate(const char* name)
 {
-	if (name == BString("account"))
+	if (strcmp(name, "account") == 0)
 		return JabberHandler::_SettingsTemplate("Jabber identifier:", true);
-	if (name == BString("room"))
+	if (strcmp(name, "join_room") == 0 || strcmp(name, "create_room") == 0)
 		return JabberHandler::_RoomTemplate();
-	if (name == BString("roster"))
+	if (strcmp(name, "roster") == 0)
 		return JabberHandler::_RosterTemplate();
 	else
 		return BMessage();

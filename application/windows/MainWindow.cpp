@@ -123,26 +123,17 @@ MainWindow::MessageReceived(BMessage* message)
 			createMsg->AddInt32("im_what", IM_CREATE_ROOM);
 
 			TemplateWindow* win = new TemplateWindow("Create room",
-				"room", createMsg, fServer);
+				"create_room", createMsg, fServer);
 			win->Show();
 			break;
 		}
 		case APP_JOIN_ROOM:
 		{
-			BMessage temp;
-			BMessage roomId;
-			roomId.AddString("name", "chat_id");
-			roomId.AddString("description", "Room ID:");
-			roomId.AddString("error", "You can't join an addressless room! "
-				"Please enter a valid room ID.");
-			roomId.AddInt32("type", 'CSTR');
-			temp.AddMessage("setting", &roomId);
-
 			BMessage* joinMsg = new BMessage(IM_MESSAGE);
 			joinMsg->AddInt32("im_what", IM_JOIN_ROOM);
 
 			TemplateWindow* win = new TemplateWindow("Join a room",
-				new ProtocolTemplate(temp), joinMsg, fServer);
+				"join_room", joinMsg, fServer);
 			win->Show();
 			break;
 		}
