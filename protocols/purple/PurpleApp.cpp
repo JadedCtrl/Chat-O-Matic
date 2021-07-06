@@ -371,6 +371,55 @@ PurpleApp::ImMessage(BMessage* msg)
 				serv_reject_chat(purple_account_get_connection(account), data);
 			break;
 		}
+		case IM_ROOM_KICK_PARTICIPANT:
+		{
+			_SendSysText(_ConversationFromMessage(msg),
+				"** This protocol doesn't support kicking. "
+				"Send them a strongly worded e-mail.\n");
+			break;
+		}
+		case IM_ROOM_BAN_PARTICIPANT:
+		{
+			_SendSysText(_ConversationFromMessage(msg),
+				"** Banning won't work with this protocol. "
+				"Try being mean instead.\n");
+			break;
+		}
+		case IM_ROOM_UNBAN_PARTICIPANT:
+		{
+			_SendSysText(_ConversationFromMessage(msg),
+				"** You can't undo what was once done… "
+				"at least with this protocol.\n");
+			break;
+		}
+		case IM_ROOM_MUTE_PARTICIPANT:
+		{
+			_SendSysText(_ConversationFromMessage(msg),
+				"** This protocol left the duct-tape at home― "
+				"we have nothing to put over their mouth!\n");
+			break;
+		}
+		case IM_ROOM_UNMUTE_PARTICIPANT:
+		{
+			_SendSysText(_ConversationFromMessage(msg),
+				"** This protocol can't exactly unmute a user, let alone make "
+				" an omlett.\n");
+			break;
+		}
+		case IM_ROOM_DEAFEN_PARTICIPANT:
+		{
+			_SendSysText(_ConversationFromMessage(msg),
+				"** This protocol doesn't support deafening, but spamming the "
+				"chat should be a good substitute. :^)\n");
+			break;
+		}
+		case IM_ROOM_UNDEAFEN_PARTICIPANT:
+		{
+			_SendSysText(_ConversationFromMessage(msg),
+				"** This protocol is particularly self-concious, and prefers "
+				"that this person not see its chats.\n");
+			break;
+		}
 		case PURPLE_CHAT_COMMAND:
 		{
 			PurpleConversation* conv = _ConversationFromMessage(msg);
@@ -410,8 +459,7 @@ PurpleApp::ImMessage(BMessage* msg)
 			}
 			if (status != PURPLE_CMD_STATUS_OK) {
 				errorBody.ReplaceAll("%err%", error);
-				errorMsg.AddString("body", errorBody);
-				SendMessage(purple_conversation_get_account(conv), errorMsg);
+				_SendSysText(conv, errorBody.String());
 			}
 			break;
 		}
@@ -443,6 +491,17 @@ PurpleApp::SendMessage(PurpleAccount* account, BMessage msg)
 		SendMessage(thread, msg);
 	else
 		std::cerr << "Failed to send message: " << msg.what << std::endl;
+}
+
+
+void
+PurpleApp::_SendSysText(PurpleConversation* conv, const char* body)
+{
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+	msg.AddString("chat_id", purple_conversation_get_name(conv));
+	msg.AddString("body", body);
+	((PurpleApp*)be_app)->SendMessage(purple_conversation_get_account(conv), msg);
 }
 
 
@@ -1120,14 +1179,13 @@ send_user_role(PurpleConversation* conv, const char* name,
 	if (flags & PURPLE_CBFLAGS_OP) {
 		if (role_title.IsEmpty() == true)
 			role_title = "Operator";
-		role_perms |= PERM_KICK | PERM_BAN | PERM_MUTE | PERM_DEAFEN
-			| PERM_ROLECHANGE | PERM_ROOM_SUBJECT | PERM_ROOM_NAME;
+		role_perms |= PERM_ROOM_SUBJECT | PERM_ROOM_NAME;
 		role_priority = 2;
 	}
 	if (flags & PURPLE_CBFLAGS_HALFOP) {
 		if (role_title.IsEmpty() == true)
 			role_title = "Moderator";
-		role_perms |= PERM_KICK | PERM_MUTE | PERM_DEAFEN | PERM_ROOM_SUBJECT;
+		role_perms |= PERM_ROOM_SUBJECT | PERM_ROOM_NAME;
 		role_priority = 3;
 	}
 

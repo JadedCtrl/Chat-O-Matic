@@ -84,6 +84,8 @@ public:
 	GHashList fInviteList;
 
 private:
+			void		_SendSysText(PurpleConversation* conv, const char* text);
+
 			void		_GetProtocolsInfo();
 			void		_SaveProtocolInfo(PurplePlugin* plugin);
 
