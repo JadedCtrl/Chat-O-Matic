@@ -568,12 +568,18 @@ Server::ImMessage(BMessage* msg)
 
 			break;
 		}
+		case IM_PROTOCOL_RELOAD_COMMANDS:
+		{
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+			if (looper == NULL) break;
+			looper->LoadCommands();
+			break;
+		}
 		case IM_PROTOCOL_READY:
 		{
 			// Ready notification
 			ProtocolLooper* looper = _LooperFromMessage(msg);
-			if (looper == NULL)
-				break;
+			if (looper == NULL) break;
 			ChatProtocol* proto = looper->Protocol();
 
 			BString content("%user% has connected!");

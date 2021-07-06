@@ -388,6 +388,17 @@ enum im_what_code {
 
 
 	/*
+	 * Misc. UI messages
+	 */
+
+	/*! Reload commands from proto		→App
+		If a protocol's command-list is dynamic (i.e., determined by its own
+		add-ons and preferences), it makes sense to relaod commands from time
+		to time. This forces that. */
+	IM_PROTOCOL_RELOAD_COMMANDS			= 900,
+
+
+	/*
 	 * Special messages
 	 */
 

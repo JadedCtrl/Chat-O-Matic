@@ -29,7 +29,7 @@ ProtocolLooper::ProtocolLooper(ChatProtocol* protocol, int64 instance)
 	Account* account = reinterpret_cast<Account*>(
 		protocol->MessengerInterface());
 
-	_InitCommands();
+	LoadCommands();
 
 	BString name(protocol->FriendlySignature());
 	name << " - " << account->Name();
@@ -199,8 +199,9 @@ ProtocolLooper::GetListItem()
 
 
 void
-ProtocolLooper::_InitCommands()
+ProtocolLooper::LoadCommands()
 {
+	fCommands = CommandMap();
 	BObjectList<BMessage> commands = fProtocol->Commands();
 	for (int i = 0; i < commands.CountItems(); i++) {
 		ChatCommand* cmd = new ChatCommand(commands.ItemAt(i));

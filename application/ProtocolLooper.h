@@ -61,9 +61,9 @@ public:
 			ConversationAccountItem*
 							GetListItem();
 
-private:
-			void			_InitCommands();
+			void			LoadCommands();
 
+private:
 			ChatProtocol*	fProtocol;
 			int64			fInstance;
 
