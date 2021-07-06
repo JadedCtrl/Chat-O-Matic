@@ -332,10 +332,10 @@ Conversation::RemoveUser(User* user)
 }
 
 
-BString
-Conversation::GetOwnId()
+Contact*
+Conversation::GetOwnContact()
 {
-	return fLooper->GetOwnId();
+	return fLooper->GetOwnContact();
 }
 
 

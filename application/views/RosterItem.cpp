@@ -20,7 +20,7 @@
 
 RosterItem::RosterItem(const char*  name, Contact* contact)
 	: BStringItem(name),
-	fBitmap(NULL),
+	fBitmap(contact->AvatarBitmap()),
 	fStatus(STATUS_OFFLINE),
 	contactLinker(contact),
 	fVisible(true)
@@ -49,8 +49,6 @@ RosterItem::SetVisible(bool visible)
 void	
 RosterItem::SetBitmap(BBitmap* bitmap)
 {
-	if (fBitmap != NULL)
-		delete fBitmap;
 	fBitmap = bitmap;
 }
 

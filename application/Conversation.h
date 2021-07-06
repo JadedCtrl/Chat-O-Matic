@@ -62,7 +62,7 @@ public:
 
 	UserMap				Users();
 	User*				UserById(BString id);
-	BString				GetOwnId();
+	Contact*			GetOwnContact();
 
 	void				AddUser(User* user);
 	void				RemoveUser(User* user);

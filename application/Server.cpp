@@ -270,10 +270,17 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_OWN_CONTACT_INFO:
 		{
-			Contact* contact = _EnsureContact(msg);
-			if (contact != NULL) {
-				contact->GetProtocolLooper()->SetOwnId(contact->GetId());
+			BString id = msg->FindString("user_id");
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+			if (looper == NULL || id.IsEmpty() == true) break;
+
+			Contact* contact = looper->GetOwnContact();
+			if (contact == NULL) {
+				contact = new Contact(id, Looper());
+				contact->SetProtocolLooper(looper);
+				looper->SetOwnContact(contact);
 			}
+
 			BString name;
 			if (msg->FindString("user_name", &name) == B_OK)
 					contact->SetNotifyName(name);
@@ -449,7 +456,6 @@ Server::ImMessage(BMessage* msg)
 		{
 			Conversation* item = _EnsureConversation(msg);
 			item->ImMessage(msg);
-
 			break;
 		}
 		case IM_ROOM_INVITE_RECEIVED:
@@ -922,7 +928,7 @@ Server::_EnsureConversation(BMessage* message)
 		if (item == NULL) {
 			item = new Conversation(chat_id, Looper());
 			item->SetProtocolLooper(looper);
-			item->AddUser(looper->ContactById(looper->GetOwnId()));
+			item->AddUser(looper->GetOwnContact());
 			looper->AddConversation(item);
 
 			BMessage meta(IM_MESSAGE);

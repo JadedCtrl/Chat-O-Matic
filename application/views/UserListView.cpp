@@ -57,7 +57,7 @@ UserListView::_UserPopUp()
 	if (item == NULL || (selected_user = item->GetUser()) == NULL)
 		return _BlankPopUp();
 
-	Role* own_role = fChat->GetRole(fChat->GetOwnId());
+	Role* own_role = fChat->GetRole(fChat->GetOwnContact()->GetId());
 
 	Role* selected_role = fChat->GetRole(selected_user->GetId());
 

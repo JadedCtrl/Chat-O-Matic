@@ -53,8 +53,8 @@ public:
 			CommandMap		Commands() const;
 			ChatCommand*	CommandById(BString id);
 
-			BString			GetOwnId();
-			void			SetOwnId(BString user_id);
+			Contact*		GetOwnContact();
+			void			SetOwnContact(Contact* contact);
 
 			int64			GetInstance();
 
@@ -67,7 +67,7 @@ private:
 			ChatProtocol*	fProtocol;
 			int64			fInstance;
 
-			BString			fMySelf;
+			Contact*		fMySelf;
 
 			ChatMap			fChatMap;
 			RosterMap		fRosterMap;

@@ -167,17 +167,17 @@ ProtocolLooper::CommandById(BString id)
 }
 
 
-BString
-ProtocolLooper::GetOwnId()
+Contact*
+ProtocolLooper::GetOwnContact()
 {
 	return fMySelf;
 }
 
 
 void
-ProtocolLooper::SetOwnId(BString user_id)
+ProtocolLooper::SetOwnContact(Contact* contact)
 {
-	fMySelf = user_id;
+	fMySelf = contact;
 }
 
 
