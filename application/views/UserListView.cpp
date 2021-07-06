@@ -58,10 +58,8 @@ UserListView::_UserPopUp()
 		return _BlankPopUp();
 
 	Role* own_role = fChat->GetRole(fChat->GetOwnId());
-	if (own_role == NULL)	return _BlankPopUp();
 
 	Role* selected_role = fChat->GetRole(selected_user->GetId());
-	if (selected_role == NULL)	return _BlankPopUp();
 
 	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
 	BObjectList<BMessage> items = server->UserPopUpItems();
@@ -110,10 +108,11 @@ UserListView::_ProcessItem(BMessage* itemMsg, BPopUpMenu* menu, Role* user,
 	toSend.AddInt64("instance", fChat->GetProtocolLooper()->GetInstance());
 	msg->ReplaceMessage("_msg", &toSend);
 
-	if ((perms == 0 || (user->fPerms & perms))
-		&& (target_perms == 0 || (target->fPerms & target_perms))
-		&& (target_antiperms == 0 || (!(target->fPerms & target_antiperms)))
-		&& ((priority == false) || (user->fPriority > target->fPriority)))
+	if ((perms == 0 || ((user != NULL) && (user->fPerms & perms)))
+		&& ((target == NULL) ||
+			((target_perms == 0 || (target->fPerms & target_perms))
+			&& (target_antiperms == 0 || (!(target->fPerms & target_antiperms)))
+			&& ((priority == false) || (user->fPriority > target->fPriority)))))
 	{
 		BMenuItem* item = new BMenuItem(msg);
 		if (msg->GetBool("x_to_protocol", true) == true)
