@@ -1057,12 +1057,15 @@ signal_received_chat_msg(PurpleAccount* account, char* sender, char* message,
 	if (chat_id.IsEmpty() == true)
 		chat_id = sender;
 
-	BMessage chat(IM_MESSAGE);
-	chat.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-	chat.AddString("chat_id", chat_id);
-	chat.AddString("user_id", sender);
-	chat.AddString("body", purple_unescape_text(message));
-	((PurpleApp*)be_app)->SendMessage(account, chat);
+	PurpleConvChat* chat = purple_conversation_get_chat_data(conv);
+
+	BMessage msg(IM_MESSAGE);
+	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+	msg.AddString("chat_id", chat_id);
+	if (chat == NULL || purple_conv_chat_find_user(chat, sender) == true)
+		msg.AddString("user_id", sender);
+	msg.AddString("body", purple_unescape_text(message));
+	((PurpleApp*)be_app)->SendMessage(account, msg);
 }
 
 
