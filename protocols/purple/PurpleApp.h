@@ -141,6 +141,11 @@ private:
 							const char* inviter, const char* chat,
 							const char* message, const GHashTable* components);
 
+// EventLoop ui ops
+	static guint		ui_op_input_add(gint fd,
+							PurpleInputCondition condition,
+							PurpleInputFunction function, gpointer data);
+
 // Util
 PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);
 		UserStatus		purple_status_to_cardie(PurpleStatus* status);
@@ -148,9 +153,6 @@ PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);
 		const char*		purple_cache();
 			void		purple_plugins_add_finddir(directory_which finddir);
 
-	static guint		_purple_glib_input_add(gint fd,
-							PurpleInputCondition condition,
-							PurpleInputFunction function, gpointer data);
 	static gboolean		_purple_glib_io_invoke(GIOChannel *source,
 							GIOCondition condition, gpointer data);
 

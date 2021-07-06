@@ -750,19 +750,6 @@ PurpleApp::_ConversationFromMessage(BMessage* msg)
 }
 
 
-static PurpleEventLoopUiOps _glib_eventloops =
-{
-	g_timeout_add,
-	g_source_remove,
-	_purple_glib_input_add,
-	g_source_remove,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-
 
 status_t
 init_libpurple()
@@ -789,10 +776,24 @@ init_libpurple()
 }
 
 
+static PurpleEventLoopUiOps _ui_op_eventloops =
+{
+	g_timeout_add,
+	g_source_remove,
+	ui_op_input_add,
+	g_source_remove,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+
 void
 init_ui_ops()
 {
-	purple_eventloop_set_ui_ops(&_glib_eventloops);
+	purple_eventloop_set_ui_ops(&_ui_op_eventloops);
 }
 
 
@@ -943,6 +944,10 @@ static void
 signal_received_chat_msg(PurpleAccount* account, char* sender, char* message,
 	PurpleConversation* conv, PurpleMessageFlags flags)
 {
+	if (strcmp(sender, purple_account_get_name_for_display(account)) == 0
+			|| strcmp(sender, purple_account_get_username(account)) == 0)
+		return;
+
 	BString chat_id = BString(purple_conversation_get_name(conv));
 	if (chat_id.IsEmpty() == true)
 		chat_id = sender;
@@ -995,6 +1000,7 @@ signal_chat_buddy_joined(PurpleConversation* conv, const char* name,
 		joined.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
 	joined.AddString("chat_id", purple_conversation_get_name(conv));
 	joined.AddString("user_id", name);
+
 	PurpleAccount* account = purple_conversation_get_account(conv);
 	((PurpleApp*)be_app)->SendMessage(account, joined);
 }
@@ -1018,6 +1024,26 @@ signal_chat_invited(PurpleAccount* account, const char* inviter,
 	invited.AddString("user_id", inviter);
 	invited.AddString("body", message);
 	app->SendMessage(account, invited);
+}
+
+
+static guint
+ui_op_input_add(gint fd, PurpleInputCondition condition,
+	PurpleInputFunction function, gpointer data)
+{
+	PurpleGLibIOClosure *closure = g_new0(PurpleGLibIOClosure, 1);
+	GIOChannel *channel;
+	GIOCondition cond = (GIOCondition)0;
+
+	closure->function = function;
+	closure->data = data;
+
+	channel = g_io_channel_unix_new(fd);
+	closure->result = g_io_add_watch_full(channel, G_PRIORITY_DEFAULT, cond,
+					      _purple_glib_io_invoke, closure, g_free);
+
+	g_io_channel_unref(channel);
+	return closure->result;
 }
 
 
@@ -1098,26 +1124,8 @@ purple_plugins_add_finddir(directory_which finddir)
 }
 
 
-static guint _purple_glib_input_add(gint fd, PurpleInputCondition condition,
-	PurpleInputFunction function, gpointer data)
-{
-	PurpleGLibIOClosure *closure = g_new0(PurpleGLibIOClosure, 1);
-	GIOChannel *channel;
-	GIOCondition cond = (GIOCondition)0;
-
-	closure->function = function;
-	closure->data = data;
-
-	channel = g_io_channel_unix_new(fd);
-	closure->result = g_io_add_watch_full(channel, G_PRIORITY_DEFAULT, cond,
-					      _purple_glib_io_invoke, closure, g_free);
-
-	g_io_channel_unref(channel);
-	return closure->result;
-}
-
-
-static gboolean _purple_glib_io_invoke(GIOChannel *source, GIOCondition condition, gpointer data)
+static gboolean
+_purple_glib_io_invoke(GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	PurpleGLibIOClosure *closure = (PurpleGLibIOClosure*)data;
 	PurpleInputCondition purple_cond = (PurpleInputCondition)0;
