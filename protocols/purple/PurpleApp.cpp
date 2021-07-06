@@ -1000,7 +1000,7 @@ signal_received_chat_msg(PurpleAccount* account, char* sender, char* message,
 	chat.AddInt32("im_what", IM_MESSAGE_RECEIVED);
 	chat.AddString("chat_id", chat_id);
 	chat.AddString("user_id", sender);
-	chat.AddString("body", message);
+	chat.AddString("body", purple_unescape_text(message));
 	((PurpleApp*)be_app)->SendMessage(account, chat);
 }
 
@@ -1015,7 +1015,7 @@ signal_sent_chat_msg(PurpleAccount* account, const char* message, int conv_id)
 	sent.AddInt32("im_what", IM_MESSAGE_SENT);
 	sent.AddString("chat_id", purple_conversation_get_name(conv));
 	sent.AddString("user_id", purple_account_get_username(account));
-	sent.AddString("body", message);
+	sent.AddString("body", purple_unescape_text(message));
 	((PurpleApp*)be_app)->SendMessage(account, sent);
 }
 
@@ -1028,7 +1028,7 @@ signal_sent_im_msg(PurpleAccount* account, const char* receiver,
 	sent.AddInt32("im_what", IM_MESSAGE_SENT);
 	sent.AddString("chat_id", receiver);
 	sent.AddString("user_id", purple_account_get_username(account));
-	sent.AddString("body", message);
+	sent.AddString("body", purple_unescape_text(message));
 	((PurpleApp*)be_app)->SendMessage(account, sent);
 }
 
@@ -1066,7 +1066,7 @@ signal_chat_invited(PurpleAccount* account, const char* inviter,
 	invited.AddInt32("im_what", IM_ROOM_INVITE_RECEIVED);
 	invited.AddString("chat_id", chat);
 	invited.AddString("user_id", inviter);
-	invited.AddString("body", message);
+	invited.AddString("body", purple_unescape_text(message));
 	app->SendMessage(account, invited);
 }
 
