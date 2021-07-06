@@ -121,8 +121,16 @@ status_t
 connect_thread(void* data)
 {
 	PurpleProtocol* protocol = (PurpleProtocol*)data;
-	while (true)
-		protocol->SendMessage(new BMessage(receive_message()));
+	while (true) {
+		BMessage* msg = new BMessage(receive_message());
+		switch (msg->what) {
+			case PURPLE_REGISTER_COMMANDS:
+				protocol->Process(msg);
+				break;
+			default:
+				protocol->SendMessage(msg);
+		}
+	}
 }
 
 
@@ -172,13 +180,25 @@ PurpleProtocol::Shutdown()
 	return B_OK;
 }
 
-
 status_t
 PurpleProtocol::Process(BMessage* msg)
 {
-	if (msg->what == IM_MESSAGE) {
-		_SendPrplMessage(msg);
-		return B_OK;
+	switch(msg->what)
+	{
+		case IM_MESSAGE:
+			_SendPrplMessage(msg);
+			return B_OK;
+		case PURPLE_REGISTER_COMMANDS:
+		{
+			BMessage cmd;
+			for (int i = 0; msg->FindMessage("command", i, &cmd) == B_OK; i++)
+				fCommands.AddItem(new BMessage(cmd));
+
+			BMessage* reload = new BMessage(IM_MESSAGE);
+			reload->AddInt32("im_what", IM_PROTOCOL_RELOAD_COMMANDS);
+			SendMessage(reload);
+			break;
+		}
 	}
 	return B_ERROR;
 }
@@ -192,7 +212,7 @@ PurpleProtocol::UpdateSettings(BMessage* msg)
 	msg->what = PURPLE_CONNECT_ACCOUNT;
 	_SendPrplMessage(msg);
 
-	thread_id thread = spawn_thread(connect_thread, "bird_superiority",
+	thread_id thread = spawn_thread(connect_thread, "fly_away_little_bird",
 		B_NORMAL_PRIORITY, (void*)this);
 
 	if (thread < B_OK)
@@ -225,7 +245,7 @@ PurpleProtocol::SettingsTemplate(const char* name)
 BObjectList<BMessage>
 PurpleProtocol::Commands()
 {
-	return BObjectList<BMessage>();
+	return fCommands;
 }
 
 

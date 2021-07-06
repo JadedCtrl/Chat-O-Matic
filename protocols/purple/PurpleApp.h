@@ -89,6 +89,7 @@ private:
 
 			BMessage	_GetAccountTemplate(PurplePluginProtocolInfo* info);
 			BMessage	_GetRoomTemplate(PurplePluginProtocolInfo* info);
+			BMessage	_GetCommands(PurpleAccount* account);
 
 			void		_ParseAccountTemplate(BMessage* settings);
 			GHashTable*	_ParseRoomTemplate(BMessage* msg);

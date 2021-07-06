@@ -93,6 +93,7 @@ private:
 	BString fSignature;
 	BString fFriendlySignature;
 	BMessage fTemplates;
+	BObjectList<BMessage> fCommands;
 };
 
 

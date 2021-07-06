@@ -56,7 +56,15 @@ enum purple_message {
 
 	/*! Disconnect add-on's account			→Server
 		Requires:	String account_name */
-	PURPLE_REQUEST_DISCONNECT				= 'Axwx'
+	PURPLE_REQUEST_DISCONNECT				= 'Axwx',
+
+	/*! Register chat commands with proto	→Protocol */
+	PURPLE_REGISTER_COMMANDS				= 'Scmd',
+
+	/*!	User has typed a command, process!	→Server
+		Forwarded from Cardie.
+		Requires:	String chat_id, String cmd_name, String misc_str */
+	PURPLE_CHAT_COMMAND						= 'Pcmd'
 };
 
 #endif // _PURPLE_MESSAGES_H

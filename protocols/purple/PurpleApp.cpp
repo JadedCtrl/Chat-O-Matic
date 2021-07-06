@@ -109,6 +109,8 @@ PurpleApp::MessageReceived(BMessage* msg)
 					|| msg->FindInt64("thread_id", &thread) != B_OK)
 				break;
 			fAccountThreads.AddItem(username, thread);
+
+			SendMessage(thread, _GetCommands(_AccountFromMessage(msg)));
 			break;
 		}
 		case PURPLE_REQUEST_DISCONNECT:
@@ -560,6 +562,42 @@ PurpleApp::_GetRoomTemplate(PurplePluginProtocolInfo* info)
 		settings.AddMessage("setting", &setting);
 	}
 	return settings;
+}
+
+
+BMessage
+PurpleApp::_GetCommands(PurpleAccount* account)
+{
+	PurpleConversation* conv = purple_conversation_new(PURPLE_CONV_TYPE_ANY,
+		account, NULL);
+
+	BMessage cmdMsgs(PURPLE_REGISTER_COMMANDS);
+	GList* cmds = purple_cmd_list(conv);
+
+	for (int i = 0; cmds != NULL; cmds = cmds->next) {
+		const char* cmd_name = (const char*)cmds->data;
+		if (cmd_name == NULL) break;;
+
+		BMessage cmdMsg;
+		cmdMsg.AddString("class", "ChatCommand");
+		cmdMsg.AddString("_name", cmd_name);
+		cmdMsg.AddBool("_proto", true);
+		cmdMsg.AddInt32("_argtype", 0);
+
+		BString helpString;
+		GList* helps = purple_cmd_help(NULL, cmd_name);
+		for (int j = 0; helps != NULL; helps = helps->next)
+			helpString << (const char*)helps->data;
+		cmdMsg.AddString("_desc", helpString);
+
+		BMessage cmdActionMsg(IM_MESSAGE);
+		cmdActionMsg.AddInt32("im_what", PURPLE_CHAT_COMMAND);
+		cmdActionMsg.AddString("cmd_name", cmd_name);
+		cmdMsg.AddMessage("_msg", &cmdActionMsg);
+
+		cmdMsgs.AddMessage("command", &cmdMsg);
+	}
+	return cmdMsgs;
 }
 
 
