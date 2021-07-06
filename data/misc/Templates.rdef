@@ -41,7 +41,7 @@ resource(1100) message
 	"class" = "BMenuItem",
 	"_label" = "User info…",
 	"_msg" = message('CYuw'),
-	int32 "x_perms" = PERM_KICK,
+	int32 "x_perms" = 0,
 	int32 "x_target_perms" = 0,
 	int32 "x_target_antiperms" = 0,
 	bool "x_priority" = false,
