@@ -371,6 +371,50 @@ PurpleApp::ImMessage(BMessage* msg)
 				serv_reject_chat(purple_account_get_connection(account), data);
 			break;
 		}
+		case PURPLE_CHAT_COMMAND:
+		{
+			PurpleConversation* conv = _ConversationFromMessage(msg);
+			BString cmd;
+			if (conv == NULL || msg->FindString("cmd_name", &cmd) != B_OK)
+				break;
+			cmd << " " << msg->FindString("misc_str");
+
+			const char* cmdline = cmd.String();
+			const char* escape = g_markup_escape_text(cmd, -1);
+
+			char* error = NULL;
+			PurpleCmdStatus status =
+				purple_cmd_do_command(conv, cmdline, escape, &error);
+
+			BMessage errorMsg(IM_MESSAGE);
+			errorMsg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+			errorMsg.AddString("chat_id", msg->FindString("chat_id"));
+			BString errorBody;
+
+			switch (status)
+			{
+				case PURPLE_CMD_STATUS_FAILED:
+					errorBody = "** Command failed %err%\n";
+					break;
+				case PURPLE_CMD_STATUS_NOT_FOUND:
+					errorBody = "** Command not found %err%\n";
+					break;
+				case PURPLE_CMD_STATUS_WRONG_ARGS:
+					errorBody = "** Invalid arguments to command %err%\n";
+					break;
+				case PURPLE_CMD_STATUS_WRONG_PRPL:
+					errorBody = "** Command isn't useful in this chat %err%\n";
+					break;
+				default:
+					errorBody = "** Command error %err%\n";
+			}
+			if (status != PURPLE_CMD_STATUS_OK) {
+				errorBody.ReplaceAll("%err%", error);
+				errorMsg.AddString("body", errorBody);
+				SendMessage(purple_conversation_get_account(conv), errorMsg);
+			}
+			break;
+		}
 		default:
 			std::cout << "IM_MESSAGE unhandled by Purple:\n";
 			msg->PrintToStream();
