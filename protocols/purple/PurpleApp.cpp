@@ -875,6 +875,8 @@ init_signals()
 		&handle, PURPLE_CALLBACK(signal_chat_buddy_joined), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-invited",
 		&handle, PURPLE_CALLBACK(signal_chat_invited), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "chat-buddy-flags",
+		&handle, PURPLE_CALLBACK(signal_chat_buddy_flags), NULL);
 }
 
 
@@ -1047,6 +1049,8 @@ signal_chat_buddy_joined(PurpleConversation* conv, const char* name,
 
 	PurpleAccount* account = purple_conversation_get_account(conv);
 	((PurpleApp*)be_app)->SendMessage(account, joined);
+
+	send_user_role(conv, name, flags);
 }
 
 
@@ -1071,6 +1075,14 @@ signal_chat_invited(PurpleAccount* account, const char* inviter,
 }
 
 
+static void
+signal_chat_buddy_flags(PurpleConversation* conv, const char* name,
+	PurpleConvChatBuddyFlags oldflags, PurpleConvChatBuddyFlags newflags)
+{
+	send_user_role(conv, name, newflags);
+}
+
+
 static guint
 ui_op_input_add(gint fd, PurpleInputCondition condition,
 	PurpleInputFunction function, gpointer data)
@@ -1088,6 +1100,48 @@ ui_op_input_add(gint fd, PurpleInputCondition condition,
 
 	g_io_channel_unref(channel);
 	return closure->result;
+}
+
+
+void
+send_user_role(PurpleConversation* conv, const char* name,
+	PurpleConvChatBuddyFlags flags)
+{
+	if (flags == 0) return;
+
+	BString role_title;
+	int32 role_perms = 0 | PERM_READ | PERM_WRITE;
+	int32 role_priority = 0;
+
+	if (flags & PURPLE_CBFLAGS_FOUNDER) {
+		role_title = "Founder";
+		role_priority = 3;
+	}
+	if (flags & PURPLE_CBFLAGS_OP) {
+		if (role_title.IsEmpty() == true)
+			role_title = "Operator";
+		role_perms |= PERM_KICK | PERM_BAN | PERM_MUTE | PERM_DEAFEN
+			| PERM_ROLECHANGE | PERM_ROOM_SUBJECT | PERM_ROOM_NAME;
+		role_priority = 2;
+	}
+	if (flags & PURPLE_CBFLAGS_HALFOP) {
+		if (role_title.IsEmpty() == true)
+			role_title = "Moderator";
+		role_perms |= PERM_KICK | PERM_MUTE | PERM_DEAFEN | PERM_ROOM_SUBJECT;
+		role_priority = 3;
+	}
+
+	if (role_title.IsEmpty() == true) return;
+
+	BMessage role(IM_MESSAGE);
+	role.AddInt32("im_what", IM_ROOM_ROLECHANGED);
+	role.AddString("user_id", name);
+	role.AddString("chat_id", purple_conversation_get_name(conv));
+	role.AddString("role_title", role_title);
+	role.AddInt32("role_perms", role_perms);
+	role.AddInt32("role_priority", role_priority);
+	((PurpleApp*)be_app)->SendMessage(purple_conversation_get_account(conv),
+		role);
 }
 
 

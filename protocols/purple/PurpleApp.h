@@ -140,6 +140,9 @@ private:
 	static void			signal_chat_invited(PurpleAccount* account,
 							const char* inviter, const char* chat,
 							const char* message, const GHashTable* components);
+	static void			signal_chat_buddy_flags(PurpleConversation* conv,
+							const char* name, PurpleConvChatBuddyFlags oldflags,
+							PurpleConvChatBuddyFlags newflags);
 
 // EventLoop ui ops
 	static guint		ui_op_input_add(gint fd,
@@ -147,6 +150,8 @@ private:
 							PurpleInputFunction function, gpointer data);
 
 // Util
+			void		send_user_role(PurpleConversation* conv,
+							const char* name, PurpleConvChatBuddyFlags flags);
 PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);
 		UserStatus		purple_status_to_cardie(PurpleStatus* status);
 
