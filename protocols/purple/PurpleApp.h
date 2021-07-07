@@ -65,6 +65,7 @@ typedef struct _ProtocolInfo {
 	BString id;
 	BMessage accountTemplate;
 	BMessage roomTemplate;
+	BString iconName;
 } ProtocolInfo;
 
 

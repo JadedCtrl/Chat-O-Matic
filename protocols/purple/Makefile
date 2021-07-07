@@ -38,7 +38,8 @@ SRCS = \
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
 RDEFS = \
-	protocols/purple/purple.rdef
+	protocols/purple/purple.rdef \
+	data/icons/protocols/Purple/Purple.rdef
 
 #	Specify the resource files to use. Full or relative paths can be used.
 #	Both RDEFS and RSRCS can be utilized in the same Makefile.
@@ -60,7 +61,7 @@ RSRCS =
 #	- 	if your library does not follow the standard library naming scheme,
 #		you need to specify the path to the library and it's name.
 #		(e.g. for mylib.a, specify "mylib.a" or "path/mylib.a")
-LIBS =  be crypto network support purple glib-2.0 $(STDCPPLIBS)
+LIBS =  be crypto glib-2.0 interface network purple support translation $(STDCPPLIBS)
 
 
 #	Specify additional paths to directories following the standard libXXX.so

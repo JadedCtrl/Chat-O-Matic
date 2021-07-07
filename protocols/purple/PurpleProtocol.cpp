@@ -22,7 +22,9 @@
 #include <iostream>
 
 #include <Application.h>
+#include <Resources.h>
 #include <Roster.h>
+#include <TranslationUtils.h>
 
 #include <ChatProtocolMessages.h>
 
@@ -46,10 +48,8 @@ protocol_at(int32 i)
 	BMessage protoInfo = receive_message();
 	BString name = protoInfo.FindString("name");
 	BString id = protoInfo.FindString("id");
-	BMessage templates;
-	protoInfo.FindMessage("templates", &templates);
 
-	return (ChatProtocol*)new PurpleProtocol(name, id, templates);
+	return (ChatProtocol*)new PurpleProtocol(name, id, protoInfo);
 }
 
 
@@ -151,8 +151,21 @@ PurpleProtocol::PurpleProtocol(BString name, BString id, BMessage settings)
 	:
 	fSignature(id),
 	fFriendlySignature(name),
-	fTemplates(settings)
+	fIcon(NULL)
 {
+	fIconName = settings.GetString("icon", "");
+	settings.FindMessage("templates", &fTemplates);
+
+	BPath path;
+	_FindIcon(&path, B_SYSTEM_DATA_DIRECTORY);
+	_FindIcon(&path, B_SYSTEM_NONPACKAGED_DATA_DIRECTORY);
+	_FindIcon(&path, B_USER_DATA_DIRECTORY);
+	_FindIcon(&path, B_USER_NONPACKAGED_DATA_DIRECTORY);
+
+	if (path.InitCheck() == B_OK) {
+		BFile iconFile(path.Path(), B_READ_ONLY);
+		fIcon = BTranslationUtils::GetBitmap(&iconFile);
+	}
 }
 
 
@@ -286,7 +299,7 @@ PurpleProtocol::FriendlySignature() const
 BBitmap*
 PurpleProtocol::Icon() const
 {
-	return NULL;
+	return fIcon;
 }
 
 
@@ -370,4 +383,19 @@ PurpleProtocol::_RosterTemplate()
 	temp.AddMessage("setting", &name);
 
 	return temp;
+}
+
+
+void
+PurpleProtocol::_FindIcon(BPath* iconPath, directory_which finddir)
+{
+	BPath path;
+	find_directory(finddir, &path);
+
+	BString relPath = "pixmaps/pidgin/protocols/48/";
+	relPath << fIconName << ".png";
+
+	path.Append(relPath.String());
+	if (BEntry(path.Path(), true).Exists() == true)
+		iconPath->SetTo(path.Path());
 }

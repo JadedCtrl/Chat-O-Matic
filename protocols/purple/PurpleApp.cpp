@@ -91,6 +91,7 @@ PurpleApp::MessageReceived(BMessage* msg)
 			protoInfo.AddMessage("templates", &temps);
 			protoInfo.AddString("name", info->name);
 			protoInfo.AddString("id", info->id);
+			protoInfo.AddString("icon", info->iconName);
 
 			SendMessage(thread_id, protoInfo);
 			break;
@@ -527,6 +528,8 @@ PurpleApp::_SaveProtocolInfo(PurplePlugin* plugin)
 	PurplePluginProtocolInfo* info = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
 	proto->accountTemplate = _GetAccountTemplate(info);
 	proto->roomTemplate = _GetRoomTemplate(info);
+	if (info->list_icon != NULL)
+		proto->iconName = info->list_icon(NULL, NULL);
 	fProtocols.AddItem(proto);
 }
 

@@ -20,6 +20,7 @@
 #ifndef _PURPLE_PROTOCOL_H
 #define _PURPLE_PROTOCOL_H
 
+#include <FindDirectory.h>
 #include <Path.h>
 #include <String.h>
 
@@ -83,6 +84,8 @@ private:
 
 			BMessage	_RosterTemplate();
 
+			void		_FindIcon(BPath* path, directory_which finddir);
+
 	ChatProtocolMessengerInterface* fMessenger;
 	BMessenger* fPrplMessenger;
 	thread_id fBirdThread;
@@ -92,6 +95,8 @@ private:
 
 	BString fSignature;
 	BString fFriendlySignature;
+	BString fIconName;
+	BBitmap* fIcon;
 	BMessage fTemplates;
 	BObjectList<BMessage> fCommands;
 };
