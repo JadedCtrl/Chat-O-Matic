@@ -39,7 +39,7 @@ SRCS = \
 #	used.
 RDEFS = \
 	protocols/purple/purple.rdef \
-	data/icons/protocols/Purple/Purple.rdef
+	data/icons/protocols/Purple.rdef
 
 #	Specify the resource files to use. Full or relative paths can be used.
 #	Both RDEFS and RSRCS can be utilized in the same Makefile.
