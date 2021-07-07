@@ -14,7 +14,7 @@
 class BBitmap;
 
 
-// Caya protocol interface version
+// Cardie protocol interface version
 #define APP_VERSION_1_PRE_ALPHA_1		0x00000001
 #define APP_VERSION_1_ALPHA_1			0x00000100
 
@@ -40,37 +40,37 @@ public:
 	//! Change settings
 	virtual status_t UpdateSettings(BMessage*) = 0;
 
-	//! Return a settings template
-	//	Currently there are three: "account" (used when creating/editing
-	//	the user's account), "room" (used when creating a room), and "roster"
-	//	(used when adding or editing a roster member.
+	/*! Return a settings template
+		Currently there are four: "account" (used when creating/editing
+		the user's account), "create_room" & "join_room" (fairly self-evident),
+		and "roster" (used when adding or editing a roster member. */
 	virtual BMessage SettingsTemplate(const char* name) = 0;
 
-	//! Custom chat commands― archived ChatCommand objects
-	//	Requires: String "_name", String "_desc", Bool "_proto",
-	//			  Message "_msg", int32s "_argtype",
-	//			  String "class" = "ChatCommand"
+	/*! Custom chat commands― archived ChatCommand objects
+		Requires: String "_name", String "_desc", Bool "_proto",
+				  Message "_msg", int32s "_argtype",
+				  String "class" = "ChatCommand" */
 	virtual BObjectList<BMessage> Commands() {
 		return BObjectList<BMessage>();
 	}
 
-	//! Custom menu items used in the userlist right-click menu.
-	//	Archived BMenuItem with some extra slots.
-	//	Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
-	//			  Bool "x_to_protocol", Bool "x_priority", int32 "x_perms",
-	//			  int32 "x_target_perms", int32 "x_target_antiperms"
+	/*! Custom menu items used in the userlist right-click menu.
+		Archived BMenuItem with some extra slots.
+		Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
+				  Bool "x_to_protocol", Bool "x_priority", int32 "x_perms",
+				  int32 "x_target_perms", int32 "x_target_antiperms" */
 	virtual BObjectList<BMessage> UserPopUpItems() = 0;
 
-	//! Custom menu items used in the conversation-list right-click menu.
-	//	Archived BMenuItem with some extra slots.
-	//	Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
-	//			  Bool "x_to_protocol", int32 "x_perms"
+	/*! Custom menu items used in the conversation-list right-click menu.
+		Archived BMenuItem with some extra slots.
+		Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
+				  Bool "x_to_protocol", int32 "x_perms" */
 	virtual BObjectList<BMessage> ChatPopUpItems() = 0;
 
-	//! Custom menubar items (in the "Protocol" menu).
-	//	Archived BMenuItem with some extra slots.
-	//	Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
-	//			  Bool "x_to_protocol"
+	/*! Custom menubar items (in the "Protocol" menu).
+		Archived BMenuItem with some extra slots.
+		Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
+				  Bool "x_to_protocol" */
 	virtual BObjectList<BMessage> MenuBarItems() = 0;
 
 	//! Protocol signature

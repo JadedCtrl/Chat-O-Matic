@@ -24,7 +24,8 @@ ProtocolLooper::ProtocolLooper(ChatProtocol* protocol, int64 instance)
 	BLooper(),
 	fProtocol(protocol),
 	fInstance(instance),
-	fListItem(NULL)
+	fListItem(NULL),
+	fMySelf(NULL)
 {
 	Account* account = reinterpret_cast<Account*>(
 		protocol->MessengerInterface());
