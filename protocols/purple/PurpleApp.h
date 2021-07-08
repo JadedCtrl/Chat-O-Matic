@@ -32,9 +32,9 @@
 #include <AppConstants.h>
 
 
-typedef KeyMap<BString, BString> Accounts; // Cardie username → Purple username
-typedef KeyMap<BString, thread_id> AccountThreads; // Purple username → Thread
-typedef KeyMap<BString, GHashTable*> GHashList;
+typedef KeyMap<BString, BString> StringMap;
+typedef KeyMap<BString, thread_id> ThreadMap;
+typedef KeyMap<BString, GHashTable*> HashMap;
 
 const uint32 G_MAIN_LOOP = 'GLml';
 const uint32 CHECK_APP = 'Paca';
@@ -82,7 +82,8 @@ public:
 			void		SendMessage(thread_id thread, BMessage msg);
 			void		SendMessage(PurpleAccount* account, BMessage msg);
 
-	GHashList fInviteList;
+	HashMap fInviteList;
+	StringMap fUserNicks; // Purple username → Nickname for Cardie
 
 private:
 			void		_SendSysText(PurpleConversation* conv, const char* text);
@@ -102,8 +103,8 @@ private:
 		PurpleAccount*	_AccountFromMessage(BMessage* msg);
 	PurpleConversation*	_ConversationFromMessage(BMessage* msg);
 
-	Accounts fAccounts;
-	AccountThreads fAccountThreads;
+	StringMap fAccounts; // Cardie account name → Purple username
+	ThreadMap fAccountThreads; // Cardie account name → Thread
 	BObjectList<ProtocolInfo> fProtocols;
 
 	GMainLoop* fGloop;
@@ -153,8 +154,12 @@ private:
 							PurpleInputFunction function, gpointer data);
 
 // Util
+			bool		is_own_user(PurpleAccount* account, const char* name);
+
+			void		send_own_info(PurpleAccount* account);
 			void		send_user_role(PurpleConversation* conv,
 							const char* name, PurpleConvChatBuddyFlags flags);
+
 PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);
 		UserStatus		purple_status_to_cardie(PurpleStatus* status);
 

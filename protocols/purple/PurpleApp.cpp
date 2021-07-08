@@ -233,6 +233,7 @@ PurpleApp::ImMessage(BMessage* msg)
 		}
 		case IM_GET_ROOM_PARTICIPANTS:
 		{
+			PurpleAccount* account = _AccountFromMessage(msg);
 			PurpleConversation* conv = _ConversationFromMessage(msg);
 			PurpleConvChat* chat = purple_conversation_get_chat_data(conv);
 			PurpleConvIm* im = purple_conversation_get_im_data(conv);
@@ -245,7 +246,9 @@ PurpleApp::ImMessage(BMessage* msg)
 				GList* users = purple_conv_chat_get_users(chat);
 				for (int i = 0; users != NULL; users = users->next) {
 					PurpleConvChatBuddy* user = (PurpleConvChatBuddy*)users->data;
-					user_ids.Add(BString(purple_conv_chat_cb_get_name(user)));
+					const char* user_name = purple_conv_chat_cb_get_name(user);
+					if (is_own_user(account, user_name) == false)
+						user_ids.Add(BString(user_name));
 				}
 			}
 
@@ -856,7 +859,6 @@ PurpleApp::_ConversationFromMessage(BMessage* msg)
 }
 
 
-
 status_t
 init_libpurple()
 {
@@ -958,11 +960,13 @@ signal_account_signed_on(PurpleAccount* account)
 	PurpleApp* app = (PurpleApp*)be_app;
 	((PurpleApp*)be_app)->SendMessage(account, readyMsg);
 
+	BString username = purple_account_get_username(account);
+	BString display = purple_account_get_name_for_display(account);
+
 	BMessage info(IM_MESSAGE);
-	info.AddInt32("im_what", IM_OWN_CONTACT_INFO);
-	info.AddString("user_id", purple_account_get_username(account));
-	info.AddString("user_name", purple_account_get_name_for_display(account));
-	((PurpleApp*)be_app)->SendMessage(account, info);
+	send_own_info(account);
+
+	((PurpleApp*)be_app)->fUserNicks.AddItem(username, display);
 }
 
 
@@ -1052,8 +1056,8 @@ static void
 signal_received_chat_msg(PurpleAccount* account, char* sender, char* message,
 	PurpleConversation* conv, PurpleMessageFlags flags)
 {
-	if (strcmp(sender, purple_account_get_name_for_display(account)) == 0
-			|| strcmp(sender, purple_account_get_username(account)) == 0)
+	is_own_user(account, sender);
+	if (flags | PURPLE_MESSAGE_SEND)
 		return;
 
 	BString chat_id = BString(purple_conversation_get_name(conv));
@@ -1107,8 +1111,11 @@ signal_chat_buddy_joined(PurpleConversation* conv, const char* name,
 	BMessage joined(IM_MESSAGE);
 	if (new_arrival)
 		joined.AddInt32("im_what", IM_ROOM_PARTICIPANT_JOINED);
-	else
+	else {
 		joined.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
+		if (is_own_user(purple_conversation_get_account(conv), name) == true)
+			return;
+	}
 	joined.AddString("chat_id", purple_conversation_get_name(conv));
 	joined.AddString("user_id", name);
 
@@ -1165,6 +1172,36 @@ ui_op_input_add(gint fd, PurpleInputCondition condition,
 
 	g_io_channel_unref(channel);
 	return closure->result;
+}
+
+
+bool
+is_own_user(PurpleAccount* account, const char* name)
+{
+	PurpleApp* app = ((PurpleApp*)be_app);
+	BString username = purple_account_get_username(account);
+	BString display = purple_account_get_name_for_display(account);
+
+	if (app->fUserNicks.ValueFor(username) != display) {
+		app->fUserNicks.RemoveItemFor(username);
+		app->fUserNicks.AddItem(username, display);
+		send_own_info(account);
+	}
+
+	if (name == username || name == display)
+		return true;
+	return false;
+}
+
+
+void
+send_own_info(PurpleAccount* account)
+{
+	BMessage info(IM_MESSAGE);
+	info.AddInt32("im_what", IM_OWN_CONTACT_INFO);
+	info.AddString("user_id", purple_account_get_username(account));
+	info.AddString("user_name", purple_account_get_name_for_display(account));
+	((PurpleApp*)be_app)->SendMessage(account, info);
 }
 
 
