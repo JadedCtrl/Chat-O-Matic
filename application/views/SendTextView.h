@@ -1,0 +1,24 @@
+/*
+ * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
+ * All rights reserved. Distributed under the terms of the MIT license.
+ */
+#ifndef _SEND_TEXT_VIEW_H
+#define _SEND_TEXT_VIEW_H
+
+#include <TextView.h>
+
+#include "ConversationView.h"
+
+
+class SendTextView : public BTextView {
+public:
+	SendTextView(const char* name, ConversationView* convView);
+
+	void KeyDown(const char* bytes, int32 numBytes);
+
+private:
+	ConversationView* fConversationView;
+};
+
+
+#endif // _SEND_TEXT_VIEW_H

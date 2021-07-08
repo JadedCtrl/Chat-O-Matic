@@ -17,6 +17,7 @@ class BTextView;
 
 class BitmapView;
 class RenderView;
+class SendTextView;
 class User;
 class UserListView;
 
@@ -62,8 +63,9 @@ private:
 		BitmapView*		fProtocolView;
 		BitmapView*		fIcon;
 
-		RenderView*	fReceiveView;
+		RenderView*		fReceiveView;
 		UserListView*	fUserList;
+		SendTextView*	fSendView;
 };
 
 

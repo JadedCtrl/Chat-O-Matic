@@ -26,6 +26,7 @@
 #include "RenderView.h"
 #include "Conversation.h"
 #include "NotifyMessage.h"
+#include "SendTextView.h"
 #include "User.h"
 #include "UserItem.h"
 #include "UserListView.h"
@@ -40,6 +41,7 @@ ConversationView::ConversationView()
 {
 	fMessageCount = 0;
 	_InitInterface();
+	fSendView->MakeFocus(true);
 }
 
 
@@ -89,7 +91,7 @@ ConversationView::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case APP_CHAT:
 		{
-			BString text = message->FindString("body");
+			BString text = fSendView->Text();
 			if (text == "")
 				return;
 			int64 instance = fConversation->GetProtocolLooper()->GetInstance();
@@ -100,6 +102,8 @@ ConversationView::MessageReceived(BMessage* message)
 			msg.AddString("chat_id", fConversation->GetId());
 			msg.AddString("body", text);
 			fConversation->ImMessage(&msg);
+
+			fSendView->SetText("");
 			break;
 		}
 		case IM_MESSAGE:
@@ -277,9 +281,11 @@ ConversationView::ObserveString(int32 what, BString str)
 void
 ConversationView::_InitInterface()
 {
-	fReceiveView = new RenderView("fReceiveView");
+	fReceiveView = new RenderView("receiveView");
 	BScrollView* scrollViewReceive = new BScrollView("receiveScrollView",
 		fReceiveView, B_WILL_DRAW, false, true);
+
+	fSendView = new SendTextView("sendView", this);
 
 	fNameTextView = new BTextView("roomName", B_WILL_DRAW);
 	fNameTextView->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
@@ -310,9 +316,13 @@ ConversationView::_InitInterface()
 			.Add(fProtocolView)
 		.End()
 		.AddSplit(B_HORIZONTAL, 0)
-			.Add(scrollViewReceive, 5)
+			.AddGroup(B_VERTICAL, B_USE_HALF_ITEM_SPACING, 8)
+				.Add(scrollViewReceive, 20)
+				.Add(fSendView, 1)
+			.End()
 			.Add(scrollViewUsers, 1)
-		.End();
+		.End()
+	.End();
 }
 
 

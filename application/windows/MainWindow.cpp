@@ -25,7 +25,6 @@
 #include "ConversationItem.h"
 #include "ConversationListView.h"
 #include "ConversationView.h"
-#include "EditingFilter.h"
 #include "MainWindow.h"
 #include "NotifyMessage.h"
 #include "PreferencesWindow.h"
@@ -55,8 +54,6 @@ MainWindow::MainWindow()
 	AddFilter(fServer);
 
 	// Also through the editing filter (enter to send)
-	AddCommonFilter(new EditingFilter(fSendView));
-	fSendView->MakeFocus(true);
 
 	CenterOnScreen();
 
@@ -208,13 +205,6 @@ MainWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case APP_CHAT:
-		{
-			message->AddString("body", fSendView->Text());
-			fChatView->MessageReceived(message);
-			fSendView->SetText("");
-			break;
-		}
 		case APP_DISABLE_ACCOUNT:
 			_ToggleMenuItems();
 			break;
@@ -337,7 +327,6 @@ MainWindow::SetConversation(Conversation* chat)
 	float weightSend = fRightView->ItemWeight((int32)1);
 
 	fRightView->RemoveChild(fRightView->FindView("chatView"));
-	fRightView->RemoveChild(fRightView->FindView("fSendScroll"));
 
 	if (chat != NULL) {
 		fChatView = chat->GetView();
@@ -351,7 +340,6 @@ MainWindow::SetConversation(Conversation* chat)
 		SetTitle(APP_NAME);
 
 	fRightView->AddChild(fChatView, 9);
-	fRightView->AddChild(fSendScroll, 1);
 
 	// Apply saved chat and textbox size to new views
 	if (weightChat * weightSend != 0) {
@@ -419,10 +407,6 @@ MainWindow::_InitInterface()
 	// Right-side of window, Chat + Textbox
 	fRightView = new BSplitView(B_VERTICAL, 0);
 	fChatView = new ConversationView();
-	fSendView = new BTextView("fSendView");
-	fSendScroll = new BScrollView("fSendScroll", fSendView,
-		B_WILL_DRAW, false, true);
-	fSendView->SetWordWrap(true);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.Add((fMenuBar = _CreateMenuBar()))

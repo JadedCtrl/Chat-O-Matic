@@ -68,8 +68,6 @@ private:
 
 	// Right panel, chat
 	BSplitView*			fRightView;
-	BScrollView*		fSendScroll;
-	BTextView*			fSendView;
 	ConversationView*	fChatView;
 	Conversation*		fConversation;
 };

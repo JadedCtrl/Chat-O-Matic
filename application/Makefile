@@ -38,7 +38,6 @@ SRCS = \
 	application/ChatCommand.cpp \
 	application/Contact.cpp \
 	application/Conversation.cpp \
-	application/EditingFilter.cpp \
 	application/ImageCache.cpp \
 	application/Notifier.cpp \
 	application/ProtocolLooper.cpp \
@@ -68,6 +67,7 @@ SRCS = \
 	application/views/RosterItem.cpp \
 	application/views/RosterListView.cpp \
 	application/views/RosterView.cpp \
+	application/views/SendTextView.cpp \
 	application/views/StatusMenuItem.cpp \
 	application/views/StatusView.cpp \
 	application/views/TemplateView.cpp \
