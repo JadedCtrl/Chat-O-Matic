@@ -1,9 +1,11 @@
 /*
  * Copyright 2012, Casalinuovo Dario. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  *		Casalinuovo Dario
+ *		Jaidyn Levesque <jadedctrl@teknik.io>
  */
 #ifndef _USER_INFO_WINDOW_H
 #define _USER_INFO_WINDOW_H
@@ -12,8 +14,6 @@
 #include <TextView.h>
 #include <StringView.h>
 #include "Observer.h"
-
-#include "AppConstants.h"
 
 class BitmapView;
 class User;
@@ -26,12 +26,15 @@ public:
 	virtual	void		MessageReceived(BMessage* message);
 
 private:
-		BTextView*		fStatus;
+			void		_InitInterface();
+
 		User*			fUser;
-		BTextView*		fPersonalMessage;
+
 		BitmapView*		fAvatar;
+		BStringView*	fNameLabel;
+		BStringView*	fIdLabel;
+		BStringView*	fStatusLabel;
+		BStringView*	fTextStatusLabel;
 };
 
-
 #endif	// _USER_INFO_WINDOW_H
-
