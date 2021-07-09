@@ -9,6 +9,6 @@ purple:
 xmpp:
 	$(MAKE) -f protocols/xmpp/Makefile
 
-all: irc xmpp purple
+all: xmpp purple
 
 default: all

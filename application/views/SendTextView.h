@@ -17,7 +17,12 @@ public:
 	void KeyDown(const char* bytes, int32 numBytes);
 
 private:
+	void _AutoComplete();
+
 	ConversationView* fConversationView;
+
+	int32 fCurrentIndex;
+	BString fCurrentWord;
 };
 
 
