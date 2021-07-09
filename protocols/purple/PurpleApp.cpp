@@ -1056,8 +1056,7 @@ static void
 signal_received_chat_msg(PurpleAccount* account, char* sender, char* message,
 	PurpleConversation* conv, PurpleMessageFlags flags)
 {
-	is_own_user(account, sender);
-	if (flags | PURPLE_MESSAGE_SEND)
+	if (is_own_user(account, sender) == true)
 		return;
 
 	BString chat_id = BString(purple_conversation_get_name(conv));
