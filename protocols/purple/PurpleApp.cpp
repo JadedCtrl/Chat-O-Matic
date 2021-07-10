@@ -873,6 +873,8 @@ init_libpurple()
 	purple_plugins_add_finddir(B_USER_NONPACKAGED_LIB_DIRECTORY);
 	purple_plugins_add_finddir(B_SYSTEM_NONPACKAGED_LIB_DIRECTORY);
 
+	purple_debug_set_enabled(DEBUG_ENABLED);
+
 	if (!purple_core_init(PURPLE_UI_ID))
 		return B_ERROR;
 
