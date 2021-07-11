@@ -3,7 +3,7 @@
 
 A multi-protocol chat program.
 
-![Screenshot](data/screenshots/update-1.png)
+![Screenshot](data/screenshots/update-2.png)
 
 ## Building
 You can make Cardie and its protocols with:
@@ -15,9 +15,13 @@ Or one-by-one:
 `$ make libs; make app; make protocols`
 
 Cardie itself requires the `expat_devel` package, the XMPP protocol requires
-`gloox_devel`, and the (provisional) IRC protocol requires `libircclient_devel`,
-`openssl_devel`, and `zlib_devel`. The (experimental) libpurple add-on requires
-`libpurple_devel` and `glib2_devel`.
+`gloox_devel`, and the libpurple add-on requires `libpurple_devel` and
+`glib2_devel`.
+
+The (provisional) IRC protocol requires `libircclient_devel`, `openssl_devel`,
+and `zlib_devel`, though you have to build it specifically:
+
+`$ make -f protocols/irc/Makefile`
 
 ## License
 Cardie itself is under the MIT license, but licenses vary for the included

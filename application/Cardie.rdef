@@ -11,7 +11,7 @@ resource app_version {
 	internal = 0,
 
 	short_info = APP_NAME,
-	long_info = "©2009-2021 Andrea Anzani, Pier Luigi Fiorini, Dario Casalinuovo, Jaidyn Levesque"
+	long_info = "©2009-2021 Cardie, Caya, & IMKit Contributors"
 };
 
 resource app_flags B_SINGLE_LAUNCH;
