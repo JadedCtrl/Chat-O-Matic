@@ -23,7 +23,6 @@
 #include <iostream>
 
 #include <glib.h>
-#include <libpurple/purple.h>
 #include <libpurple/status.h>
 
 #include <Directory.h>
@@ -36,6 +35,7 @@
 #include <Flags.h>
 
 #include "Purple.h"
+#include "PurpleDialog.h"
 #include "PurpleMessages.h"
 
 
@@ -900,10 +900,27 @@ static PurpleEventLoopUiOps _ui_op_eventloops =
 };
 
 
+static PurpleRequestUiOps _ui_op_request =
+{
+	ui_op_request_input,
+	ui_op_request_choice,
+	ui_op_request_action,
+	ui_op_request_fields,
+	ui_op_request_file,
+	NULL,
+	ui_op_request_folder,
+	ui_op_request_action_with_icon,
+	NULL,
+	NULL,
+	NULL
+};
+
+
 void
 init_ui_ops()
 {
 	purple_eventloop_set_ui_ops(&_ui_op_eventloops);
+	purple_request_set_ui_ops(&_ui_op_request);
 }
 
 
@@ -1173,6 +1190,88 @@ ui_op_input_add(gint fd, PurpleInputCondition condition,
 
 	g_io_channel_unref(channel);
 	return closure->result;
+}
+
+
+static void*
+ui_op_request_input(const char* title, const char* primary,
+	const char* secondary, const char* default_value, gboolean multiline,
+	gboolean masked, gchar* hint, const char* ok_text, GCallback ok_cb,
+	const char* cancel_text, GCallback cancel_cb, PurpleAccount* account,
+	const char* who, PurpleConversation* conv, void* user_data)
+{
+	std::cerr << "request input: " << title << std::endl;
+	return NULL;
+}
+
+
+static void*
+ui_op_request_choice(const char* title, const char* primary,
+	const char* secondary, int default_value, const char* ok_text,
+	GCallback ok_cb, const char* cancel_text, GCallback cancel_cb,
+	PurpleAccount* account, const char* who, PurpleConversation* conv,
+	void* user_data, va_list choices)
+{
+	std::cerr << "request choice: " << title << std::endl;
+	return NULL;
+}
+
+
+static void*
+ui_op_request_action(const char* title, const char* primary,
+	const char* secondary, int default_action, PurpleAccount* account,
+	const char* who, PurpleConversation* conv, void* user_data,
+	size_t action_count, va_list actions)
+{
+	PurpleDialog* win =
+		new PurpleDialog(title, primary, secondary, account, actions,
+			action_count, user_data);
+	win->Show();
+	return NULL;
+}
+
+
+static void*
+ui_op_request_fields(const char* title, const char* primary,
+	const char* secondary, PurpleRequestFields* fields, const char* ok_text,
+	GCallback ok_cb, const char* cancel_text, GCallback cancel_cb,
+	PurpleAccount* account, const char* who, PurpleConversation* conv,
+	void* user_data)
+{
+	std::cerr << "request fields from " << purple_account_get_username(account)
+		<< ": " << primary << std::endl;
+	return NULL;
+}
+
+
+static void*
+ui_op_request_file(const char* title, const char* filename, gboolean savedialog,
+	GCallback ok_cb, GCallback cancel_cb, PurpleAccount* account,
+	const char* who, PurpleConversation* conv, void* user_data)
+{
+	std::cerr << "request file: " << title << std::endl;
+	return NULL;
+}
+
+
+static void*
+ui_op_request_folder(const char* title, const char* dirname, GCallback ok_cb,
+	GCallback cancel_cb, PurpleAccount* account, const char* who,
+	PurpleConversation* conv, void* user_data)
+{
+	std::cerr << "request folder: " << title << std::endl;
+	return NULL;
+}
+
+
+static void*
+ui_op_request_action_with_icon(const char* title, const char* primary,
+	const char* secondary, int default_action, PurpleAccount* account,
+	const char* who, PurpleConversation* conv, gconstpointer icon_data,
+	gsize icon_size, void* user_data, size_t action_count, va_list actions)
+{
+	std::cerr << "request action with icon: " << title << std::endl;
+	return NULL;
 }
 
 

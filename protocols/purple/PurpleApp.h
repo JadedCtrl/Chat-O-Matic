@@ -141,17 +141,64 @@ private:
 	 static void		signal_chat_buddy_joined(PurpleConversation* conv,
 							const char* name, PurpleConvChatBuddyFlags flags,
 							gboolean new_arrival);
-	static void			signal_chat_invited(PurpleAccount* account,
+	 static void		signal_chat_invited(PurpleAccount* account,
 							const char* inviter, const char* chat,
 							const char* message, const GHashTable* components);
-	static void			signal_chat_buddy_flags(PurpleConversation* conv,
+	 static void		signal_chat_buddy_flags(PurpleConversation* conv,
 							const char* name, PurpleConvChatBuddyFlags oldflags,
 							PurpleConvChatBuddyFlags newflags);
 
 // EventLoop ui ops
-	static guint		ui_op_input_add(gint fd,
+	 static guint		ui_op_input_add(gint fd,
 							PurpleInputCondition condition,
 							PurpleInputFunction function, gpointer data);
+
+// Request ui ops
+	 static void*		ui_op_request_input(const char* title,
+							const char* primary, const char* secondary,
+							const char* default_value, gboolean multiline,
+							gboolean masked, gchar* hint, const char* ok_text,
+							GCallback ok_cb, const char* cancel_text,
+							GCallback cancel_cb, PurpleAccount* account,
+							const char* who, PurpleConversation* conv,
+							void* user_data);
+	 static void*		ui_op_request_choice(const char* title,
+							const char* primary, const char* secondary,
+							int default_value, const char* ok_text,
+							GCallback ok_cb, const char* cancel_text,
+							GCallback cancel_cb, PurpleAccount* account,
+							const char* who, PurpleConversation* conv,
+							void* user_data, va_list choices);
+	 static void*		ui_op_request_action(const char* title,
+							const char* primary, const char* secondary,
+							int default_action, PurpleAccount* account,
+							const char* who, PurpleConversation* conv,
+							void* user_data, size_t action_count,
+							va_list actions);
+	 static void*		ui_op_request_fields(const char* title,
+							const char* primary, const char* secondary,
+							PurpleRequestFields* fields, const char* ok_text,
+							GCallback ok_cb, const char* cancel_text,
+							GCallback cancel_cb, PurpleAccount* account,
+							const char* who, PurpleConversation* conv,
+							void* user_data);
+	 static void*		ui_op_request_file(const char* title,
+							const char* filename, gboolean savedialog,
+							GCallback ok_cb, GCallback cancel_cb,
+							PurpleAccount* account, const char* who,
+							PurpleConversation* conv, void* user_data);
+	 static void*		ui_op_request_folder(const char* title,
+							const char* dirname, GCallback ok_cb,
+							GCallback cancel_cb, PurpleAccount* account,
+							const char* who, PurpleConversation* conv,
+							void* user_data);
+	 static void*		ui_op_request_action_with_icon(const char* title,
+							const char* primary, const char* secondary,
+							int default_action, PurpleAccount* account,
+							const char* who, PurpleConversation* conv,
+							gconstpointer icon_data, gsize icon_size,
+							void* user_data, size_t action_count,
+							va_list actions);
 
 // Util
 			bool		is_own_user(PurpleAccount* account, const char* name);
