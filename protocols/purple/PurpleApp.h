@@ -200,6 +200,11 @@ private:
 							void* user_data, size_t action_count,
 							va_list actions);
 
+	// Notify ui ops
+	 static void*		ui_op_notify_message(PurpleNotifyMsgType type,
+							const char* title, const char* primary,
+							const char* secondary);
+
 // Util
 			bool		is_own_user(PurpleAccount* account, const char* name);
 

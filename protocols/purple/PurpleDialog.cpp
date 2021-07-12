@@ -38,8 +38,8 @@ PurpleDialog::MessageReceived(BMessage* msg)
 			int32 id;
 			if (msg->FindInt32("index", &id) != B_OK) break;
 
-			PurpleRequestActionCb cb = fActions.ItemAt(0)->callback.action;
-			cb(fUserData, fActions.ItemAt(0)->index);
+			PurpleRequestActionCb cb = fActions.ItemAt(id)->callback.action;
+			cb(fUserData, fActions.ItemAt(id)->index);
 			Quit();
 			break;
 		}

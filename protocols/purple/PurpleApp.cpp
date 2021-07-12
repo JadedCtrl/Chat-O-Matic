@@ -25,6 +25,7 @@
 #include <glib.h>
 #include <libpurple/status.h>
 
+#include <Alert.h>
 #include <Directory.h>
 #include <MessageRunner.h>
 #include <Path.h>
@@ -916,11 +917,30 @@ static PurpleRequestUiOps _ui_op_request =
 };
 
 
+static PurpleNotifyUiOps _ui_op_notify =
+{
+	ui_op_notify_message,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+
 void
 init_ui_ops()
 {
 	purple_eventloop_set_ui_ops(&_ui_op_eventloops);
 	purple_request_set_ui_ops(&_ui_op_request);
+	purple_notify_set_ui_ops(&_ui_op_notify);
 }
 
 
@@ -1271,6 +1291,25 @@ ui_op_request_action_with_icon(const char* title, const char* primary,
 	gsize icon_size, void* user_data, size_t action_count, va_list actions)
 {
 	std::cerr << "request action with icon: " << title << std::endl;
+	return NULL;
+}
+
+
+static void*
+ui_op_notify_message(PurpleNotifyMsgType type, const char* title,
+	const char* primary, const char* secondary)
+{
+	BString text = primary;
+	text << "\n" << secondary;
+
+	BAlert* alert = new BAlert(title, text.String(), "OK");
+
+	if (type == PURPLE_NOTIFY_MSG_WARNING)
+		alert->SetType(B_WARNING_ALERT);
+	else if (type == PURPLE_NOTIFY_MSG_ERROR)
+		alert->SetType(B_STOP_ALERT);
+
+	alert->Go(NULL);
 	return NULL;
 }
 

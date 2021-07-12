@@ -13,7 +13,6 @@
 
 const uint32 ACTION_BUTTON = 'PDab';
 
-
 struct RequestAction
 {
 	BString name;

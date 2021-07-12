@@ -33,6 +33,7 @@ APP_MIME_SIG = application/x-vnd.caya.purple
 #	Also note that spaces in folder names do not work well with this Makefile.
 SRCS = \
 	protocols/purple/PurpleApp.cpp \
+	protocols/purple/PurpleDialog.cpp \
 	protocols/purple/PurpleProtocol.cpp \
 
 #	Specify the resource definition files to use. Full or relative paths can be
