@@ -35,8 +35,10 @@ RenderView::AppendMessage(const char* nick, const char* message,
 	Append("<", nameColor, bg, nameColor, time);
 	Append(nick, fg, bg, fg);
 	Append("> ", nameColor, bg, nameColor);
-//	AddEmoticText(message, fg, bg);
-	Append(message, fg, bg, fg);
+	if (Emoticor::Get()->Config() == NULL)
+		Append(message, fg, bg, fg);
+	else
+		AddEmoticText(message, fg, bg);
 	Append("\n", fg, bg, fg);
 	ScrollToSelection();
 }
@@ -102,7 +104,8 @@ RenderView::PrepareTheme(Theme *fTheme)
 	fTheme->SetForeground(COL_OTHERNICK, 255, 0, 0);
 	fTheme->SetBackground(COL_OTHERNICK, bg);
 
-	fTheme->SetTextRender(R_EMOTICON, &str);
+	if (Emoticor::Get()->Config() != NULL)
+		fTheme->SetTextRender(R_EMOTICON, &str);
 
 	fTheme->SetSoftLineIndent(5.0);
 	fTheme->SetTextMargin(5.0);
