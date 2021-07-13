@@ -21,6 +21,7 @@
 #include <libinterface/BitmapView.h>
 
 #include "AccountManager.h"
+#include "ImageCache.h"
 #include "NicknameTextControl.h"
 #include "StatusMenuItem.h"
 #include "Utils.h"
@@ -69,6 +70,7 @@ StatusView::StatusView(const char* name)
 	fAvatar = new BitmapView("AvatarIcon");
 	fAvatar->SetExplicitMaxSize(BSize(50, 50));
 	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
+	fAvatar->SetBitmap(ImageCache::Get()->GetImage("kPersonIcon"));
 
 	// Set layout
 	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
@@ -140,5 +142,7 @@ StatusView::SetStatus(UserStatus status)
 void
 StatusView::SetAvatarIcon(const BBitmap* bitmap)
 {
-	fAvatar->SetBitmap(bitmap);
+	// We don't want the default avatar to override a real one
+	if (bitmap != ImageCache::Get()->GetImage("kPersonIcon"))
+		fAvatar->SetBitmap(bitmap);
 }

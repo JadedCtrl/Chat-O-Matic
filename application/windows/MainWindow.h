@@ -39,6 +39,7 @@ public:
 
 			// Observer inheritance
 			void		ObserveInteger(int32 what, int32 val);
+			void		ObservePointer(int32 what, void* ptr);
 
 	virtual void		WorkspaceActivated(int32 workspace,
 							bool active);

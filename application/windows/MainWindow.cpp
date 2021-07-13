@@ -229,15 +229,19 @@ MainWindow::ImMessage(BMessage* msg)
 	int32 im_what = msg->FindInt32("im_what");
 	switch (im_what) {
 		case IM_OWN_CONTACT_INFO:
-			fStatusView->SetName(msg->FindString("name"));
-			break;
-		case IM_OWN_AVATAR_SET:
 		{
-			entry_ref ref;
+			BString name;
+			if (msg->FindString("name", &name) == B_OK)
+				fStatusView->SetName(msg->FindString("name"));
 
-			if (msg->FindRef("ref", &ref) == B_OK) {
-				BBitmap* bitmap = BTranslationUtils::GetBitmap(&ref);
-				fStatusView->SetAvatarIcon(bitmap);
+			int64 instance;
+			if (msg->FindInt64("instance", &instance) == B_OK) {
+				ProtocolLooper* looper = fServer->GetProtocolLooper(instance);
+				if (looper != NULL) {
+					Contact* contact = looper->GetOwnContact();
+					contact->RegisterObserver(this);
+					fStatusView->SetAvatarIcon(contact->AvatarBitmap());
+				}
 			}
 			break;
 		}
@@ -305,6 +309,17 @@ MainWindow::ObserveInteger(int32 what, int32 val)
 		case INT_ACCOUNT_STATUS:
 			fStatusView->SetStatus((UserStatus)val);
 			break;
+	}
+}
+
+
+void
+MainWindow::ObservePointer(int32 what, void* ptr)
+{
+	if (what == PTR_AVATAR_BITMAP) {
+		BBitmap* bmp = (BBitmap*)ptr;
+		if (bmp != NULL)
+			fStatusView->SetAvatarIcon(bmp);
 	}
 }
 

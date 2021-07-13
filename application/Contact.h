@@ -26,8 +26,6 @@ public:
 
 	RosterItem*		GetRosterItem() const;
 
-	void			SetNotifyAvatarBitmap(BBitmap* bitmap);
-
 private:
 	virtual void	_EnsureCachePath();
 

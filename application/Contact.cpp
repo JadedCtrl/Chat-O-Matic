@@ -31,15 +31,6 @@ Contact::GetRosterItem() const
 
 
 void
-Contact::SetNotifyAvatarBitmap(BBitmap* bitmap)
-{
-	User::SetNotifyAvatarBitmap(bitmap);
-//	if (fAvatarBitmap != NULL && fChatWindow != NULL)
-//		fChatWindow->UpdateAvatar();
-}
-
-
-void
 Contact::_EnsureCachePath()
 {
 	if (fCachePath.InitCheck() == B_OK)

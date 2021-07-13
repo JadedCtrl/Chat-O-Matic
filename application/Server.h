@@ -70,6 +70,7 @@ private:
 			Contact*		_EnsureContact(BMessage* message);
 			User*			_EnsureUser(BMessage* message);
 			User*			_EnsureUser(BString id, ProtocolLooper* protoLooper);
+			Contact*		_GetOwnContact(BMessage* message);
 			Conversation*	_EnsureConversation(BMessage* message);
 
 			Role*			_GetRole(BMessage* msg);

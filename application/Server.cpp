@@ -322,6 +322,19 @@ Server::ImMessage(BMessage* msg)
 					contact->SetNotifyName(name);
 			break;
 		}
+		case IM_OWN_AVATAR_SET:
+		{
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+			Contact* contact = looper->GetOwnContact();
+			entry_ref ref;
+
+			if (msg->FindRef("ref", &ref) == B_OK) {
+				BBitmap* bitmap = BTranslationUtils::GetBitmap(&ref);
+				if (bitmap != NULL)
+					contact->SetNotifyAvatarBitmap(bitmap);
+			}
+			break;
+		}
 		case IM_AVATAR_SET:
 		{
 			User* user = _EnsureUser(msg);
