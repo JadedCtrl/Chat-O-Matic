@@ -32,10 +32,7 @@ APP_MIME_SIG =
 #	same name (source.c or source.cpp) are included from different directories.
 #	Also note that spaces in folder names do not work well with this Makefile.
 SRCS = \
-	libs/librunview/Theme.cpp \
 	libs/librunview/RunView.cpp \
-	libs/librunview/Utilities.cpp \
-	libs/librunview/URLCrunch.cpp \
 	libs/librunview/Emoticor.cpp \
 	libs/librunview/Emoconfig.cpp
 

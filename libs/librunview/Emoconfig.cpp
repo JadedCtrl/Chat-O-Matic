@@ -7,7 +7,6 @@
 #include <String.h>
 #include <Path.h>
 #include <TranslationUtils.h>
-#include "SmileTextRender.h"
 
 //tmp
 BMessage*	faces = NULL;
