@@ -9,6 +9,8 @@
 #include <Locale.h>
 #include <MenuItem.h>
 #include <PopUpMenu.h>
+#include <ScrollBar.h>
+#include <TextView.h>
 #include <Window.h>
 
 
@@ -36,6 +38,12 @@ RunView::RunView(const char* name)
 	urlFont.SetFace(B_UNDERSCORE_FACE);
 	text_run urlRun = { 0, urlFont, ui_color(B_LINK_TEXT_COLOR) };
 	fUrlRun = { 1, {urlRun} };
+
+	text_run urlHoverRun = { 0, urlFont, ui_color(B_LINK_HOVER_COLOR) };
+	fUrlHoverRun = { 1, {urlHoverRun} };
+
+	text_run urlVisitedRun = { 0, urlFont, ui_color(B_LINK_VISITED_COLOR) };
+	fUrlVisitedRun = { 1, {urlVisitedRun} };
 }
 
 
@@ -87,35 +95,27 @@ RunView::Insert(const char* text, const text_run_array* runs)
 {
 	BString buf(text);
 
-	int32 urlOffset  = 0;
+	int32 specStart = 0;
+	int32 specEnd = 0;
 	int32 lastEnd = 0;
-	while (lastEnd < buf.CountChars() && urlOffset != B_ERROR)
-	{
-		urlOffset = buf.FindFirst("://", lastEnd);
+	int32 length = buf.CountChars();
 
-		int32 urlStart = buf.FindLast(" ", urlOffset) + 1;
-		int32 urlEnd = buf.FindFirst(" ", urlOffset);
-		if (urlStart == B_ERROR || urlOffset == B_ERROR)
-			urlStart = lastEnd;
-		if (urlEnd == B_ERROR || urlOffset == B_ERROR)
-			urlEnd = buf.CountChars();
-
-		BString url;
-		BString nonurl;
-		if (urlOffset == B_ERROR)
-			buf.CopyCharsInto(nonurl, urlStart, urlEnd - urlStart);
-		else {
-			buf.CopyCharsInto(nonurl, lastEnd, urlStart - lastEnd);
-			buf.CopyCharsInto(url, urlStart, urlEnd - urlStart);
+	while (_FindUrlString(buf, &specStart, &specEnd, lastEnd) == true) {
+		if (lastEnd < specStart) {
+			BString normie;
+			buf.CopyCharsInto(normie, lastEnd, specStart - lastEnd);
+			BTextView::Insert(normie.String(), runs);
 		}
+		BString special;
+		buf.CopyCharsInto(special, specStart, specEnd - specStart);
+		BTextView::Insert(special.String(), &fUrlRun);
 
-		// Actually insert the text
-		if (nonurl.IsEmpty() == false)
-			BTextView::Insert(nonurl.String(), runs);
-		if (url.IsEmpty() == false)
-			BTextView::Insert(url.String(), &fUrlRun);
-
-		lastEnd = urlEnd;
+		lastEnd = specEnd;
+	}
+	if (lastEnd < length) {
+		BString remaining;
+		buf.CopyCharsInto(remaining, lastEnd, length - lastEnd);
+		BTextView::Insert(remaining.String(), runs);
 	}
 }
 
@@ -131,11 +131,13 @@ RunView::MouseDown(BPoint where)
 	else
 		BTextView::MouseDown(where);
 
-	BUrl url;
-	if ((buttons & B_PRIMARY_MOUSE_BUTTON) && OverUrl(where, &url)) {
+	if ((buttons & B_PRIMARY_MOUSE_BUTTON) && OverUrl(where)) {
 		fMouseDown = true;
-		if (url.IsValid() == true)
+
+		BUrl url(WordAt(where));
+		if (url.IsValid() == true) {
 			fLastClicked = url;
+		}
 	}
 }
 
@@ -148,6 +150,8 @@ RunView::MouseUp(BPoint where)
 	if (fMouseDown && fSelecting == false && fLastClicked.IsValid() == true) {
 		fLastClicked.OpenWithPreferredApplication(true);
 		fLastClicked = BUrl();
+		// When cursor moves off URL, change color
+		fCurrentUrlRuns = fUrlVisitedRun;
 	}
 	fMouseDown = false;
 	fSelecting = false;
@@ -160,11 +164,29 @@ RunView::MouseMoved(BPoint where, uint32 code, const BMessage* drag)
 	if (fSelecting == true)
 		return;
 
+	// Change the cursor and "hover-over" highlight for URLs
 	if (code == B_INSIDE_VIEW)
-		if (OverUrl(where) == true)
+		if (OverUrl(where) == true) {
+			int32 start = 0;
+			int32 end = 0;
+			FindWordAround(OffsetAt(where), &start, &end);
+			if (fCurrentUrlEnd == 0) {
+				fCurrentUrlRuns = *RunArray(start, end);
+				fCurrentUrlStart = start;
+				fCurrentUrlEnd = end;
+
+				ReplaceRuns(start, end, &fUrlHoverRun);
+			}
 			SetViewCursor(fUrlCursor);
-		else
+		}
+		else {
+			if (fCurrentUrlEnd != 0) {
+				ReplaceRuns(fCurrentUrlStart, fCurrentUrlEnd, &fCurrentUrlRuns);
+				fCurrentUrlStart = 0;
+				fCurrentUrlEnd = 0;
+			}
 			SetViewCursor(B_CURSOR_SYSTEM_DEFAULT);
+		}
 }
 
 
@@ -199,6 +221,26 @@ RunView::Append(const char* text)
 	else
 		Insert(text, &fDefaultRun);
 	fLastStyled = false;
+}
+
+
+void
+RunView::Replace(int32 start, int32 end, const char* text, text_run_array* runs)
+{
+	Delete(start, end);
+	BTextView::Insert(start, text, strlen(text), runs);
+}
+
+
+void
+RunView::ReplaceRuns(int32 start, int32 end, text_run_array* runs)
+{
+	char* buffer = new char[end - start];
+	GetText(start, end - start, buffer);
+
+	float current = ScrollBar(B_VERTICAL)->Value();
+	Replace(start, end, buffer, runs);
+	ScrollBar(B_VERTICAL)->SetValue(current);
 }
 
 
@@ -265,17 +307,23 @@ RunView::OverText(BPoint where)
 
 
 bool
-RunView::OverUrl(BPoint where, BUrl* url)
+RunView::OverUrl(BPoint where)
 {
 	if (OverText(where) == false)
 		return false;
 
-	BString word = WordAt(where);
-	if (BUrl(word.String()).IsValid() == true) {
-		if (url != NULL)
-			url->SetUrlString(word);
+	int32 offset = OffsetAt(where);
+	text_run_array* rArray = RunArray(offset, offset + 1);
+	text_run run = rArray->runs[0];
+	text_run urlRun = fUrlRun.runs[0];
+	text_run urlHover = fUrlHoverRun.runs[0];
+	text_run urlVisit = fUrlVisitedRun.runs[0];
+
+	if ((run.font == urlRun.font || run.font == urlHover.font
+				|| run.font == urlVisit.font)
+			&& (run.color == urlRun.color || run.color == urlHover.color
+				|| run.color == urlVisit.color))
 		return true;
-	}
 	return false;
 }
 
@@ -322,4 +370,22 @@ RunView::_RightClickPopUp(BPoint where)
 	menu->AddItem(selectAll);
 	menu->SetTargetForItems(this);
 	return menu;
+}
+
+
+bool
+RunView::_FindUrlString(BString text, int32* start, int32* end, int32 offset)
+{
+	int32 urlOffset = text.FindFirst("://", offset);
+	int32 urlStart = text.FindLast(" ", urlOffset) + 1;
+	int32 urlEnd = text.FindFirst(" ", urlOffset);
+	if (urlStart == B_ERROR)	urlStart = 0;
+	if (urlEnd == B_ERROR)		urlEnd = text.CountChars();
+
+	if (urlOffset != B_ERROR) {
+		*start = urlStart;
+		*end = urlEnd;
+		return true;
+	}
+	return false;
 }
