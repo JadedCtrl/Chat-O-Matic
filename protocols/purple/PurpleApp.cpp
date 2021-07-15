@@ -961,6 +961,8 @@ init_signals()
 		&handle, PURPLE_CALLBACK(signal_blist_node_added), NULL);
 	purple_signal_connect(purple_blist_get_handle(), "blist-node-removed",
 		&handle, PURPLE_CALLBACK(signal_blist_node_removed), NULL);
+	purple_signal_connect(purple_blist_get_handle(), "buddy-status-changed",
+		&handle, PURPLE_CALLBACK(signal_buddy_status_changed), NULL);
 
 	purple_signal_connect(purple_conversations_get_handle(), "chat-joined",
 		&handle, PURPLE_CALLBACK(signal_chat_joined), NULL);
@@ -976,6 +978,8 @@ init_signals()
 		&handle, PURPLE_CALLBACK(signal_sent_im_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-buddy-joined",
 		&handle, PURPLE_CALLBACK(signal_chat_buddy_joined), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "chat-buddy-left",
+		&handle, PURPLE_CALLBACK(signal_chat_buddy_left), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-invited",
 		&handle, PURPLE_CALLBACK(signal_chat_invited), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-buddy-flags",
@@ -1064,6 +1068,18 @@ signal_blist_node_removed(PurpleBlistNode* node)
 	rem.AddInt32("im_what", IM_CONTACT_LIST_CONTACT_REMOVED);
 	rem.AddString("user_id", purple_buddy_get_name(buddy));
 	((PurpleApp*)be_app)->SendMessage(purple_buddy_get_account(buddy), rem);
+}
+
+
+static void
+signal_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* old_status,
+	PurpleStatus* status)
+{
+	BMessage note(IM_MESSAGE);
+	note.AddInt32("im_what", IM_STATUS_SET);
+	note.AddInt32("status", purple_status_to_cardie(status));
+	note.AddString("user_id", purple_buddy_get_name(buddy));
+	((PurpleApp*)be_app)->SendMessage(purple_buddy_get_account(buddy), note);
 }
 
 
@@ -1161,6 +1177,20 @@ signal_chat_buddy_joined(PurpleConversation* conv, const char* name,
 	((PurpleApp*)be_app)->SendMessage(account, joined);
 
 	send_user_role(conv, name, flags);
+}
+
+
+static void
+signal_chat_buddy_left(PurpleConversation* conv, const char* name,
+	const char* reason)
+{
+	BMessage left(IM_MESSAGE);
+	left.AddInt32("im_what", IM_ROOM_PARTICIPANT_LEFT);
+	left.AddString("chat_id", purple_conversation_get_name(conv));
+	left.AddString("user_id", name);
+	left.AddString("body", reason);
+	PurpleAccount* account = purple_conversation_get_account(conv);
+	((PurpleApp*)be_app)->SendMessage(account, left);
 }
 
 

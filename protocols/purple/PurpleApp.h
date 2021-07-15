@@ -127,6 +127,8 @@ private:
 // Buddy-list signals
 	 static void		signal_blist_node_added(PurpleBlistNode* node);
 	 static void		signal_blist_node_removed(PurpleBlistNode* node);
+	 static void		signal_buddy_status_changed(PurpleBuddy* buddy,
+							PurpleStatus* old_status, PurpleStatus* status);
 
 // Conversation signals
 	 static void		signal_chat_joined(PurpleConversation* conv);
@@ -141,6 +143,8 @@ private:
 	 static void		signal_chat_buddy_joined(PurpleConversation* conv,
 							const char* name, PurpleConvChatBuddyFlags flags,
 							gboolean new_arrival);
+	 static void		signal_chat_buddy_left(PurpleConversation* conv,
+							const char* name, const char* reason);
 	 static void		signal_chat_invited(PurpleAccount* account,
 							const char* inviter, const char* chat,
 							const char* message, const GHashTable* components);
