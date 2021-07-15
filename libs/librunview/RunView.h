@@ -6,6 +6,7 @@
 #define _RUN_VIEW_H
 
 #include <TextView.h>
+#include <Url.h>
 
 
 class RunView : public BTextView {
@@ -19,10 +20,29 @@ public:
 	// Only differs in that it changes font face and color of any URLs
 	virtual void	Insert(const char* text, const text_run_array* runs = NULL);
 
+	virtual	void	MouseDown(BPoint where);
+	virtual void	MouseUp(BPoint where);
+	virtual void	MouseMoved(BPoint where, uint32 code, const BMessage* drag);
+
+	virtual void	Select(int32 startOffset, int32 endOffset);
+
+		 BString	WordAt(BPoint point);
+	 const char*	GetLine(int32 line);
+
+			bool	OverText(BPoint where);
+			bool	OverUrl(BPoint where, BUrl* url = NULL);
+
+			void	ScrollToBottom();
+
 private:
 	bool fLastStyled;
 	text_run_array fDefaultRun;
 	text_run_array fUrlRun;
+
+	BCursor* fUrlCursor;
+	BUrl fLastClicked;
+	bool fMouseDown;
+	bool fSelecting;
 };
 
 #endif // _RUN_VIEW_H
