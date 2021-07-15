@@ -14,6 +14,7 @@
 #include <ListView.h>
 #include <Notification.h>
 #include <ScrollView.h>
+#include <StringFormat.h>
 #include <StringList.h>
 #include <StringView.h>
 
@@ -131,34 +132,45 @@ ConversationView::ImMessage(BMessage* msg)
 		}
 		case IM_MESSAGE_RECEIVED:
 		{
-			BString id = msg->FindString("user_id");
-			User* sender = fConversation->UserById(id);
+			BString text = msg->FindString("body");
+			Contact* contact = fConversation->GetOwnContact();
+			bool mentioned = ((text.IFindFirst(contact->GetName()) != B_ERROR)
+				|| (text.IFindFirst(contact->GetName()) != B_ERROR));
 
 			// Send a notification, if it's appropriate
-			if ((Window() == NULL || Window()->IsActive() == false)
-				&& (!AppPreferences::Item()->NotifyNewMessage)
-				&& sender != NULL)
+			BWindow* win = Window();
+			if ((win == NULL || !win->IsFront() || win->IsMinimized())
+				&& AppPreferences::Item()->NotifyNewMessage
+				&& (fConversation->Users().CountItems() <= 2 || mentioned))
 			{
 				fMessageCount++;
-				BString notify_message;
-				notify_message << "You've got ";
-				notify_message << fMessageCount;
-				if (fMessageCount==1)
-					notify_message << " new message from ";
-				else
-					notify_message << " new messages from ";
-				notify_message << sender->GetName();
+
+				BString notifyTitle = "New mention";
+				BString notifyText = "You've been summoned from %source%.";
+
+				if (mentioned == false) {
+					notifyTitle.SetTo("New message");
+					notifyText.SetTo("");
+
+					BStringFormat pmFormat("{0, plural,"
+						"=1{You've got a new message from %source%.}"
+						"other{You've got # new messages from %source%.}}");
+					pmFormat.Format(notifyText, fMessageCount);
+				}
+				notifyText.ReplaceAll("%source%", fConversation->GetName());
+
+				BBitmap* icon = fConversation->IconBitmap();
+				if (icon == NULL)
+					icon = fConversation->ProtocolBitmap();
+
 
 				BNotification notification(B_INFORMATION_NOTIFICATION);
 				notification.SetGroup(BString(APP_NAME));
-				notification.SetTitle(BString("New message"));
-				notification.SetIcon(sender->AvatarBitmap());
-				notification.SetContent(notify_message);
-				notification.SetMessageID(sender->GetName());
+				notification.SetTitle(notifyTitle);
+				notification.SetIcon(icon);
+				notification.SetContent(notifyText);
+				notification.SetMessageID(fConversation->GetId());
 				notification.Send();
-				// Check if the user want the notification
-				if (!AppPreferences::Item()->NotifyNewMessage)
-					break;
 			}
 
 			_AppendOrEnqueueMessage(msg);
