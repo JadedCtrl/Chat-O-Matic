@@ -35,7 +35,7 @@ RunView::RunView(const char* name)
 	fDefaultRun = { 1, {run} };
 
 	BFont urlFont;
-	urlFont.SetFace(B_UNDERSCORE_FACE);
+	urlFont.SetFace(B_REGULAR_FACE | B_UNDERSCORE_FACE);
 	text_run urlRun = { 0, urlFont, ui_color(B_LINK_TEXT_COLOR) };
 	fUrlRun = { 1, {urlRun} };
 
@@ -170,7 +170,13 @@ RunView::MouseMoved(BPoint where, uint32 code, const BMessage* drag)
 			int32 start = 0;
 			int32 end = 0;
 			FindWordAround(OffsetAt(where), &start, &end);
-			if (fCurrentUrlEnd == 0) {
+			if (fCurrentUrlEnd == 0
+					|| (OffsetAt(where) < fCurrentUrlStart
+						|| OffsetAt(where) > fCurrentUrlEnd))
+			{
+				if (fCurrentUrlEnd != 0)
+					ReplaceRuns(fCurrentUrlStart, fCurrentUrlEnd,
+						&fCurrentUrlRuns);
 				fCurrentUrlRuns = *RunArray(start, end);
 				fCurrentUrlStart = start;
 				fCurrentUrlEnd = end;
@@ -238,9 +244,16 @@ RunView::ReplaceRuns(int32 start, int32 end, text_run_array* runs)
 	char* buffer = new char[end - start];
 	GetText(start, end - start, buffer);
 
+	// Need to make sure nothing visibly changes to the user
 	float current = ScrollBar(B_VERTICAL)->Value();
+	int32 selStart = 0, selEnd = 0;
+	GetSelection(&selStart, &selEnd);
+
 	Replace(start, end, buffer, runs);
+
 	ScrollBar(B_VERTICAL)->SetValue(current);
+	if (end > 0)
+		Select(selStart, selEnd);
 }
 
 
@@ -319,8 +332,7 @@ RunView::OverUrl(BPoint where)
 	text_run urlHover = fUrlHoverRun.runs[0];
 	text_run urlVisit = fUrlVisitedRun.runs[0];
 
-	if ((run.font == urlRun.font || run.font == urlHover.font
-				|| run.font == urlVisit.font)
+	if (run.font.Face() == urlRun.font.Face()
 			&& (run.color == urlRun.color || run.color == urlHover.color
 				|| run.color == urlVisit.color))
 		return true;
