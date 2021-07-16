@@ -90,6 +90,7 @@ private:
 	ProtocolLooper*	fLooper;
 	ConversationView* fChatView;
 	ConversationItem* fConversationItem;
+	int32 fNotifyCount;
 
 	BString fID;
 	BString fName;

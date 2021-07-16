@@ -12,9 +12,7 @@
 
 #include <LayoutBuilder.h>
 #include <ListView.h>
-#include <Notification.h>
 #include <ScrollView.h>
-#include <StringFormat.h>
 #include <StringList.h>
 #include <StringView.h>
 
@@ -22,11 +20,10 @@
 
 #include "AppMessages.h"
 #include "AppPreferences.h"
-#include "Cardie.h"
 #include "ChatProtocolMessages.h"
-#include "RenderView.h"
 #include "Conversation.h"
 #include "NotifyMessage.h"
+#include "RenderView.h"
 #include "SendTextView.h"
 #include "User.h"
 #include "UserItem.h"
@@ -40,7 +37,6 @@ ConversationView::ConversationView()
 	fMessageQueue(),
 	fConversation(NULL)
 {
-	fMessageCount = 0;
 	_InitInterface();
 	fSendView->MakeFocus(true);
 }
@@ -132,47 +128,6 @@ ConversationView::ImMessage(BMessage* msg)
 		}
 		case IM_MESSAGE_RECEIVED:
 		{
-			BString text = msg->FindString("body");
-			Contact* contact = fConversation->GetOwnContact();
-			bool mentioned = ((text.IFindFirst(contact->GetName()) != B_ERROR)
-				|| (text.IFindFirst(contact->GetName()) != B_ERROR));
-
-			// Send a notification, if it's appropriate
-			BWindow* win = Window();
-			if ((win == NULL || !win->IsFront() || win->IsMinimized())
-				&& AppPreferences::Item()->NotifyNewMessage
-				&& (fConversation->Users().CountItems() <= 2 || mentioned))
-			{
-				fMessageCount++;
-
-				BString notifyTitle = "New mention";
-				BString notifyText = "You've been summoned from %source%.";
-
-				if (mentioned == false) {
-					notifyTitle.SetTo("New message");
-					notifyText.SetTo("");
-
-					BStringFormat pmFormat("{0, plural,"
-						"=1{You've got a new message from %source%.}"
-						"other{You've got # new messages from %source%.}}");
-					pmFormat.Format(notifyText, fMessageCount);
-				}
-				notifyText.ReplaceAll("%source%", fConversation->GetName());
-
-				BBitmap* icon = fConversation->IconBitmap();
-				if (icon == NULL)
-					icon = fConversation->ProtocolBitmap();
-
-
-				BNotification notification(B_INFORMATION_NOTIFICATION);
-				notification.SetGroup(BString(APP_NAME));
-				notification.SetTitle(notifyTitle);
-				notification.SetIcon(icon);
-				notification.SetContent(notifyText);
-				notification.SetMessageID(fConversation->GetId());
-				notification.Send();
-			}
-
 			_AppendOrEnqueueMessage(msg);
 			break;
 		}

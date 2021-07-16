@@ -55,7 +55,6 @@ private:
 									 BMessage* msg);
 
 		Conversation*	fConversation;
-		int32			fMessageCount;
 		BObjectList<BMessage>	fMessageQueue;
 
 		BTextView*		fNameTextView;

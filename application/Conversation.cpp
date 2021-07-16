@@ -7,9 +7,12 @@
 
 #include <DateTimeFormat.h>
 #include <Locale.h>
+#include <Notification.h>
+#include <StringFormat.h>
 #include <StringList.h>
 
 #include "AppPreferences.h"
+#include "Cardie.h"
 #include "ChatProtocolMessages.h"
 #include "RenderView.h"
 #include "ChatCommand.h"
@@ -35,7 +38,8 @@ Conversation::Conversation(BString id, BMessenger msgn)
 	fIcon(NULL),
 	fDateFormatter(),
 	fRoomFlags(0),
-	fDisallowedFlags(0)
+	fDisallowedFlags(0),
+	fNotifyCount(0)
 {
 	fConversationItem = new ConversationItem(fName.String(), this);
 	RegisterObserver(fConversationItem);
@@ -74,6 +78,47 @@ Conversation::ImMessage(BMessage* msg)
 			_EnsureUser(msg);
 			_LogChatMessage(msg);
 			GetView()->MessageReceived(msg);
+
+			BString text = msg->FindString("body");
+			Contact* contact = GetOwnContact();
+			bool mentioned = ((text.IFindFirst(contact->GetName()) != B_ERROR)
+				|| (text.IFindFirst(contact->GetName()) != B_ERROR));
+
+			// Send a notification, if it's appropriate
+			BWindow* win = fChatView->Window();
+			if ((win == NULL || !win->IsFront() || win->IsMinimized())
+				&& AppPreferences::Item()->NotifyNewMessage
+				&& (fUsers.CountItems() <= 2 || mentioned))
+			{
+				fNotifyCount++;
+
+				BString notifyTitle = "New mention";
+				BString notifyText = "You've been summoned from %source%.";
+
+				if (mentioned == false) {
+					notifyTitle.SetTo("New message");
+					notifyText.SetTo("");
+
+					BStringFormat pmFormat("{0, plural,"
+						"=1{You've got a new message from %source%.}"
+						"other{You've got # new messages from %source%.}}");
+					pmFormat.Format(notifyText, fNotifyCount);
+				}
+				notifyText.ReplaceAll("%source%", GetName());
+
+				BBitmap* icon = IconBitmap();
+				if (icon == NULL)
+					icon = ProtocolBitmap();
+
+
+				BNotification notification(B_INFORMATION_NOTIFICATION);
+				notification.SetGroup(BString(APP_NAME));
+				notification.SetTitle(notifyTitle);
+				notification.SetIcon(icon);
+				notification.SetContent(notifyText);
+				notification.SetMessageID(fID);
+				notification.Send();
+			}
 			break;
 		}
 		case IM_MESSAGE_SENT:
