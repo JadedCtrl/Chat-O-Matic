@@ -30,10 +30,6 @@ public:
 						uint16 fontFace = B_REGULAR_FACE);
 			void	Append(const char* text);
 
-			void	Replace(int32 start, int32 end, const char* text,
-						text_run_array* runs);
-			void	ReplaceRuns(int32 start, int32 end, text_run_array* runs);
-
 		 BString	WordAt(BPoint point);
 			void	FindWordAround(int32 offset, int32* start, int32* end,
 						BString* _word = NULL);
@@ -59,11 +55,6 @@ private:
 
 	// Whether or not the run was changed from default
 	bool fLastStyled;
-
-	// Used for the "hover over" URL highlighting
-	text_run_array fCurrentUrlRuns;
-	int32 fCurrentUrlStart;
-	int32 fCurrentUrlEnd;
 
 	// Information between MouseDown and MouseUp
 	BUrl fLastClicked;

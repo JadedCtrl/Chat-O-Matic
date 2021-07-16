@@ -38,12 +38,6 @@ RunView::RunView(const char* name)
 	urlFont.SetFace(B_REGULAR_FACE | B_UNDERSCORE_FACE);
 	text_run urlRun = { 0, urlFont, ui_color(B_LINK_TEXT_COLOR) };
 	fUrlRun = { 1, {urlRun} };
-
-	text_run urlHoverRun = { 0, urlFont, ui_color(B_LINK_HOVER_COLOR) };
-	fUrlHoverRun = { 1, {urlHoverRun} };
-
-	text_run urlVisitedRun = { 0, urlFont, ui_color(B_LINK_VISITED_COLOR) };
-	fUrlVisitedRun = { 1, {urlVisitedRun} };
 }
 
 
@@ -150,8 +144,6 @@ RunView::MouseUp(BPoint where)
 	if (fMouseDown && fSelecting == false && fLastClicked.IsValid() == true) {
 		fLastClicked.OpenWithPreferredApplication(true);
 		fLastClicked = BUrl();
-		// When cursor moves off URL, change color
-		fCurrentUrlRuns = fUrlVisitedRun;
 	}
 	fMouseDown = false;
 	fSelecting = false;
@@ -164,35 +156,11 @@ RunView::MouseMoved(BPoint where, uint32 code, const BMessage* drag)
 	if (fSelecting == true)
 		return;
 
-	// Change the cursor and "hover-over" highlight for URLs
 	if (code == B_INSIDE_VIEW)
-		if (OverUrl(where) == true) {
-			int32 start = 0;
-			int32 end = 0;
-			FindWordAround(OffsetAt(where), &start, &end);
-			if (fCurrentUrlEnd == 0
-					|| (OffsetAt(where) < fCurrentUrlStart
-						|| OffsetAt(where) > fCurrentUrlEnd))
-			{
-				if (fCurrentUrlEnd != 0)
-					ReplaceRuns(fCurrentUrlStart, fCurrentUrlEnd,
-						&fCurrentUrlRuns);
-				fCurrentUrlRuns = *RunArray(start, end);
-				fCurrentUrlStart = start;
-				fCurrentUrlEnd = end;
-
-				ReplaceRuns(start, end, &fUrlHoverRun);
-			}
+		if (OverUrl(where) == true)
 			SetViewCursor(fUrlCursor);
-		}
-		else {
-			if (fCurrentUrlEnd != 0) {
-				ReplaceRuns(fCurrentUrlStart, fCurrentUrlEnd, &fCurrentUrlRuns);
-				fCurrentUrlStart = 0;
-				fCurrentUrlEnd = 0;
-			}
+		else
 			SetViewCursor(B_CURSOR_SYSTEM_DEFAULT);
-		}
 }
 
 
@@ -227,33 +195,6 @@ RunView::Append(const char* text)
 	else
 		Insert(text, &fDefaultRun);
 	fLastStyled = false;
-}
-
-
-void
-RunView::Replace(int32 start, int32 end, const char* text, text_run_array* runs)
-{
-	Delete(start, end);
-	BTextView::Insert(start, text, strlen(text), runs);
-}
-
-
-void
-RunView::ReplaceRuns(int32 start, int32 end, text_run_array* runs)
-{
-	char* buffer = new char[end - start];
-	GetText(start, end - start, buffer);
-
-	// Need to make sure nothing visibly changes to the user
-	float current = ScrollBar(B_VERTICAL)->Value();
-	int32 selStart = 0, selEnd = 0;
-	GetSelection(&selStart, &selEnd);
-
-	Replace(start, end, buffer, runs);
-
-	ScrollBar(B_VERTICAL)->SetValue(current);
-	if (end > 0)
-		Select(selStart, selEnd);
 }
 
 
