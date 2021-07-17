@@ -22,7 +22,7 @@ class User;
 class UserListView;
 
 
-class ConversationView : public BGroupView, public Observer {
+class ConversationView : public BGroupView, public Observer, public Notifier {
 public:
 						ConversationView();
 						ConversationView(Conversation* chat);

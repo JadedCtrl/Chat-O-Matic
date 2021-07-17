@@ -79,6 +79,7 @@ ConversationView::AttachedToWindow()
 		if (fSubjectTextView->Text() != fConversation->GetSubject())
 			fSubjectTextView->SetText(fConversation->GetSubject());
 	}
+	NotifyInteger(INT_WINDOW_FOCUSED, 0);
 }
 
 
@@ -129,11 +130,14 @@ ConversationView::ImMessage(BMessage* msg)
 		case IM_MESSAGE_RECEIVED:
 		{
 			_AppendOrEnqueueMessage(msg);
+			fReceiveView->ScrollToBottom();
 			break;
 		}
 		case IM_MESSAGE_SENT:
 		case IM_LOGS_RECEIVED:
 		{
+			if (im_what == IM_MESSAGE_SENT)
+				fReceiveView->ScrollToBottom();
 			_AppendOrEnqueueMessage(msg);
 			break;
 		}

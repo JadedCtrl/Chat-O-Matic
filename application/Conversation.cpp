@@ -39,7 +39,8 @@ Conversation::Conversation(BString id, BMessenger msgn)
 	fDateFormatter(),
 	fRoomFlags(0),
 	fDisallowedFlags(0),
-	fNotifyCount(0)
+	fNotifyMessageCount(0),
+	fNotifyMentionCount(0)
 {
 	fConversationItem = new ConversationItem(fName.String(), this);
 	RegisterObserver(fConversationItem);
@@ -81,29 +82,34 @@ Conversation::ImMessage(BMessage* msg)
 
 			BString text = msg->FindString("body");
 			Contact* contact = GetOwnContact();
+			BWindow* win = fChatView->Window();
+
+			bool winFocused = (win != NULL &&
+				(win->IsFront() && !(win->IsMinimized())));
 			bool mentioned = ((text.IFindFirst(contact->GetName()) != B_ERROR)
 				|| (text.IFindFirst(contact->GetName()) != B_ERROR));
 
-			// Send a notification, if it's appropriate
-			BWindow* win = fChatView->Window();
-			if ((win == NULL || !win->IsFront() || win->IsMinimized())
-				&& AppPreferences::Item()->NotifyNewMessage
-				&& (fUsers.CountItems() <= 2 || mentioned))
+			// Send a notification, if appropriate
+			if (winFocused  == false && AppPreferences::Item()->NotifyNewMessage
+				&& (fUsers.CountItems() <= 2 || mentioned == true))
 			{
-				fNotifyCount++;
-
 				BString notifyTitle = "New mention";
 				BString notifyText = "You've been summoned from %source%.";
 
 				if (mentioned == false) {
+					fNotifyMessageCount++;
+
 					notifyTitle.SetTo("New message");
 					notifyText.SetTo("");
 
 					BStringFormat pmFormat("{0, plural,"
 						"=1{You've got a new message from %source%.}"
 						"other{You've got # new messages from %source%.}}");
-					pmFormat.Format(notifyText, fNotifyCount);
+					pmFormat.Format(notifyText, fNotifyMessageCount);
 				}
+				else
+					fNotifyMentionCount++;
+
 				notifyText.ReplaceAll("%source%", GetName());
 
 				BBitmap* icon = IconBitmap();
@@ -119,6 +125,13 @@ Conversation::ImMessage(BMessage* msg)
 				notification.SetMessageID(fID);
 				notification.Send();
 			}
+
+			// If unattached, highlight the ConversationItem
+			if (win == NULL && mentioned == true)
+				NotifyInteger(INT_NEW_MENTION, fNotifyMentionCount);
+			else if (win == NULL)
+				NotifyInteger(INT_NEW_MESSAGE, fNotifyMessageCount);
+
 			break;
 		}
 		case IM_MESSAGE_SENT:
@@ -215,7 +228,12 @@ Conversation::ObserveString(int32 what, BString str)
 void
 Conversation::ObserveInteger(int32 what, int32 value)
 {
-	GetView()->InvalidateUserList();
+	if (what == INT_WINDOW_FOCUSED) {
+		fNotifyMessageCount = 0;
+		fNotifyMentionCount = 0;
+	}
+	else
+		GetView()->InvalidateUserList();
 }
 
 
@@ -316,6 +334,9 @@ Conversation::GetView()
 		return fChatView;
 
 	fChatView = new ConversationView(this);
+	fChatView->RegisterObserver(fConversationItem);
+	fChatView->RegisterObserver(this);
+	RegisterObserver(fChatView);
 
 	if (!(fRoomFlags & ROOM_POPULATE_LOGS))
 		return fChatView;
@@ -324,7 +345,6 @@ Conversation::GetView()
 	if (_GetChatLogs(&logMsg) == B_OK)
 		fChatView->MessageReceived(&logMsg);
 
-	RegisterObserver(fChatView);
 	return fChatView;
 }
 
