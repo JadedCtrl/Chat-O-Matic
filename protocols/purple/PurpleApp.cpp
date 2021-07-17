@@ -874,6 +874,12 @@ init_libpurple()
 	purple_plugins_add_finddir(B_USER_NONPACKAGED_LIB_DIRECTORY);
 	purple_plugins_add_finddir(B_SYSTEM_NONPACKAGED_LIB_DIRECTORY);
 
+	BPath ssl;
+	if (find_directory(B_SYSTEM_DATA_DIRECTORY, &ssl) == B_OK) {
+		ssl.Append("ssl");
+		purple_certificate_add_ca_search_path(ssl.Path());
+	}
+
 	purple_debug_set_enabled(DEBUG_ENABLED);
 
 	if (!purple_core_init(PURPLE_UI_ID))
@@ -1123,8 +1129,7 @@ signal_received_chat_msg(PurpleAccount* account, char* sender, char* message,
 	BMessage msg(IM_MESSAGE);
 	msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
 	msg.AddString("chat_id", chat_id);
-	if (chat == NULL || purple_conv_chat_find_user(chat, sender) == true)
-		msg.AddString("user_id", sender);
+	msg.AddString("user_id", sender);
 	msg.AddString("body", purple_unescape_text(message));
 	((PurpleApp*)be_app)->SendMessage(account, msg);
 }
