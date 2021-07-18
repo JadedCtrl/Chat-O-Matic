@@ -115,7 +115,7 @@ PurpleApp::MessageReceived(BMessage* msg)
 			SendMessage(thread, _GetCommands(_AccountFromMessage(msg)));
 			break;
 		}
-		case PURPLE_REQUEST_DISCONNECT:
+		case PURPLE_DISCONNECT_ACCOUNT:
 		{
 			PurpleAccount* account = _AccountFromMessage(msg);
 			if (account == NULL)
@@ -1034,8 +1034,7 @@ signal_account_signed_off(PurpleAccount* account)
 static void
 signal_account_disabled(PurpleAccount* account)
 {
-	BMessage disabled(IM_MESSAGE);
-	disabled.AddInt32("im_what", IM_PROTOCOL_DISABLED);
+	BMessage disabled(PURPLE_SHUTDOWN_ADDON);
 	((PurpleApp*)be_app)->SendMessage(account, disabled);
 }
 

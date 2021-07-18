@@ -80,6 +80,9 @@ private:
 			void			_ProtocolNotification(ProtocolLooper* looper,
 								BString title, BString desc,
 								notification_type type=B_INFORMATION_NOTIFICATION);
+			void			_SendNotification(BString title, BString content,
+								BBitmap* icon=NULL,
+								notification_type type=B_INFORMATION_NOTIFICATION);
 
 			void			_ReplicantStatusNotify(UserStatus status);
 

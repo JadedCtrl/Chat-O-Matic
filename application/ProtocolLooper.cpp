@@ -12,9 +12,11 @@
 
 #include "ProtocolLooper.h"
 
+#include <Bitmap.h>
 #include <String.h>
 
 #include "Account.h"
+#include "AppMessages.h"
 #include "Conversation.h"
 #include "ConversationAccountItem.h"
 
@@ -42,6 +44,13 @@ ProtocolLooper::ProtocolLooper(ChatProtocol* protocol, int64 instance)
 
 ProtocolLooper::~ProtocolLooper()
 {
+	BMessage* msg = new BMessage(APP_ACCOUNT_DISABLED);
+	BBitmap* icon = fProtocol->Icon();
+
+	icon->Archive(msg);
+	msg->AddString("name", fProtocol->GetName());
+	fProtocol->MessengerInterface()->SendMessage(msg);
+
 	fProtocol->Shutdown();
 	delete fProtocol;
 }

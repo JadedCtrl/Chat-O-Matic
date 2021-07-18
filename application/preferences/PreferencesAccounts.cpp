@@ -18,8 +18,8 @@
 
 #include "AccountDialog.h"
 #include "AccountListItem.h"
-#include "AppMessages.h"
 #include "ChatProtocol.h"
+#include "ChatProtocolMessages.h"
 #include "PreferencesAccounts.h"
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
@@ -197,7 +197,8 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 			if (found == false)
 				return;
 
-			BMessage* remove = new BMessage(APP_DISABLE_ACCOUNT);
+			BMessage* remove = new BMessage(IM_MESSAGE);
+			remove->AddInt32("im_what", IM_PROTOCOL_DISABLE);
 			remove->AddInt64("instance", instance);
 			((TheApp*)be_app)->GetMainWindow()->PostMessage(remove);
 

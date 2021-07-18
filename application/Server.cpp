@@ -106,6 +106,12 @@ Server::Filter(BMessage* message, BHandler **target)
 	filter_result result = B_DISPATCH_MESSAGE;
 
 	switch (message->what) {
+		case IM_MESSAGE:
+			result = ImMessage(message);
+			break;
+		case IM_ERROR:
+			ImError(message);
+			break;
 		case APP_CLOSE_CHAT_WINDOW:
 		{
 			BString id = message->FindString("chat_id");
@@ -116,12 +122,24 @@ Server::Filter(BMessage* message, BHandler **target)
 			result = B_SKIP_MESSAGE;
 			break;
 		}
-		case IM_MESSAGE:
-			result = ImMessage(message);
+		case APP_ACCOUNT_DISABLED:
+		{
+			BString name;
+			int64 instance;
+			if (message->FindInt64("instance", &instance) != B_OK)
+				return result;
+
+			// "Whoops" notification
+			if (AppPreferences::Item()->NotifyProtocolStatus == true
+					&& message->FindString("name", &name) == B_OK) {
+				BBitmap* icon = new BBitmap(message);
+				BString content("%user% has been disabled!");
+				content.ReplaceAll("%user%", name);
+
+				_SendNotification("Disabled", content, icon);
+			}
 			break;
-		case IM_ERROR:
-			ImError(message);
-			break;
+		}
 		case APP_REPLICANT_MESSENGER:
 		{
 			BMessenger* messenger = new BMessenger();
@@ -138,18 +156,6 @@ Server::Filter(BMessage* message, BHandler **target)
 			accountManager->ReplicantStatusNotify(accountManager->Status());
 			break;
 		}
-
-		case APP_DISABLE_ACCOUNT:
-		{
-			int64 instance = 0;
-			if (message->FindInt64("instance", &instance) != B_OK) {
-				result = B_SKIP_MESSAGE;
-				break;
-			}
-			RemoveProtocolLooper(instance);
-			break;
-		}
-
 		case APP_USER_INFO:
 		{
 			User* user = _EnsureUser(message);
@@ -159,7 +165,6 @@ Server::Filter(BMessage* message, BHandler **target)
 			}
 			break;
 		}
-
 		case APP_REQUEST_HELP:
 		{
 			BString body;
@@ -200,12 +205,10 @@ Server::Filter(BMessage* message, BHandler **target)
 			chat->ImMessage(help);
 			break;
 		}
-
 		default:
 			// Dispatch not handled messages to main window
 			break;
 	}
-
 	return result;
 }
 
@@ -610,12 +613,14 @@ Server::ImMessage(BMessage* msg)
 				}
 			break;
 		}
-		case IM_PROTOCOL_DISABLED:
+		case IM_PROTOCOL_DISABLE:
 		{
-			// "Whoops" notification
-			if (AppPreferences::Item()->NotifyProtocolStatus == true)
-				_ProtocolNotification(_LooperFromMessage(msg),
-					BString("Disabled"), BString("%user% has been disabled!"));
+			int64 instance = 0;
+			if (msg->FindInt64("instance", &instance) != B_OK) {
+				result = B_SKIP_MESSAGE;
+				break;
+			}
+			RemoveProtocolLooper(instance);
 			break;
 		}
 		default:
@@ -983,12 +988,20 @@ Server::_ProtocolNotification(ProtocolLooper* looper, BString title,
 	if (looper == NULL || title.IsEmpty() == true)	return;
 	title.ReplaceAll("%user%", looper->Protocol()->GetName());
 	desc.ReplaceAll("%user%", looper->Protocol()->GetName());
+	_SendNotification(title, desc, looper->Protocol()->Icon(), type);
+}
 
+
+void
+Server::_SendNotification(BString title, BString content, BBitmap* icon,
+	notification_type type)
+{
 	BNotification notification(type);
 	notification.SetGroup(BString(APP_NAME));
 	notification.SetTitle(title);
-	if (desc.IsEmpty() == false)
-		notification.SetContent(desc);
-	notification.SetIcon(looper->Protocol()->Icon());
+	if (content.IsEmpty() == false)
+		notification.SetContent(content);
+	if (icon != NULL)
+		notification.SetIcon(icon);
 	notification.Send();
 }

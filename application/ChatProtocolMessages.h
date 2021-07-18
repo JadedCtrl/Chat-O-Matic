@@ -412,12 +412,13 @@ enum im_what_code {
 		Should be sent after connection is established, initialization done */
 	IM_PROTOCOL_READY					= 1002,
 
-	/*! Account has just been disabled	→App
-		Sent as the account disconnects, and will not be automatically
-		reconnected on the add-on's side.
-		Should be sent in two cases: When connection fails due to an error,
-		or when account has been closed by user (ChatProtocol::Shutdown()) */
-	IM_PROTOCOL_DISABLED				= 1003
+	/*! Deletion of protocol requested	→App
+		This requests that the app delete the ChatProtocol and its
+		ProtocolLooper― so invoking ChatProtocol::Shutdown().
+		This should be sent by the protocol after connection errors or a
+		disconnect, when the addon doesn't have anything left to do (other
+		than yearn for the sweet hand of death). */
+	IM_PROTOCOL_DISABLE					= 1003
 };
 
 #endif	// _CHAT_PROTOCOL_MESSAGES_H

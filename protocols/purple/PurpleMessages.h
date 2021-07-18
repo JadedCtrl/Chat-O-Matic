@@ -56,7 +56,13 @@ enum purple_message {
 
 	/*! Disconnect add-on's account			→Server
 		Requires:	String account_name */
-	PURPLE_REQUEST_DISCONNECT				= 'Axwx',
+	PURPLE_DISCONNECT_ACCOUNT				= 'Axwx',
+
+	/*! Shutdown an add-on instance			→Protocol
+		Send from server after an account is disabled
+		or errors out; sent so an add-on instance
+		won't run for an unconnected account. */
+	PURPLE_SHUTDOWN_ADDON					= 'Pxwx',
 
 	/*! Register chat commands with proto	→Protocol */
 	PURPLE_REGISTER_COMMANDS				= 'Scmd',

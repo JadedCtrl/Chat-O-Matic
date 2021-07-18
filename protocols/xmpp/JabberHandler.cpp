@@ -693,9 +693,12 @@ JabberHandler::HandleConnectionError(gloox::ConnectionError& e)
 			}
 			break;
 		}
-		case gloox::ConnNotConnected:
-			errMsg.AddString("error", "There is no active connection.");
+		case gloox::ConnNotConnected: {
+			BMessage disconnect(IM_MESSAGE);
+			disconnect.AddInt32("im_what", IM_PROTOCOL_DISABLE);
+			_SendMessage(&disconnect);
 			break;
+		}
 		default:
 			break;
 	}

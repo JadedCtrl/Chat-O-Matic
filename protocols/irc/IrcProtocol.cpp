@@ -58,14 +58,21 @@ connect_thread(void* data)
 	if (irc_connect(session, joinServer.String(), port, password, nick, ident,
 		real_name))
 	{
-		printf("Could not connect: %s\n", irc_strerror (irc_errno(session)));
+		BMessage error(IM_ERROR);
+		error.AddString("error", "Could not connect");
+		error.AddString("details", irc_strerror(irc_errno(session)));
+		_SendMessage(&error);
+		_SendMessage(new BMessage(IM_PROTOCOL_DISABLE));
 		return B_ERROR;
 	}
 
 	// Start network loop
 	if (irc_run(session)) {
-		printf("Could not connect or I/O error: %s\n", irc_strerror
-			(irc_errno(session)));
+		BMessage error(IM_ERROR);
+		error.AddString("error", "Connection or I/O error");
+		error.AddString("details", irc_strerror(irc_errno(session)));
+		_SendMessage(&error);
+		_SendMessage(new BMessage(IM_PROTOCOL_DISABLE));
 		return B_ERROR;
 	}
 	return B_OK;

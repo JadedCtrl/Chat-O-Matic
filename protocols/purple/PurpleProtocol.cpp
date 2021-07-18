@@ -19,8 +19,6 @@
 
 #include "PurpleProtocol.h"
 
-#include <iostream>
-
 #include <Application.h>
 #include <Resources.h>
 #include <Roster.h>
@@ -124,6 +122,13 @@ connect_thread(void* data)
 	while (true) {
 		BMessage* msg = new BMessage(receive_message());
 		switch (msg->what) {
+			case PURPLE_SHUTDOWN_ADDON: {
+				protocol->Shutdown();
+				BMessage* disabled = new BMessage(IM_MESSAGE);
+				disabled->AddInt32("im_what", IM_PROTOCOL_DISABLE);
+				protocol->SendMessage(disabled);
+				break;
+			}
 			case PURPLE_REGISTER_COMMANDS:
 				protocol->Process(msg);
 				break;
@@ -186,7 +191,7 @@ PurpleProtocol::Init(ChatProtocolMessengerInterface* interface)
 status_t
 PurpleProtocol::Shutdown()
 {
-	BMessage* disconnect = new BMessage(PURPLE_REQUEST_DISCONNECT);
+	BMessage* disconnect = new BMessage(PURPLE_DISCONNECT_ACCOUNT);
 	_SendPrplMessage(disconnect);
 
 	kill_thread(fBirdThread);

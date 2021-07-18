@@ -205,7 +205,7 @@ MainWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case APP_DISABLE_ACCOUNT:
+		case APP_ACCOUNT_DISABLED:
 			_ToggleMenuItems();
 			break;
 		case IM_MESSAGE:

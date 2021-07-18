@@ -48,7 +48,7 @@ const uint32 APP_MOVE_UP = 'CYmu';
 const uint32 APP_MOVE_DOWN = 'CYmd';
 
 //! Disable a given account
-const uint32 APP_DISABLE_ACCOUNT = 'CYda';
+const uint32 APP_ACCOUNT_DISABLED = 'CYda';
 
 //! Request a "help" message
 const uint32 APP_REQUEST_HELP = 'CYhm';
