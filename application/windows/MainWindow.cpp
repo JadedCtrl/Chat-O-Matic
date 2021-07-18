@@ -211,9 +211,6 @@ MainWindow::MessageReceived(BMessage* message)
 		case IM_MESSAGE:
 			ImMessage(message);
 			break;
-		case IM_ERROR:
-			ImError(message);
-			break;
 		case B_ABOUT_REQUESTED:
 			be_app->PostMessage(message);
 			break;
@@ -279,26 +276,6 @@ MainWindow::ImMessage(BMessage* msg)
 			_ToggleMenuItems();
 			break;
 	}
-}
-
-
-void
-MainWindow::ImError(BMessage* msg)
-{
-	const char* error = NULL;
-	const char* detail = msg->FindString("detail");
-
-	if (msg->FindString("error", &error) != B_OK)
-		return;
-
-	// Format error message
-	BString errMsg(error);
-	if (detail)
-		errMsg << "\n" << detail;
-
-	BAlert* alert = new BAlert("Error", errMsg.String(), "OK", NULL, NULL,
-		B_WIDTH_AS_USUAL, B_STOP_ALERT);
-	alert->Go();
 }
 
 

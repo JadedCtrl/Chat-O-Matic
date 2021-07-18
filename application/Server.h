@@ -8,6 +8,7 @@
  
 #include <Message.h>
 #include <MessageFilter.h>
+#include <Notification.h>
 
 #include <libsupport/KeyMap.h>
 
@@ -35,6 +36,7 @@ public:
 
 	virtual	filter_result	Filter(BMessage* message, BHandler** target);
 			filter_result	ImMessage(BMessage* msg);
+			void			ImError(BMessage* msg);
 
 			void			AddProtocolLooper(bigtime_t instanceId,
 								ChatProtocol* cayap);
@@ -75,12 +77,15 @@ private:
 
 			Role*			_GetRole(BMessage* msg);
 
+			void			_ProtocolNotification(ProtocolLooper* looper,
+								BString title, BString desc,
+								notification_type type=B_INFORMATION_NOTIFICATION);
+
 			void			_ReplicantStatusNotify(UserStatus status);
 
 			ProtocolLoopers	fLoopers;
 			AccountInstances
 							fAccounts;
-			BString			fMySelf;
 
 			CommandMap		fCommands;
 			BObjectList<BMessage>

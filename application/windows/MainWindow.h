@@ -35,7 +35,6 @@ public:
 
 	virtual	void		MessageReceived(BMessage* message);
 			void		ImMessage(BMessage* msg);
-			void		ImError(BMessage* msg);
 
 			// Observer inheritance
 			void		ObserveInteger(int32 what, int32 val);

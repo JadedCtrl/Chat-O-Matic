@@ -119,7 +119,9 @@ Server::Filter(BMessage* message, BHandler **target)
 		case IM_MESSAGE:
 			result = ImMessage(message);
 			break;
-
+		case IM_ERROR:
+			ImError(message);
+			break;
 		case APP_REPLICANT_MESSENGER:
 		{
 			BMessenger* messenger = new BMessenger();
@@ -526,12 +528,13 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_PROGRESS:
 		{
+			ProtocolLooper* looper = _LooperFromMessage(msg);
 			const char* protocol = NULL;
 			const char* title = NULL;
 			const char* message = NULL;
 			float progress = 0.0f;
 
-			if (msg->FindString("protocol", &protocol) != B_OK)
+			if (looper == NULL)
 				return result;
 			if (msg->FindString("title", &title) != B_OK)
 				return result;
@@ -543,48 +546,20 @@ Server::ImMessage(BMessage* msg)
 			if (!AppPreferences::Item()->NotifyProtocolStatus)
 				break;
 
-			ChatProtocolAddOn* addOn
-				= ProtocolManager::Get()->ProtocolAddOn(protocol);
-
 			BNotification notification(B_PROGRESS_NOTIFICATION);
 			notification.SetGroup(BString(APP_NAME));
 			notification.SetTitle(title);
-			notification.SetIcon(addOn->ProtoIcon());
+			notification.SetIcon(looper->Protocol()->Icon());
 			notification.SetContent(message);
 			notification.SetProgress(progress);
 			notification.Send();
-
 			break;
 		}
-		case IM_NOTIFICATION:
-		{
-			int32 type = (int32)B_INFORMATION_NOTIFICATION;
-			const char* protocol = NULL;
-			const char* title = NULL;
-			const char* message = NULL;
-
-			if (msg->FindString("protocol", &protocol) != B_OK)
-				return result;
-			if (msg->FindInt32("type", &type) != B_OK)
-				return result;
-			if (msg->FindString("title", &title) != B_OK)
-				return result;
-			if (msg->FindString("message", &message) != B_OK)
-				return result;
-
-			if (!AppPreferences::Item()->NotifyProtocolStatus)
-				break;
-
-			ChatProtocolAddOn* addOn
-				= ProtocolManager::Get()->ProtocolAddOn(protocol);
-
-			BNotification notification((notification_type)type);
-			notification.SetGroup(BString(APP_NAME));
-			notification.SetTitle(title);
-			notification.SetIcon(addOn->ProtoIcon());
-			notification.SetContent(message);
-			notification.Send();
-
+		case IM_NOTIFICATION: {
+			_ProtocolNotification(_LooperFromMessage(msg),
+				msg->FindString("title"), msg->FindString("message"),
+				(notification_type)msg->GetInt32("type",
+					B_INFORMATION_NOTIFICATION));
 			break;
 		}
 		case IM_PROTOCOL_RELOAD_COMMANDS:
@@ -596,25 +571,18 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_PROTOCOL_READY:
 		{
-			// Ready notification
 			ProtocolLooper* looper = _LooperFromMessage(msg);
 			if (looper == NULL) break;
-			ChatProtocol* proto = looper->Protocol();
 
-			BString content("%user% has connected!");
-			content.ReplaceAll("%user%", looper->Protocol()->GetName());
-
-			BNotification notification(B_INFORMATION_NOTIFICATION);
-			notification.SetGroup(BString(APP_NAME));
-			notification.SetTitle("Connected");
-			notification.SetContent(content);
-			notification.SetIcon(proto->Icon());
-			notification.Send();
+			// Ready notification
+			if (AppPreferences::Item()->NotifyProtocolStatus == true)
+				_ProtocolNotification(looper, BString("Connected"),
+					BString("%user% has connected!"));
 
 			// Join cached rooms
 			BEntry entry;
 			char fileName[B_FILE_NAME_LENGTH] = {'\0'};
-			BDirectory dir(RoomsCachePath(proto->GetName()));
+			BDirectory dir(RoomsCachePath(looper->Protocol()->GetName()));
 
 			while (dir.GetNextEntry(&entry, true) == B_OK)
 				if (entry.GetName(fileName) == B_OK) {
@@ -642,12 +610,41 @@ Server::ImMessage(BMessage* msg)
 				}
 			break;
 		}
-
+		case IM_PROTOCOL_DISABLED:
+		{
+			// "Whoops" notification
+			if (AppPreferences::Item()->NotifyProtocolStatus == true)
+				_ProtocolNotification(_LooperFromMessage(msg),
+					BString("Disabled"), BString("%user% has been disabled!"));
+			break;
+		}
 		default:
 			break;
 	}
 
 	return result;
+}
+
+
+void
+Server::ImError(BMessage* msg)
+{
+	const char* error = NULL;
+	const char* detail = msg->FindString("detail");
+	ProtocolLooper* looper = _LooperFromMessage(msg);
+
+	if (msg->FindString("error", &error) != B_OK || looper == NULL)
+		return;
+
+	// Format error message
+	BString errMsg(looper->Protocol()->GetName());
+	errMsg << " ― " << error;
+	if (detail)
+		errMsg << "\n\n" << detail;
+
+	BAlert* alert = new BAlert("Error", errMsg.String(), "OK", NULL, NULL,
+		B_WIDTH_AS_USUAL, B_STOP_ALERT);
+	alert->Go();
 }
 
 
@@ -976,4 +973,22 @@ Server::_GetRole(BMessage* msg)
 		return NULL;
 
 	return new Role(title, perms, priority);
+}
+
+
+void
+Server::_ProtocolNotification(ProtocolLooper* looper, BString title,
+	BString desc, notification_type type)
+{
+	if (looper == NULL || title.IsEmpty() == true)	return;
+	title.ReplaceAll("%user%", looper->Protocol()->GetName());
+	desc.ReplaceAll("%user%", looper->Protocol()->GetName());
+
+	BNotification notification(type);
+	notification.SetGroup(BString(APP_NAME));
+	notification.SetTitle(title);
+	if (desc.IsEmpty() == false)
+		notification.SetContent(desc);
+	notification.SetIcon(looper->Protocol()->Icon());
+	notification.Send();
 }
