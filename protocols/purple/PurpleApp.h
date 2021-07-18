@@ -121,6 +121,11 @@ private:
 
 // Account signals
 	 static void		signal_account_signed_on(PurpleAccount* account);
+	 static void		signal_account_signed_off(PurpleAccount* account);
+	 static void		signal_account_disabled(PurpleAccount* account);
+	 static void		signal_account_error_changed(PurpleAccount* account,
+							const PurpleConnectionErrorInfo* old_error,
+							const PurpleConnectionErrorInfo* current_error);
 	 static void		signal_account_status_changed(PurpleAccount* account,
 							PurpleStatus* old, PurpleStatus* cur);
 
@@ -218,6 +223,9 @@ private:
 
 PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);
 		UserStatus		purple_status_to_cardie(PurpleStatus* status);
+
+		const char*		purple_connection_error_name(
+							const PurpleConnectionErrorInfo* error);
 
 		const char*		purple_cache();
 			void		purple_plugins_add_finddir(directory_which finddir);

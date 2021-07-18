@@ -870,7 +870,6 @@ init_libpurple()
 	BString cachePlugin = BString(purple_cache()).Append("/plugins/");
 	purple_plugins_add_search_path(cachePlugin.String());
 	purple_plugins_add_finddir(B_USER_LIB_DIRECTORY);
-	purple_plugins_add_finddir(B_SYSTEM_LIB_DIRECTORY);
 	purple_plugins_add_finddir(B_USER_NONPACKAGED_LIB_DIRECTORY);
 	purple_plugins_add_finddir(B_SYSTEM_NONPACKAGED_LIB_DIRECTORY);
 
@@ -960,6 +959,12 @@ init_signals()
 
 	purple_signal_connect(purple_accounts_get_handle(), "account-signed-on",
 		&handle, PURPLE_CALLBACK(signal_account_signed_on), NULL);
+	purple_signal_connect(purple_accounts_get_handle(), "account-signed-off",
+		&handle, PURPLE_CALLBACK(signal_account_signed_off), NULL);
+	purple_signal_connect(purple_accounts_get_handle(), "account-disabled",
+		&handle, PURPLE_CALLBACK(signal_account_disabled), NULL);
+	purple_signal_connect(purple_accounts_get_handle(), "account-error-changed",
+		&handle, PURPLE_CALLBACK(signal_account_error_changed), NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed",
 		&handle, PURPLE_CALLBACK(signal_account_status_changed), NULL);
 
@@ -1017,6 +1022,37 @@ signal_account_signed_on(PurpleAccount* account)
 
 	((PurpleApp*)be_app)->fUserNicks.AddItem(username, display);
 }
+
+
+static void
+signal_account_signed_off(PurpleAccount* account)
+{
+	signal_account_disabled(account);
+}
+
+
+static void
+signal_account_disabled(PurpleAccount* account)
+{
+	BMessage disabled(IM_MESSAGE);
+	disabled.AddInt32("im_what", IM_PROTOCOL_DISABLED);
+	((PurpleApp*)be_app)->SendMessage(account, disabled);
+}
+
+
+static void
+signal_account_error_changed(PurpleAccount* account,
+	const PurpleConnectionErrorInfo* old_error,
+	const PurpleConnectionErrorInfo* current_error)
+{
+	if (current_error == NULL)	return;
+
+	BMessage error(IM_ERROR);
+	error.AddString("error", purple_connection_error_name(current_error));
+	error.AddString("detail", current_error->description);
+	((PurpleApp*)be_app)->SendMessage(account, error);
+}
+
 
 
 static void
@@ -1470,6 +1506,48 @@ purple_status_to_cardie(PurpleStatus* status)
 			return STATUS_OFFLINE;
 	}
 	return STATUS_ONLINE;
+}
+
+
+const char*
+purple_connection_error_name(const PurpleConnectionErrorInfo* error)
+{
+	switch (error->type)
+	{
+		case PURPLE_CONNECTION_ERROR_NETWORK_ERROR:
+			return "Connection error";
+		case PURPLE_CONNECTION_ERROR_INVALID_USERNAME:
+			return "Invalid username";
+		case PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED:
+			return "Authentication failed";
+		case PURPLE_CONNECTION_ERROR_AUTHENTICATION_IMPOSSIBLE:
+			return "Authentication impossible";
+		case PURPLE_CONNECTION_ERROR_NO_SSL_SUPPORT:
+			return "SSL unsupported";
+		case PURPLE_CONNECTION_ERROR_ENCRYPTION_ERROR:
+			return "Encryption error";
+		case PURPLE_CONNECTION_ERROR_NAME_IN_USE:
+			return "Username in use";
+		case PURPLE_CONNECTION_ERROR_INVALID_SETTINGS:
+			return "Settings invalid";
+		case PURPLE_CONNECTION_ERROR_CERT_NOT_PROVIDED:
+			return "No SSL certificate provided";
+		case PURPLE_CONNECTION_ERROR_CERT_UNTRUSTED:
+			return "Untrusted SSL certificate";
+		case PURPLE_CONNECTION_ERROR_CERT_EXPIRED:
+			return "Expired SSL certificate";
+		case PURPLE_CONNECTION_ERROR_CERT_NOT_ACTIVATED:
+			return "Unactivated SSL certificate";
+		case PURPLE_CONNECTION_ERROR_CERT_HOSTNAME_MISMATCH:
+			return "Certificate and hostname conflict";
+		case PURPLE_CONNECTION_ERROR_CERT_FINGERPRINT_MISMATCH:
+			return "Certifcate and fingerprint conflict";
+		case PURPLE_CONNECTION_ERROR_CERT_SELF_SIGNED:
+			return "Self-signed certificate";
+		case PURPLE_CONNECTION_ERROR_CERT_OTHER_ERROR:
+			return "Certificate error";
+	}
+	return "Misc. error";
 }
 
 

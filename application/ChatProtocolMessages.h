@@ -402,14 +402,22 @@ enum im_what_code {
 	 * Special messages
 	 */
 
-	//!	Special message forwarded to protocol
+	//!	Special message forwarded to protocol; Unused
 	IM_SPECIAL_TO_PROTOCOL				= 1000,
 
-	//!	Special message forwarded from protocol
+	//!	Special message forwarded from protocol; Unused
 	IM_SPECIAL_FROM_PROTOCOL			= 1001,
 
-	//!	Protocol is ready to receive messages
+	/*!	Protocol is ready				→App
+		Should be sent after connection is established, initialization done */
 	IM_PROTOCOL_READY					= 1002,
+
+	/*! Account has just been disabled	→App
+		Sent as the account disconnects, and will not be automatically
+		reconnected on the add-on's side.
+		Should be sent in two cases: When connection fails due to an error,
+		or when account has been closed by user (ChatProtocol::Shutdown()) */
+	IM_PROTOCOL_DISABLED				= 1003
 };
 
 #endif	// _CHAT_PROTOCOL_MESSAGES_H
