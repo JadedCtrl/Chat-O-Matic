@@ -5,16 +5,22 @@
 #ifndef _ROLE_H
 #define _ROLE_H
 
+#include <Catalog.h>
 #include <String.h>
 #include <SupportDefs.h>
 
 #include "Flags.h"
 
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "User role"
+
+
 class Role {
 public:
 	Role()
-		: fTitle("Default"), fPerms(0 | PERM_WRITE | PERM_READ), fPriority(0)
+		: fTitle(B_TRANSLATE("Default")), fPerms(0 | PERM_WRITE | PERM_READ),
+		fPriority(0)
 	{
 	}
 

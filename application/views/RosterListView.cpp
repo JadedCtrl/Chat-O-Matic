@@ -8,13 +8,14 @@
 
 #include "RosterListView.h"
 
+#include <string.h>
+#include <stdio.h>
+
+#include <Catalog.h>
 #include <Looper.h>
 #include <MenuItem.h>
 #include <PopUpMenu.h>
 #include <SeparatorItem.h>
-
-#include <string.h>
-#include <stdio.h>
 
 #include "ChatProtocolMessages.h"
 #include "Contact.h"
@@ -22,6 +23,11 @@
 #include "RosterItem.h"
 #include "TheApp.h"
 #include "UserInfoWindow.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "RosterListView"
+
 
 const int32 kAddPeople	= 'ADPL';
 const int32 kSendFile	= 'SDFL';
@@ -65,14 +71,16 @@ RosterListView::RosterListView(const char* name)
 	fPopUp = new BPopUpMenu("contextMenu", false, false);
 	BMenuItem* item = NULL;
 
-	fPopUp->AddItem(new BMenuItem("Start a chat", new BMessage(kStartConv)));
-	item = new BMenuItem("Send a file" B_UTF8_ELLIPSIS, new BMessage(kSendFile));
+	fPopUp->AddItem(new BMenuItem(B_TRANSLATE("Start a chat"),
+		new BMessage(kStartConv)));
+	item = new BMenuItem(B_TRANSLATE("Send a file" B_UTF8_ELLIPSIS),
+		new BMessage(kSendFile));
 	item->SetEnabled(false);
 	fPopUp->AddItem(item);
 
 	fPopUp->AddItem(new BSeparatorItem());
 
-	fPopUp->AddItem(new BMenuItem("User info" B_UTF8_ELLIPSIS,
+	fPopUp->AddItem(new BMenuItem(B_TRANSLATE("User info" B_UTF8_ELLIPSIS),
 		new BMessage(kGetInfo)));
 
 	fPopUp->SetTargetForItems(this);

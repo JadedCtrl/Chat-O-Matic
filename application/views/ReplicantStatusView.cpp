@@ -13,6 +13,7 @@
 #include <Application.h>
 #include <AppFileInfo.h>
 #include <Bitmap.h>
+#include <Catalog.h>
 #include <Deskbar.h>
 #include <IconUtils.h>
 #include <Message.h>
@@ -34,6 +35,10 @@
 #include "NicknameTextControl.h"
 #include "ReplicantMenuItem.h"
 #include "Utils.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "ReplicantStatusView"
 
 
 extern "C" _EXPORT BView *instantiate_deskbar_item(void);
@@ -324,10 +329,10 @@ ReplicantStatusView::_BuildMenu()
 
 	fReplicantMenu->AddItem(new BSeparatorItem());
 
-	fReplicantMenu->AddItem(new BitmapMenuItem("Preferences ",
+	fReplicantMenu->AddItem(new BitmapMenuItem(B_TRANSLATE("Preferences "),
 		new BMessage(APP_SHOW_SETTINGS), fPreferencesIcon));
 
-	fReplicantMenu->AddItem(new BitmapMenuItem("Exit",
+	fReplicantMenu->AddItem(new BitmapMenuItem(B_TRANSLATE("Exit"),
 		new BMessage(APP_REPLICANT_EXIT), fExitMenuIcon));
 
 	fReplicantMenu->SetTargetForItems(this);

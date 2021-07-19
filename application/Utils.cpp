@@ -7,6 +7,7 @@
 #include <memory.h>
 
 #include <Bitmap.h>
+#include <Catalog.h>
 #include <InterfaceDefs.h>
 #include <Directory.h>
 #include <FindDirectory.h>
@@ -22,22 +23,26 @@
 #include "Utils.h"
 
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "Utils ― Status names"
+
+
 const char*
 UserStatusToString(UserStatus status)
 {
 	switch (status) {
 		case STATUS_ONLINE:
-			return "Available";
+			return B_TRANSLATE("Available");
 		case STATUS_AWAY:
-			return "Away";
+			return B_TRANSLATE("Away");
 		case STATUS_DO_NOT_DISTURB:
-			return "Busy";
+			return B_TRANSLATE("Busy");
 		case STATUS_CUSTOM_STATUS:
-			return "Custom Status";
+			return B_TRANSLATE("Custom Status");
 		case STATUS_INVISIBLE:
-			return "Invisible";
+			return B_TRANSLATE("Invisible");
 		case STATUS_OFFLINE:
-			return "Offline";
+			return B_TRANSLATE("Offline");
 		default:
 			return NULL;
 	}

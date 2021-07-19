@@ -5,6 +5,7 @@
 
 #include "Conversation.h"
 
+#include <Catalog.h>
 #include <DateTimeFormat.h>
 #include <Locale.h>
 #include <Notification.h>
@@ -76,6 +77,9 @@ Conversation::ImMessage(BMessage* msg)
 	{
 		case IM_MESSAGE_RECEIVED:
 		{
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "Conversation ― Notifications"
+
 			_EnsureUser(msg);
 			_LogChatMessage(msg);
 			GetView()->MessageReceived(msg);
@@ -93,18 +97,19 @@ Conversation::ImMessage(BMessage* msg)
 			if (winFocused  == false && AppPreferences::Item()->NotifyNewMessage
 				&& (fUsers.CountItems() <= 2 || mentioned == true))
 			{
-				BString notifyTitle = "New mention";
-				BString notifyText = "You've been summoned from %source%.";
+				BString notifyTitle = B_TRANSLATE("New mention");
+				BString notifyText = B_TRANSLATE("You've been summoned from "
+					"%source%.");
 
 				if (mentioned == false) {
 					fNotifyMessageCount++;
 
-					notifyTitle.SetTo("New message");
+					notifyTitle.SetTo(B_TRANSLATE("New message"));
 					notifyText.SetTo("");
 
-					BStringFormat pmFormat("{0, plural,"
+					BStringFormat pmFormat(B_TRANSLATE("{0, plural,"
 						"=1{You've got a new message from %source%.}"
-						"other{You've got # new messages from %source%.}}");
+						"other{You've got # new messages from %source%.}}"));
 					pmFormat.Format(notifyText, fNotifyMessageCount);
 				}
 				else
@@ -142,6 +147,9 @@ Conversation::ImMessage(BMessage* msg)
 		}
 		case IM_SEND_MESSAGE:
 		{
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "Conversation ― Command info"
+
 			BString body;
 			if (msg->FindString("body", &body) != B_OK)
 				break;
@@ -156,7 +164,8 @@ Conversation::ImMessage(BMessage* msg)
 			ChatCommand* cmd = _GetServer()->CommandById(name, fLooper->GetInstance());
 
 			if (cmd == NULL) {
-				_WarnUser(BString("That isn't a valid command. Try /help for a list."));
+				_WarnUser(BString(B_TRANSLATE("That isn't a valid command. "
+					"Try /help for a list.")));
 				break;
 			}
 

@@ -9,11 +9,16 @@
  */
 
 #include <Alert.h>
+#include <Catalog.h>
 #include <Font.h>
 #include <String.h>
 #include <TextView.h>
 
 #include "AboutWindow.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "About window"
 
 
 AboutWindow::AboutWindow(const char* appName, const char** holders,
@@ -26,11 +31,13 @@ AboutWindow::AboutWindow(const char* appName, const char** holders,
 	BString text(appName);
 	text << "\n\n";
 	for (i = 0; holders[i]; i++)
-		text << "Copyright " B_UTF8_COPYRIGHT " " << holders[i] << "\n";
-	text << "\nWritten by:\n";
-	for (int32 i = 0; authors[i]; i++)
+		text << B_TRANSLATE("Copyright " B_UTF8_COPYRIGHT " ") << holders[i]
+		<< "\n";
+
+	text << B_TRANSLATE("\nWritten by:\n");
+	for (int32 i = 0; authors[i]; i++) {
 		text << "    " << authors[i] << "\n";
-	
+	}
 	// The extra information is optional
 	if (extraInfo != NULL)
 		text << "\n" << extraInfo << "\n";
@@ -49,7 +56,8 @@ AboutWindow::~AboutWindow()
 void
 AboutWindow::Show()
 {
-	BAlert* alert = new BAlert("About" B_UTF8_ELLIPSIS, fText->String(), "Close");
+	BAlert* alert = new BAlert(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
+		fText->String(), B_TRANSLATE("Close"));
 	BTextView* view = alert->TextView();
 	BFont font;
 	view->SetStylable(true);

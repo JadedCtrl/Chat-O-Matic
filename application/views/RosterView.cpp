@@ -12,6 +12,7 @@
 
 #include "RosterView.h"
 
+#include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <Notification.h>
 #include <ScrollView.h>
@@ -22,6 +23,10 @@
 #include "ChatProtocolMessages.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "RosterView"
 
 
 const uint32 kSearchContact = 'RWSC';
@@ -145,13 +150,15 @@ RosterView::ImMessage(BMessage* msg)
 							message << rosterItem->GetContact()->GetName();
 
 							if (status == STATUS_ONLINE)
-								message << " is available!";
+								message.SetTo("%name% is available!");
 							else
-								message << " is offline!";
+								message.SetTo("%name% is offline!");
+							message.ReplaceAll("%name%",
+								rosterItem->GetContact()->GetName());
 
 							BNotification notification(B_INFORMATION_NOTIFICATION);
 							notification.SetGroup(BString(APP_NAME));
-							notification.SetTitle(BString("Presence"));
+							notification.SetTitle(BString(B_TRANSLATE("Presence")));
 							notification.SetIcon(rosterItem->Bitmap());
 							notification.SetContent(message);
 							notification.Send();

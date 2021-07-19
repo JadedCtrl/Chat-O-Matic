@@ -7,6 +7,7 @@
  */
 
 #include <Button.h>
+#include <Catalog.h>
 #include <ControlLook.h>
 #include <LayoutBuilder.h>
 #include <ListView.h>
@@ -26,6 +27,10 @@
 #include "MainWindow.h"
 #include "Server.h"
 #include "TheApp.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PreferencesAccounts"
 
 
 const uint32 kAddAccount	= 'adac';
@@ -74,11 +79,14 @@ PreferencesAccounts::PreferencesAccounts()
 		fProtosMenu->AddItem(item);
 	}
 
-	ToolButton* proto = new ToolButton("Add", NULL);
+	ToolButton* proto = new ToolButton(B_TRANSLATE("Add"), NULL);
 	proto->SetMenu(fProtosMenu);
-	fDelButton = new BButton("Del", new BMessage(kDelAccount));
-	fEditButton = new BButton("Edit" B_UTF8_ELLIPSIS, new BMessage(kEditAccount));
-	fToggleButton = new BButton("Enable", new BMessage(kToggleAccount));
+	fDelButton = new BButton(B_TRANSLATE_COMMENT("Del", "Short for 'delete'"),
+		new BMessage(kDelAccount));
+	fEditButton = new BButton(B_TRANSLATE("Edit" B_UTF8_ELLIPSIS),
+		new BMessage(kEditAccount));
+	fToggleButton = new BButton(B_TRANSLATE("Enable"),
+		new BMessage(kToggleAccount));
 	fDelButton->SetEnabled(false);
 	fEditButton->SetEnabled(false);
 	fToggleButton->SetEnabled(false);
@@ -125,11 +133,11 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 					AccountListItem* item = (AccountListItem*)fListView->ItemAt(fListView->CurrentSelection());
 
 					if (_AccountEnabled(item->Account() ) == true) {
-						fToggleButton->SetLabel("Disable");
+						fToggleButton->SetLabel(B_TRANSLATE("Disable"));
 						fToggleButton->SetEnabled(true);
 					}
 					else {
-						fToggleButton->SetLabel("Enable");
+						fToggleButton->SetLabel(B_TRANSLATE("Enable"));
 						fToggleButton->SetEnabled(false);
 					}
 				}
@@ -142,8 +150,8 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 				ProtocolSettings* settings
 					= reinterpret_cast<ProtocolSettings*>(pointer);
 				if (settings) {
-					AccountDialog* dialog = new AccountDialog("Add account",
-						settings);
+					AccountDialog* dialog = new AccountDialog(
+						B_TRANSLATE("Add account"), settings);
 					dialog->SetTarget(this);
 					dialog->Show();
 				}
@@ -159,8 +167,9 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 				AccountListItem* item
 					= dynamic_cast<AccountListItem*>(fListView->ItemAt(selected));
 
-				AccountDialog* dialog = new AccountDialog("Edit account",
-					item->Settings(), item->Account());
+				AccountDialog* dialog = new AccountDialog(
+					B_TRANSLATE("Edit account"), item->Settings(),
+					item->Account());
 				dialog->SetTarget(this);
 				dialog->Show();
 			}
@@ -202,7 +211,7 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 			remove->AddInt64("instance", instance);
 			((TheApp*)be_app)->GetMainWindow()->PostMessage(remove);
 
-			fToggleButton->SetLabel("Enable");
+			fToggleButton->SetLabel(B_TRANSLATE("Enable"));
 			fToggleButton->SetEnabled(false);
 			break;
 		}

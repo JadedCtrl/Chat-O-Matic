@@ -9,6 +9,7 @@
 #include "PreferencesWindow.h"
 
 #include <Button.h>
+#include <Catalog.h>
 #include <ControlLook.h>
 #include <LayoutBuilder.h>
 #include <TabView.h>
@@ -19,12 +20,16 @@
 #include "PreferencesReplicant.h"
 
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PreferencesWindow"
+
+
 const uint32 kApply = 'SAVE';
 
 
 PreferencesWindow::PreferencesWindow()
-	: BWindow(BRect(0, 0, 500, 615), "Preferences", B_TITLED_WINDOW,
-		B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_CLOSE_ON_ESCAPE)
+	: BWindow(BRect(0, 0, 500, 615), B_TRANSLATE("Preferences"),
+		B_TITLED_WINDOW, B_NOT_RESIZABLE | B_NOT_ZOOMABLE | B_CLOSE_ON_ESCAPE)
 {
 	BTabView* tabView = new BTabView("tabView", B_WIDTH_AS_USUAL);
 	tabView->AddTab(new PreferencesAccounts());
@@ -32,7 +37,7 @@ PreferencesWindow::PreferencesWindow()
 	tabView->AddTab(new PreferencesChatWindow());
 	tabView->AddTab(new PreferencesReplicant());
 
-	BButton* ok = new BButton("OK", new BMessage(kApply));
+	BButton* ok = new BButton(B_TRANSLATE("OK"), new BMessage(kApply));
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.Add(tabView)

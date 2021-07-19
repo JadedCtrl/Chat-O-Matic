@@ -5,6 +5,7 @@
 
 #include "ConversationListView.h"
 
+#include <Catalog.h>
 #include <PopUpMenu.h>
 #include <MenuItem.h>
 #include <Window.h>
@@ -18,6 +19,10 @@
 #include "ProtocolLooper.h"
 #include "Server.h"
 #include "TheApp.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "ConversationListView"
 
 
 const uint32 kOpenSelectedChat = 'CVos';
@@ -200,7 +205,7 @@ ConversationListView::_BlankPopUp()
 		enabled = true;
 
 	BPopUpMenu* menu = new BPopUpMenu("blankPopUp");
-	BMenuItem* newChat = new BMenuItem("New chat" B_UTF8_ELLIPSIS,
+	BMenuItem* newChat = new BMenuItem(B_TRANSLATE("New chat" B_UTF8_ELLIPSIS),
 		new BMessage(APP_NEW_CHAT), 'M', B_COMMAND_KEY);
 	newChat->SetEnabled(enabled);
 

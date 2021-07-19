@@ -13,6 +13,7 @@
 #include "RosterEditWindow.h"
 
 #include <Button.h>
+#include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <MenuField.h>
 #include <Notification.h>
@@ -29,6 +30,10 @@
 #include "Utils.h"
 
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "RosterEditWindow"
+
+
 const uint32 kSendMessage = 'RWSM';
 const uint32 kAddMember = 'RWAM';
 const uint32 kRemoveMember = 'RWRM';
@@ -41,7 +46,7 @@ RosterEditWindow* RosterEditWindow::fInstance = NULL;
 
 RosterEditWindow::RosterEditWindow(Server* server)
 	:
-	BWindow(BRect(0, 0, 300, 400), "Roster", B_FLOATING_WINDOW, 0),
+	BWindow(BRect(0, 0, 300, 400), B_TRANSLATE("Roster"), B_FLOATING_WINDOW, 0),
 	fAccounts(server->GetAccounts()),
 	fServer(server),
 	fEditingWindow(NULL)
@@ -139,8 +144,8 @@ RosterEditWindow::MessageReceived(BMessage* message)
 			edit->AddInt32("im_what", IM_CONTACT_LIST_EDIT_CONTACT);
 
 			fEditingWindow =
-				new TemplateWindow("Editing contact", "roster", edit, fServer,
-					user->GetProtocolLooper()->GetInstance());
+				new TemplateWindow(B_TRANSLATE("Editing contact"), "roster",
+					edit, fServer, user->GetProtocolLooper()->GetInstance());
 			fEditingWindow->Show();
 			break;
 		}
@@ -149,7 +154,8 @@ RosterEditWindow::MessageReceived(BMessage* message)
 			BMessage* add = new BMessage(IM_MESSAGE);
 			add->AddInt32("im_what", IM_CONTACT_LIST_ADD_CONTACT);
 			TemplateWindow* win =
-				new TemplateWindow("Adding contact", "roster", add, fServer);
+				new TemplateWindow(B_TRANSLATE("Adding contact"), "roster",
+					add, fServer);
 			win->Show();
 			break;
 		}

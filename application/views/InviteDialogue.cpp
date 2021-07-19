@@ -5,14 +5,19 @@
 
 #include "InviteDialogue.h"
 
+#include <Catalog.h>
 #include <Messenger.h>
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "InviteDialogue"
 
 
 InviteDialogue::InviteDialogue(BMessenger target, const char* title,
 	const char* body, BMessage* acceptMsg, BMessage* rejectMsg, BBitmap* icon)
 	:
-	BAlert(title, body, "Cancel", "Reject", "Accept", B_WIDTH_AS_USUAL,
-		   B_OFFSET_SPACING),
+	BAlert(title, body, B_TRANSLATE("Cancel"), B_TRANSLATE("Reject"),
+		B_TRANSLATE("Accept"), B_WIDTH_AS_USUAL, B_OFFSET_SPACING),
 	fMessenger(target),
 	fAcceptMsg(acceptMsg),
 	fRejectMsg(rejectMsg)

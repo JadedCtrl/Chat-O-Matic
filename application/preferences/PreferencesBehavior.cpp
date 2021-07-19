@@ -5,6 +5,7 @@
  */
 
 #include <Button.h>
+#include <Catalog.h>
 #include <CheckBox.h>
 #include <ControlLook.h>
 #include <Deskbar.h>
@@ -23,6 +24,11 @@
 #include "ReplicantStatusView.h"
 #include "TheApp.h"
 
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PreferencesBehavior"
+
+
 const uint32 kToCurrentWorkspace = 'CBcw';
 const uint32 kRaiseOnMessageReceived = 'FCmr';
 const uint32 kRaiseUserIsTyping = 'FCit';
@@ -35,63 +41,69 @@ const uint32 kDisablePrompt = 'DiPr';
 
 
 PreferencesBehavior::PreferencesBehavior()
-	: BView("Behavior", B_WILL_DRAW) 
+	: BView(B_TRANSLATE("Behavior"), B_WILL_DRAW)
 {
 
-	fOnIncoming = new BStringView("onIncoming", "On incoming message...");
+	fOnIncoming = new BStringView("onIncoming", B_TRANSLATE("On incoming "
+		"message" B_UTF8_ELLIPSIS));
 	fOnIncoming->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 	fOnIncoming->SetFont(be_bold_font);
 	
 	fHideOffline = new BCheckBox("HideOfflineContacts",
-		"Hide offline contacts",
+		B_TRANSLATE("Hide offline contacts"),
 		new BMessage(kHideOffline));
 
 	fToCurrentWorkspace = new BCheckBox("ToCurrentWorkspace",
-		"Move window to current workspace",
+		B_TRANSLATE("Move window to current workspace"),
 		new BMessage(kToCurrentWorkspace));
 
 	fRaiseOnMessageReceived = new BCheckBox("FocusOnMessageReceived",
-		"Auto-raise when a message is received",
+		B_TRANSLATE("Auto-raise when a message is received"),
 		new BMessage(kRaiseOnMessageReceived));
 
 	fRaiseUserIsTyping = new BCheckBox("FocusUserIsTyping",
-		"Auto-raise when user is typing",
+		B_TRANSLATE("Auto-raise when user is typing"),
 		new BMessage(kRaiseUserIsTyping));
 
 	fPlaySoundOnMessageReceived = new BCheckBox("PlaySoundOnMessageReceived",
-		"Play sound event", NULL);
+		B_TRANSLATE("Play sound event"), NULL);
 	fPlaySoundOnMessageReceived->SetEnabled(false);  // not implemented
 
 	fMarkUnreadWindow = new BCheckBox("MarkUnreadWindow",
-		"Mark unread window chat", new BMessage(kMarkUnreadWindow));
+		B_TRANSLATE("Mark unread window chat"),
+		new BMessage(kMarkUnreadWindow));
 	/*fMarkUnreadWindow->SetEnabled(false); implementing it right now*/
 	
 	fMarkUnreadReplicant = new BCheckBox("MarkUnreadReplicant",
-		"Mark unread the Deskbar Replicant", NULL);
+		B_TRANSLATE("Mark unread the Deskbar Replicant"), NULL);
 	fMarkUnreadReplicant->SetEnabled(false);
 			// not implemented
 
 	fNotifications = new BStringView("notifications",
-						"Deskbar Notifications (experimental)");
+						B_TRANSLATE("Deskbar Notifications (experimental)"));
 
 	fNotifications->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 	fNotifications->SetFont(be_bold_font);
 
 	fNotifyProtocols = new BCheckBox("EnableProtocolNotify",
-		"Enable protocol status notifications",new BMessage(kNotifyProtocolsLogin));
+		B_TRANSLATE("Enable protocol status notifications"),
+		new BMessage(kNotifyProtocolsLogin));
 
 	fNotifyContactStatus = new BCheckBox("EnableContactNotify",
-		"Enable contact status notifications",new BMessage(kNotifyContactStatus));
+		B_TRANSLATE("Enable contact status notifications"),
+		new BMessage(kNotifyContactStatus));
 	
 	fNotifyNewMessage = new BCheckBox("EnableMessageNotify",
-		"Enable message notifications", new BMessage(kNotifyNewMessage));
+		B_TRANSLATE("Enable message notifications"),
+		new BMessage(kNotifyNewMessage));
 
-	fGeneral = new BStringView("onGeneral", "General");
+	fGeneral = new BStringView("onGeneral", B_TRANSLATE("General"));
 	fGeneral->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 	fGeneral->SetFont(be_bold_font);
 
 	fDisableQuitConfirm = new BCheckBox("DisableQuitConfirm",
-		"Don't ask confirmation at Quit", new BMessage(kDisablePrompt));
+		B_TRANSLATE("Don't ask confirmation at Quit"),
+		new BMessage(kDisablePrompt));
 	const float spacing = be_control_look->DefaultItemSpacing();
 
 	SetLayout(new BGroupLayout(B_HORIZONTAL, spacing));

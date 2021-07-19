@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 #include <Alert.h>
+#include <Catalog.h>
 #include <Path.h>
 #include <Roster.h>
 
@@ -26,6 +27,10 @@
 #include "ProtocolManager.h"
 #include "ReplicantStatusView.h"
 #include "Server.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "TheApp"
 
 
 int
@@ -67,9 +72,9 @@ TheApp::ReadyToRun()
 		if (entry.Exists())
 			Emoticor::Get()->LoadConfig(currentPath.Path());
 		else {
-			BString msg("Can't find smileys settings in:\n\n");
-			msg << currentPath.Path();
-			BAlert* alert = new BAlert("", msg.String(), "Ouch!");
+			BString msg(B_TRANSLATE("Can't find smileys settings in:\n\n%path%"));
+			msg.ReplaceAll("%path%", currentPath.Path());
+			BAlert* alert = new BAlert("", msg.String(), B_TRANSLATE("Ouch!"));
 //			alert->Go();
 		}
 		printf("Loaded Emoticons settings from: %s\n", currentPath.Path());
@@ -82,9 +87,9 @@ TheApp::ReadyToRun()
 			ProtocolManager::Get()->Init(BDirectory(currentPath.Path()),
 				fMainWin);
 		} else {
-			BString msg("Can't find protocols in:\n\n");
-			msg << currentPath.Path();
-			BAlert* alert = new BAlert("", msg.String(), "Ouch!");
+			BString msg("Can't find protocols in:\n\n%path%");
+			msg.ReplaceAll("%path%", currentPath.Path());
+			BAlert* alert = new BAlert("", msg.String(), B_TRANSLATE("Ouch!"));
 			alert->Go();
 			PostMessage(B_QUIT_REQUESTED);
 			return;
@@ -115,14 +120,14 @@ TheApp::AboutRequested()
 		NULL
 	};
 
-	BString extraInfo;
-	extraInfo << "%app% is released under the GNU GPL License." << "\n";
-	extraInfo << "Some parts of %app% are available under MIT license." << "\n";
-	extraInfo << "Built: " << BUILD_DATE;
-	extraInfo.ReplaceAll("%app%", APP_NAME);
+	BString extraInfo(B_TRANSLATE("%app% is released under the GNU GPL "
+		"License.\nSome parts of %app% are available under MIT license.\n"
+		"Built: %buildDate%"));
+	extraInfo.ReplaceAll("%buildDate", BUILD_DATE);
+	extraInfo.ReplaceAll("%app%", B_TRANSLATE_SYSTEM_NAME(APP_NAME));
 
-	AboutWindow* about = new AboutWindow(APP_NAME, holders,
-		authors, extraInfo.String());
+	AboutWindow* about = new AboutWindow(B_TRANSLATE_SYSTEM_NAME(APP_NAME),
+		holders, authors, extraInfo.String());
 	about->Show();
 	delete about;
 }

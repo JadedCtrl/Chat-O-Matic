@@ -4,6 +4,7 @@
  * Distributed under the terms of the MIT License.
  */
 
+#include <Catalog.h>
 #include <CheckBox.h>
 #include <ControlLook.h>
 #include <GroupLayout.h>
@@ -18,19 +19,25 @@
 #include "MainWindow.h"
 #include "TheApp.h"
 
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PreferencesChatWindow"
+
+
 const uint32 kIgnoreEmoticons = 'CBhe';
 
 
 PreferencesChatWindow::PreferencesChatWindow()
-	: BView("Chat Window", B_WILL_DRAW)
+	: BView(B_TRANSLATE("Chat display"), B_WILL_DRAW)
 {
 
-	fChatWindowString = new BStringView("ChatWindowString", "Chat Window Settings");
+	fChatWindowString = new BStringView("ChatWindowString",
+		B_TRANSLATE("Chat settings"));
 	fChatWindowString->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
 	fChatWindowString->SetFont(be_bold_font);
 
 	fIgnoreEmoticons = new BCheckBox("IgnoreEmoticons",
-		"Ignore Emoticons",
+		B_TRANSLATE("Ignore emoticons"),
 		new BMessage(kIgnoreEmoticons));
 	fIgnoreEmoticons->SetEnabled(true);
 

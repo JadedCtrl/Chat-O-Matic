@@ -12,6 +12,7 @@
 
 #include <Application.h>
 #include <Alert.h>
+#include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
 #include <ScrollView.h>
@@ -36,12 +37,17 @@
 #include "TemplateWindow.h"
 
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "MainWindow"
+
+
 const uint32 kLogin			= 'LOGI';
 
 
 MainWindow::MainWindow()
 	:
-	BWindow(BRect(0, 0, 600, 400), APP_NAME, B_TITLED_WINDOW, 0),
+	BWindow(BRect(0, 0, 600, 400), B_TRANSLATE_SYSTEM_NAME(APP_NAME),
+		B_TITLED_WINDOW, 0),
 	fWorkspaceChanged(false),
 	fConversation(NULL),
 	fRosterWindow(NULL),
@@ -76,9 +82,10 @@ MainWindow::QuitRequested()
 	int32 button_index = 0;
 	if(!AppPreferences::Item()->DisableQuitConfirm)
 	{
-		BAlert* alert = new BAlert("Closing", "Are you sure you want to quit?",
-			"Yes", "No", NULL, B_WIDTH_AS_USUAL, B_OFFSET_SPACING,
-			B_WARNING_ALERT);
+		BAlert* alert = new BAlert(B_TRANSLATE("Closing"),
+			B_TRANSLATE("Are you sure you want to quit?"),
+			B_TRANSLATE("Yes"), B_TRANSLATE("No"), NULL, B_WIDTH_AS_USUAL,
+			B_OFFSET_SPACING, B_WARNING_ALERT);
 		alert->SetShortcut(0, B_ESCAPE);
 		button_index = alert->Go();
 	}
@@ -109,8 +116,8 @@ MainWindow::MessageReceived(BMessage* message)
 			BMessage* newMsg = new BMessage(IM_MESSAGE);
 			newMsg->AddInt32("im_what", IM_CREATE_CHAT);
 
-			fRosterWindow = new RosterWindow("Invite contact to chat"
-				B_UTF8_ELLIPSIS, newMsg, new BMessenger(this), fServer);
+			fRosterWindow = new RosterWindow(B_TRANSLATE("Invite contact to "
+				"chat" B_UTF8_ELLIPSIS), newMsg, new BMessenger(this), fServer);
 			fRosterWindow->Show();
 			break;
 		}
@@ -119,7 +126,7 @@ MainWindow::MessageReceived(BMessage* message)
 			BMessage* createMsg = new BMessage(IM_MESSAGE);
 			createMsg->AddInt32("im_what", IM_CREATE_ROOM);
 
-			TemplateWindow* win = new TemplateWindow("Create room",
+			TemplateWindow* win = new TemplateWindow(B_TRANSLATE("Create room"),
 				"create_room", createMsg, fServer);
 			win->Show();
 			break;
@@ -129,7 +136,7 @@ MainWindow::MessageReceived(BMessage* message)
 			BMessage* joinMsg = new BMessage(IM_MESSAGE);
 			joinMsg->AddInt32("im_what", IM_JOIN_ROOM);
 
-			TemplateWindow* win = new TemplateWindow("Join a room",
+			TemplateWindow* win = new TemplateWindow(B_TRANSLATE("Join a room"),
 				"join_room", joinMsg, fServer);
 			win->Show();
 			break;
@@ -146,8 +153,8 @@ MainWindow::MessageReceived(BMessage* message)
 
 			ProtocolLooper* plooper = fConversation->GetProtocolLooper();
 			BLooper* looper = (BLooper*)plooper;
-			fRosterWindow = new RosterWindow("Invite contact to chat"
-				B_UTF8_ELLIPSIS, invite, new BMessenger(looper), fServer,
+			fRosterWindow = new RosterWindow(B_TRANSLATE("Invite contact to "
+				"chat" B_UTF8_ELLIPSIS), invite, new BMessenger(looper), fServer,
 				plooper->GetInstance());
 
 			fRosterWindow->Show();
@@ -425,41 +432,41 @@ MainWindow::_CreateMenuBar()
 	BMenuBar* menuBar = new BMenuBar("MenuBar");
 
 	// Program
-	BMenu* programMenu = new BMenu("Program");
-	programMenu->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
+	BMenu* programMenu = new BMenu(B_TRANSLATE("Program"));
+	programMenu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
 		new BMessage(B_ABOUT_REQUESTED)));
-	programMenu->AddItem(new BMenuItem("Preferences" B_UTF8_ELLIPSIS,
+	programMenu->AddItem(new BMenuItem(B_TRANSLATE("Preferences" B_UTF8_ELLIPSIS),
 		new BMessage(APP_SHOW_SETTINGS), ',', B_COMMAND_KEY));
 	programMenu->AddItem(new BSeparatorItem());
-	programMenu->AddItem(new BMenuItem("Quit",
+	programMenu->AddItem(new BMenuItem(B_TRANSLATE("Quit"),
 		new BMessage(B_QUIT_REQUESTED), 'Q', B_COMMAND_KEY));
 	programMenu->SetTargetForItems(this);
 
 	// Chat
-	BMenu* chatMenu = new BMenu("Chat");
-	chatMenu->AddItem(new BMenuItem("Join room" B_UTF8_ELLIPSIS,
+	BMenu* chatMenu = new BMenu(B_TRANSLATE("Chat"));
+	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("Join room" B_UTF8_ELLIPSIS),
 		new BMessage(APP_JOIN_ROOM), 'J', B_COMMAND_KEY));
 	chatMenu->AddSeparatorItem();
-	chatMenu->AddItem(new BMenuItem("New room" B_UTF8_ELLIPSIS,
+	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("New room" B_UTF8_ELLIPSIS),
 		new BMessage(APP_NEW_ROOM), 'N', B_COMMAND_KEY));
-	chatMenu->AddItem(new BMenuItem("New chat" B_UTF8_ELLIPSIS,
+	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("New chat" B_UTF8_ELLIPSIS),
 		new BMessage(APP_NEW_CHAT), 'M', B_COMMAND_KEY));
 	chatMenu->SetTargetForItems(this);
 
 	// Roster
-	BMenu* rosterMenu = new BMenu("Roster");
-	rosterMenu->AddItem(new BMenuItem("Edit roster" B_UTF8_ELLIPSIS,
+	BMenu* rosterMenu = new BMenu(B_TRANSLATE("Roster"));
+	rosterMenu->AddItem(new BMenuItem(B_TRANSLATE("Edit roster" B_UTF8_ELLIPSIS),
 		new BMessage(APP_EDIT_ROSTER), 'R', B_COMMAND_KEY));
 	rosterMenu->AddSeparatorItem();
-	rosterMenu->AddItem(new BMenuItem("Invite user" B_UTF8_ELLIPSIS,
+	rosterMenu->AddItem(new BMenuItem(B_TRANSLATE("Invite user" B_UTF8_ELLIPSIS),
 		new BMessage(APP_SEND_INVITE), 'I', B_COMMAND_KEY));
 	rosterMenu->SetTargetForItems(this);
 
 	// Window
-	BMenu* windowMenu = new BMenu("Window");
-	windowMenu->AddItem(new BMenuItem("Up",
+	BMenu* windowMenu = new BMenu(B_TRANSLATE("Window"));
+	windowMenu->AddItem(new BMenuItem(B_TRANSLATE("Up"),
 		new BMessage(APP_MOVE_UP), B_UP_ARROW, B_COMMAND_KEY));
-	windowMenu->AddItem(new BMenuItem("Down",
+	windowMenu->AddItem(new BMenuItem(B_TRANSLATE("Down"),
 		new BMessage(APP_MOVE_DOWN), B_DOWN_ARROW, B_COMMAND_KEY));
 	windowMenu->SetTargetForItems(this);
 
@@ -475,7 +482,7 @@ MainWindow::_CreateMenuBar()
 void
 MainWindow::_ToggleMenuItems()
 {
-	BMenuItem* chatMenuItem = fMenuBar->FindItem("Chat");
+	BMenuItem* chatMenuItem = fMenuBar->FindItem(B_TRANSLATE("Chat"));
 	BMenu* chatMenu = chatMenuItem->Submenu();
 	if (chatMenuItem == NULL || chatMenu == NULL)
 		return;

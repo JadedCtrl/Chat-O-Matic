@@ -5,6 +5,7 @@
 
 #include "UserListView.h"
 
+#include <Catalog.h>
 #include <PopUpMenu.h>
 #include <MenuItem.h>
 #include <Window.h>
@@ -21,6 +22,9 @@
 #include "UserInfoWindow.h"
 #include "UserItem.h"
 
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "UserListView"
 
 
 UserListView::UserListView(const char* name)
@@ -79,8 +83,8 @@ UserListView::_BlankPopUp()
 {
 	BPopUpMenu* menu = new BPopUpMenu("blankPopUp");
 
-	BMenuItem* invite = new BMenuItem("Invite user…" B_UTF8_ELLIPSIS,
-		new BMessage(APP_SEND_INVITE), 'I', B_COMMAND_KEY);
+	BMenuItem* invite = new BMenuItem(B_TRANSLATE("Invite user"
+		B_UTF8_ELLIPSIS), new BMessage(APP_SEND_INVITE), 'I', B_COMMAND_KEY);
 	if (fChat == NULL)
 		invite->SetEnabled(false);
 

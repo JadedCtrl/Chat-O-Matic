@@ -16,6 +16,7 @@
 #include "Server.h"
 
 #include <Application.h>
+#include <Catalog.h>
 #include <Debug.h>
 #include <Entry.h>
 #include <Notification.h>
@@ -38,6 +39,10 @@
 #include "RosterItem.h"
 #include "UserInfoWindow.h"
 #include "Utils.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "Server"
 
 
 Server::Server()
@@ -133,10 +138,10 @@ Server::Filter(BMessage* message, BHandler **target)
 			if (AppPreferences::Item()->NotifyProtocolStatus == true
 					&& message->FindString("name", &name) == B_OK) {
 				BBitmap* icon = new BBitmap(message);
-				BString content("%user% has been disabled!");
+				BString content(B_TRANSLATE("%user% has been disabled!"));
 				content.ReplaceAll("%user%", name);
 
-				_SendNotification("Disabled", content, icon);
+				_SendNotification(B_TRANSLATE("Disabled"), content, icon);
 			}
 			break;
 		}
@@ -178,8 +183,8 @@ Server::Filter(BMessage* message, BHandler **target)
 			if (cmd_name.IsEmpty() == false) {
 				ChatCommand* cmd = CommandById(cmd_name, instance);
 				if (cmd == NULL)
-					body = "-- That command doesn't exist. Try '/help' for a "
-						   "list.\n";
+					body = B_TRANSLATE("-- That command doesn't exist. Try "
+						"'/help' for a list.\n");
 				else {
 					body = "** ";
 					body << cmd->GetName() << " ― " << cmd->GetDesc() << "\n";
@@ -190,7 +195,7 @@ Server::Filter(BMessage* message, BHandler **target)
 				combinedCmds.AddList(fCommands);
 				combinedCmds.AddList(chat->GetProtocolLooper()->Commands());
 
-				body << "** Commands: ";
+				body << B_TRANSLATE("** Commands: ");
 				for (int i = 0; i < combinedCmds.CountItems(); i++) {
 					ChatCommand* cmd = combinedCmds.ValueAt(i);
 					if (i > 0)	body << ", ";
@@ -498,9 +503,9 @@ Server::ImMessage(BMessage* msg)
 			if (user != NULL)
 				user_name = user->GetName();
 
-			BString alertBody("You've been invited to %room%.");
+			BString alertBody(B_TRANSLATE("You've been invited to %room%."));
 			if (user_id.IsEmpty() == false)
-				alertBody = "%user% has invited you to %room%.";
+				alertBody = B_TRANSLATE("%user% has invited you to %room%.");
 			if (body.IsEmpty() == false)
 				alertBody << "\n\n\"%body%\"";
 
@@ -516,7 +521,7 @@ Server::ImMessage(BMessage* msg)
 			reject->AddString("chat_id", chat_id);
 
 			InviteDialogue* invite = new InviteDialogue(BMessenger(looper),
-										"Invitation received",
+										B_TRANSLATE("Invitation received"),
 										alertBody.String(), accept, reject);
 			invite->Go();
 			break;
@@ -579,8 +584,8 @@ Server::ImMessage(BMessage* msg)
 
 			// Ready notification
 			if (AppPreferences::Item()->NotifyProtocolStatus == true)
-				_ProtocolNotification(looper, BString("Connected"),
-					BString("%user% has connected!"));
+				_ProtocolNotification(looper, BString(B_TRANSLATE("Connected")),
+					BString(B_TRANSLATE("%user% has connected!")));
 
 			// Join cached rooms
 			BEntry entry;
@@ -647,8 +652,8 @@ Server::ImError(BMessage* msg)
 	if (detail)
 		errMsg << "\n\n" << detail;
 
-	BAlert* alert = new BAlert("Error", errMsg.String(), "OK", NULL, NULL,
-		B_WIDTH_AS_USUAL, B_STOP_ALERT);
+	BAlert* alert = new BAlert(B_TRANSLATE("Error"), errMsg.String(),
+		B_TRANSLATE("OK"), NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT);
 	alert->Go();
 }
 

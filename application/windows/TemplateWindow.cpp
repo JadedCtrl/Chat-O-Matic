@@ -12,6 +12,7 @@
 
 #include <Alert.h>
 #include <Button.h>
+#include <Catalog.h>
 #include <ControlLook.h>
 #include <LayoutBuilder.h>
 #include <TextControl.h>
@@ -20,6 +21,10 @@
 #include "ChatProtocolMessages.h"
 #include "Utils.h"
 #include "TemplateView.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "TemplateWindow"
 
 
 const uint32 kOK		= 'save';
@@ -83,14 +88,15 @@ TemplateWindow::MessageReceived(BMessage* msg)
 			// Save account settings
 			if (fTemplate == NULL || fTemplateView == NULL)
 				break;
-			BString error = "Some items are empty. Please make sure to fill "
-				"out every item.";
+			BString error = B_TRANSLATE("Some items are empty. Please make "
+				"sure to fill out every item.");
 			BMessage* settings = new BMessage(*fMessage);
 			status_t result = fTemplate->Save(fTemplateView, settings, &error);
 
 			if (result != B_OK) {
-				BAlert* alert = new BAlert("", error.String(), "OK", NULL, NULL,
-					B_WIDTH_AS_USUAL, B_WARNING_ALERT);
+				BAlert* alert = new BAlert("", error.String(),
+					B_TRANSLATE("OK"), NULL, NULL, B_WIDTH_AS_USUAL,
+					B_WARNING_ALERT);
 				alert->Go();
 				break;
 			}
@@ -139,7 +145,7 @@ TemplateWindow::_InitInterface(bigtime_t instance)
 		fMenuField->SetEnabled(false);
 	}
 
-	BButton* fOkButton = new BButton("OK", new BMessage(kOK));
+	BButton* fOkButton = new BButton(B_TRANSLATE("OK"), new BMessage(kOK));
 	if (fAccounts.CountItems() <= 0)
 		fOkButton->SetEnabled(false);
 	fOkButton->MakeDefault(true);
@@ -152,7 +158,8 @@ TemplateWindow::_InitInterface(bigtime_t instance)
 		.AddGroup(B_HORIZONTAL)
 			.Add(fMenuField)
 			.AddGlue()
-			.Add(new BButton("Cancel", new BMessage(B_QUIT_REQUESTED)))
+			.Add(new BButton(B_TRANSLATE("Cancel"),
+				new BMessage(B_QUIT_REQUESTED)))
 			.Add(fOkButton)
 		.End()
 	.End();

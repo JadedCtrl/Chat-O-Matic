@@ -5,11 +5,16 @@
 
 #include "ChatCommand.h"
 
+#include <Catalog.h>
 #include <StringList.h>
 
 #include "Conversation.h"
 #include "MainWindow.h"
 #include "TheApp.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "ChatCommand"
 
 
 ChatCommand::ChatCommand(const char* name, BMessage msg, bool toProtocol,
@@ -105,7 +110,8 @@ ChatCommand::_ProcessArgs(BString args, BMessage* msg, BString* errorMsg,
 			case CMD_ROOM_PARTICIPANT:
 			{
 				if (chat->UserById(arg) == NULL) {
-					errorMsg->SetTo("%user% isn't a member of this room.");
+					errorMsg->SetTo(B_TRANSLATE("%user% isn't a member of this "
+						"room."));
 					errorMsg->ReplaceAll("%user%", arg);
 					return false;
 				}
@@ -115,8 +121,8 @@ ChatCommand::_ProcessArgs(BString args, BMessage* msg, BString* errorMsg,
 			case CMD_KNOWN_USER:
 			{
 				if (chat->GetProtocolLooper()->UserById(arg) == NULL) {
-					errorMsg->SetTo("You aren't contacts with and have no chats "
-									"in common with %user%. Shame.");
+					errorMsg->SetTo(B_TRANSLATE("You aren't contacts with and "
+						"have no chats in common with %user%. Shame."));
 					errorMsg->ReplaceAll("%user%", arg);
 					return false;
 				}
