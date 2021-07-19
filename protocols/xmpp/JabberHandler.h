@@ -38,6 +38,7 @@
 
 class BList;
 class InviteHandler;
+class OurClient;
 
 
 typedef KeyMap<BString, gloox::MUCRoom*> RoomMap;
@@ -108,7 +109,7 @@ private:
 			ChatProtocolMessengerInterface*
 									fServerMessenger;
 
-			gloox::Client*			fClient;
+			OurClient*				fClient;
 			gloox::ConnectionTCPClient*
 									fConnection;
 			gloox::VCardManager*	fVCardManager;
@@ -208,6 +209,14 @@ private:
 	virtual	void					handleVCard(const gloox::JID&, const gloox::VCard*);
 	virtual	void					handleVCardResult(gloox::VCardHandler::VCardContext,
 													  const gloox::JID&, gloox::StanzaError);
+};
+
+
+class OurClient : public gloox::Client {
+public:
+									OurClient(const gloox::JID jid, const char* password);
+
+	virtual void					handleTag(gloox::Tag* tag);
 };
 
 

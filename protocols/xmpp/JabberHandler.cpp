@@ -8,6 +8,8 @@
  *		Jaidyn Levesque, jadedctrl@teknik.io
  */
 
+#include <iostream>
+
 #include <Directory.h>
 #include <Entry.h>
 #include <File.h>
@@ -401,7 +403,7 @@ JabberHandler::UpdateSettings(BMessage* msg)
 	fJid.setJID(jid.String());
 
 	// Register our client
-	fClient = new gloox::Client(fJid, fPassword.String());
+	fClient = new OurClient(fJid, fPassword.String());
 	fClient->setServer(fServer.String());
 	if (fPort > 0)
 		fClient->setPort(fPort);
@@ -1471,7 +1473,6 @@ JabberHandler::handleMessageEvent(const gloox::JID& from, gloox::MessageEventTyp
 void
 JabberHandler::handleChatState(const gloox::JID& from, gloox::ChatStateType state)
 {
-printf("------ %d\n", state);
 	// We're interested only in some states
 	if (state == gloox::ChatStateActive || state == gloox::ChatStateInvalid)
 		return;
@@ -1819,7 +1820,7 @@ JabberHandler::handleLog(gloox::LogLevel level, gloox::LogArea,
 						 const std::string& msg)
 {
 	if (level >= gloox::LogLevelWarning)
-		printf("%s\n", msg.c_str());
+		std::cout << msg << std::endl;
 }
 
 
@@ -1869,6 +1870,22 @@ JabberHandler::handleVCardResult(gloox::VCardHandler::VCardContext context,
 {
 	//if (context == gloox::VCardHandler::FetchVCard)
 	//else
+}
+
+
+OurClient::OurClient(const gloox::JID jid, const char* password)
+	:
+	gloox::Client(jid, password)
+{
+}
+
+
+void
+OurClient::handleTag(gloox::Tag* tag)
+{
+	if (DEBUG_ENABLED)
+		std::cerr << "Tag\t" << tag->xml() << std::endl;
+	gloox::Client::handleTag(tag);
 }
 
 
