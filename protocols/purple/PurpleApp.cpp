@@ -587,6 +587,11 @@ PurpleApp::_GetAccountTemplate(PurplePluginProtocolInfo* info)
 		setting.AddString("description", BString(_tr(split->text)).Append(":"));
 		setting.AddString("default", split->default_value);
 		setting.AddInt32("type", B_STRING_TYPE);
+
+		BString error(B_TRANSLATE("%name% needs to be specified."));
+		error.ReplaceAll("%name%", _tr(split->text));
+		setting.AddString("error", error);
+
 		temp.AddMessage("setting", &setting);
 	}
 
@@ -646,11 +651,6 @@ PurpleApp::_GetAccountTemplate(PurplePluginProtocolInfo* info)
 
 		if (pref->masked)
 			setting.AddBool("is_hidden", true);
-
-		BString error(B_TRANSLATE("%name% needs to be specified."));
-		error.ReplaceAll("%name%", pref->text);
-		setting.AddString("error", error);
-
 		setting.AddInt32("type", bType);
 		setting.AddString("description", description);
 		temp.AddMessage("setting", &setting);
