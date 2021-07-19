@@ -18,7 +18,7 @@ NAME = protocols/purple
 TYPE = APP
 
 # If you plan to use localization, specify the application's MIME signature.
-APP_MIME_SIG = application/x-vnd.caya.purple
+APP_MIME_SIG = application/x-vnd.cardie.purple
 
 #	The following lines tell Pe and Eddie where the SRCS, RDEFS, and RSRCS are
 #	so that Pe and Eddie can fill them in for you.
@@ -62,7 +62,7 @@ RSRCS =
 #	- 	if your library does not follow the standard library naming scheme,
 #		you need to specify the path to the library and it's name.
 #		(e.g. for mylib.a, specify "mylib.a" or "path/mylib.a")
-LIBS =  be crypto glib-2.0 interface network purple support translation $(STDCPPLIBS)
+LIBS =  be crypto glib-2.0 interface intl localestub network purple support translation $(STDCPPLIBS)
 
 
 #	Specify additional paths to directories following the standard libXXX.so
@@ -92,7 +92,7 @@ OPTIMIZE :=
 # 	will recreate only the "locales/en.catkeys" file. Use it as a template
 # 	for creating catkeys for other languages. All localization files must be
 # 	placed in the "locales" subdirectory.
-LOCALES =
+LOCALES = en
 
 #	Specify all the preprocessor symbols to be defined. The symbols will not
 #	have their values set automatically; you must supply the value (if any) to
@@ -139,3 +139,5 @@ include $(DEVEL_DIRECTORY)/etc/makefile-engine
 
 include Makefile.common
 include protocols/Makefile.common
+
+CATKEYS_DIR = locales/purple

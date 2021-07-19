@@ -12,12 +12,14 @@
 #include <StringView.h>
 #include <TextView.h>
 
+#include "PurpleApp.h"
+
 
 PurpleDialog::PurpleDialog(const char* title, const char* primary,
 	const char* secondary, PurpleAccount* account, va_list actions,
 	size_t action_count, void* user_data)
 	:
-	BWindow(BRect(BPoint(-1000, -1000), BSize(300, 250)),title,
+	BWindow(BRect(BPoint(-1000, -1000), BSize(300, 250)), _tr(title),
 		B_FLOATING_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL,
 		B_AUTO_UPDATE_SIZE_LIMITS),
 	fUserData(user_data)
@@ -52,7 +54,7 @@ PurpleDialog::MessageReceived(BMessage* msg)
 void
 PurpleDialog::_InitActionInterface(const char* label, const char* desc)
 {
-	BStringView* primaryLabel = new BStringView("primaryText", label);
+	BStringView* primaryLabel = new BStringView("primaryText", _tr(label));
 	primaryLabel->SetExplicitAlignment(
 		BAlignment(B_ALIGN_CENTER, B_ALIGN_TOP));
 	
@@ -60,7 +62,7 @@ PurpleDialog::_InitActionInterface(const char* label, const char* desc)
 	secondaryLabel->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
 	secondaryLabel->MakeEditable(false);
 	secondaryLabel->SetWordWrap(true);
-	secondaryLabel->SetText(desc);
+	secondaryLabel->SetText(_tr(desc));
 
 	// Init buttons view
 	BView* buttonsView = new BView("actionButtons", 0);

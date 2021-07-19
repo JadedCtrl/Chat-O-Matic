@@ -1,0 +1,42 @@
+1	English	application/x-vnd.cardie.purple	2993124882
+Connection error	PurpleApp ― Connection errors		Connection error
+** You can't undo what was once done… at least with this protocol.\n	PurpleApp ― Room moderation		** You can't undo what was once done… at least with this protocol.\n
+** Command isn't useful in this chat %err%\n	PurpleApp ― Command errors		** Command isn't useful in this chat %err%\n
+Self-signed certificate	PurpleApp ― Connection errors		Self-signed certificate
+Username:	PurpleApp ― Account template		Username:
+No SSL certificate provided	PurpleApp ― Connection errors		No SSL certificate provided
+SSL unsupported	PurpleApp ― Connection errors		SSL unsupported
+** Command error %err%\n	PurpleApp ― Command errors		** Command error %err%\n
+Authentication failed	PurpleApp ― Connection errors		Authentication failed
+You can't friend someone without a nick.	PurpleProtocol ― Roster template		You can't friend someone without a nick.
+** Command failed %err%\n	PurpleApp ― Command errors		** Command failed %err%\n
+Certificate error	PurpleApp ― Connection errors		Certificate error
+Unactivated SSL certificate	PurpleApp ― Connection errors		Unactivated SSL certificate
+** This protocol doesn't support kicking. Send them a strongly worded e-mail.\n	PurpleApp ― Room moderation		** This protocol doesn't support kicking. Send them a strongly worded e-mail.\n
+Certifcate and fingerprint conflict	PurpleApp ― Connection errors		Certifcate and fingerprint conflict
+** This protocol left the duct-tape at home― we have nothing to put over their mouth!\n	PurpleApp ― Room moderation		** This protocol left the duct-tape at home― we have nothing to put over their mouth!\n
+** This protocol can't exactly unmute a user, let alone make an omlett.\n	PurpleApp ― Room moderation		** This protocol can't exactly unmute a user, let alone make an omlett.\n
+%name% is necessary.	PurpleApp ― Room template		%name% is necessary.
+Password:	PurpleApp ― Account template		Password:
+Invalid username	PurpleApp ― Connection errors		Invalid username
+Username in use	PurpleApp ― Connection errors		Username in use
+Encryption error	PurpleApp ― Connection errors		Encryption error
+A username needs to be specified!	PurpleApp ― Account template		A username needs to be specified!
+Settings invalid	PurpleApp ― Connection errors		Settings invalid
+Moderator	PurpleApp ― User roles		Moderator
+Alias:	PurpleProtocol ― Roster template		Alias:
+Untrusted SSL certificate	PurpleApp ― Connection errors		Untrusted SSL certificate
+Operator	PurpleApp ― User roles		Operator
+Network error	PurpleApp ― Connection errors		Network error
+%name% needs to be specified.	PurpleApp ― Account template		%name% needs to be specified.
+Founder	PurpleApp ― User roles		Founder
+Certificate and hostname conflict	PurpleApp ― Connection errors		Certificate and hostname conflict
+** Invalid arguments to command %err%\n	PurpleApp ― Command errors		** Invalid arguments to command %err%\n
+** Command not found %err%\n	PurpleApp ― Command errors		** Command not found %err%\n
+Expired SSL certificate	PurpleApp ― Connection errors		Expired SSL certificate
+** Banning won't work with this protocol. Try being mean instead.\n	PurpleApp ― Room moderation		** Banning won't work with this protocol. Try being mean instead.\n
+Room ID	PurpleApp ― Room template		Room ID
+** This protocol is particularly self-concious, and prefers that this person not see its chats.\n	PurpleApp ― Room moderation		** This protocol is particularly self-concious, and prefers that this person not see its chats.\n
+Authentication impossible	PurpleApp ― Connection errors		Authentication impossible
+Username:	PurpleProtocol ― Roster template		Username:
+** This protocol doesn't support deafening, but spamming the chat should be a good substitute. :^)\n	PurpleApp ― Room moderation		** This protocol doesn't support deafening, but spamming the chat should be a good substitute. :^)\n

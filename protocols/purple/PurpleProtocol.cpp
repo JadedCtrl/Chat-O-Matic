@@ -20,6 +20,7 @@
 #include "PurpleProtocol.h"
 
 #include <Application.h>
+#include <Catalog.h>
 #include <Resources.h>
 #include <Roster.h>
 #include <TranslationUtils.h>
@@ -28,6 +29,10 @@
 
 #include "Purple.h"
 #include "PurpleMessages.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PurpleProtocol"
 
 
 BMessenger* kAppMessenger = NULL;
@@ -373,17 +378,20 @@ PurpleProtocol::_SendPrplMessage(BMessage* msg)
 BMessage
 PurpleProtocol::_RosterTemplate()
 {
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PurpleProtocol ― Roster template"
+
 	BMessage temp;
 	BMessage id;
 	id.AddString("name", "user_id");
-	id.AddString("description", "Username:");
-	id.AddString("error", "You can't friend someone without a nick.");
+	id.AddString("description", B_TRANSLATE("Username:"));
+	id.AddString("error", B_TRANSLATE("You can't friend someone without a nick."));
 	id.AddInt32("type", B_STRING_TYPE);
 	temp.AddMessage("setting", &id);
 
 	BMessage name;
 	name.AddString("name", "user_name");
-	name.AddString("description", "Alias:");
+	name.AddString("description", B_TRANSLATE("Alias:"));
 	name.AddInt32("type", B_STRING_TYPE);
 	temp.AddMessage("setting", &name);
 

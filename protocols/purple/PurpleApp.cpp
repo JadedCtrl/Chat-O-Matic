@@ -23,10 +23,13 @@
 #include <iostream>
 
 #include <glib.h>
+#include <libintl.h>
 #include <libpurple/status.h>
 
 #include <Alert.h>
+#include <Catalog.h>
 #include <Directory.h>
+#include <Locale.h>
 #include <MessageRunner.h>
 #include <Path.h>
 #include <Roster.h>
@@ -40,9 +43,14 @@
 #include "PurpleMessages.h"
 
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PurpleApp"
+
+
 int
 main(int arc, char** argv)
 {
+
 	PurpleApp app;
 	app.Run();
 	return 0;
@@ -54,6 +62,7 @@ PurpleApp::PurpleApp()
 	BApplication(PURPLE_SIGNATURE),
 	fGloop(g_main_loop_new(NULL, false))
 {
+	init_gettext();
 	if (init_libpurple() != B_OK)
 		std::cerr << "libpurple initialization failed. Please report!\n";
 
@@ -150,6 +159,8 @@ PurpleApp::MessageReceived(BMessage* msg)
 void
 PurpleApp::ImMessage(BMessage* msg)
 {
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PurpleApp ― Room moderation"
 	switch (msg->FindInt32("im_what"))
 	{
 		case IM_SET_OWN_STATUS:
@@ -379,54 +390,56 @@ PurpleApp::ImMessage(BMessage* msg)
 		case IM_ROOM_KICK_PARTICIPANT:
 		{
 			_SendSysText(_ConversationFromMessage(msg),
-				"** This protocol doesn't support kicking. "
-				"Send them a strongly worded e-mail.\n");
+				B_TRANSLATE("** This protocol doesn't support kicking. "
+					"Send them a strongly worded e-mail.\n"));
 			break;
 		}
 		case IM_ROOM_BAN_PARTICIPANT:
 		{
 			_SendSysText(_ConversationFromMessage(msg),
-				"** Banning won't work with this protocol. "
-				"Try being mean instead.\n");
+				B_TRANSLATE("** Banning won't work with this protocol. "
+					"Try being mean instead.\n"));
 			break;
 		}
 		case IM_ROOM_UNBAN_PARTICIPANT:
 		{
 			_SendSysText(_ConversationFromMessage(msg),
-				"** You can't undo what was once done… "
-				"at least with this protocol.\n");
+				B_TRANSLATE("** You can't undo what was once done… "
+					"at least with this protocol.\n"));
 			break;
 		}
 		case IM_ROOM_MUTE_PARTICIPANT:
 		{
 			_SendSysText(_ConversationFromMessage(msg),
-				"** This protocol left the duct-tape at home― "
-				"we have nothing to put over their mouth!\n");
+				B_TRANSLATE("** This protocol left the duct-tape at home― "
+					"we have nothing to put over their mouth!\n"));
 			break;
 		}
 		case IM_ROOM_UNMUTE_PARTICIPANT:
 		{
 			_SendSysText(_ConversationFromMessage(msg),
-				"** This protocol can't exactly unmute a user, let alone make "
-				" an omlett.\n");
+				B_TRANSLATE("** This protocol can't exactly unmute a user, "
+					"let alone make an omlett.\n"));
 			break;
 		}
 		case IM_ROOM_DEAFEN_PARTICIPANT:
 		{
 			_SendSysText(_ConversationFromMessage(msg),
-				"** This protocol doesn't support deafening, but spamming the "
-				"chat should be a good substitute. :^)\n");
+				B_TRANSLATE("** This protocol doesn't support deafening, "
+					"but spamming the chat should be a good substitute. :^)\n"));
 			break;
 		}
 		case IM_ROOM_UNDEAFEN_PARTICIPANT:
 		{
 			_SendSysText(_ConversationFromMessage(msg),
-				"** This protocol is particularly self-concious, and prefers "
-				"that this person not see its chats.\n");
+				B_TRANSLATE("** This protocol is particularly self-concious,"
+					" and prefers that this person not see its chats.\n"));
 			break;
 		}
 		case PURPLE_CHAT_COMMAND:
 		{
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PurpleApp ― Command errors"
 			PurpleConversation* conv = _ConversationFromMessage(msg);
 			BString cmd;
 			if (conv == NULL || msg->FindString("cmd_name", &cmd) != B_OK)
@@ -448,22 +461,22 @@ PurpleApp::ImMessage(BMessage* msg)
 			switch (status)
 			{
 				case PURPLE_CMD_STATUS_FAILED:
-					errorBody = "** Command failed %err%\n";
+					errorBody = B_TRANSLATE("** Command failed %err%\n");
 					break;
 				case PURPLE_CMD_STATUS_NOT_FOUND:
-					errorBody = "** Command not found %err%\n";
+					errorBody = B_TRANSLATE("** Command not found %err%\n");
 					break;
 				case PURPLE_CMD_STATUS_WRONG_ARGS:
-					errorBody = "** Invalid arguments to command %err%\n";
+					errorBody = B_TRANSLATE("** Invalid arguments to command %err%\n");
 					break;
 				case PURPLE_CMD_STATUS_WRONG_PRPL:
-					errorBody = "** Command isn't useful in this chat %err%\n";
+					errorBody = B_TRANSLATE("** Command isn't useful in this chat %err%\n");
 					break;
 				default:
-					errorBody = "** Command error %err%\n";
+					errorBody = B_TRANSLATE("** Command error %err%\n");
 			}
 			if (status != PURPLE_CMD_STATUS_OK) {
-				errorBody.ReplaceAll("%err%", error);
+				errorBody.ReplaceAll("%err%", _tr(error));
 				_SendSysText(conv, errorBody.String());
 			}
 			break;
@@ -543,6 +556,9 @@ PurpleApp::_GetAccountTemplate(PurplePluginProtocolInfo* info)
 {
 	BMessage temp;
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PurpleApp ― Account template"
+
 	// Add a "username" setting, if not explicitly specified
 	GList* prefIter = info->protocol_options;
 	for (int i = 0; prefIter != NULL; prefIter = prefIter->next) {
@@ -553,8 +569,9 @@ PurpleApp::_GetAccountTemplate(PurplePluginProtocolInfo* info)
 		else if (prefIter->next == NULL) {
 			BMessage setting;
 			setting.AddString("name", "username");
-			setting.AddString("description", "Username:");
-			setting.AddString("error", "A username needs to be specified!");
+			setting.AddString("description", B_TRANSLATE("Username:"));
+			setting.AddString("error",
+				B_TRANSLATE("A username needs to be specified!"));
 			setting.AddInt32("type", B_STRING_TYPE);
 			temp.AddMessage("setting", &setting);
 		}
@@ -567,7 +584,7 @@ PurpleApp::_GetAccountTemplate(PurplePluginProtocolInfo* info)
 		PurpleAccountUserSplit* split = (PurpleAccountUserSplit*)splitIter->data;
 		BMessage setting;
 		setting.AddString("name", "username_split");
-		setting.AddString("description", BString(split->text).Append(":"));
+		setting.AddString("description", BString(_tr(split->text)).Append(":"));
 		setting.AddString("default", split->default_value);
 		setting.AddInt32("type", B_STRING_TYPE);
 		temp.AddMessage("setting", &setting);
@@ -576,7 +593,7 @@ PurpleApp::_GetAccountTemplate(PurplePluginProtocolInfo* info)
 	// Password setting
 	BMessage passwd;
 	passwd.AddString("name", "password");
-	passwd.AddString("description", "Password:");
+	passwd.AddString("description", B_TRANSLATE("Password:"));
 	passwd.AddInt32("type", B_STRING_TYPE);
 	passwd.AddBool("is_secret", true);
 	temp.AddMessage("setting", &passwd);
@@ -591,13 +608,13 @@ PurpleApp::_GetAccountTemplate(PurplePluginProtocolInfo* info)
 
 		BMessage setting;
 		setting.AddString("name", pref->pref_name);
-		BString description = BString(pref->text).Append(":");
+		BString description = BString(_tr(pref->text)).Append(":");
 
 		switch (type)
 		{
 			case PURPLE_PREF_BOOLEAN:
 			{
-				description = pref->text;
+				description = _tr(pref->text);
 				bType = B_BOOL_TYPE;
 				setting.AddBool("default", pref->default_value.boolean);
 				break;
@@ -629,8 +646,11 @@ PurpleApp::_GetAccountTemplate(PurplePluginProtocolInfo* info)
 
 		if (pref->masked)
 			setting.AddBool("is_hidden", true);
-		setting.AddString("error",
-			BString(pref->text).Append(" needs to be specified."));
+
+		BString error(B_TRANSLATE("%name% needs to be specified."));
+		error.ReplaceAll("%name%", pref->text);
+		setting.AddString("error", error);
+
 		setting.AddInt32("type", bType);
 		setting.AddString("description", description);
 		temp.AddMessage("setting", &setting);
@@ -642,10 +662,13 @@ PurpleApp::_GetAccountTemplate(PurplePluginProtocolInfo* info)
 BMessage
 PurpleApp::_GetRoomTemplate(PurplePluginProtocolInfo* info)
 {
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PurpleApp ― Room template"
+
 	BMessage settings;
 	if (info->chat_info == NULL) {
 		settings.AddString("name", "chat_id");
-		settings.AddString("description", "Room ID");
+		settings.AddString("description", B_TRANSLATE("Room ID"));
 		settings.AddInt32("type", B_STRING_TYPE);
 		return settings;
 	}
@@ -657,11 +680,13 @@ PurpleApp::_GetRoomTemplate(PurplePluginProtocolInfo* info)
 		proto_chat_entry* pref = (proto_chat_entry*)prefs->data;
 
 		setting.AddString("name", pref->identifier);
-		setting.AddString("description", pref->label);
+		setting.AddString("description", _tr(pref->label));
 
-		if (pref->required)
-			setting.AddString("error",
-				BString(pref->identifier).Append(" is necessary."));
+		if (pref->required) {
+			BString error(B_TRANSLATE("%name% is necessary."));
+			error.ReplaceAll("%name%", pref->identifier);
+			setting.AddString("error", error);
+		}
 		if (pref->secret)
 			setting.AddBool("is_secret", true);
 		if (pref->is_int)
@@ -889,6 +914,23 @@ init_libpurple()
 
 	init_signals();
 	return B_OK;
+}
+
+
+void
+init_gettext()
+{
+	// Spoof the current language
+	BLocale locale;
+	BLanguage lang;
+	if (locale.GetLanguage(&lang) == B_OK)
+		setenv("LC_MESSAGES", lang.Code(), 1);
+
+	bindtextdomain("pidgin", "/boot/system/data/locale");
+	bind_textdomain_codeset("pidgin", "UTF-8");
+	textdomain("pidgin");
+
+	setlocale(LC_MESSAGES, NULL);
 }
 
 
@@ -1369,8 +1411,8 @@ static void*
 ui_op_notify_message(PurpleNotifyMsgType type, const char* title,
 	const char* primary, const char* secondary)
 {
-	BString text = primary;
-	text << "\n" << secondary;
+	BString text = _tr(primary);
+	text << "\n" << _tr(secondary);
 
 	BAlert* alert = new BAlert(title, text.String(), "OK");
 
@@ -1418,6 +1460,9 @@ void
 send_user_role(PurpleConversation* conv, const char* name,
 	PurpleConvChatBuddyFlags flags)
 {
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PurpleApp ― User roles"
+
 	if (flags == 0) return;
 
 	BString role_title;
@@ -1425,18 +1470,18 @@ send_user_role(PurpleConversation* conv, const char* name,
 	int32 role_priority = 0;
 
 	if (flags & PURPLE_CBFLAGS_FOUNDER) {
-		role_title = "Founder";
+		role_title = B_TRANSLATE("Founder");
 		role_priority = 3;
 	}
 	if (flags & PURPLE_CBFLAGS_OP) {
 		if (role_title.IsEmpty() == true)
-			role_title = "Operator";
+			role_title = B_TRANSLATE("Operator");
 		role_perms |= PERM_ROOM_SUBJECT | PERM_ROOM_NAME;
 		role_priority = 2;
 	}
 	if (flags & PURPLE_CBFLAGS_HALFOP) {
 		if (role_title.IsEmpty() == true)
-			role_title = "Moderator";
+			role_title = B_TRANSLATE("Moderator");
 		role_perms |= PERM_ROOM_SUBJECT | PERM_ROOM_NAME;
 		role_priority = 3;
 	}
@@ -1511,42 +1556,45 @@ purple_status_to_cardie(PurpleStatus* status)
 const char*
 purple_connection_error_name(const PurpleConnectionErrorInfo* error)
 {
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "PurpleApp ― Connection errors"
+
 	switch (error->type)
 	{
 		case PURPLE_CONNECTION_ERROR_NETWORK_ERROR:
-			return "Connection error";
+			return B_TRANSLATE("Network error");
 		case PURPLE_CONNECTION_ERROR_INVALID_USERNAME:
-			return "Invalid username";
+			return B_TRANSLATE("Invalid username");
 		case PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED:
-			return "Authentication failed";
+			return B_TRANSLATE("Authentication failed");
 		case PURPLE_CONNECTION_ERROR_AUTHENTICATION_IMPOSSIBLE:
-			return "Authentication impossible";
+			return B_TRANSLATE("Authentication impossible");
 		case PURPLE_CONNECTION_ERROR_NO_SSL_SUPPORT:
-			return "SSL unsupported";
+			return B_TRANSLATE("SSL unsupported");
 		case PURPLE_CONNECTION_ERROR_ENCRYPTION_ERROR:
-			return "Encryption error";
+			return B_TRANSLATE("Encryption error");
 		case PURPLE_CONNECTION_ERROR_NAME_IN_USE:
-			return "Username in use";
+			return B_TRANSLATE("Username in use");
 		case PURPLE_CONNECTION_ERROR_INVALID_SETTINGS:
-			return "Settings invalid";
+			return B_TRANSLATE("Settings invalid");
 		case PURPLE_CONNECTION_ERROR_CERT_NOT_PROVIDED:
-			return "No SSL certificate provided";
+			return B_TRANSLATE("No SSL certificate provided");
 		case PURPLE_CONNECTION_ERROR_CERT_UNTRUSTED:
-			return "Untrusted SSL certificate";
+			return B_TRANSLATE("Untrusted SSL certificate");
 		case PURPLE_CONNECTION_ERROR_CERT_EXPIRED:
-			return "Expired SSL certificate";
+			return B_TRANSLATE("Expired SSL certificate");
 		case PURPLE_CONNECTION_ERROR_CERT_NOT_ACTIVATED:
-			return "Unactivated SSL certificate";
+			return B_TRANSLATE("Unactivated SSL certificate");
 		case PURPLE_CONNECTION_ERROR_CERT_HOSTNAME_MISMATCH:
-			return "Certificate and hostname conflict";
+			return B_TRANSLATE("Certificate and hostname conflict");
 		case PURPLE_CONNECTION_ERROR_CERT_FINGERPRINT_MISMATCH:
-			return "Certifcate and fingerprint conflict";
+			return B_TRANSLATE("Certifcate and fingerprint conflict");
 		case PURPLE_CONNECTION_ERROR_CERT_SELF_SIGNED:
-			return "Self-signed certificate";
+			return B_TRANSLATE("Self-signed certificate");
 		case PURPLE_CONNECTION_ERROR_CERT_OTHER_ERROR:
-			return "Certificate error";
+			return B_TRANSLATE("Certificate error");
 	}
-	return "Misc. error";
+	return B_TRANSLATE("Connection error");
 }
 
 
@@ -1584,4 +1632,11 @@ _purple_glib_io_invoke(GIOChannel *source, GIOCondition condition, gpointer data
 			  purple_cond);
 
 	return TRUE;
+}
+
+
+const char*
+_tr(const char* string)
+{
+	return BString(dgettext("pidgin", string)).ReplaceFirst("_", "").String();
 }

@@ -112,6 +112,7 @@ private:
 
 
 			status_t	init_libpurple();
+			void		init_gettext();
 			void		init_ui_ops();
 			void		init_signals();
 
@@ -232,5 +233,7 @@ PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);
 
 	static gboolean		_purple_glib_io_invoke(GIOChannel *source,
 							GIOCondition condition, gpointer data);
+
+		const char*		_tr(const char* string);
 
 #endif // _PURPLE_APP_H
