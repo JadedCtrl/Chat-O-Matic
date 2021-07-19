@@ -10,6 +10,7 @@
 
 #include <iostream>
 
+#include <Catalog.h>
 #include <Directory.h>
 #include <Entry.h>
 #include <File.h>
@@ -28,6 +29,10 @@
 #include <gloox/mucroom.h>
 
 #include "JabberHandler.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "JabberHandler"
 
 
 static status_t
@@ -411,8 +416,8 @@ JabberHandler::UpdateSettings(BMessage* msg)
 	fClient->registerMessageSessionHandler(this);
 	fClient->registerMUCInvitationHandler(new InviteHandler(fClient, this));
 	fClient->rosterManager()->registerRosterListener(this);
-	fClient->disco()->setVersion("Caya", VERSION);
-	fClient->disco()->setIdentity("client", "caya");
+	fClient->disco()->setVersion("Cardie", VERSION);
+	fClient->disco()->setIdentity("client", "cardie");
 	fClient->logInstance().registerLogHandler(gloox::LogLevelDebug,
 		gloox::LogAreaAll, this);
 
@@ -455,129 +460,164 @@ JabberHandler::Client() const
 void
 JabberHandler::HandleConnectionError(gloox::ConnectionError& e)
 {
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "JabberHandler ― Connection errors"
+
 	// Handle error
 	BMessage errMsg(IM_ERROR);
 
 	switch (e) {
 		case gloox::ConnStreamError:
 		{
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "JabberHandler ― Connection stream errors"
 			gloox::StreamError streamError = fClient->streamError();
 
-			errMsg.AddString("error", "Bad or malformed XML stream.");
+			errMsg.AddString("error", B_TRANSLATE("Bad or malformed XML stream."));
 
 			switch (streamError) {
 				case gloox::StreamErrorBadFormat:
-					errMsg.AddString("detail", "The entity has sent XML that "
-						"cannot be processed");
+					errMsg.AddString("detail", B_TRANSLATE("The entity has "
+							"sent XML that cannot be processed"));
 					break;
 				case gloox::StreamErrorBadNamespacePrefix:
-					errMsg.AddString("detail", "The entity has sent a namespace "
-						"prefix which is not supported, or has sent no namespace "
-						"prefix on an element that requires such prefix.");
+					errMsg.AddString("detail", B_TRANSLATE("The entity has "
+							"sent a namespace prefix which is not supported, "
+							"or has sent no namespace prefix on an element "
+							"that requires such prefix."));
 					break;
 				case gloox::StreamErrorConflict:
-					errMsg.AddString("detail", "The server is closing the active "
-						"stream for this entity because a new stream has been "
-						"initiated that conflicts with the existing stream.");
+					errMsg.AddString("detail", B_TRANSLATE("The server is "
+							"closing the active stream for this entity "
+							"because a new stream has been initiated that "
+							"conflicts with the existing stream."));
 					break;
 				case gloox::StreamErrorConnectionTimeout:
-					errMsg.AddString("detail", "The entity has not generated any "
-						"traffic over the stream for some period of time.");
+					errMsg.AddString("detail", B_TRANSLATE("The entity has "
+							"not generated any traffic over the stream for "
+							"some period of time."));
 					break;
 				case gloox::StreamErrorHostGone:
-					errMsg.AddString("detail", "The host initially used corresponds "
-						"to a hostname that is no longer hosted by the server.");
+					errMsg.AddString("detail", B_TRANSLATE("The host initially "
+							"used corresponds to a hostname that is no longer "
+							"hosted by the server."));
 					break;
 				case gloox::StreamErrorHostUnknown:
-					errMsg.AddString("detail", "The host initially used does not "
-						"correspond to a hostname that is hosted by the server.");
+					errMsg.AddString("detail", B_TRANSLATE("The host initially "
+							"used does not correspond to a hostname that is "
+							"hosted by the server."));
 					break;
 				case gloox::StreamErrorImproperAddressing:
-					errMsg.AddString("detail", "A stanza sent between two servers "
-						"lacks a 'to' or 'from' attribute (or the attribute has no "
-						"value.");
+					errMsg.AddString("detail", B_TRANSLATE("A stanza sent "
+							"between two servers lacks a 'to' or 'from' "
+							"attribute (or the attribute has no value."));
 					break;
 				case gloox::StreamErrorInternalServerError:
-					errMsg.AddString("detail", "The Server has experienced a "
-						"misconfiguration or an otherwise-undefined internal error "
-						"that prevents it from servicing the stream.");
+					errMsg.AddString("detail", B_TRANSLATE("The server has "
+							"experienced a misconfiguration or an "
+							"otherwise-undefined internal error that prevents "
+							"it from servicing the stream."));
 					break;
 				case gloox::StreamErrorInvalidFrom:
-					errMsg.AddString("detail", "The JID or hostname provided in a "
-						"'from' address does not match an authorized JID or validated "
-						"domain negotiation between servers via SASL or dialback, or "
-						"between a client and a server via authentication and resource "
-						"binding.");
+					errMsg.AddString("detail", B_TRANSLATE("The JID or "
+							"hostname provided in a 'from' address does not "
+							"match an authorized JID or validated domain "
+							"negotiation between servers via SASL or dialback, "
+							"or between a client and a server via "
+							"authentication and resource binding."));
 					break;
 				case gloox::StreamErrorInvalidId:
-					errMsg.AddString("detail", "The stream ID or dialback ID is invalid "
-						"or does not match and ID previously provdided.");
+					errMsg.AddString("detail", B_TRANSLATE("The stream ID or "
+							"dialback ID is invalid or does not match and ID "
+							"previously provdided."));
 					break;
 				case gloox::StreamErrorInvalidNamespace:
-					errMsg.AddString("detail", "The streams namespace name is something "
-						"other than \"http://etherx.jabber.org/streams\" or the dialback "
-						"namespace name is something other than \"jabber:server:dialback\".");
+					errMsg.AddString("detail", B_TRANSLATE("The streams "
+							"namespace name is something other than "
+							"\"http://etherx.jabber.org/streams\" or the "
+							"dialback namespace name is something other than "
+							"\"jabber:server:dialback\"."));
 					break;
 				case gloox::StreamErrorInvalidXml:
-					errMsg.AddString("detail", "The entity has sent invalid XML over the "
-						"stream to a server that performs validation.");
+					errMsg.AddString("detail", B_TRANSLATE("The entity has "
+							"sent invalid XML over the stream to a server that "
+							"performs validation."));
 					break;
 				case gloox::StreamErrorNotAuthorized:
-					errMsg.AddString("detail", "The entity has attempted to send data before "
-						"the stream has been authenticated, or otherwise is not authorized to "
-						"perform an action related to stream negotiation; the receiving entity "
-						"must not process the offending stanza before sending the stream error.");
+					errMsg.AddString("detail", B_TRANSLATE("The entity has "
+							"attempted to send data before the stream has been "
+							"authenticated, or otherwise is not authorized to "
+							"perform an action related to stream negotiation; "
+							"the receiving entity must not process the "
+							"offending stanza before sending the stream "
+							"error."));
 					break;
 				case gloox::StreamErrorPolicyViolation:
-					errMsg.AddString("detail", "The entity has violated some local service "
-						"policy; the server may choose to specify the policy in the <text/> "
-						"element or an application-specific condition element.");
+					errMsg.AddString("detail", B_TRANSLATE("The entity has "
+							"violated some local service policy; the server "
+							"may choose to specify the policy in the <text/> "
+							"element or an application-specific condition "
+							"element."));
 					break;
 				case gloox::StreamErrorRemoteConnectionFailed:
-					errMsg.AddString("detail", "The server is unable to properly connect to "
-						"a remote entit that is required for authentication.");
+					errMsg.AddString("detail", B_TRANSLATE("The server is "
+							"unable to properly connect to a remote entity "
+							"that is required for authentication."));
 					break;
 				case gloox::StreamErrorResourceConstraint:
-					errMsg.AddString("detail", "The server lacks the system resources necessary "
-						"to service the stream.");
+					errMsg.AddString("detail", B_TRANSLATE("The server lacks "
+							"the system resources necessary to service the "
+							"stream."));
 					break;
 				case gloox::StreamErrorRestrictedXml:
-					errMsg.AddString("detail", "The entity has attempted to send restricted XML "
-						"features such as a comment, processing instruction, DTD, entity reference "
-						"or unescaped character.");
+					errMsg.AddString("detail", B_TRANSLATE("The entity has "
+							"attempted to send restricted XML features such as "
+							"a comment, processing instruction, DTD, entity "
+							"reference or unescaped character."));
 					break;
 				case gloox::StreamErrorSeeOtherHost:
-					errMsg.AddString("detail", "The server will not provide service to the initiating "
-						"entity but is redirecting traffic to another host; the server should specify "
-						"the alternate hostname or IP address (which MUST be a valid domain identifier) "
-						"as the XML characted data of the <see-other-host/> element.");
+					errMsg.AddString("detail", B_TRANSLATE("The server will "
+							"not provide service to the initiating entity but "
+							"is redirecting traffic to another host; the "
+							"server should specify the alternate hostname or "
+							"IP address (which MUST be a valid domain "
+							"identifier) as the XML characted data of the "
+							"<see-other-host/> element."));
 					break;
 				case gloox::StreamErrorSystemShutdown:
-					errMsg.AddString("detail", "The server is being shut down and all active streams "
-						"are being closed.");
+					errMsg.AddString("detail", B_TRANSLATE("The server is "
+							"being shut down and all active streams are being "
+							"closed."));
 					break;
 				case gloox::StreamErrorUndefinedCondition:
-					errMsg.AddString("detail", "The error condition is not one of those defined by the "
-						"other condition in this list; this error condition should be used only in "
-						"conjunction with an application-specific condition.");
+					errMsg.AddString("detail", B_TRANSLATE("The error "
+							"condition is not one of those defined by the "
+							"other condition in this list; this error "
+							"condition should be used only in conjunction with "
+							"an application-specific condition."));
 					break;
 				case gloox::StreamErrorUnsupportedEncoding:
-					errMsg.AddString("detail", "The initiating entity has encoded the stream in an "
-						"encoding that is not supported by the server.");
+					errMsg.AddString("detail", B_TRANSLATE("The initiating "
+							"entity has encoded the stream in an encoding "
+							"that is not supported by the server."));
 					break;
 				case gloox::StreamErrorUnsupportedStanzaType:
-					errMsg.AddString("detail", "The initiating entity has sent a first-level child "
-						"of the stream that is not supported by the server.");
+					errMsg.AddString("detail", B_TRANSLATE("The initiating "
+							"entity has sent a first-level child of the stream "
+							"that is not supported by the server."));
 					break;
 				case gloox::StreamErrorUnsupportedVersion:
-					errMsg.AddString("detail", "The value of the 'version' attribute provided by the "
-						"initiating entity in the stream header specifies a version of XMPP that is not "
-						"supported by the server; the server may specify the version(s) it supports in "
-						"the <text/> element.");
+					errMsg.AddString("detail", B_TRANSLATE("The value of the "
+							"'version' attribute provided by the initiating "
+							"entity in the stream header specifies a version "
+							"of XMPP that is not supported by the server; the "
+							"server may specify the version(s) it supports in "
+							"the <text/> element."));
 					break;
 				case gloox::StreamErrorXmlNotWellFormed:
-					errMsg.AddString("detail", "The initiating entity has sent XML that is not "
-						"well-formed as defined by XML.");
+					errMsg.AddString("detail", B_TRANSLATE("The initiating "
+							"entity has sent XML that is not well-formed as "
+							"defined by XML."));
 					break;
 				default:
 					break;
@@ -585,110 +625,134 @@ JabberHandler::HandleConnectionError(gloox::ConnectionError& e)
 			break;
 		}
 		case gloox::ConnStreamVersionError:
-			errMsg.AddString("detail", "The incoming stream's version is not "
-				"supported.");
+			errMsg.AddString("detail", B_TRANSLATE("The incoming stream's "
+					"version is not supported."));
 			break;
 		case gloox::ConnStreamClosed:
-			errMsg.AddString("detail", "The stream has been closed by the server.");
+			errMsg.AddString("detail", B_TRANSLATE("The stream has been closed "
+					"by the server."));
 			break;
 		case gloox::ConnProxyAuthRequired:
-			errMsg.AddString("detail", "The HTTP/SOCKS5 proxy requires authentication.");
+			errMsg.AddString("detail", B_TRANSLATE("The HTTP/SOCKS5 proxy "
+					"requires authentication."));
 			break;
 		case gloox::ConnProxyAuthFailed:
-			errMsg.AddString("detail", "HTTP/SOCKS5 proxy authentication failed.");
+			errMsg.AddString("detail", B_TRANSLATE("HTTP/SOCKS5 proxy "
+					"authentication failed."));
 			break;
 		case gloox::ConnProxyNoSupportedAuth:
-			errMsg.AddString("detail", "The HTTP/SOCKS5 proxy requires an unsupported "
-				"authentication mechanism.");
+			errMsg.AddString("detail", B_TRANSLATE("The HTTP/SOCKS5 proxy "
+					"requires an unsupported authentication mechanism."));
 			break;
 		case gloox::ConnIoError:
-			errMsg.AddString("detail", "Input/output error.");
+			errMsg.AddString("detail", B_TRANSLATE("Input/output error."));
 			break;
 		case gloox::ConnParseError:
-			errMsg.AddString("detail", "A XML parse error occurred.");
+			errMsg.AddString("detail", B_TRANSLATE("A XML parse error "
+					"occurred."));
 			break;
 		case gloox::ConnConnectionRefused:
-			errMsg.AddString("detail", "The connection was refused by the server "
-				"on the socket level.");
+			errMsg.AddString("detail", B_TRANSLATE("The connection was refused "
+					"by the server on the socket level."));
 			break;
 		case gloox::ConnDnsError:
-			errMsg.AddString("detail", "Server's hostname resolution failed.");
+			errMsg.AddString("detail", B_TRANSLATE("Server's hostname "
+					"resolution failed."));
 			break;
 		case gloox::ConnOutOfMemory:
-			errMsg.AddString("detail", "Out of memory.");
+			errMsg.AddString("detail", B_TRANSLATE("Out of memory."));
 			break;
 		case gloox::ConnTlsFailed:
-			errMsg.AddString("detail", "The server's certificate could not be verified or "
-				"the TLS handshake did not complete successfully.");
+			errMsg.AddString("detail", B_TRANSLATE("The server's certificate "
+					"could not be verified or the TLS handshake did not "
+					"complete successfully."));
 			break;
 		case gloox::ConnTlsNotAvailable:
-			errMsg.AddString("detail", "The server didn't offer TLS while it was set to be "
-				"required, or TLS was not compiled in.");
+			errMsg.AddString("detail", B_TRANSLATE("The server didn't offer "
+					"TLS while it was set to be required, or TLS was not "
+					"compiled in."));
 			break;
 		case gloox::ConnCompressionFailed:
-			errMsg.AddString("detail", "Negotiating or initializing compression failed.");
+			errMsg.AddString("detail", B_TRANSLATE("Negotiating or "
+					"initializing compression failed."));
 			break;
 		case gloox::ConnAuthenticationFailed:
 		{
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "JabberHandler ― Connection authentication errors"
 			gloox::AuthenticationError authError = fClient->authError();
 
-			errMsg.AddString("error", "Authentication failed. Username or password wrong "
-				"or account does not exist.");
+			errMsg.AddString("error", B_TRANSLATE("Authentication failed. "
+						"Username or password wrong or account does not "
+						"exist."));
 
 			switch (authError) {
 				case gloox::SaslAborted:
-					errMsg.AddString("detail", "The receiving entity acknowledges an <abort/> "
-						"element sent by initiating entity; sent in reply to the <abort/> "
-						"element.");
+					errMsg.AddString("detail", B_TRANSLATE("The receiving "
+							"entity acknowledges an <abort/> element sent by "
+							"initiating entity; sent in reply to the <abort/> "
+							"element."));
 					break;
 				case gloox::SaslIncorrectEncoding:
-					errMsg.AddString("detail", "The data provided by the initiating entity "
-						"could not be processed because the base64 encoding is incorrect.");
+					errMsg.AddString("detail", B_TRANSLATE("The data provided "
+							"by the initiating entity could not be processed "
+							"because the base64 encoding is incorrect."));
 					break;
 				case gloox::SaslInvalidAuthzid:
-					errMsg.AddString("detail", "The authid provided by the initiating entity "
-						"is invalid, either because it is incorrectly formatted or because "
-						"the initiating entity does not have permissions to authorize that ID; "
-						"sent in reply to a <response/> element or an <auth/> element with "
-						"initial response data.");
+					errMsg.AddString("detail", B_TRANSLATE("The authid "
+							"provided by the initiating entity is invalid, "
+							"either because it is incorrectly formatted or "
+							"because the initiating entity does not have "
+							"permissions to authorize that ID; sent in reply "
+							"to a <response/> element or an <auth/> element "
+							"with initial response data."));
 					break;
 				case gloox::SaslInvalidMechanism:
-					errMsg.AddString("detail", "The initiating element did not provide a "
-						"mechanism or requested a mechanism that is not supported by the "
-						"receiving entity; sent in reply to an <auth/> element.");
+					errMsg.AddString("detail", B_TRANSLATE("The initiating "
+							"element did not provide a mechanism or requested "
+							"a mechanism that is not supported by the "
+							"receiving entity; sent in reply to an <auth/> "
+							"element."));
 					break;
 				case gloox::SaslMalformedRequest:
-					errMsg.AddString("detail", "The request is malformed (e.g., the <auth/> "
-						"element includes an initial response but the mechanism does not "
-						"allow that); sent in reply to an <abort/>, <auth/>, <challenge/>, or "
-						"<response/> element.");
+					errMsg.AddString("detail", B_TRANSLATE("The request is "
+							"malformed (e.g., the <auth/> element includes an "
+							"initial response but the mechanism does not "
+							"allow that); sent in reply to an <abort/>, "
+							"<auth/>, <challenge/>, or <response/> element."));
 					break;
 				case gloox::SaslMechanismTooWeak:
-					errMsg.AddString("detail", "The mechanism requested by the initiating entity "
-						"is weaker than server policy permits for that initiating entity; sent in "
-						"reply to a <response/> element or an <auth/> element with initial "
-						"response data.");
+					errMsg.AddString("detail", B_TRANSLATE("The mechanism "
+							"requested by the initiating entity is weaker "
+							"than server policy permits for that initiating "
+							"entity; sent in reply to a <response/> element or "
+							"an <auth/> element with initial response data."));
 					break;
 				case gloox::SaslNotAuthorized:
-					errMsg.AddString("detail", "The authentication failed because the initiating "
-						"entity did not provide valid credentials (this includes but is not "
-						"limited to the case of an unknown username); sent in reply to a "
-						"<response/> element or an <auth/> element with initial response data.");
+					errMsg.AddString("detail", B_TRANSLATE("The authentication "
+							"failed because the initiating entity did not "
+							"provide valid credentials (this includes but is "
+							"not limited to the case of an unknown username); "
+							"sent in reply to a <response/> element or an "
+							"<auth/> element with initial response data."));
 					break;
 				case gloox::SaslTemporaryAuthFailure:
-					errMsg.AddString("detail", "The authentication failed because of a temporary "
-						"error condition within the receiving entity; sent in reply to an "
-						"<auth/> element or <response/> element.");
+					errMsg.AddString("detail", B_TRANSLATE("The authentication "
+							"failed because of a temporary error condition "
+							"within the receiving entity; sent in reply to an "
+							"<auth/> element or <response/> element."));
 					break;
 				case gloox::NonSaslConflict:
-					errMsg.AddString("detail", "Resource conflict, see XEP-0078.");
+					errMsg.AddString("detail", B_TRANSLATE("Resource conflict, "
+							"see XEP-0078."));
 					break;
 				case gloox::NonSaslNotAcceptable:
-					errMsg.AddString("detail", "Required information not provided, "
-						"see XEP-0078.");
+					errMsg.AddString("detail", B_TRANSLATE("Required "
+							"information not provided, see XEP-0078."));
 					break;
 				case gloox::NonSaslNotAuthorized:
-					errMsg.AddString("detail", "Incorrect credentials.");
+					errMsg.AddString("detail", B_TRANSLATE("Incorrect "
+							"credentials."));
 					break;
 				default:
 					break;
@@ -712,85 +776,97 @@ JabberHandler::HandleConnectionError(gloox::ConnectionError& e)
 void
 JabberHandler::HandleStanzaError(gloox::StanzaError error)
 {
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "JabberHandler ― Stanza errors"
+
 	BMessage errMsg(IM_ERROR);
-	errMsg.AddString("error", "Stanza-related error");
+	errMsg.AddString("error", B_TRANSLATE("Stanza-related error"));
 	BString detail;
 
 	switch (error)
 	{
 		case gloox::StanzaErrorBadRequest:
-			detail = "The sender has sent XML that is malformed or that cannot "
-			"be processed.";
+			detail = B_TRANSLATE("The sender has sent XML that is malformed or "
+				"that cannot be processed.");
 			break;
 		case gloox::StanzaErrorConflict:
-			detail = "Access cannot be granted because an existing resource or "
-			"session exists with the same name or address.";
+			detail = B_TRANSLATE("Access cannot be granted because an existing "
+				"resource or session exists with the same name or address.");
 			break;
 		case gloox::StanzaErrorFeatureNotImplemented:
-			detail = "This feature hasn't been implemented by the recipient or "
-			"by the server.";
+			detail = B_TRANSLATE("This feature hasn't been implemented by the "
+				"recipient or by the server.");
 			break;
 		case gloox::StanzaErrorForbidden:
-			detail = "You don't have permssion to do this.";
+			detail = B_TRANSLATE("You don't have permssion to do this.");
 			break;
 		case gloox::StanzaErrorGone:
-			detail = "The recipient or server can no longer be contacted at "
-			"this address. Try again later, or with a different address.";
+			detail = B_TRANSLATE("The recipient or server can no longer be "
+				"contacted at this address. Try again later, or with a "
+				"different address.");
 			break;
 		case gloox::StanzaErrorInternalServerError:
-			detail = "The server could not process the stanza because of a "
-			"misconfiguration or an otherwise-undefined internal server error.";
+			detail = B_TRANSLATE("The server could not process the stanza "
+				"because of a misconfiguration or an otherwise-undefined "
+				"internal server error.");
 			break;
 		case gloox::StanzaErrorItemNotFound:
-			detail = "The addressed JID or item requested cannot be found.";
+			detail = B_TRANSLATE("The addressed JID or item requested cannot "
+				"be found.");
 			break;
 		case gloox::StanzaErrorJidMalformed:
-			detail = "An invalid XMPP address or identifier was given. If you "
-			"can, please try a different one.";
+			detail = B_TRANSLATE("An invalid XMPP address or identifier was "
+				"given. If you can, please try a different one.");
 			break;
 		case gloox::StanzaErrorNotAcceptable:
-			detail = "The server or user refuses to accept this, because some "
-			"criteria hasn't been met (e.g., a local policy regarding "
-			"acceptable words in messages).";
+			detail = B_TRANSLATE("The server or user refuses to accept this, "
+				"because some criteria hasn't been met (e.g., a local policy "
+				"regarding acceptable words in messages).");
 			break;
 		case gloox::StanzaErrorNotAllowed:
-			detail = "You aren't allowed to do this by the server or recepient.";
+			detail = B_TRANSLATE("You aren't allowed to do this by the server "
+				"or recepient.");
 			break;
 		case gloox::StanzaErrorNotAuthorized:
-			detail = "You need to be properily authenticated before doing this.";
+			detail = B_TRANSLATE("You need to be properily authenticated "
+				"before doing this.");
 		case gloox::StanzaErrorNotModified:
-			detail = "The item requested has not changed since it was last "
-			"requested.";
+			detail = B_TRANSLATE("The item requested has not changed since it "
+				"was last requested.");
 		case gloox::StanzaErrorPaymentRequired:
-			detail = "The server refuses to offer service, because payment is "
-			"required.";
+			detail = B_TRANSLATE("The server refuses to offer service, because "
+				"payment is required.");
 			break;
 		case gloox::StanzaErrorRecipientUnavailable:
-			detail = "The recipient is temporarily unavailable.";
+			detail = B_TRANSLATE("The recipient is temporarily unavailable.");
 			break;
 		case gloox::StanzaErrorRedirect:
-			detail = "The recipient or server is redirecting requests for this "
-			"information to another entity, usually temporarily.";
+			detail = B_TRANSLATE("The recipient or server is redirecting "
+				"requests for this information to another entity, usually "
+				"temporarily.");
 			break;
 		case gloox::StanzaErrorRegistrationRequired:
-			detail = "You can't do this before registration! Be sure your "
-			"finished registering for your account.";
+			detail = B_TRANSLATE("You can't do this before registration! Be "
+				"sure your finished registering for your account.");
 			break;
 		case gloox::StanzaErrorRemoteServerNotFound:
-			detail = "That user's server doesn't exist.";
+			detail = B_TRANSLATE("That user's server doesn't exist.");
 			break;
 		case gloox::StanzaErrorRemoteServerTimeout:
-			detail = "Connection to that user's server has timed out.";
+			detail = B_TRANSLATE("Connection to that user's server has timed "
+				"out.");
 			break;
 		case gloox::StanzaErrorResourceConstraint:
-			detail = "The server or recipient are too busy right now; try "
-			"again later.";
+			detail = B_TRANSLATE("The server or recipient are too busy right "
+				"now; try again later.");
 			break;
 		case gloox::StanzaErrorServiceUnavailable:
-			detail = "The server or recipient don't provide this service.";
+			detail = B_TRANSLATE("The server or recipient don't provide this "
+				"service.");
 			break;
 		case gloox::StanzaErrorSubscribtionRequired:
-			detail = "You can't access this unless you are subscribed.";
+			detail = B_TRANSLATE("You can't access this unless you are "
+				"subscribed.");
 			break;
 	}
 
@@ -1025,7 +1101,7 @@ JabberHandler::_CacheAvatar(const char* id, const char* binimage, size_t length)
 		file.Write(binimage, length);
 	}
 
-	// Do we need to notify Caya?
+	// Do we need to notify the app?
 	bool found = false;
 	BString* item = NULL;
 	for (int32 i = 0; (item = (BString*)fAvatars->ItemAt(i)); i++) {
@@ -1166,18 +1242,21 @@ JabberHandler::_MUCModeration(BMessage* msg)
 const char*
 JabberHandler::_RoleTitle(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation aff)
 {
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "JabberHandler ― User roles"
+
 	switch (role)
 	{
 		case gloox::RoleVisitor:
-			return "Visitor";
+			return B_TRANSLATE("Visitor");
 		case gloox::RoleParticipant:
-			return "Member";
+			return B_TRANSLATE("Member");
 		case gloox::RoleModerator:
 			if (aff == gloox::AffiliationOwner)
-				return "Owner";
-			return "Moderator";
+				return B_TRANSLATE("Owner");
+			return B_TRANSLATE("Moderator");
 	}
-	return "Invalid";
+	return B_TRANSLATE("Invalid");
 }
 
 
@@ -1221,41 +1300,47 @@ JabberHandler::_RolePriority(gloox::MUCRoomRole role, gloox::MUCRoomAffiliation 
 BMessage
 JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 {
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "JabberHandler ― Settings template"
+
 	BMessage stemplate('IMst');
 
 	BMessage usernameText;
 	usernameText.AddString("name", "username");
 	usernameText.AddString("description", username);
-	usernameText.AddString("error", "You can't log into an account without a "
-		"username.\nPlease fill in your username for the given server.");
+	usernameText.AddString("error", B_TRANSLATE("You can't log into an account "
+			"without a username.\nPlease fill in your username for the given "
+			"server."));
 	usernameText.AddInt32("type", 'CSTR');
 	stemplate.AddMessage("setting", &usernameText);
 
 	BMessage passwordText;
 	passwordText.AddString("name", "password");
-	passwordText.AddString("description", "Password:");
-	passwordText.AddString("error", "You can't log into an account without a "
-		"password.\nPlease fill in your password for the given account.");
+	passwordText.AddString("description", B_TRANSLATE("Password:"));
+	passwordText.AddString("error", B_TRANSLATE("You can't log into an account "
+			"without a password.\nPlease fill in your password for the given "
+			"account."));
 	passwordText.AddInt32("type", 'CSTR');
 	passwordText.AddBool("is_secret", true);
 	stemplate.AddMessage("setting", &passwordText);
 
 	BMessage serverText;
 	serverText.AddString("name", "server");
-	serverText.AddString("description", "Server:");
-	serverText.AddString("error", "You can't add an account without a server.\n"
-		"Please add a valid XMPP server.");
+	serverText.AddString("description", B_TRANSLATE("Server:"));
+	serverText.AddString("error", B_TRANSLATE("You can't add an account "
+			"without a server.\nPlease add a valid XMPP server."));
 	serverText.AddInt32("type", 'CSTR');
 	if (serverOption == true)
 		stemplate.AddMessage("setting", &serverText);
 
 	BMessage resourceText;
 	resourceText.AddString("name", "resource");
-	resourceText.AddString("description", "Resource:");
+	resourceText.AddString("description", B_TRANSLATE("Resource:"));
 	resourceText.AddInt32("type", 'CSTR');
-	resourceText.AddString("default", "Caya");
-	resourceText.AddString("error", "You can't add an account without a "
-		"resource.\nDon't worry― it can be whatever string you want.");
+	resourceText.AddString("default", "Cardie");
+	resourceText.AddString("error", B_TRANSLATE("You can't add an account "
+			"without a resource.\nDon't worry― it can be whatever string you "
+			"want."));
 	stemplate.AddMessage("setting", &resourceText);
 
 	return stemplate;
@@ -1265,12 +1350,15 @@ JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 BMessage
 JabberHandler::_RoomTemplate()
 {
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "JabberHandler ― Room template"
+
 	BMessage stemplate('IMst');
 	BMessage roomIdentifier;
 	roomIdentifier.AddString("name", "chat_id");
-	roomIdentifier.AddString("description", "Room ID:");
-	roomIdentifier.AddString("error", "You can't have a room without a JID!\n"
-		"Use the \"name@server\" format.");
+	roomIdentifier.AddString("description", B_TRANSLATE("Room ID:"));
+	roomIdentifier.AddString("error", B_TRANSLATE("You can't have a room "
+			"without a JID!\nUse the \"name@server\" format."));
 	roomIdentifier.AddInt32("type", 'CSTR');
 	stemplate.AddMessage("setting", &roomIdentifier);
 
@@ -1281,19 +1369,22 @@ JabberHandler::_RoomTemplate()
 BMessage
 JabberHandler::_RosterTemplate()
 {
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "JabberHandler ― Roster template"
+
 	BMessage stemplate('IMst');
 
 	BMessage user_id;
 	user_id.AddString("name", "user_id");
-	user_id.AddString("description", "User ID:");
-	user_id.AddString("error", "You can't befriend an IDless miscreant!\n"
-		"Please use the \"name@server\" format.");
+	user_id.AddString("description", B_TRANSLATE("User ID:"));
+	user_id.AddString("error", B_TRANSLATE("You can't befriend an IDless "
+			"miscreant!\nPlease use the \"name@server\" format."));
 	user_id.AddInt32("type", 'CSTR');
 	stemplate.AddMessage("setting", &user_id);
 
 	BMessage user_name;
 	user_name.AddString("name", "user_name");
-	user_name.AddString("description", "Nickname:");
+	user_name.AddString("description", B_TRANSLATE("Nickname:"));
 	user_name.AddInt32("type", 'CSTR');
 	stemplate.AddMessage("setting", &user_name);
 
