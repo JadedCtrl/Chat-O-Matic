@@ -948,6 +948,22 @@ static PurpleEventLoopUiOps _ui_op_eventloops =
 };
 
 
+static PurpleConnectionUiOps _ui_op_connection =
+{
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	ui_op_report_disconnect_reason,
+	NULL,
+	NULL,
+	NULL
+};
+
+
 static PurpleRequestUiOps _ui_op_request =
 {
 	ui_op_request_input,
@@ -986,6 +1002,7 @@ void
 init_ui_ops()
 {
 	purple_eventloop_set_ui_ops(&_ui_op_eventloops);
+	purple_connections_set_ui_ops(&_ui_op_connection);
 	purple_request_set_ui_ops(&_ui_op_request);
 	purple_notify_set_ui_ops(&_ui_op_notify);
 }
@@ -1001,10 +1018,6 @@ init_signals()
 
 	purple_signal_connect(purple_accounts_get_handle(), "account-signed-on",
 		&handle, PURPLE_CALLBACK(signal_account_signed_on), NULL);
-	purple_signal_connect(purple_accounts_get_handle(), "account-signed-off",
-		&handle, PURPLE_CALLBACK(signal_account_signed_off), NULL);
-	purple_signal_connect(purple_accounts_get_handle(), "account-disabled",
-		&handle, PURPLE_CALLBACK(signal_account_disabled), NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-error-changed",
 		&handle, PURPLE_CALLBACK(signal_account_error_changed), NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed",
@@ -1063,21 +1076,6 @@ signal_account_signed_on(PurpleAccount* account)
 	send_own_info(account);
 
 	((PurpleApp*)be_app)->fUserNicks.AddItem(username, display);
-}
-
-
-static void
-signal_account_signed_off(PurpleAccount* account)
-{
-	signal_account_disabled(account);
-}
-
-
-static void
-signal_account_disabled(PurpleAccount* account)
-{
-	BMessage disabled(PURPLE_SHUTDOWN_ADDON);
-	((PurpleApp*)be_app)->SendMessage(account, disabled);
 }
 
 
@@ -1322,6 +1320,26 @@ ui_op_input_add(gint fd, PurpleInputCondition condition,
 
 	g_io_channel_unref(channel);
 	return closure->result;
+}
+
+
+static void
+ui_op_report_disconnect_reason(PurpleConnection* conn,
+	PurpleConnectionError reason, const char* text)
+{
+	PurpleAccount* account = purple_connection_get_account(conn);
+	PurpleStatus* status = purple_account_get_active_status(account);
+
+	if (purple_connection_error_is_fatal(reason) == false)
+		if (purple_status_is_online(status))
+			purple_account_connect(account);
+		else
+			((PurpleApp*)be_app)->SendMessage(account,
+				BMessage(PURPLE_SHUTDOWN_ADDON));
+	else  {
+		BMessage disabled(PURPLE_SHUTDOWN_ADDON);
+		((PurpleApp*)be_app)->SendMessage(account, disabled);
+	}
 }
 
 

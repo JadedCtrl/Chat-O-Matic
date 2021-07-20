@@ -122,8 +122,6 @@ private:
 
 // Account signals
 	 static void		signal_account_signed_on(PurpleAccount* account);
-	 static void		signal_account_signed_off(PurpleAccount* account);
-	 static void		signal_account_disabled(PurpleAccount* account);
 	 static void		signal_account_error_changed(PurpleAccount* account,
 							const PurpleConnectionErrorInfo* old_error,
 							const PurpleConnectionErrorInfo* current_error);
@@ -162,6 +160,10 @@ private:
 	 static guint		ui_op_input_add(gint fd,
 							PurpleInputCondition condition,
 							PurpleInputFunction function, gpointer data);
+
+// Connection ui ops
+	 static void		ui_op_report_disconnect_reason(PurpleConnection* conn,
+							PurpleConnectionError reason, const char* text);
 
 // Request ui ops
 	 static void*		ui_op_request_input(const char* title,
