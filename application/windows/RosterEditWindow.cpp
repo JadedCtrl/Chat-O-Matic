@@ -20,6 +20,7 @@
 #include <ScrollView.h>
 #include <SeparatorView.h>
 
+#include "AccountsMenu.h"
 #include "AppMessages.h"
 #include "AppPreferences.h"
 #include "ChatProtocolMessages.h"
@@ -27,7 +28,6 @@
 #include "RosterListView.h"
 #include "RosterView.h"
 #include "TemplateWindow.h"
-#include "Utils.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -47,7 +47,6 @@ RosterEditWindow* RosterEditWindow::fInstance = NULL;
 RosterEditWindow::RosterEditWindow(Server* server)
 	:
 	BWindow(BRect(0, 0, 300, 400), B_TRANSLATE("Roster"), B_FLOATING_WINDOW, 0),
-	fAccounts(server->GetAccounts()),
 	fServer(server),
 	fEditingWindow(NULL)
 {
@@ -55,7 +54,7 @@ RosterEditWindow::RosterEditWindow(Server* server)
 	fRosterView->SetInvocationMessage(new BMessage(kEditMember));
 
 	fAccountField = new BMenuField("accountMenuField", NULL,
-		CreateAccountMenu(fAccounts, BMessage(kSelAccount),
+		new AccountsMenu("accountMenu", BMessage(kSelAccount),
 			new BMessage(kSelNoAccount)));
 
 	font_height fontHeight;
@@ -183,10 +182,12 @@ RosterEditWindow::MessageReceived(BMessage* message)
 		}
 		case kSelAccount:
 		{
+			AccountInstances accounts = fServer->GetActiveAccounts();
+
 			int index = message->FindInt32("index") - 1;
-			if (index < 0 || index > (fAccounts.CountItems() - 1))
+			if (index < 0 || index > (accounts.CountItems() - 1))
 				return;
-			fRosterView->SetAccount(fAccounts.ValueAt(index));
+			fRosterView->SetAccount(accounts.ValueAt(index));
 			break;
 		}
 		case kSelNoAccount:

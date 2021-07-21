@@ -55,6 +55,7 @@ SRCS = \
 	application/preferences/PreferencesAccounts.cpp \
 	application/preferences/PreferencesBehavior.cpp \
 	application/preferences/PreferencesReplicant.cpp \
+	application/views/AccountsMenu.cpp \
 	application/views/RenderView.cpp \
 	application/views/ConversationAccountItem.cpp \
 	application/views/ConversationItem.cpp \

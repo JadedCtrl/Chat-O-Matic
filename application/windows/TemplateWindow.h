@@ -42,7 +42,6 @@ private:
 			void		_LoadTemplate();
 
 	Server*				fServer;
-	AccountInstances	fAccounts;
 	int32				fSelectedAcc;
 	BMenuField*			fMenuField;
 

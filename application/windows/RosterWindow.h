@@ -35,7 +35,6 @@ public:
 private:
 	BButton*			fOkButton;
 	BMenuField*			fAccountField;
-	AccountInstances	fAccounts;
 
 	Server*				fServer;
 

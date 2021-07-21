@@ -18,10 +18,10 @@
 #include <Notification.h>
 #include <ScrollView.h>
 
+#include "AccountsMenu.h"
 #include "AppMessages.h"
 #include "AppPreferences.h"
 #include "ChatProtocolMessages.h"
-#include "Utils.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
 #include "RosterView.h"
@@ -38,7 +38,6 @@ RosterWindow::RosterWindow(const char* title, BMessage* selectMsg,
 	BWindow(BRect(0, 0, 300, 400), title, B_FLOATING_WINDOW, 0),
 	fTarget(messenger),
 	fMessage(selectMsg),
-	fAccounts(server->GetAccounts()),
 	fServer(server)
 {
 	fRosterView = new RosterView("buddyView", server, instance),
@@ -46,27 +45,31 @@ RosterWindow::RosterWindow(const char* title, BMessage* selectMsg,
 
 	fOkButton = new BButton("OK", new BMessage(kSendMessage));
 
-	BMenu* accountMenu;
+	AccountInstances accounts = fServer->GetActiveAccounts();
 
 	// If a specific instance is given, disallow selecting other accounts
+	// In fact, don't even bother populating with them
 	if (instance > -1) {
-		accountMenu = new BMenu("accountMenu");
+		BMenu* accountMenu = new BMenu("accountMenu");
+
 		BString name = "N/A";
-		for (int i = 0; i < fAccounts.CountItems(); i++)
-			if (fAccounts.ValueAt(i) == instance) {
-				name = fAccounts.KeyAt(i);
+		for (int i = 0; i < accounts.CountItems(); i++)
+			if (accounts.ValueAt(i) == instance) {
+				name = accounts.KeyAt(i);
 				break;
 			}
 		accountMenu->AddItem(new BMenuItem(name.String(), NULL));
 		accountMenu->SetLabelFromMarked(true);
 		accountMenu->ItemAt(0)->SetMarked(true);
 		accountMenu->SetEnabled(false);
+
+		fAccountField = new BMenuField("accountMenuField", NULL, accountMenu);
 	}
 	else
-		accountMenu = CreateAccountMenu(fAccounts, BMessage(kSelAccount),
-			new BMessage(kSelNoAccount));
+		fAccountField = new BMenuField("accountMenuField", NULL,
+			new AccountsMenu("accountMenu", BMessage(kSelAccount),
+				new BMessage(kSelNoAccount)));
 
-	fAccountField = new BMenuField("accountMenuField", NULL, accountMenu);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0.0f)
 		.SetInsets(B_USE_DEFAULT_SPACING)
@@ -103,10 +106,12 @@ RosterWindow::MessageReceived(BMessage* message)
 		}
 		case kSelAccount:
 		{
+			AccountInstances accounts = fServer->GetActiveAccounts();
+
 			int index = message->FindInt32("index") - 1;
-			if (index < 0 || index > (fAccounts.CountItems() - 1))
+			if (index < 0 || index > (accounts.CountItems() - 1))
 				return;
-			fRosterView->SetAccount(fAccounts.ValueAt(index));
+			fRosterView->SetAccount(accounts.ValueAt(index));
 			break;
 		}
 		case kSelNoAccount:

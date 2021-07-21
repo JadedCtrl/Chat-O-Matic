@@ -34,6 +34,7 @@
 #include "Flags.h"
 #include "ImageCache.h"
 #include "InviteDialogue.h"
+#include "NotifyMessage.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
 #include "RosterItem.h"
@@ -582,6 +583,8 @@ Server::ImMessage(BMessage* msg)
 			ProtocolLooper* looper = _LooperFromMessage(msg);
 			if (looper == NULL) break;
 
+			fAccountEnabled.AddItem(looper->Protocol()->GetName(), true);
+
 			// Ready notification
 			if (AppPreferences::Item()->NotifyProtocolStatus == true)
 				_ProtocolNotification(looper, BString(B_TRANSLATE("Connected")),
@@ -616,16 +619,19 @@ Server::ImMessage(BMessage* msg)
 					join.AddString("chat_id", fileName);
 					looper->PostMessage(&join);
 				}
+
+			NotifyInteger(INT_ACCOUNTS_UPDATED, 0);
 			break;
 		}
 		case IM_PROTOCOL_DISABLE:
 		{
 			int64 instance = 0;
-			if (msg->FindInt64("instance", &instance) != B_OK) {
+			if (msg->FindInt64("instance", &instance) != B_OK)
 				result = B_SKIP_MESSAGE;
-				break;
-			}
-			RemoveProtocolLooper(instance);
+			else
+				RemoveProtocolLooper(instance);
+
+			NotifyInteger(INT_ACCOUNTS_UPDATED, 0);
 			break;
 		}
 		default:
@@ -664,6 +670,7 @@ Server::AddProtocolLooper(bigtime_t instanceId, ChatProtocol* cayap)
 	ProtocolLooper* looper = new ProtocolLooper(cayap, instanceId);
 	fLoopers.AddItem(instanceId, looper);
 	fAccounts.AddItem(cayap->GetName(), instanceId);
+	fAccountEnabled.AddItem(cayap->GetName(), false);
 }
 
 
@@ -684,6 +691,7 @@ Server::RemoveProtocolLooper(bigtime_t instanceId)
 
 	fLoopers.RemoveItemFor(instanceId);
 	fAccounts.RemoveItemFor(looper->Protocol()->GetName());
+	fAccountEnabled.AddItem(looper->Protocol()->GetName(), false);
 	looper->Lock();
 	looper->Quit();
 }
@@ -701,6 +709,17 @@ AccountInstances
 Server::GetAccounts()
 {
 	return fAccounts;
+}
+
+
+AccountInstances
+Server::GetActiveAccounts()
+{
+	AccountInstances fActive;
+	for (int i = 0; i < fAccounts.CountItems(); i++)
+		if (fAccountEnabled.ValueFor(fAccounts.KeyAt(i)) == true)
+			fActive.AddItem(fAccounts.KeyAt(i), fAccounts.ValueAt(i));
+	return fActive;
 }
 
 

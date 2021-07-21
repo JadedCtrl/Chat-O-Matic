@@ -16,6 +16,7 @@
 #include "ChatCommand.h"
 #include "Contact.h"
 #include "Conversation.h"
+#include "Notifier.h"
 #include "ProtocolLooper.h"
 #include "User.h"
 
@@ -26,9 +27,10 @@ class ProtocolLooper;
 
 typedef KeyMap<bigtime_t, ProtocolLooper*> ProtocolLoopers;
 typedef KeyMap<BString, bigtime_t> AccountInstances;
+typedef KeyMap<BString, bool> BoolMap;
 
 
-class Server: public BMessageFilter {
+class Server: public BMessageFilter, public Notifier {
 public:
 							Server();
 			void			Quit();
@@ -43,8 +45,8 @@ public:
 			void			RemoveProtocolLooper(bigtime_t instanceId);
 			ProtocolLooper*	GetProtocolLooper(bigtime_t instanceId);
 
-			AccountInstances
-							GetAccounts();
+			AccountInstances GetAccounts();
+			AccountInstances GetActiveAccounts();
 
 			void			SendProtocolMessage(BMessage* msg);
 			void			SendAllProtocolMessage(BMessage* msg);
@@ -87,14 +89,12 @@ private:
 			void			_ReplicantStatusNotify(UserStatus status);
 
 			ProtocolLoopers	fLoopers;
-			AccountInstances
-							fAccounts;
+			AccountInstances fAccounts;
+			BoolMap fAccountEnabled;
 
-			CommandMap		fCommands;
-			BObjectList<BMessage>
-							fChatItems;
-			BObjectList<BMessage>
-							fUserItems;
+			CommandMap fCommands;
+			BObjectList<BMessage> fChatItems;
+			BObjectList<BMessage> fUserItems;
 };
 
 

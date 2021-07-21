@@ -36,7 +36,6 @@ public:
 
 private:
 	BMenuField*			fAccountField;
-	AccountInstances	fAccounts;
 
 	BString				fEditingUser;
 	TemplateWindow*		fEditingWindow;

@@ -18,8 +18,8 @@
 #include <TextControl.h>
 #include <String.h>
 
+#include "AccountsMenu.h"
 #include "ChatProtocolMessages.h"
-#include "Utils.h"
 #include "TemplateView.h"
 
 
@@ -38,7 +38,6 @@ TemplateWindow::TemplateWindow(const char* title, const char* templateType,
 	BWindow(BRect(0, 0, 400, 100), title, B_FLOATING_WINDOW,
 		B_NOT_RESIZABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
 	fServer(server),
-	fAccounts(server->GetAccounts()),
 	fSelectedAcc(0),
 	fTemplate(NULL),
 	fTemplateType(templateType),
@@ -57,7 +56,6 @@ TemplateWindow::TemplateWindow(const char* title, ProtocolTemplate* temp,
 	BWindow(BRect(0, 0, 400, 100), title, B_FLOATING_WINDOW,
 		B_NOT_RESIZABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
 	fServer(server),
-	fAccounts(server->GetAccounts()),
 	fSelectedAcc(0),
 	fTemplate(temp),
 	fMessage(msg)
@@ -100,8 +98,11 @@ TemplateWindow::MessageReceived(BMessage* msg)
 				alert->Go();
 				break;
 			}
+
+			AccountInstances accounts = fServer->GetActiveAccounts();
 			ProtocolLooper* looper
-				= fServer->GetProtocolLooper(fAccounts.ValueAt(fSelectedAcc));
+				= fServer->GetProtocolLooper(accounts.ValueAt(fSelectedAcc));
+
 			if (looper == NULL)
 				break;
 			looper->PostMessage(settings);
@@ -133,24 +134,35 @@ void
 TemplateWindow::_InitInterface(bigtime_t instance)
 {
 	fTemplateView = new TemplateView("template");
-	BMenu* menu = CreateAccountMenu(fAccounts, BMessage(kAccSelected));
-	fMenuField = new BMenuField("accountMenuField", NULL, menu);
+	AccountInstances accounts = fServer->GetActiveAccounts();
 
 	if (instance > -1) {
-		for (int i = 0; i < fAccounts.CountItems(); i++)
-			if (fAccounts.ValueAt(i) == instance) {
-				menu->ItemAt(i)->SetMarked(true);
+		BMenu* accountMenu = new BMenu("accountMenu");
+		BString name = "N/A";
+
+		for (int i = 0; i < accounts.CountItems(); i++)
+			if (accounts.ValueAt(i) == instance) {
+				name = accounts.KeyAt(i);
 				break;
 			}
-		fMenuField->SetEnabled(false);
+		accountMenu->AddItem(new BMenuItem(name.String(), NULL));
+		accountMenu->SetLabelFromMarked(true);
+		accountMenu->ItemAt(0)->SetMarked(true);
+		accountMenu->SetEnabled(false);
+
+		fMenuField = new BMenuField("accountMenuField", NULL, accountMenu);
 	}
+	else
+		fMenuField = new BMenuField("accountMenuField", NULL,
+			new AccountsMenu("accountMenu", BMessage(kAccSelected)));
 
 	BButton* fOkButton = new BButton(B_TRANSLATE("OK"), new BMessage(kOK));
-	if (fAccounts.CountItems() <= 0)
+	if (accounts.CountItems() <= 0)
 		fOkButton->SetEnabled(false);
 	fOkButton->MakeDefault(true);
 
 	const float spacing = be_control_look->DefaultItemSpacing();
+
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.SetInsets(B_USE_DEFAULT_SPACING)
@@ -169,11 +181,12 @@ TemplateWindow::_InitInterface(bigtime_t instance)
 void
 TemplateWindow::_LoadTemplate()
 {
-	if (fAccounts.CountItems() == 0 || fTemplateType.IsEmpty() == true)
+	AccountInstances accounts = fServer->GetActiveAccounts();
+	if (accounts.CountItems() == 0 || fTemplateType.IsEmpty() == true)
 		return;
 
 	ProtocolLooper* looper
-		= fServer->GetProtocolLooper(fAccounts.ValueAt(fSelectedAcc));
+		= fServer->GetProtocolLooper(accounts.ValueAt(fSelectedAcc));
 	if (looper == NULL)
 		return;
 

@@ -96,26 +96,6 @@ ChatResources()
 }
 
 
-BMenu*
-CreateAccountMenu(AccountInstances accounts, BMessage msg, BMessage* allMsg)
-{
-	BMenu* menu = new BMenu("accountMenu");
-
-	if (allMsg != NULL)
-		menu->AddItem(new BMenuItem("All", new BMessage(*allMsg)));
-
-	for (int i = 0; i < accounts.CountItems(); i++)
-		menu->AddItem(new BMenuItem(accounts.KeyAt(i).String(), new BMessage(msg)));
-	menu->SetRadioMode(true);
-	menu->SetLabelFromMarked(true);
-	menu->ItemAt(0)->SetMarked(true);
-
-	if (accounts.CountItems() == 0)
-		menu->SetEnabled(false);
-	return menu;
-}
-
-
 const char*
 AccountsPath()
 {

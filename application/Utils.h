@@ -27,9 +27,6 @@ BString		CommandArgs(BString line);
 
 BResources* ChatResources();
 
-BMenu* CreateAccountMenu(AccountInstances accounts, BMessage msg,
-			BMessage* allMsg = NULL);
-
 const char*	AccountsPath();
 const char*	AccountPath(const char* signature, const char* subsignature);
 
