@@ -136,9 +136,9 @@ ConversationView::ImMessage(BMessage* msg)
 		case IM_MESSAGE_SENT:
 		case IM_LOGS_RECEIVED:
 		{
+			_AppendOrEnqueueMessage(msg);
 			if (im_what == IM_MESSAGE_SENT)
 				fReceiveView->ScrollToBottom();
-			_AppendOrEnqueueMessage(msg);
 			break;
 		}
 		case IM_ROOM_JOINED:
@@ -146,12 +146,14 @@ ConversationView::ImMessage(BMessage* msg)
 			BMessage msg;
 			msg.AddString("body", "** You joined the room.\n");
 			_AppendOrEnqueueMessage(&msg);
+			fReceiveView->ScrollToBottom();
 		}
 		case IM_ROOM_CREATED:
 		{
 			BMessage msg;
 			msg.AddString("body", "** You created the room.\n");
 			_AppendOrEnqueueMessage(&msg);
+			fReceiveView->ScrollToBottom();
 		}
 		case IM_ROOM_PARTICIPANT_JOINED:
 		{
@@ -373,6 +375,7 @@ ConversationView::_UserMessage(const char* format, const char* bodyFormat,
 	BMessage newMsg;
 	newMsg.AddString("body", newBody);
 	_AppendOrEnqueueMessage(&newMsg);
+	fReceiveView->ScrollToBottom();
 }
 
 

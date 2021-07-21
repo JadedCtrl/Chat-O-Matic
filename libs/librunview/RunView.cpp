@@ -9,7 +9,6 @@
 #include <Locale.h>
 #include <MenuItem.h>
 #include <PopUpMenu.h>
-#include <ScrollBar.h>
 #include <TextView.h>
 #include <Window.h>
 
@@ -98,18 +97,21 @@ RunView::Insert(const char* text, const text_run_array* runs)
 		if (lastEnd < specStart) {
 			BString normie;
 			buf.CopyCharsInto(normie, lastEnd, specStart - lastEnd);
-			BTextView::Insert(normie.String(), runs);
+			BTextView::Insert(TextLength(), normie.String(), normie.Length(),
+				runs);
 		}
 		BString special;
 		buf.CopyCharsInto(special, specStart, specEnd - specStart);
-		BTextView::Insert(special.String(), &fUrlRun);
+		BTextView::Insert(TextLength(), special.String(), special.Length(),
+			&fUrlRun);
 
 		lastEnd = specEnd;
 	}
 	if (lastEnd < length) {
 		BString remaining;
 		buf.CopyCharsInto(remaining, lastEnd, length - lastEnd);
-		BTextView::Insert(remaining.String(), runs);
+		BTextView::Insert(TextLength(), remaining.String(), remaining.Length(),
+			runs);
 	}
 }
 
