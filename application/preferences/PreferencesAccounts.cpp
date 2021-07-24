@@ -1,9 +1,11 @@
 /*
  * Copyright 2009-2010, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
+ *		Jaidyn Levesque, jadedctrl@teknik.io
  */
 
 #include <Button.h>
@@ -92,10 +94,9 @@ PreferencesAccounts::PreferencesAccounts()
 	fToggleButton->SetEnabled(false);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
-		.SetInsets(B_USE_DEFAULT_SPACING)
 		.Add(scrollView)
 		.AddGroup(B_HORIZONTAL)
-			.SetInsets(0, 0, 0, 15)
+			.SetInsets(B_USE_HALF_ITEM_SPACING)
 			.Add(proto)
 			.Add(fDelButton)
 			.AddGlue()

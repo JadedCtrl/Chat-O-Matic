@@ -9,7 +9,6 @@
 #include <View.h>
 
 class BCheckBox;
-class BStringView;
 
 class PreferencesChatWindow : public BView {
 public:
@@ -19,9 +18,6 @@ public:
 	virtual	void	MessageReceived(BMessage* msg);
 
 private:
-
-	BStringView*	fChatWindowString;
-
 	BCheckBox*		fIgnoreEmoticons;
 };
 

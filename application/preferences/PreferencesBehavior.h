@@ -9,7 +9,6 @@
 #include <View.h>
 
 class BCheckBox;
-class BStringView;
 
 class PreferencesBehavior : public BView {
 public:
@@ -20,7 +19,6 @@ public:
 
 private:
 
-	BStringView*	fOnIncoming;
 	BCheckBox*		fHideOffline;
 	BCheckBox*		fToCurrentWorkspace;
 	BCheckBox*		fRaiseOnMessageReceived;
@@ -28,14 +26,12 @@ private:
 	BCheckBox*		fPlaySoundOnMessageReceived;
 	BCheckBox*		fMarkUnreadWindow;
 	BCheckBox*		fMarkUnreadReplicant;
-	BStringView*	fGeneral;
+
 	BCheckBox*		fDisableQuitConfirm;
 
-	BStringView*	fNotifications;
 	BCheckBox*		fNotifyProtocols;
 	BCheckBox*		fNotifyContactStatus;	
 	BCheckBox*		fNotifyNewMessage;
-
 };
 
 #endif	// _PREFERENCES_BEHAVIOR_H

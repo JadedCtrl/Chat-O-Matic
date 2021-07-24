@@ -1,28 +1,20 @@
 /*
  * Copyright 2010, Oliver Ruiz Dorantes. All rights reserved.
  * Copyright 2012, Dario Casalinuovo. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 
-#include <Button.h>
+#include "PreferencesBehavior.h"
+
+#include <Box.h>
 #include <Catalog.h>
 #include <CheckBox.h>
 #include <ControlLook.h>
-#include <Deskbar.h>
-#include <GroupLayout.h>
-#include <GroupLayoutBuilder.h>
-#include <ScrollView.h>
-#include <StringView.h>
+#include <LayoutBuilder.h>
 
 #include "AccountManager.h"
-#include "ChatProtocol.h"
-#include "PreferencesBehavior.h"
 #include "AppPreferences.h"
-#include "ProtocolManager.h"
-#include "ProtocolSettings.h"
-#include "MainWindow.h"
-#include "ReplicantStatusView.h"
-#include "TheApp.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -43,11 +35,8 @@ const uint32 kDisablePrompt = 'DiPr';
 PreferencesBehavior::PreferencesBehavior()
 	: BView(B_TRANSLATE("Behavior"), B_WILL_DRAW)
 {
-
-	fOnIncoming = new BStringView("onIncoming", B_TRANSLATE("On incoming "
-		"message" B_UTF8_ELLIPSIS));
-	fOnIncoming->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
-	fOnIncoming->SetFont(be_bold_font);
+	BBox* incomingBox = new BBox("incoming");
+	incomingBox->SetLabel(B_TRANSLATE("On incoming" B_UTF8_ELLIPSIS));
 	
 	fHideOffline = new BCheckBox("HideOfflineContacts",
 		B_TRANSLATE("Hide offline contacts"),
@@ -79,11 +68,8 @@ PreferencesBehavior::PreferencesBehavior()
 	fMarkUnreadReplicant->SetEnabled(false);
 			// not implemented
 
-	fNotifications = new BStringView("notifications",
-						B_TRANSLATE("Deskbar Notifications (experimental)"));
-
-	fNotifications->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
-	fNotifications->SetFont(be_bold_font);
+	BBox* notificationBox = new BBox("notificationBox");
+	notificationBox->SetLabel(B_TRANSLATE("Deskbar notifications"));
 
 	fNotifyProtocols = new BCheckBox("EnableProtocolNotify",
 		B_TRANSLATE("Enable protocol status notifications"),
@@ -97,44 +83,45 @@ PreferencesBehavior::PreferencesBehavior()
 		B_TRANSLATE("Enable message notifications"),
 		new BMessage(kNotifyNewMessage));
 
-	fGeneral = new BStringView("onGeneral", B_TRANSLATE("General"));
-	fGeneral->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
-	fGeneral->SetFont(be_bold_font);
+	BBox* generalBox = new BBox("general");
+	generalBox->SetLabel(B_TRANSLATE("General"));
 
 	fDisableQuitConfirm = new BCheckBox("DisableQuitConfirm",
 		B_TRANSLATE("Don't ask confirmation at Quit"),
 		new BMessage(kDisablePrompt));
 	const float spacing = be_control_look->DefaultItemSpacing();
 
-	SetLayout(new BGroupLayout(B_HORIZONTAL, spacing));
-	AddChild(BGroupLayoutBuilder(B_VERTICAL)
-		.Add(fOnIncoming)
-		.AddGroup(B_VERTICAL, spacing)
-			.Add(fHideOffline)
-			.Add(fToCurrentWorkspace)
-			.Add(fRaiseOnMessageReceived)
-			.Add(fRaiseUserIsTyping)
-			.Add(fMarkUnreadWindow)
-			.Add(fMarkUnreadReplicant)
-			.Add(fPlaySoundOnMessageReceived)
-		.	SetInsets(spacing * 2, spacing, spacing, spacing)
-		.End()
-		.Add(fGeneral)
-		.AddGroup(B_VERTICAL, spacing)
-			.Add(fDisableQuitConfirm)
-		.	SetInsets(spacing * 2, spacing, spacing, spacing)
-		.End()
-		.Add(fNotifications)
-		.AddGroup(B_VERTICAL, spacing)
-			.Add(fNotifyProtocols)
-			.Add(fNotifyContactStatus)
-			.Add(fNotifyNewMessage)
-		.	SetInsets(spacing * 2, spacing, spacing, spacing)
-		.End()
+
+	BLayoutBuilder::Group<>(generalBox, B_VERTICAL)
+		.SetInsets(spacing, spacing * 2, spacing, spacing)
+		.Add(fDisableQuitConfirm)
+	.End();
+
+	BLayoutBuilder::Group<>(incomingBox, B_VERTICAL)
+		.SetInsets(spacing, spacing * 2, spacing, spacing)
+		.Add(fHideOffline)
+		.Add(fToCurrentWorkspace)
+		.Add(fRaiseOnMessageReceived)
+		.Add(fRaiseUserIsTyping)
+		.Add(fMarkUnreadWindow)
+		.Add(fMarkUnreadReplicant)
+		.Add(fPlaySoundOnMessageReceived)
+	.End();
+
+	BLayoutBuilder::Group<>(notificationBox, B_VERTICAL)
+		.SetInsets(spacing, spacing * 2, spacing, spacing)
+		.Add(fNotifyProtocols)
+		.Add(fNotifyContactStatus)
+		.Add(fNotifyNewMessage)
+	.End();
+
+	BLayoutBuilder::Group<>(this, B_VERTICAL)
+		.SetInsets(B_USE_DEFAULT_SPACING)
+		.Add(generalBox)
+		.Add(incomingBox)
+		.Add(notificationBox)
 		.AddGlue()
-		.SetInsets(spacing, spacing, spacing, spacing)
-		.TopView()
-	);
+	.End();
 }
 
 

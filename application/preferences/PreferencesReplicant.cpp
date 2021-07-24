@@ -1,26 +1,20 @@
 /*
  * Copyright 2010, Oliver Ruiz Dorantes. All rights reserved.
  * Copyright 2012, Dario Casalinuovo. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 
+#include "PreferencesReplicant.h"
+
+#include <Box.h>
 #include <Catalog.h>
 #include <CheckBox.h>
 #include <ControlLook.h>
-#include <Deskbar.h>
-#include <GroupLayout.h>
-#include <GroupLayoutBuilder.h>
-#include <StringView.h>
+#include <LayoutBuilder.h>
 
-#include "AccountManager.h"
-#include "ChatProtocol.h"
-#include "PreferencesReplicant.h"
 #include "AppPreferences.h"
-#include "ProtocolManager.h"
-#include "ProtocolSettings.h"
-#include "MainWindow.h"
 #include "ReplicantStatusView.h"
-#include "TheApp.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -35,13 +29,8 @@ const uint32 kHideDeskbar = 'HCtk';
 PreferencesReplicant::PreferencesReplicant()
 	: BView(B_TRANSLATE("Replicant"), B_WILL_DRAW)
 {
-	fReplicantString = new BStringView("ReplicantString",
-		B_TRANSLATE("Deskbar replicant"));
-
-	fReplicantString->SetExplicitAlignment(
-		BAlignment(B_ALIGN_LEFT, B_ALIGN_MIDDLE));
-
-	fReplicantString->SetFont(be_bold_font);
+	BBox* replicantBox = new BBox("replicantBox");
+	replicantBox->SetLabel(B_TRANSLATE("Deskbar replicant"));
 
 	fDisableReplicant = new BCheckBox("DisableReplicant",
 		B_TRANSLATE("Disable deskbar replicant"),
@@ -58,21 +47,21 @@ PreferencesReplicant::PreferencesReplicant()
 		B_TRANSLATE("Hide field in Deskbar"), new BMessage(kHideDeskbar));
 	fHideDeskbar->SetEnabled(false);
 
+
 	const float spacing = be_control_look->DefaultItemSpacing();
 
-	SetLayout(new BGroupLayout(B_HORIZONTAL, spacing));
-	AddChild(BGroupLayoutBuilder(B_VERTICAL)
-		.Add(fReplicantString)
-		.AddGroup(B_VERTICAL, spacing)
-			.Add(fDisableReplicant)
-			.Add(fPermanentReplicant)
-			.Add(fHideDeskbar)
-			.SetInsets(spacing * 2, spacing, spacing, spacing)
-		.End()
+	BLayoutBuilder::Group<>(replicantBox, B_VERTICAL)
+		.SetInsets(spacing, spacing * 2, spacing, spacing)
+		.Add(fDisableReplicant)
+		.Add(fPermanentReplicant)
+		.Add(fHideDeskbar)
+	.End();
+
+	BLayoutBuilder::Group<>(this, B_VERTICAL)
+		.SetInsets(B_USE_DEFAULT_SPACING)
+		.Add(replicantBox)
 		.AddGlue()
-		.SetInsets(spacing, spacing, spacing, spacing)
-		.TopView()
-	);
+	.End();
 }
 
 

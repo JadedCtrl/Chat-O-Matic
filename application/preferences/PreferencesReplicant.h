@@ -9,7 +9,6 @@
 #include <View.h>
 
 class BCheckBox;
-class BStringView;
 
 class PreferencesReplicant : public BView {
 public:
@@ -19,7 +18,6 @@ public:
 	virtual	void	MessageReceived(BMessage* msg);
 
 private:	
-	BStringView*	fReplicantString;
 	BCheckBox*		fDisableReplicant;
 	BCheckBox*		fPermanentReplicant;
 	BCheckBox*		fHideDeskbar;
