@@ -80,6 +80,7 @@ ConversationView::AttachedToWindow()
 			fSubjectTextView->SetText(fConversation->GetSubject());
 	}
 	NotifyInteger(INT_WINDOW_FOCUSED, 0);
+	fSendView->MakeFocus(true);
 }
 
 
