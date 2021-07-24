@@ -54,9 +54,14 @@ AccountsMenu::_PopulateMenu()
 	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
 	AccountInstances accounts = server->GetActiveAccounts();
 
-	for (int i = 0; i < accounts.CountItems(); i++)
-		AddItem(new BMenuItem(accounts.KeyAt(i).String(),
-			new BMessage(fAccountMessage)));
+	for (int i = 0; i < accounts.CountItems(); i++) {
+		BString label = accounts.KeyAt(i).String();
+		if (label.CountChars() > 15) {
+			label.RemoveChars(16, label.CountChars() - 16);
+			label << B_UTF8_ELLIPSIS;
+		}
+		AddItem(new BMenuItem(label.String(), new BMessage(fAccountMessage)));
+	}
 
 	if (CountItems() > 0)
 		ItemAt(0)->SetMarked(true);

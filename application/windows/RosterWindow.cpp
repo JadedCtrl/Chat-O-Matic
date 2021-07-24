@@ -35,7 +35,8 @@ const uint32 kSelNoAccount = 'RWNA';
 RosterWindow::RosterWindow(const char* title, BMessage* selectMsg,
 	BMessenger* messenger, Server* server, bigtime_t instance)
 	:
-	BWindow(BRect(0, 0, 300, 400), title, B_FLOATING_WINDOW, 0),
+	BWindow(BRect(0, 0, 300, 400), title, B_FLOATING_WINDOW,
+		B_AUTO_UPDATE_SIZE_LIMITS),
 	fTarget(messenger),
 	fMessage(selectMsg),
 	fServer(server)

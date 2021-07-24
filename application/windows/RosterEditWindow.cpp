@@ -46,7 +46,8 @@ RosterEditWindow* RosterEditWindow::fInstance = NULL;
 
 RosterEditWindow::RosterEditWindow(Server* server)
 	:
-	BWindow(BRect(0, 0, 300, 400), B_TRANSLATE("Roster"), B_FLOATING_WINDOW, 0),
+	BWindow(BRect(0, 0, 300, 400), B_TRANSLATE("Roster"), B_FLOATING_WINDOW,
+		B_AUTO_UPDATE_SIZE_LIMITS),
 	fServer(server),
 	fEditingWindow(NULL)
 {
@@ -61,6 +62,7 @@ RosterEditWindow::RosterEditWindow(Server* server)
 	fRosterView->GetFontHeight(&fontHeight);
 	int16 buttonHeight = int16(fontHeight.ascent + fontHeight.descent + 12);
 	BSize charButtonSize(buttonHeight, buttonHeight);
+
 	BButton* fAddButton = new BButton("+", new BMessage(kAddMember));
 	BButton* fRemoveButton = new BButton("-", new BMessage(kRemoveMember));
 	fAddButton->SetExplicitSize(charButtonSize);
