@@ -36,9 +36,9 @@ SRCS = \
 	libs/libinterface/BitmapUtils.cpp \
 	libs/libinterface/BitmapView.cpp \
 	libs/libinterface/Divider.cpp \
+	libs/libinterface/MenuButton.cpp  \
 	libs/libinterface/NotifyingTextView.cpp \
-	libs/libinterface/PictureView.cpp \
-	libs/libinterface/ToolButton.cpp 
+	libs/libinterface/PictureView.cpp
 
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.

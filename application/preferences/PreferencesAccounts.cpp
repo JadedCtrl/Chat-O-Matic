@@ -15,7 +15,7 @@
 #include <ScrollView.h>
 
 #include <libinterface/BitmapMenuItem.h>
-#include <libinterface/ToolButton.h>
+#include <libinterface/MenuButton.h>
 
 #include "AccountDialog.h"
 #include "AccountListItem.h"
@@ -79,7 +79,7 @@ PreferencesAccounts::PreferencesAccounts()
 		fProtosMenu->AddItem(item);
 	}
 
-	ToolButton* proto = new ToolButton(B_TRANSLATE("Add"), NULL);
+	MenuButton* proto = new MenuButton("addButton", B_TRANSLATE("Add"), NULL);
 	proto->SetMenu(fProtosMenu);
 	fDelButton = new BButton(B_TRANSLATE_COMMENT("Del", "Short for 'delete'"),
 		new BMessage(kDelAccount));

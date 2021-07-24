@@ -11,7 +11,6 @@ class BButton;
 class BListView;
 class BPopUpMenu;
 
-class ToolButton;
 class ProtocolSettings;
 
 
@@ -33,6 +32,4 @@ private:
 	bool			_AccountEnabled(const char* account);
 };
 
-
 #endif	// _PREFERENCES_ACCOUNTS_H
-
