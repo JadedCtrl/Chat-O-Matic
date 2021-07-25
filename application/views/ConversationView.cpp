@@ -352,7 +352,7 @@ ConversationView::_AppendMessage(BMessage* msg)
 		}
 
 		if (sender_name.IsEmpty() == true) {
-			fReceiveView->AppendGenericMessage(body.String());
+			fReceiveView->AppendGeneric(body.String());
 			continue;
 		}
 

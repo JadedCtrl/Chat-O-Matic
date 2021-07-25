@@ -10,7 +10,9 @@
 
 RenderView::RenderView(const char* name)
 	:
-	RunView(name)
+	RunView(name),
+	fLastDay(364),
+	fLastYear(64)
 {
 }
 
@@ -32,7 +34,7 @@ RenderView::AppendMessage(const char* nick, const char* message,
 
 
 void
-RenderView::AppendGenericMessage(const char* message)
+RenderView::AppendGeneric(const char* message)
 {
 	if (BString(message).IsEmpty() == true)	return;
 	AppendTimestamp(time(NULL));
@@ -44,11 +46,26 @@ RenderView::AppendGenericMessage(const char* message)
 void
 RenderView::AppendTimestamp(time_t time)
 {
+	tm* tm = localtime(&time);
+
+	// If day changed, print date divider
+	if (fLastDay < tm->tm_yday || fLastYear < tm->tm_year) {
+		char datestamp[11] = { '\0' };
+		strftime(datestamp, 10, "%Y-%m-%d", tm);
+		BString stamp("――― %date% ―――\n");
+		stamp.ReplaceAll("%date%", datestamp);
+
+		Append(stamp.String(), ui_color(B_PANEL_TEXT_COLOR), B_ITALIC_FACE);
+
+		fLastDay = tm->tm_yday;
+		fLastYear = tm->tm_year;
+	}
+
 	if (time == 0) {
 		Append("[xx:xx] ", ui_color(B_LINK_HOVER_COLOR));
 		return;
 	}
 	char timestamp[9] = { '\0' };
-	strftime(timestamp, 8, "[%H:%M] ", localtime(&time));
+	strftime(timestamp, 8, "[%H:%M] ", tm);
 	Append(timestamp, ui_color(B_LINK_HOVER_COLOR));
 }

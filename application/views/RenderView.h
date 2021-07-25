@@ -14,8 +14,12 @@ public:
 
 		void	AppendMessage(const char* nick, const char* message,
 							  rgb_color nameColor, time_t time = 0);
-		void	AppendGenericMessage(const char* message);
+		void	AppendGeneric(const char* message);
 		void	AppendTimestamp(time_t time = 0);
+
+private:
+		int fLastDay;
+		int fLastYear;
 };
 
 #endif // _RENDER_VIEW_H
