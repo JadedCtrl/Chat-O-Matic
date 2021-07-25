@@ -150,9 +150,9 @@ RosterView::ImMessage(BMessage* msg)
 							message << rosterItem->GetContact()->GetName();
 
 							if (status == STATUS_ONLINE)
-								message.SetTo("%name% is available!");
+								message.SetTo(B_TRANSLATE("%name% is available!"));
 							else
-								message.SetTo("%name% is offline!");
+								message.SetTo(B_TRANSLATE("%name% is offline!"));
 							message.ReplaceAll("%name%",
 								rosterItem->GetContact()->GetName());
 

@@ -1,10 +1,14 @@
-1	Esperanto	application/x-vnd.cardie	2325201334
+1	Esperanto	application/x-vnd.cardie	1762272810
 Disable deskbar replicant	PreferencesReplicant		Malŝalti laborstrian replikilon
 New mention	Conversation ― Notifications		Menciita
 Auto-raise when a message is received	PreferencesBehavior		Antaŭigi fenestron ricevinte mesaĝon
+On incoming…	PreferencesBehavior		Ricevante mesaĝon…
 Account name:	AccountDialog		Kontonomo:
 Connected	Server		Konektite
+User information	UserInfoWindow		Uzantinformoj
+%name% is offline!	RosterView		%name% senkonektas!
 Preferences…	MainWindow		Agordoj…
+** You created the room.\n	ConversationView		** Vi kreis la ĉambron.\n
 Adding contact	RosterEditWindow		Aldonante amikon
 Deskbar replicant	PreferencesReplicant		Laborstria replikilo
 Add account	PreferencesAccounts		Aldoni konton
@@ -13,15 +17,17 @@ Enable	PreferencesAccounts		Ŝalti
 %app% is released under the GNU GPL License.\nSome parts of %app% are available under MIT license.\nBuilt: %buildDate%	TheApp		%app%  GNU GPL License.\nSome parts of %app% are available under MIT license.\nBuilt: %buildDate%
 Create room	MainWindow		Krei ĉambron
 New chat…	ConversationListView		Novan interparolon…
+Chat view	PreferencesChatWindow		Babilvido
 Hide field in Deskbar	PreferencesReplicant		
-Ouch!	TheApp		Aj ve!
 Edit roster…	MainWindow		Redakti amikojn…
+Ouch!	TheApp		Aj ve!
 Join a room	MainWindow		Aliĝi ĉambron
 OK	PreferencesWindow		Bone
 Enable protocol status notifications	PreferencesBehavior		Ŝalti statsciigojn de protokoloj
 Send a file…	RosterListView		Sendi dosieron…
 Are you sure you want to quit?	MainWindow		Ĉu vi certe volas ĉesi?
 Del	PreferencesAccounts	Short for 'delete'	For
+%name% is available!	RosterView		%name% disponeblas!
 New message	Conversation ― Notifications		Ricevite
 Some items are empty. Please make sure to fill out every item.	TemplateWindow		Iom da agorderoj malplenas. Bonvole plenigu ĉiun.
 Enable message notifications	PreferencesBehavior		Ŝalti sciigojn de mesaĝricevoj
@@ -33,31 +39,36 @@ Play sound event	PreferencesBehavior		Ludi sonon
 You've been summoned from %source%.	Conversation ― Notifications		Vi vokiĝis de %source%.
 Disabled	Server		Malŝaltita
 That isn't a valid command. Try /help for a list.	Conversation ― Command info		Tiu komando nevalidas. Provu /help por komandlisto.
+** You joined the room.\n	ConversationView		** Vi eniris la ĉambron.\n
 -- That command doesn't exist. Try '/help' for a list.\n	Server		-- Tiu komando neekzistas. Provu '/help' por komandolisto.\n
 OK	TemplateWindow		Bone
 Reject	InviteDialogue		Rifuzi
 \nWritten by:\n	About window		\nVerkita de:\n
 Disable	PreferencesAccounts		Malŝalti
+All	AccountsMenu		Ĉiu
 Offline	Utils ― Status names		Senkonekta
 %user% has been disabled!	Server		%user% malŝaltiĝis!
 You've been invited to %room%.	Server		Vi invitiĝis al %room%.
 Invite user…	UserListView		Inviti uzanton…
 Add	PreferencesAccounts		Aldoni
 Preferences	PreferencesWindow		Agordoj
+Deskbar notifications	PreferencesBehavior		Laborstriaj sciigoj
 General	PreferencesBehavior		Ĝenerale
 Presence	RosterView		Ĉeeststato
 Cancel	TemplateWindow		Rezigni
 Hide offline contacts	PreferencesBehavior		Kaŝi senkonektajn amikojn
+%user% has joined the room.\n	ConversationView		%user% eniris la ĉambron.\n
 Busy	Utils ― Status names		Okupata
 Roster	RosterEditWindow		Amikoj
 Don't ask confirmation at Quit	PreferencesBehavior		Ne petu certigon antaŭ Ĉeso
 Closing	MainWindow		Ĉesante
 Available	Utils ― Status names		Disponebla
 Up	MainWindow		Supren
+Invite user…	MainWindow		Inviti uzanton…
 Custom Status	Utils ― Status names		Propre skribita stato
 Can't find smileys settings in:\n\n%path%	TheApp		Ne troviĝis emocisimbilojn ĉe:\n\n%path%
-Invite user…	MainWindow		Inviti uzanton…
 Mark unread window chat	PreferencesBehavior		Marki fenestron pro nelegitaj mesaĝoj
+%user% has left the room.\n	ConversationView		%user% eliris de la ĉambro.\n
 Join room…	MainWindow		Aliĝi ĉambron…
 Preferences 	ReplicantStatusView		Agordoj 
 Quit	MainWindow		Ĉesi
@@ -67,12 +78,12 @@ Chat settings	PreferencesChatWindow		Babilagordoj
 Cancel	InviteDialogue		Rezigni
 Mark unread the Deskbar Replicant	PreferencesBehavior		Marki replikilon pro nelegitaj mesaĝoj
 OK	Server		Bone
-Deskbar Notifications (experimental)	PreferencesBehavior		Laborstriaj sciigoj (danĝeraj)
 Exit	ReplicantStatusView		Ĉesi
 User info…	RosterListView		Uzantinformoj…
 Move window to current workspace	PreferencesBehavior		Movi fenestron al nuna laborspaco
 Away	Utils ― Status names		Fora
 OK	AccountDialog		Bone
+%user% has been banned.\n	ConversationView		%user% forbariĝis.\n
 Editing contact	RosterEditWindow		Redaktante amikon
 %user% isn't a member of this room.	ChatCommand		%user% ne apartenas ĉi tiun ĉambron.
 Edit account	PreferencesAccounts		Redakti konton
@@ -88,25 +99,30 @@ Error	Server		Eraro
 Copyright © 	About window		Kopirajto © 
 Roster	MainWindow		Amikoj
 Accept	InviteDialogue		Akordi
+%user% was kicked (%body%).\n	ConversationView		%user% foriĝis (%body%).\n
 An error is occurred renaming the account to %name%!	AccountDialog		Eraris renomante la konton al %name%!
 %user% has invited you to %room%.	Server		%user% invitis vin al %room%.
 Permanent deskbar replicant	PreferencesReplicant		Memdaŭriga laborstria replikilo
 Default	User role		Implicita
+%user% has been banned (%body%).\n	ConversationView		%user% forbariĝis (%body%).\n
 Invite contact to chat…	MainWindow		Inviti amikon al ĉambro…
 %user% has connected!	Server		%user% ĵus konektiĝis!
+Window	MainWindow		Fenestro
 Invisible	Utils ― Status names		Nevidebla
 {0, plural,=1{You've got a new message from %source%.}other{You've got # new messages from %source%.}}	Conversation ― Notifications		{0, plural,=1{Vi ricevis novan mesaĝon de %source%.}other{Vi ricevis # mesaĝojn de %source%.}}
-Window	MainWindow		Fenestro
-On incoming message…	PreferencesBehavior		Ricevante mesaĝon…
+%user% has joined the room (%body%).\n	ConversationView		%user% eniris la ĉambron (%body%).\n
 Yes	MainWindow		Jes
 An error has occured saving the settings.\nCheck if your disk has enough space.	AccountDialog		Eraros konservante agordojn.\nBonvole certigu ke via disko sufiĉe malplenas.
 Close	About window		Fermi
+%user% has left the room (%body%).\n	ConversationView		%user% eliris de la ĉambro (%body%).\n
 New chat…	MainWindow		Novan interparolon…
-Edit…	PreferencesAccounts		Redakti…
-About…	MainWindow		Pri…
 New room…	MainWindow		Novan ĉambron…
+About…	MainWindow		Pri…
+Edit…	PreferencesAccounts		Redakti…
+%user% was kicked.\n	ConversationView		%user% foriĝis.\n
 You aren't contacts with and have no chats in common with %user%. Shame.	ChatCommand		Vi ne amikas kun nek apartenas ĉambron kun %user%. Domaĝe.
-Chat display	PreferencesChatWindow		Interparola fasado
-splay
-lay
-lay
+
+.
+e.
+.
+�e.

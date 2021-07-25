@@ -10,6 +10,7 @@
 
 #include "ConversationView.h"
 
+#include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <ListView.h>
 #include <ScrollView.h>
@@ -29,6 +30,10 @@
 #include "UserItem.h"
 #include "UserListView.h"
 #include "Utils.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "ConversationView"
 
 
 ConversationView::ConversationView()
@@ -145,39 +150,42 @@ ConversationView::ImMessage(BMessage* msg)
 		case IM_ROOM_JOINED:
 		{
 			BMessage msg;
-			msg.AddString("body", "** You joined the room.\n");
+			msg.AddString("body", B_TRANSLATE("** You joined the room.\n"));
 			_AppendOrEnqueueMessage(&msg);
 			fReceiveView->ScrollToBottom();
 		}
 		case IM_ROOM_CREATED:
 		{
 			BMessage msg;
-			msg.AddString("body", "** You created the room.\n");
+			msg.AddString("body", B_TRANSLATE("** You created the room.\n"));
 			_AppendOrEnqueueMessage(&msg);
 			fReceiveView->ScrollToBottom();
 		}
 		case IM_ROOM_PARTICIPANT_JOINED:
 		{
-			_UserMessage("%user% has joined the room.\n",
-						 "%user% has joined the room (%body%).\n", msg);
+			_UserMessage(B_TRANSLATE("%user% has joined the room.\n"),
+						 B_TRANSLATE("%user% has joined the room (%body%).\n"),
+						 msg);
 			break;
 		}
 		case IM_ROOM_PARTICIPANT_LEFT:
 		{
-			_UserMessage("%user% has left the room.\n",
-						 "%user% has left the room (%body%).\n", msg);
+			_UserMessage(B_TRANSLATE("%user% has left the room.\n"),
+						 B_TRANSLATE("%user% has left the room (%body%).\n"),
+						 msg);
 			break;
 		}
 		case IM_ROOM_PARTICIPANT_KICKED:
 		{
-			_UserMessage("%user% was kicked.\n",
-						 "%user% was kicked (%body%).\n", msg);
+			_UserMessage(B_TRANSLATE("%user% was kicked.\n"),
+						 B_TRANSLATE("%user% was kicked (%body%).\n"),msg);
 			break;
 		}
 		case IM_ROOM_PARTICIPANT_BANNED:
 		{
-			_UserMessage("%user% has been banned.\n",
-						 "%user% has been banned (%body%).\n", msg);
+			_UserMessage(B_TRANSLATE("%user% has been banned.\n"),
+						 B_TRANSLATE("%user% has been banned (%body%).\n"),
+						 msg);
 			break;
 		}
 		default:

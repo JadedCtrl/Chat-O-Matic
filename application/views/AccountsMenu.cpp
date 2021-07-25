@@ -4,11 +4,17 @@
  */
 
 #include "AccountsMenu.h"
+
+#include <Catalog.h>
+#include <MenuItem.h>
+
 #include "MainWindow.h"
 #include "Server.h"
 #include "TheApp.h"
 
-#include <MenuItem.h>
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "AccountsMenu"
 
 
 AccountsMenu::AccountsMenu(const char* name, BMessage msg, BMessage* allMsg)
@@ -49,7 +55,7 @@ AccountsMenu::_PopulateMenu()
 		RemoveItems(0, CountItems(), true);
 	
 	if (fAllMessage != NULL)
-		AddItem(new BMenuItem("All", new BMessage(*fAllMessage)));
+		AddItem(new BMenuItem(B_TRANSLATE("All"), new BMessage(*fAllMessage)));
 
 	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
 	AccountInstances accounts = server->GetActiveAccounts();

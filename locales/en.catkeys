@@ -1,10 +1,14 @@
-1	English	application/x-vnd.cardie	2325201334
+1	English	application/x-vnd.cardie	1762272810
 Disable deskbar replicant	PreferencesReplicant		Disable deskbar replicant
 New mention	Conversation ― Notifications		New mention
 Auto-raise when a message is received	PreferencesBehavior		Auto-raise when a message is received
+On incoming…	PreferencesBehavior		On incoming…
 Account name:	AccountDialog		Account name:
 Connected	Server		Connected
+User information	UserInfoWindow		User information
+%name% is offline!	RosterView		%name% is offline!
 Preferences…	MainWindow		Preferences…
+** You created the room.\n	ConversationView		** You created the room.\n
 Adding contact	RosterEditWindow		Adding contact
 Deskbar replicant	PreferencesReplicant		Deskbar replicant
 Add account	PreferencesAccounts		Add account
@@ -13,15 +17,17 @@ Enable	PreferencesAccounts		Enable
 %app% is released under the GNU GPL License.\nSome parts of %app% are available under MIT license.\nBuilt: %buildDate%	TheApp		%app% is released under the GNU GPL License.\nSome parts of %app% are available under MIT license.\nBuilt: %buildDate%
 Create room	MainWindow		Create room
 New chat…	ConversationListView		New chat…
+Chat view	PreferencesChatWindow		Chat view
 Hide field in Deskbar	PreferencesReplicant		Hide field in Deskbar
-Ouch!	TheApp		Ouch!
 Edit roster…	MainWindow		Edit roster…
+Ouch!	TheApp		Ouch!
 Join a room	MainWindow		Join a room
 OK	PreferencesWindow		OK
 Enable protocol status notifications	PreferencesBehavior		Enable protocol status notifications
 Send a file…	RosterListView		Send a file…
 Are you sure you want to quit?	MainWindow		Are you sure you want to quit?
 Del	PreferencesAccounts	Short for 'delete'	Del
+%name% is available!	RosterView		%name% is available!
 New message	Conversation ― Notifications		New message
 Some items are empty. Please make sure to fill out every item.	TemplateWindow		Some items are empty. Please make sure to fill out every item.
 Enable message notifications	PreferencesBehavior		Enable message notifications
@@ -33,31 +39,36 @@ Play sound event	PreferencesBehavior		Play sound event
 You've been summoned from %source%.	Conversation ― Notifications		You've been summoned from %source%.
 Disabled	Server		Disabled
 That isn't a valid command. Try /help for a list.	Conversation ― Command info		That isn't a valid command. Try /help for a list.
+** You joined the room.\n	ConversationView		** You joined the room.\n
 -- That command doesn't exist. Try '/help' for a list.\n	Server		-- That command doesn't exist. Try '/help' for a list.\n
 OK	TemplateWindow		OK
 Reject	InviteDialogue		Reject
 \nWritten by:\n	About window		\nWritten by:\n
 Disable	PreferencesAccounts		Disable
+All	AccountsMenu		All
 Offline	Utils ― Status names		Offline
 %user% has been disabled!	Server		%user% has been disabled!
 You've been invited to %room%.	Server		You've been invited to %room%.
 Invite user…	UserListView		Invite user…
 Add	PreferencesAccounts		Add
 Preferences	PreferencesWindow		Preferences
+Deskbar notifications	PreferencesBehavior		Deskbar notifications
 General	PreferencesBehavior		General
 Presence	RosterView		Presence
 Cancel	TemplateWindow		Cancel
 Hide offline contacts	PreferencesBehavior		Hide offline contacts
+%user% has joined the room.\n	ConversationView		%user% has joined the room.\n
 Busy	Utils ― Status names		Busy
 Roster	RosterEditWindow		Roster
 Don't ask confirmation at Quit	PreferencesBehavior		Don't ask confirmation at Quit
 Closing	MainWindow		Closing
 Available	Utils ― Status names		Available
 Up	MainWindow		Up
+Invite user…	MainWindow		Invite user…
 Custom Status	Utils ― Status names		Custom Status
 Can't find smileys settings in:\n\n%path%	TheApp		Can't find smileys settings in:\n\n%path%
-Invite user…	MainWindow		Invite user…
 Mark unread window chat	PreferencesBehavior		Mark unread window chat
+%user% has left the room.\n	ConversationView		%user% has left the room.\n
 Join room…	MainWindow		Join room…
 Preferences 	ReplicantStatusView		Preferences 
 Quit	MainWindow		Quit
@@ -67,12 +78,12 @@ Chat settings	PreferencesChatWindow		Chat settings
 Cancel	InviteDialogue		Cancel
 Mark unread the Deskbar Replicant	PreferencesBehavior		Mark unread the Deskbar Replicant
 OK	Server		OK
-Deskbar Notifications (experimental)	PreferencesBehavior		Deskbar Notifications (experimental)
 Exit	ReplicantStatusView		Exit
 User info…	RosterListView		User info…
 Move window to current workspace	PreferencesBehavior		Move window to current workspace
 Away	Utils ― Status names		Away
 OK	AccountDialog		OK
+%user% has been banned.\n	ConversationView		%user% has been banned.\n
 Editing contact	RosterEditWindow		Editing contact
 %user% isn't a member of this room.	ChatCommand		%user% isn't a member of this room.
 Edit account	PreferencesAccounts		Edit account
@@ -88,22 +99,25 @@ Error	Server		Error
 Copyright © 	About window		Copyright © 
 Roster	MainWindow		Roster
 Accept	InviteDialogue		Accept
+%user% was kicked (%body%).\n	ConversationView		%user% was kicked (%body%).\n
 An error is occurred renaming the account to %name%!	AccountDialog		An error is occurred renaming the account to %name%!
 %user% has invited you to %room%.	Server		%user% has invited you to %room%.
 Permanent deskbar replicant	PreferencesReplicant		Permanent deskbar replicant
 Default	User role		Default
+%user% has been banned (%body%).\n	ConversationView		%user% has been banned (%body%).\n
 Invite contact to chat…	MainWindow		Invite contact to chat…
 %user% has connected!	Server		%user% has connected!
+Window	MainWindow		Window
 Invisible	Utils ― Status names		Invisible
 {0, plural,=1{You've got a new message from %source%.}other{You've got # new messages from %source%.}}	Conversation ― Notifications		{0, plural,=1{You've got a new message from %source%.}other{You've got # new messages from %source%.}}
-Window	MainWindow		Window
-On incoming message…	PreferencesBehavior		On incoming message…
+%user% has joined the room (%body%).\n	ConversationView		%user% has joined the room (%body%).\n
 Yes	MainWindow		Yes
 An error has occured saving the settings.\nCheck if your disk has enough space.	AccountDialog		An error has occured saving the settings.\nCheck if your disk has enough space.
 Close	About window		Close
+%user% has left the room (%body%).\n	ConversationView		%user% has left the room (%body%).\n
 New chat…	MainWindow		New chat…
-Edit…	PreferencesAccounts		Edit…
-About…	MainWindow		About…
 New room…	MainWindow		New room…
+About…	MainWindow		About…
+Edit…	PreferencesAccounts		Edit…
+%user% was kicked.\n	ConversationView		%user% was kicked.\n
 You aren't contacts with and have no chats in common with %user%. Shame.	ChatCommand		You aren't contacts with and have no chats in common with %user%. Shame.
-Chat display	PreferencesChatWindow		Chat display
