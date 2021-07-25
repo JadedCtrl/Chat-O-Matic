@@ -230,8 +230,10 @@ ConversationView::UpdateUserList(UserMap users)
 	fUserList->MakeEmpty();
 	for (int i = 0; i < users.CountItems(); i++) {
 		User* user = users.ValueAt(i);
-		if (fUserList->HasItem(user->GetListItem()) == false)
+		if (fUserList->HasItem(user->GetListItem()) == false) {
 			fUserList->AddItem(user->GetListItem());
+			fUserList->Sort();
+		}
 	}
 }
 

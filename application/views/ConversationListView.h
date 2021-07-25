@@ -2,8 +2,8 @@
  * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef CONVERSATIONLIST_H
-#define CONVERSATIONLIST_H
+#ifndef _CONVERSATION_LIST_H
+#define _CONVERSATION_LIST_H
 
 #include <OutlineListView.h>
 
@@ -16,24 +16,24 @@ class ConversationListView : public BOutlineListView {
 public:
 	ConversationListView(const char* name);
 
-	void MessageReceived(BMessage* msg);
-	void SelectionChanged();
-	void MouseDown(BPoint where);
+	virtual void	MessageReceived(BMessage* msg);
+	virtual	void	SelectionChanged();
+	virtual void	MouseDown(BPoint where);
 
-	void AddConversation(Conversation* chat);
-	void RemoveConversation(Conversation* chat);
+			void	AddConversation(Conversation* chat);
+			void	RemoveConversation(Conversation* chat);
+			void	SortConversation(Conversation* chat);
 
-	int32 CountConversations();
-	int32 ConversationIndexOf(Conversation* chat);
-	void SelectConversation(int32 index);
+			int32	CountConversations();
+			int32	ConversationIndexOf(Conversation* chat);
+			void	SelectConversation(int32 index);
 
 private:
-	BPopUpMenu* _ConversationPopUp();
-	BPopUpMenu* _BlankPopUp();
+	  BPopUpMenu*	_ConversationPopUp();
+	  BPopUpMenu*	_BlankPopUp();
 
-	ConversationAccountItem* _EnsureAccountItem(Conversation* chat);
+	ConversationAccountItem*
+					_EnsureAccountItem(Conversation* chat);
 };
 
-
-#endif // CONVERSATIONLIST_H
-
+#endif // _CONVERSATION_LIST_H

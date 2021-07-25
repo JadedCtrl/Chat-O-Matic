@@ -394,6 +394,7 @@ Conversation::AddUser(User* user)
 	msg.AddString("user_id", user->GetId());
 	msg.AddString("user_name", user->GetName());
 	_EnsureUser(&msg);
+	_SortConversationList();
 }
 
 
@@ -403,6 +404,7 @@ Conversation::RemoveUser(User* user)
 	fUsers.RemoveItemFor(user->GetId());
 	user->UnregisterObserver(this);
 	GetView()->UpdateUserList(fUsers);
+	_SortConversationList();
 }
 
 
@@ -581,10 +583,16 @@ Conversation::_EnsureUser(BMessage* msg)
 }
 
 
+void
+Conversation::_SortConversationList()
+{
+	if (fUsers.CountItems() <= 2 || fUsers.CountItems() == 3)
+		((TheApp*)be_app)->GetMainWindow()->SortConversation(this);
+}
+
+
 Server*
 Conversation::_GetServer()
 {
 	return ((TheApp*)be_app)->GetMainWindow()->GetServer();
 }
-
-

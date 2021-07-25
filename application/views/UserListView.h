@@ -27,23 +27,23 @@ enum
 
 class UserListView : public BListView {
 public:
-	UserListView(const char* name);
+					UserListView(const char* name);
 
-	void MouseDown(BPoint where);
+	virtual void	MouseDown(BPoint where);
 
-	void SetConversation(Conversation* chat) { fChat = chat; }
+			void	Sort();
+
+			void	SetConversation(Conversation* chat) { fChat = chat; }
 
 private:
-	BPopUpMenu* _UserPopUp();
-	BPopUpMenu* _BlankPopUp();
+	 BPopUpMenu*	_UserPopUp();
+	 BPopUpMenu*	_BlankPopUp();
 
-	void		_ModerationAction(int32 im_what);
-	void		_ProcessItem(BMessage* itemMsg, BPopUpMenu* menu, Role* user,
-							 Role* target, BString target_id);
+			void	_ModerationAction(int32 im_what);
+			void	_ProcessItem(BMessage* itemMsg, BPopUpMenu* menu,
+						Role* user, Role* target, BString target_id);
 
 	Conversation* fChat;
 };
 
-
 #endif // CONVERSATIONLIST_H
-

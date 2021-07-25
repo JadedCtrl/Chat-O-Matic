@@ -84,6 +84,8 @@ private:
 	void				_EnsureCachePath();
 	User*				_EnsureUser(BMessage* msg);
 
+	void				_SortConversationList();
+
 	Server*				_GetServer();
 
 	BMessenger	fMessenger;

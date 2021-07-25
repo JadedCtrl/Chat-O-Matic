@@ -29,6 +29,40 @@ const uint32 kOpenSelectedChat = 'CVos';
 const uint32 kLeaveSelectedChat = 'CVcs';
 
 
+static int
+compare_by_name(const BListItem* _item1, const BListItem* _item2)
+{
+	ConversationItem* item1 = (ConversationItem*)_item1;
+	ConversationItem* item2 = (ConversationItem*)_item2;
+
+	return strcasecmp(item1->GetConversation()->GetName().String(),
+		item2->GetConversation()->GetName().String());
+}
+
+
+static int
+compare_conversations(const BListItem* _item1, const BListItem* _item2)
+{
+	ConversationItem* item1 = (ConversationItem*)_item1;
+	ConversationItem* item2 = (ConversationItem*)_item2;
+
+	int32 userCount1 = item1->GetConversation()->Users().CountItems();
+	int32 userCount2 = item2->GetConversation()->Users().CountItems();
+
+	// Sort by name among chats/rooms
+	if ((userCount1 <= 2 && userCount2 <= 2) 
+			|| (userCount1 > 2 && userCount2 > 2))
+		return compare_by_name(item1, item2);
+
+	// One-on-one chats should sort above rooms
+	if (userCount1 <=2 && userCount2 > 2)
+		return -1;
+	if (userCount1 > 2 && userCount2 <= 2)
+		return 1;
+	return 0;
+}
+
+
 ConversationListView::ConversationListView(const char* name)
 	: BOutlineListView(name)
 {
@@ -105,6 +139,7 @@ ConversationListView::AddConversation(Conversation* chat)
 		return;
 
 	AddUnder(item, superItem);
+	SortItemsUnder(superItem, true, compare_conversations);
 }
 
 
@@ -112,6 +147,14 @@ void
 ConversationListView::RemoveConversation(Conversation* chat)
 {
 	RemoveItem(chat->GetListItem());
+}
+
+
+void
+ConversationListView::SortConversation(Conversation* chat)
+{
+	ConversationAccountItem* superItem = _EnsureAccountItem(chat);
+	SortItemsUnder(superItem, true, compare_conversations);
 }
 
 

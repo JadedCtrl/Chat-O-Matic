@@ -27,6 +27,16 @@
 #define B_TRANSLATION_CONTEXT "UserListView"
 
 
+static int
+compare_by_name(const void* _item1, const void* _item2)
+{
+	UserItem* item1 = *(UserItem**)_item1;
+	UserItem* item2 = *(UserItem**)_item2;
+
+	return item1->GetUser()->GetName().ICompare(item2->GetUser()->GetName());
+}
+
+
 UserListView::UserListView(const char* name)
 	: BListView(name),
 	fChat(NULL)
@@ -49,6 +59,13 @@ UserListView::MouseDown(BPoint where)
 		_UserPopUp()->Go(ConvertToScreen(where), true, false);
 	else
 		_BlankPopUp()->Go(ConvertToScreen(where), true, false);
+}
+
+
+void
+UserListView::Sort()
+{
+	SortItems(compare_by_name);
 }
 
 

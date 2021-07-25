@@ -45,6 +45,7 @@ public:
 
 			void		SetConversation(Conversation* chat);
 			void		RemoveConversation(Conversation* chat);
+			void		SortConversation(Conversation* chat);
 
 			Server*		GetServer() const { return fServer; }
 

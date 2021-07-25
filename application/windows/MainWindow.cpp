@@ -397,6 +397,13 @@ MainWindow::RemoveConversation(Conversation* chat)
 
 
 void
+MainWindow::SortConversation(Conversation* chat)
+{
+	fListView->SortConversation(chat);
+}
+
+
+void
 MainWindow::_InitInterface()
 {
 	// Left side of window, Roomlist + Status
