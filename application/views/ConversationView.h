@@ -54,17 +54,17 @@ private:
 			void		_UserMessage(const char* format, const char* bodyFormat,
 									 BMessage* msg);
 
-		Conversation*	fConversation;
-		BObjectList<BMessage>	fMessageQueue;
+		Conversation* fConversation;
+		BObjectList<BMessage> fMessageQueue;
 
-		BTextView*		fNameTextView;
-		BTextView*		fSubjectTextView;
-		BitmapView*		fProtocolView;
-		BitmapView*		fIcon;
+		BTextView* fNameTextView;
+		BTextView* fSubjectTextView;
+		BitmapView* fProtocolView;
+		BitmapView* fIcon;
 
-		RenderView*		fReceiveView;
-		UserListView*	fUserList;
-		SendTextView*	fSendView;
+		RenderView* fReceiveView;
+		UserListView* fUserList;
+		SendTextView* fSendView;
 };
 
 

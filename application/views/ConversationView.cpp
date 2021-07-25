@@ -135,6 +135,7 @@ ConversationView::ImMessage(BMessage* msg)
 		}
 		case IM_MESSAGE_RECEIVED:
 		{
+			msg->AddInt64("when", (int64)time(NULL));
 			_AppendOrEnqueueMessage(msg);
 			fReceiveView->ScrollToBottom();
 			break;
@@ -151,6 +152,7 @@ ConversationView::ImMessage(BMessage* msg)
 		{
 			BMessage msg;
 			msg.AddString("body", B_TRANSLATE("** You joined the room.\n"));
+			msg.AddInt64("when", (int64)time(NULL));
 			_AppendOrEnqueueMessage(&msg);
 			fReceiveView->ScrollToBottom();
 		}
@@ -158,6 +160,7 @@ ConversationView::ImMessage(BMessage* msg)
 		{
 			BMessage msg;
 			msg.AddString("body", B_TRANSLATE("** You created the room.\n"));
+			msg.AddInt64("when", (int64)time(NULL));
 			_AppendOrEnqueueMessage(&msg);
 			fReceiveView->ScrollToBottom();
 		}
@@ -383,8 +386,7 @@ ConversationView::_UserMessage(const char* format, const char* bodyFormat,
 
 	BMessage newMsg;
 	newMsg.AddString("body", newBody);
+	newMsg.AddInt64("when", (int64)time(NULL));
 	_AppendOrEnqueueMessage(&newMsg);
 	fReceiveView->ScrollToBottom();
 }
-
-
