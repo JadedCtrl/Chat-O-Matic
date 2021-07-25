@@ -177,15 +177,29 @@ RunView::Select(int32 startOffset, int32 endOffset)
 
 
 void
-RunView::Append(const char* text, rgb_color color, uint16 fontFace)
+RunView::Append(const char* text, rgb_color color, BFont font)
 {
-	BFont font;
-	font.SetFace(fontFace);
 	text_run run = { 0, font, color };
 	text_run_array array = { 1, {run} };
 
 	Insert(text, &array);
 	fLastStyled = true;
+}
+
+
+void
+RunView::Append(const char* text, rgb_color color, uint16 fontFace)
+{
+	BFont font;
+	font.SetFace(fontFace);
+	Append(text, color, font);
+}
+
+
+void
+RunView::Append(const char* text, rgb_color color)
+{
+	Append(text, color, BFont());
 }
 
 

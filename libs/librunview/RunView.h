@@ -26,8 +26,9 @@ public:
 
 	virtual void	Select(int32 startOffset, int32 endOffset);
 
-			void	Append(const char* text, rgb_color color,
-						uint16 fontFace = B_REGULAR_FACE);
+			void	Append(const char* text, rgb_color color, BFont font);
+			void	Append(const char* text, rgb_color color, uint16 fontFace);
+			void	Append(const char* text, rgb_color color);
 			void	Append(const char* text);
 
 		 BString	WordAt(BPoint point);
