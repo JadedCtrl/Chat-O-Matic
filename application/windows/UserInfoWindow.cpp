@@ -11,19 +11,25 @@
 #include "UserInfoWindow.h"
 
 #include <Alert.h>
+#include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <Message.h>
 
 #include <libinterface/BitmapView.h>
 
-#include "Utils.h"
+#include "ImageCache.h"
 #include "User.h"
+#include "Utils.h"
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "UserInfoWindow"
 
 
 UserInfoWindow::UserInfoWindow(User* user)
 	:
-	BWindow(BRect(200, 200, 500, 400),
-		"User information", B_FLOATING_WINDOW,
+	BWindow(BRect(200, 200, 300, 400),
+		B_TRANSLATE("User information"), B_FLOATING_WINDOW,
 		B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS),
 		fUser(user)
 {
@@ -47,16 +53,32 @@ void
 UserInfoWindow::_InitInterface()
 {
 	fNameLabel = new BStringView("nameLabel", fUser->GetName().String());
-	fStatusLabel = new BStringView("statusLabel",
-		UserStatusToString(fUser->GetNotifyStatus()));
+	fNameLabel->SetFont(be_bold_font);
+
+	UserStatus status = fUser->GetNotifyStatus();
+	fStatusLabel = new BStringView("statusLabel", UserStatusToString(status));
+
+	float iconSize = be_plain_font->Size() + 5;
+	BBitmap* statusBitmap =
+		ImageCache::Get()->GetImage(UserStatusToImageKey(status));
+	fStatusIcon = new BitmapView("statusIcon");
+	fStatusIcon->SetExplicitMaxSize(BSize(iconSize, iconSize));
+	fStatusIcon->SetBitmap(statusBitmap);
+
 	fTextStatusLabel = new BStringView("statusMessageLabel",
 		fUser->GetNotifyPersonalStatus());
 
-	BString idText("[");
-	idText << fUser->GetId().String() << "]";
-	fIdLabel = new BStringView("idLabel", idText.String());
+	const char* userId = fUser->GetId().String();
+	fIdLabel = new BTextView("idLabel");
+	fIdLabel->SetText(userId);
+	fIdLabel->SetFont(be_fixed_font);
+	fIdLabel->SetWordWrap(false);
+	fIdLabel->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
+	fIdLabel->MakeEditable(false);
+	fIdLabel->SetExplicitMinSize(
+		BSize(be_fixed_font->StringWidth(userId), B_SIZE_UNSET));
 
-	fAvatar = new BitmapView("UserIcon");
+	fAvatar = new BitmapView("userIcon");
 	fAvatar->SetExplicitMaxSize(BSize(70, 70));
 	fAvatar->SetExplicitMinSize(BSize(50, 50));
 	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
@@ -65,8 +87,9 @@ UserInfoWindow::_InitInterface()
 	// Centering is lyfeee
 	fNameLabel->SetExplicitAlignment(BAlignment(B_ALIGN_CENTER, B_ALIGN_TOP));
 	fIdLabel->SetExplicitAlignment(BAlignment(B_ALIGN_CENTER, B_ALIGN_TOP));
-	fStatusLabel->SetExplicitAlignment(BAlignment(B_ALIGN_CENTER, B_ALIGN_TOP));
-	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_CENTER, B_ALIGN_TOP));
+	fStatusIcon->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_TOP));
+	fStatusLabel->SetExplicitAlignment(BAlignment(B_ALIGN_LEFT, B_ALIGN_TOP));
+	fAvatar->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_TOP));
 
 	BLayoutBuilder::Group<>(this, B_HORIZONTAL, 10)
 		.SetInsets(B_USE_DEFAULT_SPACING)
@@ -79,8 +102,10 @@ UserInfoWindow::_InitInterface()
 		.AddGroup(B_VERTICAL)
 		.AddGroup(B_VERTICAL)
 			.Add(fAvatar)
-			.Add(fStatusLabel)
-			.AddGlue()
+			.AddGroup(B_HORIZONTAL)
+				.Add(fStatusIcon)
+				.Add(fStatusLabel)
+			.End()
 		.End()
 	.End();
 }

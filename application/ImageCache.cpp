@@ -27,6 +27,11 @@ ImageCache* ImageCache::fInstance = NULL;
 ImageCache::ImageCache()
 {
 	_LoadResource(kPersonIcon, "kPersonIcon");
+
+	_LoadResource(kAwayReplicant, "kAwayReplicant");
+	_LoadResource(kBusyReplicant, "kBusyReplicant");
+	_LoadResource(kOfflineReplicant, "kOfflineReplicant");
+	_LoadResource(kOnlineReplicant, "kOnlineReplicant");
 }
 
 
@@ -98,5 +103,3 @@ ImageCache::_LoadResource(int identifier, const char* key)
 	if (bitmap != NULL && bitmap->IsValid() == true)
 		fBitmaps.AddItem(BString(key), bitmap);
 }
-
-

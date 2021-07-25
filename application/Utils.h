@@ -19,7 +19,11 @@
 class BMenu;
 
 
+// For display purposes
 const char* UserStatusToString(UserStatus status);
+
+// For use with the ImageCache
+const char* UserStatusToImageKey(UserStatus status);
 
 bool		IsCommand(BString line);
 BString		CommandName(BString line);

@@ -49,6 +49,22 @@ UserStatusToString(UserStatus status)
 }
 
 
+const char*
+UserStatusToImageKey(UserStatus status)
+{
+	switch (status) {
+		case STATUS_ONLINE:
+			return "kOnlineReplicant";
+		case STATUS_AWAY:
+			return "kAwayReplicant";
+		case STATUS_OFFLINE:
+			return "kOfflineReplicant";
+		default:
+			return "kBusyReplicant";
+	}
+}
+
+
 bool
 IsCommand(BString line)
 {

@@ -32,7 +32,8 @@ private:
 
 		BitmapView*		fAvatar;
 		BStringView*	fNameLabel;
-		BStringView*	fIdLabel;
+		BTextView*		fIdLabel;
+		BitmapView*		fStatusIcon;
 		BStringView*	fStatusLabel;
 		BStringView*	fTextStatusLabel;
 };
