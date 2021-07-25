@@ -28,7 +28,7 @@ public:
 
 	void			Update(BView *owner, const BFont *font);
 
-	Contact*	GetContact() { return contactLinker;}
+	Contact*	GetContact() { return fContact;}
 
 	UserStatus		Status() const { return fStatus; }
 	void			SetStatus(UserStatus status);
@@ -45,7 +45,7 @@ protected:
 	void			ObserveInteger(int32 what, int32 val);
 
 private:
-	Contact*	contactLinker;
+	Contact*		fContact;
 	float			fBaselineOffset;
 	BString			fPersonalStatus;
 	UserStatus		fStatus;

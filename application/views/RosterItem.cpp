@@ -5,6 +5,7 @@
  * Authors:
  *		Andrea Anzani, andrea.anzani@gmail.com
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
+ *		Jaidyn Levesque, jadedctrl@teknik.io
  */
 
 #include <ListView.h>
@@ -21,11 +22,11 @@
 RosterItem::RosterItem(const char*  name, Contact* contact)
 	: BStringItem(name),
 	fBitmap(contact->AvatarBitmap()),
-	fStatus(STATUS_OFFLINE),
-	contactLinker(contact),
+	fStatus(contact->GetNotifyStatus()),
+	fContact(contact),
 	fVisible(true)
 {
-	rgb_color highlightColor = ui_color(B_CONTROL_HIGHLIGHT_COLOR);
+	rgb_color highlightColor = ui_color(B_LIST_SELECTED_BACKGROUND_COLOR);
 	rgb_color darkenHighlightColor = tint_color(highlightColor, B_DARKEN_1_TINT);
 
 	fGradient.AddColor(highlightColor, 0);
@@ -154,18 +155,19 @@ RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 	// Draw contact status string
 	owner->MovePenTo(frame.left + 48, frame.top + fBaselineOffset +
 		fBaselineOffset + 3);
-	owner->SetHighColor(tint_color(lowColor, B_DARKEN_2_TINT));
+	owner->SetHighColor(TintColor(owner->HighColor(), 2));
 	if (fPersonalStatus.Length() == 0)
 		owner->DrawString(UserStatusToString(fStatus));
 	else
 		owner->DrawString(fPersonalStatus);
 
 	// Draw separator between items
+	owner->SetHighColor(tint_color(lowColor, B_DARKEN_2_TINT));
 	owner->StrokeLine(BPoint(frame.left, frame.bottom),
 		BPoint(frame.right, frame.bottom));
 
 	// Draw protocol bitmpap
-	BBitmap* protocolBitmap = contactLinker->ProtocolBitmap();
+	BBitmap* protocolBitmap = fContact->ProtocolBitmap();
 
 	if (protocolBitmap != NULL) {
 		BRect rect(frame.right - 19, frame.top + 2,
@@ -175,7 +177,6 @@ RosterItem::DrawItem(BView* owner, BRect frame, bool complete)
 		owner->DrawBitmap(protocolBitmap, protocolBitmap->Bounds(),
 			rect, B_FILTER_BITMAP_BILINEAR);
 	}
-
 	owner->SetHighColor(highColor);
 	owner->SetLowColor(lowColor);
 }

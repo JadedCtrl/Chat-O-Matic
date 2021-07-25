@@ -42,7 +42,6 @@ RosterView::RosterView(const char* title, Server* server, bigtime_t account)
 		new BMessage(kSearchContact));
 	fSearchBox->SetModificationMessage(new BMessage(kSearchContact));
 		
-
 	fListView = new RosterListView("buddyView");
 	BScrollView* scrollView = new BScrollView("scrollview", fListView,
 		B_WILL_DRAW, false, true);
@@ -74,11 +73,11 @@ RosterView::MessageReceived(BMessage* message)
 				// otherwise remove the item in order to show only items
 				// that matches the search criteria
 				if (strcmp(fSearchBox->Text(), "") == 0)
-					fListView->AddRosterItem(item);
+					fListView->AddItem(item);
 				else if (linker->GetName().IFindFirst(fSearchBox->Text()) == B_ERROR)
 					fListView->RemoveItem(item);
 				else
-					fListView->AddRosterItem(item);
+					fListView->AddItem(item);
 				UpdateListItem(item);
 			}
 			break;
@@ -128,7 +127,7 @@ RosterView::ImMessage(BMessage* msg)
 						return;*/
 					default:
 						// Add item because it has a non-offline status
-						fListView->AddRosterItem(rosterItem);
+						fListView->AddItem(rosterItem);
 						break;
 				}
 
@@ -233,7 +232,7 @@ RosterView::SetAccount(bigtime_t instance_id)
 
 	fListView->MakeEmpty();
 	for (int i = 0; i < contacts.CountItems(); i++)
-		fListView->AddRosterItem(contacts.ValueAt(i)->GetRosterItem());
+		fListView->AddItem(contacts.ValueAt(i)->GetRosterItem());
 }
 
 

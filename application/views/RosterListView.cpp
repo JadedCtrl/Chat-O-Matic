@@ -224,13 +224,22 @@ RosterListView::Draw(BRect updateRect)
 
 
 bool
-RosterListView::AddRosterItem(RosterItem* item)
+RosterListView::AddItem(RosterItem* item)
 {
+	item->Deselect();
 	bool ret = false;
 	if (HasItem(item) == false)
-		ret = AddItem(item);
+		ret = BListView::AddItem(item);
 	Sort();
 	return ret;
+}
+
+
+void
+RosterListView::RemoveItem(RosterItem* item)
+{
+	item->Deselect();
+	BListView::RemoveItem(item);
 }
 
 

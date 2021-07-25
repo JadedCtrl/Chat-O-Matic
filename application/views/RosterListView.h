@@ -23,7 +23,8 @@ public:
 	virtual	void	Draw(BRect updateRect);
 	virtual void	AttachedToWindow();
 
-			bool	AddRosterItem(RosterItem* item);
+			bool	AddItem(RosterItem* item);
+			void	RemoveItem(RosterItem* item);
 		RosterItem*	RosterItemAt(int32 index);
 
 			void	Sort();
