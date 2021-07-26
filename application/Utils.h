@@ -39,7 +39,7 @@ const char* AccountCachePath(const char* accountName);
 const char* RoomsCachePath(const char* accountName);
 const char* RoomCachePath(const char* accountName, const char* roomIdentifier);
 const char* UserCachePath(const char* accountName, const char* userIdentifier);
-const char* BuddyCachePath(const char* accountName, const char* userIdentifier);
+const char* ContactCachePath(const char* accountName, const char* userIdentifier);
 
 rgb_color	TintColor(rgb_color color, int severity);
 rgb_color	ForegroundColor(rgb_color background);

@@ -35,7 +35,7 @@ Contact::_EnsureCachePath()
 {
 	if (fCachePath.InitCheck() == B_OK)
 		return;
-	fCachePath.SetTo(BuddyCachePath(fLooper->Protocol()->GetName(),
+	fCachePath.SetTo(ContactCachePath(fLooper->Protocol()->GetName(),
 										  fID.String()));
 }
 

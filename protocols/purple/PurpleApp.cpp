@@ -1707,7 +1707,7 @@ const char*
 buddies_cache(PurpleAccount* account)
 {
 	BPath path(account_cache(account));
-	path.Append("Buddies");
+	path.Append("Contacts");
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
 	return path.Path();

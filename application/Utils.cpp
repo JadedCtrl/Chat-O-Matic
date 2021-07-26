@@ -208,11 +208,11 @@ UserCachePath(const char* accountName, const char* userIdentifier)
 
 
 const char*
-BuddyCachePath(const char* accountName, const char* userIdentifier)
+ContactCachePath(const char* accountName, const char* userIdentifier)
 {
 	BPath path(AccountCachePath(accountName));
 	if (path.InitCheck() != B_OK)	return NULL;
-	path.Append("Buddies");
+	path.Append("Contacts");
 	if (create_directory(path.Path(), 0755) != B_OK)	return NULL;
 	path.Append(userIdentifier);
 	return path.Path();
