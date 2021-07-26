@@ -29,6 +29,7 @@
 #include <Alert.h>
 #include <Catalog.h>
 #include <Directory.h>
+#include <File.h>
 #include <Locale.h>
 #include <MessageRunner.h>
 #include <Path.h>
@@ -301,6 +302,7 @@ PurpleApp::ImMessage(BMessage* msg)
 
 			purple_blist_add_buddy(buddy, NULL, NULL, NULL);
 			purple_account_add_buddy_with_invite(account, buddy, NULL);
+			update_buddy(buddy_cache(buddy), user_id, BString(user_name));
 			break;
 		}
 		case IM_CONTACT_LIST_REMOVE_CONTACT:
@@ -311,8 +313,10 @@ PurpleApp::ImMessage(BMessage* msg)
 
 			PurpleBuddy* buddy = purple_find_buddy(account, user_id.String());
 			if (buddy == NULL) return;
+
 			purple_blist_remove_buddy(buddy);
 			purple_account_remove_buddy(account, buddy, NULL);
+			BEntry(buddy_cache(buddy)).Remove();
 			break;
 		}
 		case IM_CONTACT_LIST_EDIT_CONTACT:
@@ -323,8 +327,10 @@ PurpleApp::ImMessage(BMessage* msg)
 			PurpleBuddy* buddy = purple_find_buddy(account, user_id.String());
 			if (buddy == NULL) return;
 
-			if (user_name.IsEmpty() == false)
+			if (user_name.IsEmpty() == false) {
 				purple_blist_alias_buddy(buddy, user_name.String());
+				update_buddy(buddy_cache(buddy), user_id, BString(user_name));
+			}
 			break;
 		}
 		case IM_GET_EXTENDED_CONTACT_INFO:
@@ -1075,6 +1081,7 @@ signal_account_signed_on(PurpleAccount* account)
 	BString display = purple_account_get_name_for_display(account);
 
 	send_own_info(account);
+	load_account_buddies(account);
 
 	((PurpleApp*)be_app)->fUserNicks.AddItem(username, display);
 }
@@ -1169,8 +1176,9 @@ static void
 signal_buddy_icon_changed(PurpleBuddy* buddy)
 {
 	entry_ref ref;
-	BEntry entry(purple_buddy_icon_get_full_path(purple_buddy_get_icon(buddy)));
-	entry.GetRef(&ref);
+	if (get_ref_for_path(purple_buddy_icon_get_full_path(
+			purple_buddy_get_icon(buddy)), &ref) != B_OK)
+		return;
 
 	BMessage avatar(IM_MESSAGE);
 	avatar.AddInt32("im_what", IM_AVATAR_SET);
@@ -1352,7 +1360,7 @@ ui_op_report_disconnect_reason(PurpleConnection* conn,
 		else
 			((PurpleApp*)be_app)->SendMessage(account,
 				BMessage(PURPLE_SHUTDOWN_ADDON));
-	else {
+	else  {
 		BMessage disabled(PURPLE_SHUTDOWN_ADDON);
 		((PurpleApp*)be_app)->SendMessage(account, disabled);
 	}
@@ -1476,6 +1484,29 @@ is_own_user(PurpleAccount* account, const char* name)
 	if (name == username || name == display)
 		return true;
 	return false;
+}
+
+
+void
+load_account_buddies(PurpleAccount* account)
+{
+	BDirectory dir(buddies_cache(account));
+
+	entry_ref ref;
+	while (dir.GetNextRef(&ref) == B_OK) {
+		BString user_id, user_name;
+
+		BFile file(&ref, B_READ_ONLY);
+		file.ReadAttrString("purple:user_id", &user_id);
+		file.ReadAttrString("purple:alias", &user_name);
+
+		if (user_id.IsEmpty() == false) {
+			PurpleBuddy* buddy =
+				purple_buddy_new(account, user_id.String(), user_name.String());
+			purple_blist_add_buddy(buddy, NULL, NULL, NULL);
+			purple_account_add_buddy_with_invite(account, buddy, NULL);
+		}
+	}
 }
 
 
@@ -1645,6 +1676,55 @@ purple_cache()
 }
 
 
+const char*
+account_cache(PurpleAccount* account)
+{
+	const char* purple_user = purple_account_get_username(account);
+	const char* cardie_user = NULL;
+
+	StringMap usernames = ((PurpleApp*)be_app)->fAccounts;
+	for (int i = 0; i < usernames.CountItems(); i++)
+		if (usernames.ValueAt(i) == purple_user) {
+			cardie_user = usernames.KeyAt(i);
+			break;
+		}
+	if (cardie_user == NULL)
+		return NULL;
+
+	BPath path;
+	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
+		return NULL;
+	path.Append(APP_NAME "/Cache/Accounts/");
+	path.Append(cardie_user);
+
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
+	return path.Path();
+}
+
+
+const char*
+buddies_cache(PurpleAccount* account)
+{
+	BPath path(account_cache(account));
+	path.Append("Buddies");
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
+	return path.Path();
+}
+
+
+const char*
+buddy_cache(PurpleBuddy* buddy)
+{
+	BPath path(buddies_cache(purple_buddy_get_account(buddy)));
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
+	path.Append(purple_buddy_get_name(buddy));
+	return path.Path();
+}
+
+
 void
 purple_plugins_add_finddir(directory_which finddir)
 {
@@ -1653,6 +1733,20 @@ purple_plugins_add_finddir(directory_which finddir)
 		path.Append("purple-2");
 		purple_plugins_add_search_path(path.Path());
 	}
+}
+
+
+void
+update_buddy(const char* path, BString user_id, BString user_name)
+{
+	BFile file(path, B_WRITE_ONLY | B_CREATE_FILE);
+	if (file.InitCheck() != B_OK) {
+		std::cerr << "Failed to update buddy at " << path << std::endl;
+		return;
+	}
+	file.WriteAttrString("purple:user_id", &user_id);
+	if (user_name.IsEmpty() == false)
+		file.WriteAttrString("purple:alias", &user_name);
 }
 
 

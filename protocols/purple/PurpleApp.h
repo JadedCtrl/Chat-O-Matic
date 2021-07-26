@@ -84,6 +84,7 @@ public:
 
 	HashMap fInviteList;
 	StringMap fUserNicks; // Purple username → Nickname for Cardie
+	StringMap fAccounts; // Cardie account name → Purple username
 
 private:
 			void		_SendSysText(PurpleConversation* conv, const char* text);
@@ -103,10 +104,8 @@ private:
 		PurpleAccount*	_AccountFromMessage(BMessage* msg);
 	PurpleConversation*	_ConversationFromMessage(BMessage* msg);
 
-	StringMap fAccounts; // Cardie account name → Purple username
-	ThreadMap fAccountThreads; // Cardie account name → Thread
+	ThreadMap fAccountThreads; // Purple username → Thread
 	BObjectList<ProtocolInfo> fProtocols;
-
 	GMainLoop* fGloop;
 };
 
@@ -221,6 +220,8 @@ private:
 // Util
 			bool		is_own_user(PurpleAccount* account, const char* name);
 
+			void		load_account_buddies(PurpleAccount* account);
+
 			void		send_own_info(PurpleAccount* account);
 			void		send_user_role(PurpleConversation* conv,
 							const char* name, PurpleConvChatBuddyFlags flags);
@@ -232,7 +233,14 @@ PurpleStatusPrimitive	cardie_status_to_purple(UserStatus status);
 							const PurpleConnectionErrorInfo* error);
 
 		const char*		purple_cache();
+		const char*		account_cache(PurpleAccount* account);
+		const char*		buddies_cache(PurpleAccount* account);
+		const char*		buddy_cache(PurpleBuddy* buddy);
+
 			void		purple_plugins_add_finddir(directory_which finddir);
+
+			void		update_buddy(const char* path, BString user_id,
+							BString user_name);
 
 	static gboolean		_purple_glib_io_invoke(GIOChannel *source,
 							GIOCondition condition, gpointer data);
