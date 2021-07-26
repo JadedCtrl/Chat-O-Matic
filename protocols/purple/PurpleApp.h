@@ -133,6 +133,7 @@ private:
 	 static void		signal_blist_node_removed(PurpleBlistNode* node);
 	 static void		signal_buddy_status_changed(PurpleBuddy* buddy,
 							PurpleStatus* old_status, PurpleStatus* status);
+	 static void		signal_buddy_icon_changed(PurpleBuddy* buddy);
 
 // Conversation signals
 	 static void		signal_chat_joined(PurpleConversation* conv);

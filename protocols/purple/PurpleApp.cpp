@@ -1029,6 +1029,8 @@ init_signals()
 		&handle, PURPLE_CALLBACK(signal_blist_node_removed), NULL);
 	purple_signal_connect(purple_blist_get_handle(), "buddy-status-changed",
 		&handle, PURPLE_CALLBACK(signal_buddy_status_changed), NULL);
+	purple_signal_connect(purple_blist_get_handle(), "buddy-icon-changed",
+		&handle, PURPLE_CALLBACK(signal_buddy_icon_changed), NULL);
 
 	purple_signal_connect(purple_conversations_get_handle(), "chat-joined",
 		&handle, PURPLE_CALLBACK(signal_chat_joined), NULL);
@@ -1072,7 +1074,6 @@ signal_account_signed_on(PurpleAccount* account)
 	BString username = purple_account_get_username(account);
 	BString display = purple_account_get_name_for_display(account);
 
-	BMessage info(IM_MESSAGE);
 	send_own_info(account);
 
 	((PurpleApp*)be_app)->fUserNicks.AddItem(username, display);
@@ -1161,6 +1162,21 @@ signal_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* old_status,
 	note.AddInt32("status", purple_status_to_cardie(status));
 	note.AddString("user_id", purple_buddy_get_name(buddy));
 	((PurpleApp*)be_app)->SendMessage(purple_buddy_get_account(buddy), note);
+}
+
+
+static void
+signal_buddy_icon_changed(PurpleBuddy* buddy)
+{
+	entry_ref ref;
+	BEntry entry(purple_buddy_icon_get_full_path(purple_buddy_get_icon(buddy)));
+	entry.GetRef(&ref);
+
+	BMessage avatar(IM_MESSAGE);
+	avatar.AddInt32("im_what", IM_AVATAR_SET);
+	avatar.AddString("user_id", purple_buddy_get_name(buddy));
+	avatar.AddRef("ref", &ref);
+	((PurpleApp*)be_app)->SendMessage(purple_buddy_get_account(buddy), avatar);
 }
 
 
@@ -1336,7 +1352,7 @@ ui_op_report_disconnect_reason(PurpleConnection* conn,
 		else
 			((PurpleApp*)be_app)->SendMessage(account,
 				BMessage(PURPLE_SHUTDOWN_ADDON));
-	else  {
+	else {
 		BMessage disabled(PURPLE_SHUTDOWN_ADDON);
 		((PurpleApp*)be_app)->SendMessage(account, disabled);
 	}
