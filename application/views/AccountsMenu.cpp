@@ -8,6 +8,7 @@
 #include <Catalog.h>
 #include <MenuItem.h>
 
+#include "AccountMenuItem.h"
 #include "MainWindow.h"
 #include "Server.h"
 #include "TheApp.h"
@@ -15,6 +16,9 @@
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "AccountsMenu"
+
+
+int32 AccountsMenu::fDefaultSelection = 0;
 
 
 AccountsMenu::AccountsMenu(const char* name, BMessage msg, BMessage* allMsg)
@@ -49,6 +53,15 @@ AccountsMenu::ObserveInteger(int32 what, int32 value)
 
 
 void
+AccountsMenu::SetDefaultSelection(BMenuItem* item)
+{
+	fDefaultSelection = IndexOf(item);
+	if (fAllMessage != NULL)
+		fDefaultSelection--;
+}
+
+
+void
 AccountsMenu::_PopulateMenu()
 {
 	if (CountItems() > 0)
@@ -66,10 +79,14 @@ AccountsMenu::_PopulateMenu()
 			label.RemoveChars(16, label.CountChars() - 16);
 			label << B_UTF8_ELLIPSIS;
 		}
-		AddItem(new BMenuItem(label.String(), new BMessage(fAccountMessage)));
+		AddItem(new AccountMenuItem(label.String(), new BMessage(fAccountMessage)));
 	}
 
-	if (CountItems() > 0)
+	int32 selection = fDefaultSelection;
+
+	if (fAllMessage == NULL && selection < CountItems() && selection >= 0)
+		ItemAt(selection)->SetMarked(true);
+	else if (CountItems() > 0)
 		ItemAt(0)->SetMarked(true);
 	else
 		SetEnabled(false);

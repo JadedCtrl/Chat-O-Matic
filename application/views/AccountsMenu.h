@@ -12,16 +12,20 @@
 
 class AccountsMenu : public BMenu, public Observer {
 public:
-	AccountsMenu(const char* name, BMessage msg, BMessage* allMsg = NULL);
-	~AccountsMenu();
+					AccountsMenu(const char* name, BMessage msg,
+						BMessage* allMsg = NULL);
+					~AccountsMenu();
 
-	virtual void ObserveInteger(int32 what, int32 value);
+	virtual void	ObserveInteger(int32 what, int32 value);
+
+			void	SetDefaultSelection(BMenuItem* item);
 
 private:
-	void _PopulateMenu();
+			void	_PopulateMenu();
 
 	BMessage fAccountMessage;
 	BMessage* fAllMessage;
+	static int32 fDefaultSelection;
 };
 
 #endif // _ACCOUNTS_MENU_H
