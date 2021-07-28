@@ -44,6 +44,8 @@ public:
 	void				SetNotifyName(const char* name);
 	void				SetNotifySubject(const char* subject);
 
+	bool				SetIconBitmap(BBitmap* icon);
+
 	BMessenger			Messenger() const;
 	void				SetMessenger(BMessenger messenger);
 
@@ -83,6 +85,7 @@ private:
 
 	void				_EnsureCachePath();
 	User*				_EnsureUser(BMessage* msg);
+	void				_CloneUserIcon(User* user);
 
 	void				_SortConversationList();
 
@@ -100,6 +103,7 @@ private:
 	BString fSubject;
 
 	BBitmap* fIcon;
+	bool fUserIcon;
 
 	BPath fCachePath;
 	BDateTimeFormat fDateFormatter;

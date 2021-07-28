@@ -24,7 +24,8 @@ enum {
 	kExitMenuReplicant			= 1401,
 	kReplicantMessageReceived	= 1402,
 
-	kPersonIcon					= 1500
+	kPersonIcon					= 1500,
+	kChatIcon					= 1501
 };
 
 #endif	// _APP_RESOURCES_H

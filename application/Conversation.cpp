@@ -20,6 +20,7 @@
 #include "ConversationItem.h"
 #include "ConversationView.h"
 #include "Flags.h"
+#include "ImageCache.h"
 #include "MainWindow.h"
 #include "NotifyMessage.h"
 #include "ProtocolLooper.h"
@@ -36,12 +37,13 @@ Conversation::Conversation(BString id, BMessenger msgn)
 	fMessenger(msgn),
 	fChatView(NULL),
 	fLooper(NULL),
-	fIcon(NULL),
+	fIcon(ImageCache::Get()->GetImage("kChatIcon")),
 	fDateFormatter(),
 	fRoomFlags(0),
 	fDisallowedFlags(0),
 	fNotifyMessageCount(0),
-	fNotifyMentionCount(0)
+	fNotifyMentionCount(0),
+	fUserIcon(false)
 {
 	fConversationItem = new ConversationItem(fName.String(), this);
 	RegisterObserver(fConversationItem);
@@ -272,6 +274,18 @@ Conversation::SetNotifySubject(const char* subject)
 
 	fSubject = subject;
 	NotifyString(STR_ROOM_SUBJECT, fSubject.String());
+}
+
+
+bool
+Conversation::SetIconBitmap(BBitmap* icon)
+{
+	if (icon != NULL) {
+		fIcon = icon;
+		GetView()->UpdateIcon();
+		return true;
+	}
+	return false;
 }
 
 
@@ -564,6 +578,8 @@ Conversation::_EnsureUser(BMessage* msg)
 		fUsers.AddItem(id, serverUser);
 		user = serverUser;
 		GetView()->UpdateUserList(fUsers);
+
+		_CloneUserIcon(user);
 	}
 	// Not anywhere; create user
 	else if (user == NULL) {
@@ -573,6 +589,8 @@ Conversation::_EnsureUser(BMessage* msg)
 		fLooper->AddUser(user);
 		fUsers.AddItem(id, user);
 		GetView()->UpdateUserList(fUsers);
+
+		_CloneUserIcon(user);
 	}
 
 	if (name.IsEmpty() == false) {
@@ -580,6 +598,23 @@ Conversation::_EnsureUser(BMessage* msg)
 	}
 	user->RegisterObserver(this);
 	return user;
+}
+
+
+void
+Conversation::_CloneUserIcon(User* user)
+{
+	// If it's a one-on-one chat without custom icon, steal a user's
+	if ((fUsers.CountItems() <= 2 && user->GetId() != GetOwnContact()->GetId())
+			&& (fIcon == ImageCache::Get()->GetImage("kChatIcon")
+				|| fIcon == NULL))
+		fUserIcon = SetIconBitmap(user->AvatarBitmap());
+
+	// If it's no longer one-on-one, revert
+	if (fUsers.CountItems() > 2 && fUserIcon == true) {
+		SetIconBitmap(ImageCache::Get()->GetImage("kChatIcon"));
+		fUserIcon = false;
+	}
 }
 
 
