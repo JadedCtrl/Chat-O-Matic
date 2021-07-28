@@ -94,14 +94,27 @@ RosterWindow::MessageReceived(BMessage* message)
 		{
 			int index = message->FindInt32("index");
 			RosterItem* ritem = fRosterView->ListView()->RosterItemAt(index);
+			const char* search = fRosterView->SearchBox()->Text();
+			BString user_id;
+			int64 instance;
 
-			if (ritem == NULL)
+			if (ritem != NULL) {
+				User* user = ritem->GetContact();
+				user_id = user->GetId();
+				instance = user->GetProtocolLooper()->GetInstance();
+			}
+			else if (search != NULL) {
+				user_id = search;
+				instance = fRosterView->GetAccount();
+			}
+			else
 				return;
 
 			User* user = ritem->GetContact();
-			fMessage->AddString("user_id", user->GetId());
-			fMessage->AddInt64("instance", user->GetProtocolLooper()->GetInstance());
+			fMessage->AddString("user_id", user_id);
+			fMessage->AddInt64("instance", instance);
 			fTarget->SendMessage(fMessage);
+			fMessage->PrintToStream();
 			PostMessage(B_QUIT_REQUESTED);
 			break;
 		}

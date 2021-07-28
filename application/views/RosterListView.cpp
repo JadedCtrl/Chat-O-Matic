@@ -39,24 +39,36 @@ const int32 kGetInfo	= 'GINF';
 static int
 compare_by_name(const void* _item1, const void* _item2)
 {
-	RosterItem* item1 = *(RosterItem**)_item1;
-	RosterItem* item2 = *(RosterItem**)_item2;
+	BListItem* item1 = *(BListItem**)_item1;
+	BListItem* item2 = *(BListItem**)_item2;
+	RosterItem* roster1 = dynamic_cast<RosterItem*>(item1);
+	RosterItem* roster2 = dynamic_cast<RosterItem*>(item2);
 
-	return strcasecmp(item1->GetContact()->GetName().String(),
-		item2->GetContact()->GetName().String());
+	if (roster1 == NULL && roster2 == NULL)
+		return 0;
+	if (roster1 == NULL)
+		return 1;
+	if (roster2 == NULL)
+		return -1;
+	return strcasecmp(roster1->GetContact()->GetName().String(),
+		roster2->GetContact()->GetName().String());
 }
 
 
 static int
 compare_by_status(const void* _item1, const void* _item2)
 {
-	RosterItem* item1 = *(RosterItem**)_item1;
-	RosterItem* item2 = *(RosterItem**)_item2;
+	BListItem* item1 = *(RosterItem**)_item1;
+	BListItem* item2 = *(RosterItem**)_item2;
+	RosterItem* roster1 = dynamic_cast<RosterItem*>(item1);
+	RosterItem* roster2 = dynamic_cast<RosterItem*>(item2);
 
-	if (item1->Status() < item2->Status())
+	if (roster1 == NULL && roster2 == NULL)
+		return 0;
+	if (roster1 == NULL || roster1->Status() < roster2->Status())
 		return 1;
-	if (item1->Status() > item2->Status())
-		return 2;
+	if (roster2 == NULL || roster1->Status() > roster2->Status())
+		return -1;
 	return 0;
 }
 
@@ -224,7 +236,7 @@ RosterListView::Draw(BRect updateRect)
 
 
 bool
-RosterListView::AddItem(RosterItem* item)
+RosterListView::AddItem(BListItem* item)
 {
 	item->Deselect();
 	bool ret = false;
@@ -235,11 +247,11 @@ RosterListView::AddItem(RosterItem* item)
 }
 
 
-void
-RosterListView::RemoveItem(RosterItem* item)
+bool
+RosterListView::RemoveItem(BListItem* item)
 {
 	item->Deselect();
-	BListView::RemoveItem(item);
+	return BListView::RemoveItem(item);
 }
 
 

@@ -16,6 +16,7 @@
 
 #include "Server.h"
 
+class BStringItem;
 class BTextControl;
 class RosterItem;
 class RosterListView;
@@ -33,6 +34,10 @@ public:
 			void		SetInvocationMessage(BMessage* msg);
 
 			void		SetAccount(bigtime_t instance_id);
+			void		SetManualString(const char* text) { fManualStr = text; }
+
+			int64		GetAccount() { return fAccount; }
+		BTextControl*	SearchBox()  { return fSearchBox; }
 			
 			void		UpdateListItem(RosterItem* item);		
 
@@ -45,6 +50,9 @@ private:
 	RosterListView*		fListView;
 	BTextControl*		fSearchBox;
 	bigtime_t			fAccount;
+
+	BStringItem*		fManualItem;
+	BString				fManualStr;
 };
 
 #endif // _ROSTER_VIEW_H

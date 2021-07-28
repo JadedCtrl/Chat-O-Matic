@@ -16,6 +16,7 @@
 #include <LayoutBuilder.h>
 #include <Notification.h>
 #include <ScrollView.h>
+#include <StringItem.h>
 
 #include "AppMessages.h"
 #include "AppPreferences.h"
@@ -36,7 +37,9 @@ RosterView::RosterView(const char* title, Server* server, bigtime_t account)
 	:
 	BGroupView(title, B_VERTICAL, B_USE_DEFAULT_SPACING),
 	fAccount(-1),
-	fServer(server)
+	fServer(server),
+	fManualItem(new BStringItem("")),
+	fManualStr("Select user %user%" B_UTF8_ELLIPSIS)
 {
 	fSearchBox = new BTextControl("searchBox", "", "",
 		new BMessage(kSearchContact));
@@ -80,6 +83,18 @@ RosterView::MessageReceived(BMessage* message)
 					fListView->AddItem(item);
 				UpdateListItem(item);
 			}
+
+			// If view has specific account selected, we want the user to be
+			// able to select non-contacts of that protocol
+			if (fAccount != - 1 && strcmp(fSearchBox->Text(), "") != 0) {
+				BString label = fManualStr;
+				label.ReplaceAll("%user%", fSearchBox->Text());
+
+				fManualItem->SetText(label.String());
+				fListView->AddItem(fManualItem);
+			}
+			else if (fListView->HasItem(fManualItem))
+				fListView->RemoveItem(fManualItem);
 			break;
 		}
 		case IM_MESSAGE:
@@ -132,9 +147,6 @@ RosterView::ImMessage(BMessage* msg)
 				}
 
 				UpdateListItem(rosterItem);
-
-				// Sort list view again
-				fListView->Sort();
 
 				// Check if the user want the notification
 				if (!AppPreferences::Item()->NotifyContactStatus)
@@ -223,6 +235,7 @@ RosterView::SetInvocationMessage(BMessage* msg)
 {
 	fListView->SetInvocationMessage(msg);
 }
+
 
 void
 RosterView::SetAccount(bigtime_t instance_id)

@@ -41,6 +41,9 @@ const uint32 kEditMember = 'RWEM';
 const uint32 kSelAccount = 'RWSA';
 const uint32 kSelNoAccount = 'RWNA';
 
+const char* kAddTitle = B_TRANSLATE("Adding contact");
+const char* kEditTitle = B_TRANSLATE("Editing contact");
+
 RosterEditWindow* RosterEditWindow::fInstance = NULL;
 
 
@@ -53,6 +56,8 @@ RosterEditWindow::RosterEditWindow(Server* server)
 {
 	fRosterView = new RosterView("buddyView", server);
 	fRosterView->SetInvocationMessage(new BMessage(kEditMember));
+	fRosterView->SetManualString(BString("Add %user% as contact"
+		B_UTF8_ELLIPSIS));
 
 	fAccountField = new BMenuField("accountMenuField", NULL,
 		new AccountsMenu("accountMenu", BMessage(kSelAccount),
@@ -128,26 +133,54 @@ RosterEditWindow::MessageReceived(BMessage* message)
 
 			int index = message->FindInt32("index");
 			RosterItem* ritem = fRosterView->ListView()->RosterItemAt(index);
-			if (ritem == NULL)
-				return;
+			const char* search = fRosterView->SearchBox()->Text();
+			User* user;
+			BString user_id;
+			int64 instance;
 
-			User* user = ritem->GetContact();
-			fEditingUser.SetTo(user->GetId().String());
+			if (ritem != NULL) {
+				user = ritem->GetContact();
+				user_id = user->GetId();
+				instance = user->GetProtocolLooper()->GetInstance();
+			}
+			else if (search != NULL) {
+				user_id = search;
+				instance = fRosterView->GetAccount();
+			}
+			else
+				break;
+
+			fEditingUser.SetTo(user_id.String());
 
 			// The response IM_EXTENDED_CONTACT_INFO is used to populate the
-			// TemplateWindow.
-			BMessage* request = new BMessage(IM_MESSAGE);
-			request->AddInt32("im_what", IM_GET_EXTENDED_CONTACT_INFO);
-			request->AddString("user_id", user->GetId());
-			user->GetProtocolLooper()->PostMessage(request);
+			// TemplateWindow― if we're editing a pre-existing contact
+			if (ritem != NULL) {
+				user = ritem->GetContact();
+				BMessage* request = new BMessage(IM_MESSAGE);
+				request->AddInt32("im_what", IM_GET_EXTENDED_CONTACT_INFO);
+				request->AddString("user_id", user_id);
+				user->GetProtocolLooper()->PostMessage(request);
+			}
 
 			BMessage* edit = new BMessage(IM_MESSAGE);
 			edit->AddInt32("im_what", IM_CONTACT_LIST_EDIT_CONTACT);
 
+			const char* title;
+			if (ritem == NULL)
+				title = kAddTitle;
+			else
+				title = kEditTitle;
+
 			fEditingWindow =
-				new TemplateWindow(B_TRANSLATE("Editing contact"), "roster",
-					edit, fServer, user->GetProtocolLooper()->GetInstance());
+				new TemplateWindow(title, "roster",
+					edit, fServer, instance);
 			fEditingWindow->Show();
+
+			if (ritem == NULL) {
+				BMessage* idMsg = new BMessage(IM_MESSAGE);
+				idMsg->AddString("user_id", user_id);
+				fEditingWindow->PostMessage(idMsg);
+			}
 			break;
 		}
 		case kAddMember:
@@ -155,7 +188,7 @@ RosterEditWindow::MessageReceived(BMessage* message)
 			BMessage* add = new BMessage(IM_MESSAGE);
 			add->AddInt32("im_what", IM_CONTACT_LIST_ADD_CONTACT);
 			TemplateWindow* win =
-				new TemplateWindow(B_TRANSLATE("Adding contact"), "roster",
+				new TemplateWindow(B_TRANSLATE(kAddTitle), "roster",
 					add, fServer);
 			win->Show();
 			break;
