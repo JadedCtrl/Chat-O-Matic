@@ -828,6 +828,7 @@ PurpleApp::_ParseAccountTemplate(BMessage* settings)
 	}
 	fAccounts.AddItem(settings->FindString("account_name"), username);
 	purple_account_set_enabled(account, PURPLE_UI_ID, true);
+	purple_account_set_ui_bool(account, PURPLE_UI_ID, "auto-login", false);
 }
 
 
