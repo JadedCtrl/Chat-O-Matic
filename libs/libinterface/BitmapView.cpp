@@ -22,6 +22,7 @@ BitmapView::BitmapView(const char* name, uint32 flags)
 	:
 	BView(name, flags | B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE),
 	fBitmap(NULL),
+	fIsSquare(false),
 	fWidth(kMinWidth),
 	fHeight(kMinHeight)
 {
@@ -97,6 +98,13 @@ BitmapView::SetBitmap(const BBitmap* bitmap)
 }
 
 
+void
+BitmapView::SetSquare(bool isSquare)
+{
+	fIsSquare = isSquare;
+}
+
+
 BSize
 BitmapView::MinSize()
 {
@@ -131,5 +139,30 @@ BitmapView::Draw(BRect frame)
 	SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
 
 	DrawBitmap(fBitmap, fBitmap->Bounds(),
-		Bounds(), B_FILTER_BITMAP_BILINEAR);
+		_ViewBounds(), B_FILTER_BITMAP_BILINEAR);
+}
+
+
+BRect
+BitmapView::_ViewBounds()
+{
+	BRect bounds = Bounds();
+	if (fIsSquare == false || bounds.Height() == bounds.Width())
+		return bounds;
+
+	BPoint lt = bounds.LeftTop();
+	BPoint rb = bounds.RightBottom();
+	float diff = 0.0;
+
+	if (bounds.Height() > bounds.Width()) {
+		diff = bounds.Height() - bounds.Width();
+		lt -= BPoint(0.0, diff / 2);
+		rb += BPoint(0.0, diff / 2);
+	}
+	else if (bounds.Width() > bounds.Height()) {
+		diff = bounds.Height() - bounds.Width();
+		lt -= BPoint(diff / 2, 0.0);
+		rb += BPoint(diff / 2, 0.0);
+	}
+	return BRect(lt, rb);
 }

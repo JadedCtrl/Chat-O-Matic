@@ -286,6 +286,7 @@ ConversationView::_InitInterface()
 	fIcon->SetExplicitMinSize(BSize(50, 50));
 	fIcon->SetExplicitPreferredSize(BSize(50, 50));
 	fIcon->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT, B_ALIGN_MIDDLE));
+	fIcon->SetSquare(true);
 
 	fProtocolView = new BitmapView("protocolView");
 

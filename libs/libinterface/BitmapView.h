@@ -23,6 +23,7 @@ public:
 
 				status_t	SetBitmap(const char* filename);
 				status_t	SetBitmap(const BBitmap* bitmap);
+				void		SetSquare(bool isSquare);
 
 	virtual 	BSize		MinSize();
 	virtual 	BSize		MaxSize();
@@ -31,7 +32,10 @@ public:
 	virtual		void		Draw(BRect frame);
 
 private:
+				BRect		_ViewBounds();
+
 				BBitmap*	fBitmap;
+				bool		fIsSquare;
 				float		fWidth;
 				float		fHeight;
 };
