@@ -46,8 +46,8 @@ const uint32 kLogin			= 'LOGI';
 
 MainWindow::MainWindow()
 	:
-	BWindow(BRect(0, 0, 600, 400), B_TRANSLATE_SYSTEM_NAME(APP_NAME),
-		B_TITLED_WINDOW, 0),
+	BWindow(AppPreferences::Get()->MainWindowRect,
+		B_TRANSLATE_SYSTEM_NAME(APP_NAME), B_TITLED_WINDOW, 0),
 	fWorkspaceChanged(false),
 	fConversation(NULL),
 	fRosterWindow(NULL),
@@ -58,10 +58,6 @@ MainWindow::MainWindow()
 	// Filter messages using Server
 	fServer = new Server();
 	AddFilter(fServer);
-
-	// Also through the editing filter (enter to send)
-
-	CenterOnScreen();
 
 	//TODO check for errors here
 	ReplicantStatusView::InstallReplicant();
@@ -89,6 +85,8 @@ MainWindow::QuitRequested()
 		alert->SetShortcut(0, B_ESCAPE);
 		button_index = alert->Go();
 	}
+
+	AppPreferences::Get()->MainWindowRect = Frame();
 
 	if(button_index == 0) {
 		fServer->Quit();

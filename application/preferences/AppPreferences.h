@@ -7,6 +7,7 @@
 #ifndef _APP_PREFERENCES_H
 #define _APP_PREFERENCES_H
 
+#include <Rect.h>
 #include <SupportDefs.h>
 
 
@@ -32,6 +33,8 @@ public:
 			bool 	IgnoreEmoticons;
 			
 			bool	HideOffline;
+
+			BRect	MainWindowRect;
 
 private:
 	 const char*	_PreferencesPath();

@@ -45,6 +45,8 @@ AppPreferences::Load()
 	DisableQuitConfirm = settings.GetBool("DisableQuitConfirm", false);
 	IgnoreEmoticons = settings.GetBool("IgnoreEmoticons", true);
 	HideOffline = settings.GetBool("HideOffline", false);
+
+	MainWindowRect = settings.GetRect("MainWindowRect", BRect(0, 0, 600, 400));
 }
 
 
@@ -67,6 +69,8 @@ AppPreferences::Save()
 	settings.AddBool("DisableQuitConfirm", DisableQuitConfirm);
 	settings.AddBool("IgnoreEmoticons", IgnoreEmoticons);
 	settings.AddBool("HideOffline", HideOffline);
+
+	settings.AddRect("MainWindowRect", MainWindowRect);
 
 	if (file.InitCheck() == B_OK)
 		settings.Flatten(&file);
