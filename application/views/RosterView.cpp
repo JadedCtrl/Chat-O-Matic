@@ -149,7 +149,7 @@ RosterView::ImMessage(BMessage* msg)
 				UpdateListItem(rosterItem);
 
 				// Check if the user want the notification
-				if (!AppPreferences::Item()->NotifyContactStatus)
+				if (!AppPreferences::Get()->NotifyContactStatus)
 					break;
 
 				switch (status) {

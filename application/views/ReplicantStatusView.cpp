@@ -361,7 +361,7 @@ instantiate_deskbar_item(void)
 status_t
 ReplicantStatusView::InstallReplicant()
 {
-	if (AppPreferences::Item()->DisableReplicant == true)
+	if (AppPreferences::Get()->DisableReplicant == true)
 		return B_OK;
 	
 	BDeskbar deskbar;

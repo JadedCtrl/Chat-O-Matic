@@ -138,23 +138,23 @@ PreferencesBehavior::AttachedToWindow()
 	fDisableQuitConfirm->SetTarget(this);
 	
 	fHideOffline->SetValue(
-		AppPreferences::Item()->HideOffline);
+		AppPreferences::Get()->HideOffline);
 	fToCurrentWorkspace->SetValue(
-		AppPreferences::Item()->MoveToCurrentWorkspace);
+		AppPreferences::Get()->MoveToCurrentWorkspace);
 	fRaiseUserIsTyping->SetValue(
-		AppPreferences::Item()->RaiseUserIsTyping);
+		AppPreferences::Get()->RaiseUserIsTyping);
 	fRaiseOnMessageReceived->SetValue(
-		AppPreferences::Item()->RaiseOnMessageReceived);
+		AppPreferences::Get()->RaiseOnMessageReceived);
 	fMarkUnreadWindow->SetValue(
-		AppPreferences::Item()->MarkUnreadWindow);
+		AppPreferences::Get()->MarkUnreadWindow);
 	fNotifyProtocols->SetValue(
-		AppPreferences::Item()->NotifyProtocolStatus);
+		AppPreferences::Get()->NotifyProtocolStatus);
 	fNotifyContactStatus->SetValue(
-		AppPreferences::Item()->NotifyContactStatus);
+		AppPreferences::Get()->NotifyContactStatus);
 	fNotifyNewMessage->SetValue(
-		AppPreferences::Item()->NotifyNewMessage);
+		AppPreferences::Get()->NotifyNewMessage);
 	fDisableQuitConfirm->SetValue(
-		AppPreferences::Item()->DisableQuitConfirm);
+		AppPreferences::Get()->DisableQuitConfirm);
 }
 
 
@@ -163,39 +163,39 @@ PreferencesBehavior::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kHideOffline:
-			AppPreferences::Item()->HideOffline
+			AppPreferences::Get()->HideOffline
 				= fHideOffline->Value();
 			break;
 		case kToCurrentWorkspace:
-			AppPreferences::Item()->MoveToCurrentWorkspace
+			AppPreferences::Get()->MoveToCurrentWorkspace
 				= fToCurrentWorkspace->Value();
 			break;
 		case kRaiseOnMessageReceived:
-			AppPreferences::Item()->RaiseOnMessageReceived
+			AppPreferences::Get()->RaiseOnMessageReceived
 				= fRaiseOnMessageReceived->Value();
 			break;
 		case kRaiseUserIsTyping:
-			AppPreferences::Item()->RaiseUserIsTyping
+			AppPreferences::Get()->RaiseUserIsTyping
 				= fRaiseUserIsTyping->Value();
 			break;
 		case kNotifyProtocolsLogin:
-			AppPreferences::Item()->NotifyProtocolStatus
+			AppPreferences::Get()->NotifyProtocolStatus
 				= fNotifyProtocols->Value();
 			break;
 		case kNotifyContactStatus:
-			AppPreferences::Item()->NotifyContactStatus
+			AppPreferences::Get()->NotifyContactStatus
 				= fNotifyContactStatus->Value();
 			break;
 		case kNotifyNewMessage:
-			AppPreferences::Item()->NotifyNewMessage
+			AppPreferences::Get()->NotifyNewMessage
 				= fNotifyNewMessage->Value();
 			break;
 		case kMarkUnreadWindow:
-			AppPreferences::Item()->MarkUnreadWindow
+			AppPreferences::Get()->MarkUnreadWindow
 				= fMarkUnreadWindow->Value();
 			break;
 		case kDisablePrompt:
-			AppPreferences::Item()->DisableQuitConfirm
+			AppPreferences::Get()->DisableQuitConfirm
 				= fDisableQuitConfirm->Value();
 			break;
 		default:

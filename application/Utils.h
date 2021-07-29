@@ -31,6 +31,8 @@ BString		CommandArgs(BString line);
 
 BResources* ChatResources();
 
+const char*	SettingsPath();
+
 const char*	AccountsPath();
 const char*	AccountPath(const char* signature, const char* subsignature);
 

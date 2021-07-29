@@ -113,16 +113,29 @@ ChatResources()
 
 
 const char*
-AccountsPath()
+SettingsPath()
 {
 	BPath path;
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
 		return NULL;
 
-	path.Append(APP_NAME "/Accounts");
+	path.Append(APP_NAME);
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
+	return path.Path();
+}
 
+
+const char*
+AccountsPath()
+{
+	BPath path(SettingsPath());
+	if (path.InitCheck() != B_OK)
+		return NULL;
+
+	path.Append("Accounts");
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
 	return path.Path();
 }
 
@@ -148,10 +161,11 @@ AccountPath(const char* signature, const char* subsignature)
 const char*
 CachePath()
 {
-	BPath path;
-	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
+	BPath path(SettingsPath());
+	if (path.InitCheck() != B_OK)
 		return NULL;
-	path.Append(APP_NAME "/Cache");
+
+	path.Append("Cache");
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
 	return path.Path();
@@ -165,6 +179,7 @@ AccountCachePath(const char* accountName)
 	path.Append("Accounts");
 	if (path.InitCheck() != B_OK)
 		return NULL;
+
 	path.Append(accountName);
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
@@ -178,6 +193,7 @@ RoomsCachePath(const char* accountName)
 	BPath path(AccountCachePath(accountName));
 	if (path.InitCheck() != B_OK)
 		return NULL;
+
 	path.Append("Rooms");
 	if (create_directory(path.Path(), 0755) != B_OK)
 		return NULL;
@@ -189,7 +205,9 @@ const char*
 RoomCachePath(const char* accountName, const char* roomIdentifier)
 {
 	BPath path(RoomsCachePath(accountName));
-	if (path.InitCheck() != B_OK)	return NULL;
+	if (path.InitCheck() != B_OK)
+		return NULL;
+
 	path.Append(roomIdentifier);
 	return path.Path();
 }
@@ -199,9 +217,12 @@ const char*
 UserCachePath(const char* accountName, const char* userIdentifier)
 {
 	BPath path(AccountCachePath(accountName));
-	if (path.InitCheck() != B_OK)	return NULL;
+	if (path.InitCheck() != B_OK)
+		return NULL;
+
 	path.Append("Users");
-	if (create_directory(path.Path(), 0755) != B_OK)	return NULL;
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
 	path.Append(userIdentifier);
 	return path.Path();
 }
@@ -211,9 +232,12 @@ const char*
 ContactCachePath(const char* accountName, const char* userIdentifier)
 {
 	BPath path(AccountCachePath(accountName));
-	if (path.InitCheck() != B_OK)	return NULL;
+	if (path.InitCheck() != B_OK)
+		return NULL;
 	path.Append("Contacts");
-	if (create_directory(path.Path(), 0755) != B_OK)	return NULL;
+
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
 	path.Append(userIdentifier);
 	return path.Path();
 }

@@ -96,7 +96,7 @@ Conversation::ImMessage(BMessage* msg)
 				|| (text.IFindFirst(contact->GetName()) != B_ERROR));
 
 			// Send a notification, if appropriate
-			if (winFocused  == false && AppPreferences::Item()->NotifyNewMessage
+			if (winFocused  == false && AppPreferences::Get()->NotifyNewMessage
 				&& (fUsers.CountItems() <= 2 || mentioned == true))
 			{
 				BString notifyTitle = B_TRANSLATE("New mention");

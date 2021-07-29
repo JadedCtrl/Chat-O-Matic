@@ -36,7 +36,7 @@ PreferencesReplicant::PreferencesReplicant()
 		B_TRANSLATE("Disable deskbar replicant"),
 		new BMessage(kDisableReplicant));
 
-	if (!AppPreferences::Item()->HideDeskbar)
+	if (!AppPreferences::Get()->HideDeskbar)
 		Looper()->PostMessage(new BMessage(kDisableReplicant));
 
 	fPermanentReplicant = new BCheckBox("PermanentReplicant",
@@ -72,9 +72,9 @@ PreferencesReplicant::AttachedToWindow()
 	fDisableReplicant->SetTarget(this);
 
 	fHideDeskbar->SetValue(
-		AppPreferences::Item()->HideDeskbar);
+		AppPreferences::Get()->HideDeskbar);
 	fDisableReplicant->SetValue(
-		AppPreferences::Item()->DisableReplicant);
+		AppPreferences::Get()->DisableReplicant);
 }
 
 
@@ -83,11 +83,11 @@ PreferencesReplicant::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kHideDeskbar:
-			AppPreferences::Item()->HideDeskbar
+			AppPreferences::Get()->HideDeskbar
 				= fHideDeskbar->Value();
 			break;
 		case kDisableReplicant:
-			AppPreferences::Item()->DisableReplicant
+			AppPreferences::Get()->DisableReplicant
 				= fDisableReplicant->Value();
 
 			if (fDisableReplicant->Value() == true)

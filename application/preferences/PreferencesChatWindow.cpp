@@ -53,7 +53,7 @@ void
 PreferencesChatWindow::AttachedToWindow()
 {
 	fIgnoreEmoticons->SetTarget(this);
-	fIgnoreEmoticons->SetValue(AppPreferences::Item()->IgnoreEmoticons);
+	fIgnoreEmoticons->SetValue(AppPreferences::Get()->IgnoreEmoticons);
 }
 
 
@@ -62,7 +62,7 @@ PreferencesChatWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kIgnoreEmoticons:
-			AppPreferences::Item()->IgnoreEmoticons
+			AppPreferences::Get()->IgnoreEmoticons
 				= fIgnoreEmoticons->Value();
 			break;
 		default:

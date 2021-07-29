@@ -18,6 +18,7 @@
 #include <Application.h>
 #include <Catalog.h>
 #include <Debug.h>
+#include <Directory.h>
 #include <Entry.h>
 #include <Notification.h>
 #include <Path.h>
@@ -136,7 +137,7 @@ Server::Filter(BMessage* message, BHandler **target)
 				return result;
 
 			// "Whoops" notification
-			if (AppPreferences::Item()->NotifyProtocolStatus == true
+			if (AppPreferences::Get()->NotifyProtocolStatus == true
 					&& message->FindString("name", &name) == B_OK) {
 				BBitmap* icon = new BBitmap(message);
 				BString content(B_TRANSLATE("%user% has been disabled!"));
@@ -552,7 +553,7 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindFloat("progress", &progress) != B_OK)
 				return result;
 
-			if (!AppPreferences::Item()->NotifyProtocolStatus)
+			if (!AppPreferences::Get()->NotifyProtocolStatus)
 				break;
 
 			BNotification notification(B_PROGRESS_NOTIFICATION);
@@ -586,7 +587,7 @@ Server::ImMessage(BMessage* msg)
 			fAccountEnabled.AddItem(looper->Protocol()->GetName(), true);
 
 			// Ready notification
-			if (AppPreferences::Item()->NotifyProtocolStatus == true)
+			if (AppPreferences::Get()->NotifyProtocolStatus == true)
 				_ProtocolNotification(looper, BString(B_TRANSLATE("Connected")),
 					BString(B_TRANSLATE("%user% has connected!")));
 

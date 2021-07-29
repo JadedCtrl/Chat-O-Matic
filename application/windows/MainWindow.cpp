@@ -80,7 +80,7 @@ bool
 MainWindow::QuitRequested()
 {
 	int32 button_index = 0;
-	if(!AppPreferences::Item()->DisableQuitConfirm)
+	if(!AppPreferences::Get()->DisableQuitConfirm)
 	{
 		BAlert* alert = new BAlert(B_TRANSLATE("Closing"),
 			B_TRANSLATE("Are you sure you want to quit?"),

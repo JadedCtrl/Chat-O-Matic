@@ -1,54 +1,42 @@
 /*
  * Copyright 2010, Oliver Ruiz Dorantes. All rights reserved.
  * Copyright 2012, Casalinuovo Dario. All rights reserved.
- * Distributed under the terms of the MIT License.
+ * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
+ * All rights reserved. Distributed under the terms of the MIT license.
  */
 #ifndef _APP_PREFERENCES_H
 #define _APP_PREFERENCES_H
 
-#include "PreferencesContainer.h"
+#include <SupportDefs.h>
 
 
-class AppPreferencesData : public BFlattenable {
+class AppPreferences {
 public:
-							AppPreferencesData();
-	virtual					~AppPreferencesData();
+ static AppPreferences*	Get();
 
-	virtual	bool			IsFixedSize() const;
-	virtual	type_code		TypeCode() const;
-	virtual	bool			AllowsTypeCode(type_code code) const;
-	virtual	ssize_t			FlattenedSize() const;
+			void	Load();
+			void	Save();
 
-			status_t 		Flatten(BPositionIO* flatData) const;
-	virtual	status_t		Flatten(void* buffer, ssize_t size) const;
-	virtual	status_t		Unflatten(type_code code, const void* buffer,
-								ssize_t size);
-			status_t		Unflatten(type_code code, BPositionIO* flatData);
+			bool 	MoveToCurrentWorkspace;
+			bool 	RaiseOnMessageReceived;
+			bool 	RaiseUserIsTyping;
+			bool	MarkUnreadWindow;
+			bool 	NotifyProtocolStatus;
+			bool 	NotifyContactStatus;
+			bool	NotifyNewMessage;
 
-			bool 			MoveToCurrentWorkspace;
-			bool 			RaiseOnMessageReceived;
-			bool 			RaiseUserIsTyping;
-			bool			MarkUnreadWindow;
-			bool 			NotifyProtocolStatus;
-			bool 			NotifyContactStatus;
-			bool			NotifyNewMessage;
+			bool 	HideDeskbar;
+			bool 	DisableReplicant;
+			bool	DisableQuitConfirm;
 
-			bool 			HideDeskbar;
-			bool 			DisableReplicant;
-			bool			DisableQuitConfirm;
-
-			bool 			IgnoreEmoticons;
+			bool 	IgnoreEmoticons;
 			
-			bool			HideOffline;
-private:
-			void 			_AddBool(BPositionIO* data, bool value) const;
-			void 			_AddString(BPositionIO* data,
-								const char* value) const;
+			bool	HideOffline;
 
-			bool			_ReadBool(BPositionIO* data);
-			const char* 	_ReadString(BPositionIO* data);
+private:
+	 const char*	_PreferencesPath();
+
+	static AppPreferences* fInstance;
 };
 
-typedef PreferencesContainer<AppPreferencesData> AppPreferences;
-
-#endif	// _APP_PREFERENCES_H
+#endif // _APP_PREFERENCES_H
