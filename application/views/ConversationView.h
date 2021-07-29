@@ -24,8 +24,7 @@ class UserListView;
 
 class ConversationView : public BGroupView, public Observer, public Notifier {
 public:
-						ConversationView();
-						ConversationView(Conversation* chat);
+						ConversationView(Conversation* chat = NULL);
 
 	virtual	bool		QuitRequested();
 	virtual void		AttachedToWindow();
@@ -53,6 +52,11 @@ private:
 
 			void		_UserMessage(const char* format, const char* bodyFormat,
 									 BMessage* msg);
+
+			// When the user hasn't joined any real conversations
+			void		_FakeChat();
+			void		_FakeChatNoRooms();
+			void		_FakeChatNoAccounts();
 
 		Conversation* fConversation;
 		BObjectList<BMessage> fMessageQueue;

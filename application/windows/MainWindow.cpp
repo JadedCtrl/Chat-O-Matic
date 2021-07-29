@@ -270,16 +270,19 @@ MainWindow::ImMessage(BMessage* msg)
 		case IM_STATUS_SET:
 		case IM_CONTACT_INFO:
 		case IM_EXTENDED_CONTACT_INFO:
-		case IM_CONTACT_LIST_CONTACT_REMOVED:
+		case IM_CONTACT_LIST_CONTACT_REMOVED: {
 			if (fRosterWindow != NULL)
 				fRosterWindow->PostMessage(msg);
 			if (RosterEditWindow::Check() == true)
 				RosterEditWindow::Get(fServer)->PostMessage(msg);
 			break;
-
-		case IM_PROTOCOL_READY:
+		}
+		case IM_PROTOCOL_READY: {
+			if (fConversation == NULL)
+				fChatView->MessageReceived(msg);
 			_ToggleMenuItems();
 			break;
+		}
 	}
 }
 
