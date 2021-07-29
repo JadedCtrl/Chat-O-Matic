@@ -391,6 +391,7 @@ MainWindow::RemoveConversation(Conversation* chat)
 	}
 	else
 		fListView->SelectConversation(index);
+	_ToggleMenuItems();
 }
 
 
@@ -488,16 +489,27 @@ void
 MainWindow::_ToggleMenuItems()
 {
 	BMenuItem* chatMenuItem = fMenuBar->FindItem(B_TRANSLATE("Chat"));
+	BMenuItem* rosterMenuItem = fMenuBar->FindItem(B_TRANSLATE("Roster"));
 	BMenu* chatMenu = chatMenuItem->Submenu();
-	if (chatMenuItem == NULL || chatMenu == NULL)
+	BMenu* rosterMenu = rosterMenuItem->Submenu();
+
+	if (chatMenu == NULL || rosterMenu == NULL)
 		return;
 
-	bool enabled = false;
-	if (fServer != NULL && fServer->GetAccounts().CountItems() > 0)
-		enabled = true;
+	bool enabled = (fServer != NULL && fServer->GetAccounts().CountItems() > 0);
 
 	for (int i = 0; i < chatMenu->CountItems(); i++)
 		chatMenu->ItemAt(i)->SetEnabled(enabled);
+
+	for (int i = 0; i < rosterMenu->CountItems(); i++)
+		rosterMenu->ItemAt(i)->SetEnabled(enabled);
+
+	BMenuItem* windowMenuItem = fMenuBar->FindItem(B_TRANSLATE("Window"));
+	BMenu* windowMenu = windowMenuItem->Submenu();
+	enabled = (fListView->CountConversations() > 0);
+
+	for (int i = 0; i < windowMenu->CountItems(); i++)
+		windowMenu->ItemAt(i)->SetEnabled(enabled);
 }
 
 
@@ -513,8 +525,10 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 	if (chat != NULL) {
 		if (fListView->HasItem(item))
 			fListView->InvalidateItem(fListView->IndexOf(item));
-		else if (item != NULL)
+		else if (item != NULL) {
 			fListView->AddConversation(chat);
+			_ToggleMenuItems();
+		}
 
 		if (fListView->CountConversations() == 1)
 			fListView->SelectConversation(0);
