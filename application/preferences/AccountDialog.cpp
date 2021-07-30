@@ -135,8 +135,6 @@ AccountDialog::MessageReceived(BMessage* msg)
 		case kCancel:
 			Close();
 			break;
-		case kChanged:
-			break;
 		default:
 			BWindow::MessageReceived(msg);
 	}

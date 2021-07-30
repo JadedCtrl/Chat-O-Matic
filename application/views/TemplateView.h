@@ -8,9 +8,6 @@
 #include <View.h>
 
 
-const uint32 kChanged      = 'CHGD';
-
-
 class TemplateView : public BView {
 public:
 					TemplateView(const char* name);

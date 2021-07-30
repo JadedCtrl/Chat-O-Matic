@@ -24,8 +24,6 @@
 #include <StringView.h>
 #include <TextControl.h>
 
-#include <libinterface/NotifyingTextView.h>
-
 #include "ChatProtocol.h"
 #include "ChatProtocolAddOn.h"
 #include "Utils.h"
@@ -219,8 +217,7 @@ ProtocolTemplate::Load(BView* parent, BMessage* settings)
 						B_WILL_DRAW);
 					layout.Add(label);
 
-					NotifyingTextView* textView
-						= new NotifyingTextView(name);
+					BTextView* textView = new BTextView(name);
 					control = new BScrollView("NA", textView, 0, false, true);
 					textView->SetText(value);			
 				}
@@ -314,8 +311,7 @@ ProtocolTemplate::Save(BView* parent, BMessage* settings, BString* errorText)
 		if (checkBox)
 			settings->AddBool(name, (checkBox->Value() == B_CONTROL_ON));
 
-		NotifyingTextView* textView
-			= dynamic_cast<NotifyingTextView*>(view);
+		BTextView* textView = dynamic_cast<BTextView*>(view);
 		if (textView)
 			settings->AddString(name, textView->Text());
 	}
