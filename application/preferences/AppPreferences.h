@@ -34,6 +34,9 @@ public:
 			
 			bool	HideOffline;
 
+			float	MainWindowListWeight;
+			float	MainWindowChatWeight;
+
 			BRect	MainWindowRect;
 
 private:

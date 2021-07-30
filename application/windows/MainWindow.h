@@ -11,7 +11,6 @@
 
 #include "Observer.h"
 
-//class BMenubar;
 class BSplitView;
 class BTextView;
 
@@ -66,6 +65,7 @@ private:
 	// Left panel, chat list
 	ConversationListView* fListView;
 	StatusView*			fStatusView;
+	BSplitView*			fSplitView;
 
 	// Right panel, chat
 	BSplitView*			fRightView;

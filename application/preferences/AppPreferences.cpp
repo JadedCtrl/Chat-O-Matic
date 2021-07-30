@@ -46,6 +46,9 @@ AppPreferences::Load()
 	IgnoreEmoticons = settings.GetBool("IgnoreEmoticons", true);
 	HideOffline = settings.GetBool("HideOffline", false);
 
+	MainWindowListWeight = settings.GetFloat("MainWindowListWeight", 1);
+	MainWindowChatWeight = settings.GetFloat("MainWindowChatWeight", 5);
+
 	MainWindowRect = settings.GetRect("MainWindowRect", BRect(0, 0, 600, 400));
 }
 
@@ -54,7 +57,7 @@ void
 AppPreferences::Save()
 {
 	const char* path = _PreferencesPath();
-	BFile file(_PreferencesPath(), B_WRITE_ONLY);
+	BFile file(_PreferencesPath(), B_WRITE_ONLY | B_CREATE_FILE);
 
 	BMessage settings;
 	settings.AddBool("MoveToCurrentWorkpace", MoveToCurrentWorkspace);
@@ -69,6 +72,9 @@ AppPreferences::Save()
 	settings.AddBool("DisableQuitConfirm", DisableQuitConfirm);
 	settings.AddBool("IgnoreEmoticons", IgnoreEmoticons);
 	settings.AddBool("HideOffline", HideOffline);
+
+	settings.AddFloat("MainWindowListWeight", MainWindowListWeight);
+	settings.AddFloat("MainWindowChatWeight", MainWindowChatWeight);
 
 	settings.AddRect("MainWindowRect", MainWindowRect);
 

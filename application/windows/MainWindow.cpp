@@ -87,6 +87,8 @@ MainWindow::QuitRequested()
 	}
 
 	AppPreferences::Get()->MainWindowRect = Frame();
+	AppPreferences::Get()->MainWindowListWeight = fSplitView->ItemWeight(0);
+	AppPreferences::Get()->MainWindowChatWeight = fSplitView->ItemWeight(1);
 
 	if(button_index == 0) {
 		fServer->Quit();
@@ -376,6 +378,9 @@ MainWindow::SetConversation(Conversation* chat)
 			chatMenu->AddItem(item);
 		}
 	}
+
+	fSplitView->SetItemWeight(0, AppPreferences::Get()->MainWindowListWeight, true);
+	fSplitView->SetItemWeight(1, AppPreferences::Get()->MainWindowChatWeight, true);
 }
 
 
@@ -411,6 +416,7 @@ MainWindow::_InitInterface()
 	// Left side of window, Roomlist + Status
 	fListView = new ConversationListView("roomList");
 	fStatusView = new StatusView("statusView");
+	fSplitView = new BSplitView(B_HORIZONTAL, 0);
 
 	// Right-side of window, Chat + Textbox
 	fRightView = new BSplitView(B_VERTICAL, 0);
@@ -420,7 +426,7 @@ MainWindow::_InitInterface()
 		.Add((fMenuBar = _CreateMenuBar()))
 		.AddGroup(B_HORIZONTAL)
 			.SetInsets(5, 5, 0, 10)
-			.AddSplit(B_HORIZONTAL, 0)
+			.AddSplit(fSplitView)
 				.AddGroup(B_VERTICAL)
 					.Add(fListView, 1)
 					.Add(fStatusView)
