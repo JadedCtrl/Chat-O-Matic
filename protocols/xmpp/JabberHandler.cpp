@@ -98,7 +98,8 @@ JabberHandler::Process(BMessage* msg)
 	msg->FindInt32("im_what", &im_what);
 
 	switch (im_what) {
-		case IM_SET_OWN_STATUS: {
+		case IM_SET_OWN_STATUS:
+		{
 			int32 status = msg->FindInt32("status");
 			BString status_msg = msg->FindString("message");
 
@@ -115,8 +116,8 @@ JabberHandler::Process(BMessage* msg)
 			}
 			break;
 		}
-
-		case IM_SEND_MESSAGE: {
+		case IM_SEND_MESSAGE:
+		{
 			const char* id = msg->FindString("chat_id");
 			const char* subject = msg->FindString("subject");
 			const char* body = msg->FindString("body");
@@ -141,8 +142,8 @@ JabberHandler::Process(BMessage* msg)
 			_MessageSent(id, subject, body);
 			break;
 		}
-
-		case IM_CREATE_CHAT: {
+		case IM_CREATE_CHAT:
+		{
 			const char* user_id = msg->FindString("user_id");
 
 			// TODO: Contact validation, make sure permssion is granted
@@ -154,23 +155,23 @@ JabberHandler::Process(BMessage* msg)
 			_ChatCreatedMsg(user_id);
 			break;
 		}
-
-		case IM_CREATE_ROOM: {
+		case IM_CREATE_ROOM:
+		{
 			BString chat_id;
 			if (msg->FindString("chat_id", &chat_id) != B_OK)
 				break;
 			_JoinRoom(chat_id);
 			break;
 		}
-
-		case IM_JOIN_ROOM: {
+		case IM_JOIN_ROOM:
+		{
 			BString chat_id;
 			if (msg->FindString("chat_id", &chat_id) == B_OK)
 				_JoinRoom(chat_id.String());
 			break;
 		}
-
-		case IM_LEAVE_ROOM: {
+		case IM_LEAVE_ROOM:
+		{
 			BString chat_id = msg->FindString("chat_id");
 			gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
 
@@ -185,8 +186,8 @@ JabberHandler::Process(BMessage* msg)
 			_SendMessage(&left);
 			break;
 		}
-
-		case IM_ROOM_INVITE_ACCEPT: {
+		case IM_ROOM_INVITE_ACCEPT:
+		{
 			BString chat_id;
 			if (msg->FindString("chat_id", &chat_id) != B_OK)
 				break;
@@ -198,8 +199,8 @@ JabberHandler::Process(BMessage* msg)
 			_JoinRoom(chat_id.String());
 			break;
 		}
-
-		case IM_ROOM_SEND_INVITE: {
+		case IM_ROOM_SEND_INVITE:
+		{
 			BString chat_id = msg->FindString("chat_id");
 			gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
 			BString user_id;
@@ -209,8 +210,8 @@ JabberHandler::Process(BMessage* msg)
 			room->invite(gloox::JID(user_id.String()), "");
 			break;
 		}
-
-		case IM_GET_ROOM_PARTICIPANTS: {
+		case IM_GET_ROOM_PARTICIPANTS:
+		{
 			BString chat_id = msg->FindString("chat_id");
 			gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
 
@@ -223,8 +224,8 @@ JabberHandler::Process(BMessage* msg)
 			}
 			break;
 		}
-
-		case IM_GET_ROOM_METADATA: {
+		case IM_GET_ROOM_METADATA:
+		{
 			BString chat_id = msg->FindString("chat_id");
 			gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
 			if (room != NULL)
@@ -240,23 +241,23 @@ JabberHandler::Process(BMessage* msg)
 			}
 			break;
 		}
-
-		case IM_ROOM_KICK_PARTICIPANT:
-		case IM_ROOM_BAN_PARTICIPANT:
-		case IM_ROOM_UNBAN_PARTICIPANT:
-		case IM_ROOM_MUTE_PARTICIPANT:
-		case IM_ROOM_UNMUTE_PARTICIPANT:
-			_MUCModeration(msg);
+		case IM_SET_ROOM_SUBJECT:
+		{
+			BString chat_id = msg->FindString("chat_id");
+			gloox::MUCRoom* room = fRooms.ValueFor(chat_id);
+			if (room != NULL)
+				room->setSubject(msg->GetString("subject", ""));
 			break;
-
-		case IM_GET_EXTENDED_CONTACT_INFO: {
+		}
+		case IM_GET_EXTENDED_CONTACT_INFO:
+		{
 			BString user_id;
 			if (msg->FindString("user_id", &user_id) == B_OK)
 				fVCardManager->fetchVCard(gloox::JID(user_id.String()), this);
 			break;
 		}
-
-		case IM_CONTACT_LIST_ADD_CONTACT: {
+		case IM_CONTACT_LIST_ADD_CONTACT:
+		{
 			BString user_name = msg->FindString("user_name");
 			BString user_id;
 			if (msg->FindString("user_id", &user_id) != B_OK)
@@ -268,8 +269,8 @@ JabberHandler::Process(BMessage* msg)
 			fClient->rosterManager()->synchronize();
 			break;
 		}
-
-		case IM_CONTACT_LIST_REMOVE_CONTACT: {
+		case IM_CONTACT_LIST_REMOVE_CONTACT:
+		{
 			BString user_id;
 			if (msg->FindString("user_id", &user_id) != B_OK)
 				break;
@@ -283,8 +284,8 @@ JabberHandler::Process(BMessage* msg)
 			_SendMessage(&rm);
 			break;
 		}
-
-		case IM_CONTACT_LIST_EDIT_CONTACT: {
+		case IM_CONTACT_LIST_EDIT_CONTACT:
+		{
 			BString user_id;
 			BString user_name = msg->FindString("user_name");
 			if (msg->FindString("user_id", &user_id) != B_OK)
@@ -300,7 +301,13 @@ JabberHandler::Process(BMessage* msg)
 			}
 			break;
 		}
-
+		case IM_ROOM_KICK_PARTICIPANT:
+		case IM_ROOM_BAN_PARTICIPANT:
+		case IM_ROOM_UNBAN_PARTICIPANT:
+		case IM_ROOM_MUTE_PARTICIPANT:
+		case IM_ROOM_UNMUTE_PARTICIPANT:
+			_MUCModeration(msg);
+			break;
 		default:
 			return B_ERROR;
 	}
