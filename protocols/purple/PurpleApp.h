@@ -144,6 +144,8 @@ private:
 							const char* message, int conv_id);
 	 static void		signal_sent_im_msg(PurpleAccount* account,
 							const char* receiver, const char* message);
+	 static void		signal_chat_topic_changed(PurpleConversation* conv,
+	 						const char* who, const char* topic);
 	 static void		signal_chat_buddy_joined(PurpleConversation* conv,
 							const char* name, PurpleConvChatBuddyFlags flags,
 							gboolean new_arrival);

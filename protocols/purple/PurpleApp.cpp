@@ -354,6 +354,16 @@ PurpleApp::ImMessage(BMessage* msg)
 			SendMessage(account, info);
 			break;
 		}
+		case IM_SET_ROOM_SUBJECT:
+		{
+			PurpleConversation* conv = _ConversationFromMessage(msg);
+			PurpleConvChat* chat = purple_conversation_get_chat_data(conv);
+			BString subject;
+
+			if (chat != NULL || msg->FindString("subject", &subject) == B_OK)
+				purple_conv_chat_set_topic(chat, NULL, subject.String());
+			break;
+		}
 		case IM_ROOM_SEND_INVITE:
 		{
 			PurpleAccount* account = _AccountFromMessage(msg);
@@ -1051,6 +1061,8 @@ init_signals()
 		&handle, PURPLE_CALLBACK(signal_sent_chat_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "sent-im-msg",
 		&handle, PURPLE_CALLBACK(signal_sent_im_msg), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "chat-topic-changed",
+		&handle, PURPLE_CALLBACK(signal_chat_topic_changed), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-buddy-joined",
 		&handle, PURPLE_CALLBACK(signal_chat_buddy_joined), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-buddy-left",
@@ -1260,6 +1272,19 @@ signal_sent_im_msg(PurpleAccount* account, const char* receiver,
 	sent.AddString("user_id", purple_account_get_username(account));
 	sent.AddString("body", purple_unescape_text(message));
 	((PurpleApp*)be_app)->SendMessage(account, sent);
+}
+
+
+static void
+signal_chat_topic_changed(PurpleConversation* conv, const char* who,
+	const char* topic)
+{
+	BMessage subject(IM_MESSAGE);
+	subject.AddInt32("im_what", IM_ROOM_SUBJECT_SET);
+	subject.AddString("chat_id", purple_conversation_get_name(conv));
+	subject.AddString("subject", topic);
+	PurpleAccount* account = purple_conversation_get_account(conv);
+	((PurpleApp*)be_app)->SendMessage(account, subject);
 }
 
 
