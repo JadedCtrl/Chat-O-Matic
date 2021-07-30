@@ -388,14 +388,6 @@ Server::ImMessage(BMessage* msg)
 			SendProtocolMessage(msg);
 			break;
 		}
-		case IM_ROOM_CREATED:
-		case IM_ROOM_JOINED:
-		{
-			Conversation* chat = _EnsureConversation(msg);
-			if (chat != NULL)
-				chat->ImMessage(msg);
-			break;
-		}
 		case IM_ROOM_PARTICIPANTS:
 		{
 			Conversation* chat = _EnsureConversation(msg);
@@ -417,35 +409,20 @@ Server::ImMessage(BMessage* msg)
 			}
 			break;
 		}
+		case IM_MESSAGE_SENT:
+		case IM_MESSAGE_RECEIVED:
+		case IM_ROOM_JOINED:
+		case IM_ROOM_CREATED:
+		case IM_ROOM_METADATA:
+		case IM_ROOM_ROLECHANGED:
 		case IM_ROOM_PARTICIPANT_JOINED:
 		case IM_ROOM_PARTICIPANT_LEFT:
 		case IM_ROOM_PARTICIPANT_BANNED:
 		case IM_ROOM_PARTICIPANT_KICKED:
 		{
 			Conversation* chat = _EnsureConversation(msg);
-			if (chat == NULL)
-				break;
-			chat->ImMessage(msg);
-			break;
-		}
-		case IM_ROOM_METADATA:
-		{
-			Conversation* chat = _EnsureConversation(msg);
 			if (chat != NULL)
 				chat->ImMessage(msg);
-			break;
-		}
-		case IM_ROOM_ROLECHANGED:
-		{
-			Conversation* chat = _EnsureConversation(msg);
-			BString user_id;
-			Role* role = _GetRole(msg);
-
-			if (chat == NULL || msg->FindString("user_id", &user_id) != B_OK
-				|| role == NULL)
-				break;
-
-			chat->SetRole(user_id, role);
 			break;
 		}
 		case IM_ROOM_NAME_SET:
@@ -454,7 +431,6 @@ Server::ImMessage(BMessage* msg)
 			Conversation* chat = _EnsureConversation(msg);
 			if (msg->FindString("chat_name", &name) != B_OK || chat == NULL)
 				break;
-
 			chat->SetNotifyName(name.String());
 			break;
 		}
@@ -464,7 +440,6 @@ Server::ImMessage(BMessage* msg)
 			Conversation* chat = _EnsureConversation(msg);
 			if (msg->FindString("subject", &subject) != B_OK || chat == NULL)
 				break;
-
 			chat->SetNotifySubject(subject.String());
 			break;
 		}
@@ -474,13 +449,6 @@ Server::ImMessage(BMessage* msg)
 			Conversation* conversation = _EnsureConversation(msg);
 			if (conversation->GetProtocolLooper())
 				conversation->GetProtocolLooper()->PostMessage(msg);
-			break;
-		}
-		case IM_MESSAGE_SENT:
-		case IM_MESSAGE_RECEIVED:
-		{
-			Conversation* item = _EnsureConversation(msg);
-			item->ImMessage(msg);
 			break;
 		}
 		case IM_ROOM_INVITE_RECEIVED:
@@ -984,25 +952,6 @@ Server::_EnsureConversation(BMessage* message)
 		}
 	}
 	return item;
-}
-
-
-Role*
-Server::_GetRole(BMessage* msg)
-{
-	if (!msg)
-		return NULL;
-
-	BString title;
-	int32 perms;
-	int32 priority;
-
-	if (msg->FindString("role_title", &title) != B_OK
-		|| msg->FindInt32("role_perms", &perms) != B_OK
-		|| msg->FindInt32("role_priority", &priority) != B_OK)
-		return NULL;
-
-	return new Role(title, perms, priority);
 }
 
 

@@ -85,7 +85,9 @@ private:
 
 	void				_EnsureCachePath();
 	User*				_EnsureUser(BMessage* msg);
-	void				_CloneUserIcon(User* user);
+	Role*				_GetRole(BMessage* msg);
+
+	void				_AdoptUserIcon(User* user);
 
 	void				_SortConversationList();
 

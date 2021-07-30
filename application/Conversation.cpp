@@ -222,6 +222,17 @@ Conversation::ImMessage(BMessage* msg)
 			RemoveUser(user);
 			break;
 		}
+		case IM_ROOM_ROLECHANGED:
+		{
+			BString user_id;
+			Role* role = _GetRole(msg);
+			if (msg->FindString("user_id", &user_id) != B_OK || role == NULL)
+				break;
+
+			SetRole(user_id, role);
+			GetView()->MessageReceived(msg);
+			break;
+		}
 		case IM_LOGS_RECEIVED:
 		default:
 			GetView()->MessageReceived(msg);
@@ -437,7 +448,6 @@ Conversation::SetRole(BString id, Role* role)
 		fRoles.RemoveItemFor(id);
 		delete oldRole;
 	}
-
 	fRoles.AddItem(id, role);
 }
 
@@ -579,7 +589,7 @@ Conversation::_EnsureUser(BMessage* msg)
 		user = serverUser;
 		GetView()->UpdateUserList(fUsers);
 
-		_CloneUserIcon(user);
+		_AdoptUserIcon(user);
 	}
 	// Not anywhere; create user
 	else if (user == NULL) {
@@ -590,7 +600,7 @@ Conversation::_EnsureUser(BMessage* msg)
 		fUsers.AddItem(id, user);
 		GetView()->UpdateUserList(fUsers);
 
-		_CloneUserIcon(user);
+		_AdoptUserIcon(user);
 	}
 
 	if (name.IsEmpty() == false) {
@@ -601,8 +611,26 @@ Conversation::_EnsureUser(BMessage* msg)
 }
 
 
+Role*
+Conversation::_GetRole(BMessage* msg)
+{
+	if (!msg)
+		return NULL;
+	BString title;
+	int32 perms;
+	int32 priority;
+
+	if (msg->FindString("role_title", &title) != B_OK
+		|| msg->FindInt32("role_perms", &perms) != B_OK
+		|| msg->FindInt32("role_priority", &priority) != B_OK)
+		return NULL;
+
+	return new Role(title, perms, priority);
+}
+
+
 void
-Conversation::_CloneUserIcon(User* user)
+Conversation::_AdoptUserIcon(User* user)
 {
 	// If it's a one-on-one chat without custom icon, steal a user's
 	if ((fUsers.CountItems() <= 2 && user->GetId() != GetOwnContact()->GetId())

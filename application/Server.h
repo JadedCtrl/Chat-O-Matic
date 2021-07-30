@@ -77,8 +77,6 @@ private:
 			Contact*		_GetOwnContact(BMessage* message);
 			Conversation*	_EnsureConversation(BMessage* message);
 
-			Role*			_GetRole(BMessage* msg);
-
 			void			_ProtocolNotification(ProtocolLooper* looper,
 								BString title, BString desc,
 								notification_type type=B_INFORMATION_NOTIFICATION);

@@ -36,6 +36,7 @@ SRCS = \
 	libs/libinterface/BitmapUtils.cpp \
 	libs/libinterface/BitmapView.cpp \
 	libs/libinterface/Divider.cpp \
+	libs/libinterface/EnterTextView.cpp \
 	libs/libinterface/MenuButton.cpp  \
 	libs/libinterface/NotifyingTextView.cpp \
 	libs/libinterface/PictureView.cpp

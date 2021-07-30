@@ -13,10 +13,12 @@
 
 SendTextView::SendTextView(const char* name, ConversationView* convView)
 	:
-	BTextView(name),
+	EnterTextView(name),
 	fConversationView(convView),
 	fCurrentIndex(0)
 {
+	SetMessage(BMessage(APP_CHAT));
+	SetTarget(convView);
 }
 
 
@@ -35,10 +37,8 @@ SendTextView::KeyDown(const char* bytes, int32 numBytes)
 
 	if ((bytes[0] == B_ENTER) && (modifiers & B_COMMAND_KEY))
 		Insert("\n");
-	else if (bytes[0] == B_ENTER)
-		fConversationView->MessageReceived(new BMessage(APP_CHAT));
 	else
-		BTextView::KeyDown(bytes, numBytes);
+		EnterTextView::KeyDown(bytes, numBytes);
 }
 
 

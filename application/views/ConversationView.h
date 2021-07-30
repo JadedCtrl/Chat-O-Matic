@@ -13,9 +13,9 @@
 #include "Observer.h"
 
 class BStringView;
-class BTextView;
 
 class BitmapView;
+class EnterTextView;
 class RenderView;
 class SendTextView;
 class User;
@@ -61,8 +61,8 @@ private:
 		Conversation* fConversation;
 		BObjectList<BMessage> fMessageQueue;
 
-		BTextView* fNameTextView;
-		BTextView* fSubjectTextView;
+		EnterTextView* fNameTextView;
+		EnterTextView* fSubjectTextView;
 		BitmapView* fProtocolView;
 		BitmapView* fIcon;
 

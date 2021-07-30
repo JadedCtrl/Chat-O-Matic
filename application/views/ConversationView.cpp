@@ -18,6 +18,7 @@
 #include <StringView.h>
 
 #include <libinterface/BitmapView.h>
+#include <libinterface/EnterTextView.h>
 
 #include "AppMessages.h"
 #include "AppPreferences.h"
@@ -185,6 +186,33 @@ ConversationView::ImMessage(BMessage* msg)
 						 msg);
 			break;
 		}
+		case IM_ROOM_ROLECHANGED:
+		{
+			BString user_id = msg->FindString("user_id");
+
+			if (user_id == fConversation->GetOwnContact()->GetId()) {
+				Role* role = fConversation->GetRole(user_id);
+				if (role == NULL)
+					break;
+				int32 perms = role->fPerms;
+				fNameTextView->MakeEditable(perms & PERM_ROOM_NAME);
+				fSubjectTextView->MakeEditable(perms & PERM_ROOM_SUBJECT);
+			}
+			break;
+		}
+		case IM_SET_ROOM_NAME:
+		case IM_SET_ROOM_SUBJECT:
+		{
+			if (fConversation == NULL)
+				return;
+			fConversation->GetProtocolLooper()->MessageReceived(msg);
+
+			// Reset to current values; if the change went through, it'll
+			// come back.
+			fNameTextView->SetText(fConversation->GetName());
+			fSubjectTextView->SetText(fConversation->GetSubject());
+			break;
+		}
 		case IM_PROTOCOL_READY:
 		{
 			fReceiveView->SetText("");
@@ -209,8 +237,21 @@ ConversationView::SetConversation(Conversation* chat)
 	if (chat == NULL)
 		return;
 	fConversation =  chat;
+
+	BMessage name(IM_MESSAGE);
+	name.AddInt32("im_what", IM_SET_ROOM_NAME);
+	name.AddString("chat_id", chat->GetId());
 	fNameTextView->SetText(chat->GetName());
+	fNameTextView->SetMessage(name, "chat_name");
+	fNameTextView->SetTarget(this);
+
+	BMessage subject(IM_MESSAGE);
+	subject.AddInt32("im_what", IM_SET_ROOM_SUBJECT);
+	subject.AddString("chat_id", chat->GetId());
 	fSubjectTextView->SetText(chat->GetSubject());
+	fSubjectTextView->SetMessage(subject, "subject");
+	fSubjectTextView->SetTarget(this);
+
 	fProtocolView->SetBitmap(chat->ProtocolBitmap());
 }
 
@@ -273,13 +314,13 @@ ConversationView::_InitInterface()
 
 	fSendView = new SendTextView("sendView", this);
 
-	fNameTextView = new BTextView("roomName", be_bold_font, NULL, B_WILL_DRAW);
+	fNameTextView = new EnterTextView("roomName", be_bold_font, NULL, B_WILL_DRAW);
 	fNameTextView->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
 	fNameTextView->SetStylable(true);
 	fNameTextView->MakeEditable(false);
 	fNameTextView->MakeResizable(true);
 
-	fSubjectTextView = new BTextView("roomSubject");
+	fSubjectTextView = new EnterTextView("roomSubject");
 	fSubjectTextView->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
 	fSubjectTextView->MakeEditable(false);
 	fSubjectTextView->MakeResizable(true);
