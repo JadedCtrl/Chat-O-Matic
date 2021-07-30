@@ -273,13 +273,16 @@ ConversationView::_InitInterface()
 
 	fSendView = new SendTextView("sendView", this);
 
-	fNameTextView = new BTextView("roomName", B_WILL_DRAW);
+	fNameTextView = new BTextView("roomName", be_bold_font, NULL, B_WILL_DRAW);
 	fNameTextView->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
+	fNameTextView->SetStylable(true);
 	fNameTextView->MakeEditable(false);
+	fNameTextView->MakeResizable(true);
 
-	fSubjectTextView = new BTextView("roomSubject", B_WILL_DRAW);
+	fSubjectTextView = new BTextView("roomSubject");
 	fSubjectTextView->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
 	fSubjectTextView->MakeEditable(false);
+	fSubjectTextView->MakeResizable(true);
 
 	fIcon = new BitmapView("ContactIcon");
 	fIcon->SetExplicitMinSize(BSize(50, 50));
