@@ -5,12 +5,13 @@
 #ifndef _SEND_TEXT_VIEW_H
 #define _SEND_TEXT_VIEW_H
 
-#include <libinterface/EnterTextView.h>
+#include <StringList.h>
+#include <TextView.h>
 
 #include "ConversationView.h"
 
 
-class SendTextView : public EnterTextView {
+class SendTextView : public BTextView {
 public:
 	SendTextView(const char* name, ConversationView* convView);
 
@@ -19,10 +20,17 @@ public:
 private:
 	void _AutoComplete();
 
+	void _AppendHistory();
+	void _UpHistory();
+	void _DownHistory();
+
 	ConversationView* fConversationView;
 
 	int32 fCurrentIndex;
 	BString fCurrentWord;
+
+	BStringList fHistory;
+	int32 fHistoryIndex;
 };
 
 #endif // _SEND_TEXT_VIEW_H

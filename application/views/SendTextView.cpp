@@ -13,12 +13,11 @@
 
 SendTextView::SendTextView(const char* name, ConversationView* convView)
 	:
-	EnterTextView(name),
+	BTextView(name),
 	fConversationView(convView),
-	fCurrentIndex(0)
+	fCurrentIndex(0),
+	fHistoryIndex(0)
 {
-	SetMessage(BMessage(APP_CHAT));
-	SetTarget(convView);
 }
 
 
@@ -31,14 +30,27 @@ SendTextView::KeyDown(const char* bytes, int32 numBytes)
 		_AutoComplete();
 		return;
 	}
-	// Reset auto-complete state if user typed/sent something
+	// Reset auto-complete state if user typed/sent something other than tab
 	fCurrentIndex = 0;
 	fCurrentWord.SetTo("");
 
+	if ((bytes[0] == B_UP_ARROW) && (modifiers == 0)) {
+		_UpHistory();
+		return;
+	}
+	else if ((bytes[0] == B_DOWN_ARROW) && (modifiers == 0)) {
+		_DownHistory();
+		return;
+	}
+
 	if ((bytes[0] == B_ENTER) && (modifiers & B_COMMAND_KEY))
 		Insert("\n");
+	else if ((bytes[0] == B_ENTER) && (modifiers == 0)) {
+		_AppendHistory();
+		fConversationView->MessageReceived(new BMessage(APP_CHAT));
+	}
 	else
-		EnterTextView::KeyDown(bytes, numBytes);
+		BTextView::KeyDown(bytes, numBytes);
 }
 
 
@@ -77,5 +89,38 @@ SendTextView::_AutoComplete()
 		text.ReplaceLast(lastWord.String(), user.String());
 		SetText(text.String());
 		Select(TextLength(), TextLength());
+	}
+}
+
+
+void
+SendTextView::_AppendHistory()
+{
+	fHistoryIndex = 0;
+	fHistory.Add(BString(Text()), 0);
+	if (fHistory.CountStrings() == 21)
+		fHistory.Remove(20);
+}
+
+
+void
+SendTextView::_UpHistory()
+{
+	if (fHistoryIndex == 0 && TextLength() > 0)
+		_AppendHistory();
+
+	if (fHistoryIndex < fHistory.CountStrings()) {
+		fHistoryIndex++;
+		SetText(fHistory.StringAt(fHistoryIndex - 1));
+	}
+}
+
+
+void
+SendTextView::_DownHistory()
+{
+	if (fHistoryIndex > 1) {
+		fHistoryIndex--;
+		SetText(fHistory.StringAt(fHistoryIndex - 1));
 	}
 }
