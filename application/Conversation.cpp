@@ -92,8 +92,9 @@ Conversation::ImMessage(BMessage* msg)
 
 			bool winFocused = (win != NULL &&
 				(win->IsFront() && !(win->IsMinimized())));
-			bool mentioned = ((text.IFindFirst(contact->GetName()) != B_ERROR)
-				|| (text.IFindFirst(contact->GetName()) != B_ERROR));
+			bool mentioned = ((contact->GetName().IsEmpty() == false
+						&& text.IFindFirst(contact->GetName()) != B_ERROR)
+					|| (text.IFindFirst(contact->GetId()) != B_ERROR));
 
 			// Send a notification, if appropriate
 			if (winFocused  == false && AppPreferences::Get()->NotifyNewMessage
