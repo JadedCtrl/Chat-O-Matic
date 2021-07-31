@@ -87,7 +87,8 @@ private:
 	User*				_EnsureUser(BMessage* msg);
 	Role*				_GetRole(BMessage* msg);
 
-	void				_AdoptUserIcon(User* user);
+	void				_UpdateIcon(User* user = NULL);
+	bool				_IsDefaultIcon(BBitmap* icon);
 
 	void				_SortConversationList();
 

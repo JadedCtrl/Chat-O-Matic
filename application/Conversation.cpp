@@ -37,7 +37,7 @@ Conversation::Conversation(BString id, BMessenger msgn)
 	fMessenger(msgn),
 	fChatView(NULL),
 	fLooper(NULL),
-	fIcon(ImageCache::Get()->GetImage("kChatIcon")),
+	fIcon(ImageCache::Get()->GetImage("kOnePersonIcon")),
 	fDateFormatter(),
 	fRoomFlags(0),
 	fDisallowedFlags(0),
@@ -431,6 +431,7 @@ Conversation::RemoveUser(User* user)
 	user->UnregisterObserver(this);
 	GetView()->UpdateUserList(fUsers);
 	_SortConversationList();
+	_UpdateIcon();
 }
 
 
@@ -589,8 +590,7 @@ Conversation::_EnsureUser(BMessage* msg)
 		fUsers.AddItem(id, serverUser);
 		user = serverUser;
 		GetView()->UpdateUserList(fUsers);
-
-		_AdoptUserIcon(user);
+		_UpdateIcon(user);
 	}
 	// Not anywhere; create user
 	else if (user == NULL) {
@@ -600,8 +600,7 @@ Conversation::_EnsureUser(BMessage* msg)
 		fLooper->AddUser(user);
 		fUsers.AddItem(id, user);
 		GetView()->UpdateUserList(fUsers);
-
-		_AdoptUserIcon(user);
+		_UpdateIcon(user);
 	}
 
 	if (name.IsEmpty() == false) {
@@ -631,19 +630,52 @@ Conversation::_GetRole(BMessage* msg)
 
 
 void
-Conversation::_AdoptUserIcon(User* user)
+Conversation::_UpdateIcon(User* user)
 {
-	// If it's a one-on-one chat without custom icon, steal a user's
-	if ((fUsers.CountItems() <= 2 && user->GetId() != GetOwnContact()->GetId())
-			&& (fIcon == ImageCache::Get()->GetImage("kChatIcon")
-				|| fIcon == NULL))
-		fUserIcon = SetIconBitmap(user->AvatarBitmap());
+	if (_IsDefaultIcon(fIcon) == false && fUserIcon == false)
+			return;
 
-	// If it's no longer one-on-one, revert
-	if (fUsers.CountItems() > 2 && fUserIcon == true) {
-		SetIconBitmap(ImageCache::Get()->GetImage("kChatIcon"));
-		fUserIcon = false;
+	// If it's a one-on-one chat, try to use the other user's icon
+	if (user != NULL && fUsers.CountItems() == 2
+			&& user->GetId() != GetOwnContact()->GetId()
+			&& _IsDefaultIcon(user->AvatarBitmap()) == false) {
+		fUserIcon = SetIconBitmap(user->AvatarBitmap());
+		return;
 	}
+
+	switch (fUsers.CountItems())
+	{
+		case 0:
+		case 1:
+			SetIconBitmap(ImageCache::Get()->GetImage("kOnePersonIcon"));
+			break;
+		case 2:
+			SetIconBitmap(ImageCache::Get()->GetImage("kTwoPeopleIcon"));
+			break;
+		case 3:
+			SetIconBitmap(ImageCache::Get()->GetImage("kThreePeopleIcon"));
+			break;
+		case 4:
+			SetIconBitmap(ImageCache::Get()->GetImage("kFourPeopleIcon"));
+			break;
+		default:
+			SetIconBitmap(ImageCache::Get()->GetImage("kMorePeopleIcon"));
+			break;
+	}
+	fUserIcon = false;
+}
+
+
+bool
+Conversation::_IsDefaultIcon(BBitmap* icon)
+{
+	return (icon == NULL
+			|| icon == ImageCache::Get()->GetImage("kPersonIcon")
+			|| icon == ImageCache::Get()->GetImage("kOnePersonIcon")
+			|| icon == ImageCache::Get()->GetImage("kTwoPeopleIcon")
+			|| icon == ImageCache::Get()->GetImage("kThreePeopleIcon")
+			|| icon == ImageCache::Get()->GetImage("kFourPeopleIcon")
+			|| icon == ImageCache::Get()->GetImage("kMorePeopleIcon"));
 }
 
 

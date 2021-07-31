@@ -25,7 +25,11 @@ enum {
 	kReplicantMessageReceived	= 1402,
 
 	kPersonIcon					= 1500,
-	kChatIcon					= 1501
+	kOnePersonIcon				= 1501,
+	kTwoPeopleIcon				= 1502,
+	kThreePeopleIcon			= 1503,
+	kFourPeopleIcon				= 1504,
+	kMorePeopleIcon				= 1505
 };
 
 #endif	// _APP_RESOURCES_H

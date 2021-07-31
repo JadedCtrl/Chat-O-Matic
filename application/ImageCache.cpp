@@ -27,7 +27,11 @@ ImageCache* ImageCache::fInstance = NULL;
 ImageCache::ImageCache()
 {
 	_LoadResource(kPersonIcon, "kPersonIcon");
-	_LoadResource(kChatIcon, "kChatIcon");
+	_LoadResource(kOnePersonIcon, "kOnePersonIcon");
+	_LoadResource(kTwoPeopleIcon, "kTwoPeopleIcon");
+	_LoadResource(kThreePeopleIcon, "kThreePeopleIcon");
+	_LoadResource(kFourPeopleIcon, "kFourPeopleIcon");
+	_LoadResource(kMorePeopleIcon, "kMorePeopleIcon");
 
 	_LoadResource(kAwayReplicant, "kAwayReplicant");
 	_LoadResource(kBusyReplicant, "kBusyReplicant");
