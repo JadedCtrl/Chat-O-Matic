@@ -14,6 +14,7 @@
 #include <LayoutBuilder.h>
 #include <ListView.h>
 #include <ScrollView.h>
+#include <SplitView.h>
 #include <StringList.h>
 #include <StringView.h>
 
@@ -306,6 +307,28 @@ ConversationView::ObserveString(int32 what, BString str)
 
 
 void
+ConversationView::GetWeights(float* horizChat, float* horizList,
+	float* vertChat, float* vertSend)
+{
+	*horizChat = fHorizSplit->ItemWeight(0);
+	*horizList = fHorizSplit->ItemWeight(1);
+	*vertChat = fVertSplit->ItemWeight(0);
+	*vertSend = fVertSplit->ItemWeight(1);
+}
+
+
+void
+ConversationView::SetWeights(float horizChat, float horizList, float vertChat,
+	float vertSend)
+{
+	fHorizSplit->SetItemWeight(0, horizChat, true);
+	fHorizSplit->SetItemWeight(1, horizList, true);
+	fVertSplit->SetItemWeight(0, vertChat, true);
+	fVertSplit->SetItemWeight(1, vertSend, true);
+}
+
+
+void
 ConversationView::_InitInterface()
 {
 	fReceiveView = new RenderView("receiveView");
@@ -337,6 +360,9 @@ ConversationView::_InitInterface()
 	BScrollView* scrollViewUsers = new BScrollView("userScrollView",
 		fUserList, B_WILL_DRAW, false, true);
 
+	fHorizSplit = new BSplitView(B_HORIZONTAL, 0);
+	fVertSplit = new BSplitView(B_VERTICAL, 0);
+
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.AddGroup(B_HORIZONTAL)
 			.Add(fIcon)
@@ -346,10 +372,12 @@ ConversationView::_InitInterface()
 			.End()
 			.Add(fProtocolView)
 		.End()
-		.AddSplit(B_HORIZONTAL, 0)
-			.AddGroup(B_VERTICAL, B_USE_HALF_ITEM_SPACING, 8)
-				.Add(scrollViewReceive, 20)
-				.Add(fSendView, 1)
+		.AddSplit(fHorizSplit, 0.0)
+			.AddGroup(B_VERTICAL)
+				.AddSplit(fVertSplit, 8.0)
+					.Add(scrollViewReceive, 20)
+					.Add(fSendView, 1)
+				.End()
 			.End()
 			.Add(scrollViewUsers, 1)
 		.End()

@@ -1,5 +1,6 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _CHAT_VIEW_H
@@ -13,6 +14,7 @@
 #include "Observer.h"
 
 class BStringView;
+class BSplitView;
 
 class BitmapView;
 class EnterTextView;
@@ -42,7 +44,10 @@ public:
 
 			void		ObserveString(int32 what, BString str);
 
-			void		AvoidFocus(bool avoid);
+			void		GetWeights(float* horizChat, float* horizList,
+							float* vertChat, float* vertSend);
+			void		SetWeights(float horizChat, float horizList,
+							float vertChat, float vertSend);
 
 private:
 			void		_InitInterface();
@@ -69,8 +74,8 @@ private:
 		RenderView* fReceiveView;
 		UserListView* fUserList;
 		SendTextView* fSendView;
+		BSplitView* fHorizSplit;
+		BSplitView* fVertSplit;
 };
 
-
 #endif	// _CHAT_VIEW_H
-

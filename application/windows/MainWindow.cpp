@@ -86,9 +86,9 @@ MainWindow::QuitRequested()
 		button_index = alert->Go();
 	}
 
-	AppPreferences::Get()->MainWindowRect = Frame();
 	AppPreferences::Get()->MainWindowListWeight = fSplitView->ItemWeight(0);
 	AppPreferences::Get()->MainWindowChatWeight = fSplitView->ItemWeight(1);
+	AppPreferences::Get()->MainWindowRect = Frame();
 
 	if(button_index == 0) {
 		fServer->Quit();
@@ -324,9 +324,11 @@ MainWindow::WorkspaceActivated(int32 workspace, bool active)
 void
 MainWindow::SetConversation(Conversation* chat)
 {
-	// Save current size of chat and textbox
+	// Save split weights
 	float weightChat = fRightView->ItemWeight((int32)0);
 	float weightSend = fRightView->ItemWeight((int32)1);
+	float horizChat, horizList, vertChat, vertSend;
+	fChatView->GetWeights(&horizChat, &horizList, &vertChat, &vertSend);
 
 	fRightView->RemoveChild(fRightView->FindView("chatView"));
 
@@ -342,12 +344,6 @@ MainWindow::SetConversation(Conversation* chat)
 		SetTitle(APP_NAME);
 
 	fRightView->AddChild(fChatView, 9);
-
-	// Apply saved chat and textbox size to new views
-	if (weightChat * weightSend != 0) {
-		fRightView->SetItemWeight(0, weightChat, true);
-		fRightView->SetItemWeight(1, weightSend, true);
-	}
 
 	// Remove "Protocol" menu
 	BMenuItem* chatMenuItem = fMenuBar->FindItem("Protocol");
@@ -379,8 +375,20 @@ MainWindow::SetConversation(Conversation* chat)
 		}
 	}
 
+	// Apply saved weights
 	fSplitView->SetItemWeight(0, AppPreferences::Get()->MainWindowListWeight, true);
 	fSplitView->SetItemWeight(1, AppPreferences::Get()->MainWindowChatWeight, true);
+	fChatView->SetWeights(horizChat, horizList, vertChat, vertSend);
+	if (weightChat * weightSend != 0) {
+		fRightView->SetItemWeight(0, weightChat, true);
+		fRightView->SetItemWeight(1, weightSend, true);
+	}
+
+	// Save ChatView weights to settings
+	AppPreferences::Get()->ChatViewHorizChatWeight = horizChat;
+	AppPreferences::Get()->ChatViewHorizListWeight = horizList;
+	AppPreferences::Get()->ChatViewVertChatWeight = vertChat;
+	AppPreferences::Get()->ChatViewVertSendWeight = vertSend;
 }
 
 
@@ -421,6 +429,14 @@ MainWindow::_InitInterface()
 	// Right-side of window, Chat + Textbox
 	fRightView = new BSplitView(B_VERTICAL, 0);
 	fChatView = new ConversationView();
+
+	// Load weights from settings
+	float horizChat, horizList, vertChat, vertSend;
+	horizChat = AppPreferences::Get()->ChatViewHorizChatWeight;
+	horizList = AppPreferences::Get()->ChatViewHorizListWeight;
+	vertChat = AppPreferences::Get()->ChatViewVertChatWeight;
+	vertSend = AppPreferences::Get()->ChatViewVertSendWeight;
+	fChatView->SetWeights(horizChat, horizList, vertChat, vertSend);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.Add((fMenuBar = _CreateMenuBar()))

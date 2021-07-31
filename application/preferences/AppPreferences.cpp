@@ -49,6 +49,11 @@ AppPreferences::Load()
 	MainWindowListWeight = settings.GetFloat("MainWindowListWeight", 1);
 	MainWindowChatWeight = settings.GetFloat("MainWindowChatWeight", 5);
 
+	ChatViewHorizChatWeight = settings.GetFloat("ChatViewHorizChatWeight", 8);
+	ChatViewHorizListWeight = settings.GetFloat("ChatViewHorizListWeight", 1);
+	ChatViewVertChatWeight = settings.GetFloat("ChatViewVertChatWeight", 20);
+	ChatViewVertSendWeight = settings.GetFloat("ChatViewVertSendWeight", 1);
+
 	MainWindowRect = settings.GetRect("MainWindowRect", BRect(0, 0, 600, 400));
 }
 
@@ -75,6 +80,11 @@ AppPreferences::Save()
 
 	settings.AddFloat("MainWindowListWeight", MainWindowListWeight);
 	settings.AddFloat("MainWindowChatWeight", MainWindowChatWeight);
+
+	settings.AddFloat("ChatViewHorizChatWeight", ChatViewHorizChatWeight);
+	settings.AddFloat("ChatViewHorizListWeight", ChatViewHorizListWeight);
+	settings.AddFloat("ChatViewVertChatWeight", ChatViewVertChatWeight);
+	settings.AddFloat("ChatViewVertSendWeight", ChatViewVertSendWeight);
 
 	settings.AddRect("MainWindowRect", MainWindowRect);
 

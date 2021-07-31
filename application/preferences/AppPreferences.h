@@ -37,6 +37,11 @@ public:
 			float	MainWindowListWeight;
 			float	MainWindowChatWeight;
 
+			float	ChatViewHorizChatWeight;
+			float	ChatViewHorizListWeight;
+			float	ChatViewVertChatWeight;
+			float	ChatViewVertSendWeight;
+
 			BRect	MainWindowRect;
 
 private:
