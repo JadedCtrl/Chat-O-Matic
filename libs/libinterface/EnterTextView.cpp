@@ -10,7 +10,7 @@
 
 EnterTextView::EnterTextView(const char* name)
 	:
-	BTextView(name),
+	UrlTextView(name),
 	fTarget(NULL)
 {
 }
@@ -19,7 +19,7 @@ EnterTextView::EnterTextView(const char* name)
 EnterTextView::EnterTextView(const char* name, const BFont* initialFont,
 	const rgb_color* initialColor, uint32 flags)
 	:
-	BTextView(name, initialFont, initialColor, flags),
+	UrlTextView(name, initialFont, initialColor, flags),
 	fTarget(NULL)
 {
 }

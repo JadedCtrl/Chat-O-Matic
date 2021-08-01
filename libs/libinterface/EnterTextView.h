@@ -5,10 +5,10 @@
 #ifndef _ENTER_TEXT_VIEW_H
 #define _ENTER_TEXT_VIEW_H
 
-#include <TextView.h>
+#include "UrlTextView.h"
 
 
-class EnterTextView : public BTextView {
+class EnterTextView : public UrlTextView {
 public:
 					EnterTextView(const char* name);
 					EnterTextView(const char* name, const BFont* initialFont,

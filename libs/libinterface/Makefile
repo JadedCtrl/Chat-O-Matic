@@ -38,7 +38,8 @@ SRCS = \
 	libs/libinterface/Divider.cpp \
 	libs/libinterface/EnterTextView.cpp \
 	libs/libinterface/MenuButton.cpp  \
-	libs/libinterface/PictureView.cpp
+	libs/libinterface/PictureView.cpp \
+	libs/libinterface/UrlTextView.cpp
 
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
