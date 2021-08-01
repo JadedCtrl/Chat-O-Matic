@@ -52,9 +52,8 @@ ImageCache::~ImageCache()
 ImageCache*
 ImageCache::Get()
 {
-	if (fInstance == NULL) {
+	if (fInstance == NULL)
 		fInstance = new ImageCache();
-	}
 	return fInstance;
 }
 
@@ -103,8 +102,10 @@ ImageCache::Release()
 void
 ImageCache::_LoadResource(int identifier, const char* key)
 {
-	BResources* res = ChatResources();
-	BBitmap* bitmap = IconFromResources(res, identifier, B_LARGE_ICON);
+	BResources res = ChatResources();
+	if (res.InitCheck() != B_OK)
+		return;
+	BBitmap* bitmap = IconFromResources(&res, identifier, B_LARGE_ICON);
 	if (bitmap != NULL && bitmap->IsValid() == true)
 		fBitmaps.AddItem(BString(key), bitmap);
 }

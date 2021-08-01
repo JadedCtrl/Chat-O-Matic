@@ -95,7 +95,6 @@ TheApp::ReadyToRun()
 			return;
 		}
 	}
-
 	fMainWin->Start();
 	fMainWin->Show();
 }

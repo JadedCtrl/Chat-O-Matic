@@ -79,7 +79,6 @@ protected:
 	UserItem*		fListItem;
 
 	BString			fID;
-	bigtime_t		fInstance;
 	BString			fName;
 	BString			fPersonalStatus;
 	BBitmap*		fAvatarBitmap;

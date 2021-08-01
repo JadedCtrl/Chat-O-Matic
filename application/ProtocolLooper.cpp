@@ -89,14 +89,16 @@ ProtocolLooper::ConversationById(BString id)
 void
 ProtocolLooper::AddConversation(Conversation* chat)
 {
-	fChatMap.AddItem(chat->GetId(), chat);
+	if (chat != NULL)
+		fChatMap.AddItem(chat->GetId(), chat);
 }
 
 
 void
 ProtocolLooper::RemoveConversation(Conversation* chat)
 {
-	fChatMap.RemoveItemFor(chat->GetId());
+	if (chat != NULL)
+		fChatMap.RemoveItemFor(chat->GetId());
 }
 
 
@@ -118,13 +120,16 @@ ProtocolLooper::ContactById(BString id)
 void
 ProtocolLooper::AddContact(Contact* contact)
 {
-	fRosterMap.AddItem(contact->GetId(), contact);
+	if (contact != NULL)
+		fRosterMap.AddItem(contact->GetId(), contact);
 }
 
 
 void
 ProtocolLooper::RemoveContact(Contact* contact)
 {
+	if (contact == NULL)
+		return;
 	fRosterMap.RemoveItemFor(contact->GetId());
 	fUserMap.AddItem(contact->GetId(), (User*)contact);
 }
@@ -159,7 +164,8 @@ ProtocolLooper::UserById(BString id)
 void
 ProtocolLooper::AddUser(User* user)
 {
-	fUserMap.AddItem(user->GetId(), user);
+	if (user != NULL)
+		fUserMap.AddItem(user->GetId(), user);
 }
 
 
@@ -187,7 +193,8 @@ ProtocolLooper::GetOwnContact()
 void
 ProtocolLooper::SetOwnContact(Contact* contact)
 {
-	fMySelf = contact;
+	if (contact != NULL)
+		fMySelf = contact;
 }
 
 
@@ -203,7 +210,7 @@ ProtocolLooper::GetListItem()
 {
 	if (fListItem == NULL)
 		fListItem = new ConversationAccountItem(fProtocol->GetName(),
-												fInstance);
+						fInstance);
 	return fListItem;
 }
 

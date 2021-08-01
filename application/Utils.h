@@ -29,7 +29,7 @@ bool		IsCommand(BString line);
 BString		CommandName(BString line);
 BString		CommandArgs(BString line);
 
-BResources* ChatResources();
+BResources ChatResources();
 
 const char*	SettingsPath();
 

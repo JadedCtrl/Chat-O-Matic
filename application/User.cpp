@@ -264,18 +264,18 @@ User::_SetCachedAvatar(BBitmap* bitmap)
 {
 	_EnsureCachePath();
 	BFile cacheFile(fCachePath.Path(), B_WRITE_ONLY | B_CREATE_FILE);
+	if (cacheFile.InitCheck() != B_OK)
+		return;
 
-	BBitmapStream* stream = new BBitmapStream(bitmap);
+	BBitmapStream stream(bitmap);
 	BTranslatorRoster* roster = BTranslatorRoster::Default();
 
 	int32 format_count;
 	translator_info info;
 	const translation_format* formats = NULL;
-	roster->Identify(stream, new BMessage(), &info, 0, "image");
+	roster->Identify(&stream, new BMessage(), &info, 0, "image");
 	roster->GetOutputFormats(info.translator, &formats, &format_count);
 
-	roster->Translate(info.translator, stream, new BMessage(), &cacheFile,
+	roster->Translate(info.translator, &stream, NULL, &cacheFile,
 		formats[0].type);
 }
-
-

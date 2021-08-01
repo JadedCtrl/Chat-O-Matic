@@ -97,7 +97,6 @@ ReplicantStatusView::ReplicantStatusView(BMessage* archive)
 
 ReplicantStatusView::~ReplicantStatusView()
 {
-	delete fResources;
 	delete fCayaMsg;
 	delete fReplicantHandler;
 	delete fReplicantMenu;
@@ -300,7 +299,7 @@ ReplicantStatusView::_Init()
 BBitmap*
 ReplicantStatusView::_GetIcon(const uint32 id)
 {
-	BBitmap* icon = IconFromResources(fResources, id, B_MINI_ICON);
+	BBitmap* icon = IconFromResources(&fResources, id, B_MINI_ICON);
 	return icon;
 }
 

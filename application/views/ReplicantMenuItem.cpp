@@ -57,8 +57,8 @@ ReplicantMenuItem::IsCustom() const
 void
 ReplicantMenuItem::SetIcon()
 {
-	BResources* res = ChatResources();
-	if (!res)
+	BResources res = ChatResources();
+	if (res.InitCheck() != B_OK)
 		return;
 
 	int32 num = 0;
@@ -84,8 +84,6 @@ ReplicantMenuItem::SetIcon()
 			break;
 	}
 
-	BBitmap* bitmap = IconFromResources(res, num, B_MINI_ICON);
+	BBitmap* bitmap = IconFromResources(&res, num, B_MINI_ICON);
 	SetBitmap(bitmap);
-
-	delete res;
 }

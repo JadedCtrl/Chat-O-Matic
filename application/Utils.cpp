@@ -91,23 +91,16 @@ CommandArgs(BString line)
 }
 
 
-BResources*
+BResources
 ChatResources()
 {
+	BResources res;
 	image_info info;
-	if (our_image(info) != B_OK)
-		return NULL;
-
-	BFile file(info.name, B_READ_ONLY);
-	if (file.InitCheck() != B_OK)
-		return NULL;
-
-	BResources* res = new BResources(&file);
-	if (res->InitCheck() != B_OK) {
-		delete res;
-		return NULL;
+	if (our_image(info) == B_OK) {
+		BFile file(info.name, B_READ_ONLY);
+		if (file.InitCheck() == B_OK)
+			res.SetTo(&file);
 	}
-
 	return res;
 }
 

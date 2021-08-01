@@ -42,7 +42,7 @@ ProtocolTemplate::ProtocolTemplate(ChatProtocol* protocol, const char* type)
 	if (settingsTemplate.IsEmpty() == true) {
 		size_t size;
 		const void* buff =
-			ChatResources()->LoadResource(B_MESSAGE_TYPE, type, &size);
+			ChatResources().LoadResource(B_MESSAGE_TYPE, type, &size);
 
 		if (buff != NULL)
 			settingsTemplate.Unflatten((const char*)buff);

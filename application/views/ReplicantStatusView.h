@@ -63,7 +63,7 @@ private:
 			BBitmap*		fExitMenuIcon;
 			BBitmap*		fPreferencesIcon;
 
-			BResources*		fResources;
+			BResources		fResources;
 
 			BPopUpMenu*		fReplicantMenu;
 

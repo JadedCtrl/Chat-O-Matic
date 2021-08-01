@@ -59,6 +59,4 @@ private:
 
 typedef KeyMap<BString, ChatCommand*> CommandMap;
 
-
 #endif // CHAT_COMMAND_H
-

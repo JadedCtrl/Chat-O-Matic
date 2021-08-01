@@ -29,7 +29,7 @@ public:
 	{
 	}
 
-	BString fTitle;
+	const char* fTitle;
 	int32 fPerms;		// Permissions afforded to role, as described above.
 	int32 fPriority;	// 'Rank' of role, with higher being greater priority.
 						// I.E., a user with a priority of 11 can't kick a user

@@ -55,13 +55,15 @@ Server::Server()
 			|| fCommands.CountItems() > 0)
 		return;
 
-	BResources* res = ChatResources();
+	BResources res = ChatResources();
+	if (res.InitCheck() != B_OK)
+		return;
 
 	// Loading user pop-up items
 	for (int i = 0; i < 6; i++) {
 		size_t size;
 		BMessage temp;
-		const void* buff = res->LoadResource(B_MESSAGE_TYPE, 1100 + i, &size);
+		const void* buff = res.LoadResource(B_MESSAGE_TYPE, 1100 + i, &size);
 		temp.Unflatten((const char*)buff);
 		fUserItems.AddItem(new BMessage(temp));
 	}
@@ -69,7 +71,7 @@ Server::Server()
 	// Loading room pop-up items
 	BMessage leave;
 	size_t leaveSize;
-	const void* leaveBuff = res->LoadResource(B_MESSAGE_TYPE, 1120, &leaveSize);
+	const void* leaveBuff = res.LoadResource(B_MESSAGE_TYPE, 1120, &leaveSize);
 	leave.Unflatten((const char*)leaveBuff);
 	fChatItems.AddItem(new BMessage(leave));
 
@@ -77,7 +79,7 @@ Server::Server()
 	for (int i = 0; i < 9; i++) {
 		size_t size;
 		BMessage temp;
-		const void* buff = res->LoadResource(B_MESSAGE_TYPE, 1140 + i, &size);
+		const void* buff = res.LoadResource(B_MESSAGE_TYPE, 1140 + i, &size);
 		temp.Unflatten((const char*)buff);
 		ChatCommand* cmd = new ChatCommand(&temp);
 		fCommands.AddItem(cmd->GetName(), cmd);
