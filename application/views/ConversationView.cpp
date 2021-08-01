@@ -104,6 +104,7 @@ ConversationView::MessageReceived(BMessage* message)
 			fConversation->ImMessage(&msg);
 
 			fSendView->SetText("");
+			fSendView->ScrollToOffset(0);
 			break;
 		}
 		case IM_MESSAGE:

@@ -9,6 +9,9 @@
 #include <Window.h>
 
 #include "AppMessages.h"
+#include "MainWindow.h"
+#include "Server.h"
+#include "TheApp.h"
 
 
 SendTextView::SendTextView(const char* name, ConversationView* convView)
@@ -57,6 +60,9 @@ SendTextView::KeyDown(const char* bytes, int32 numBytes)
 void
 SendTextView::_AutoComplete()
 {
+	if (fConversationView == NULL || fConversationView->GetConversation() == NULL)
+		return;
+
 	BStringList words;
 	BString text = Text();
 	text.Split(" ", true, words);
@@ -67,10 +73,51 @@ SendTextView::_AutoComplete()
 	if (fCurrentWord.IsEmpty() == true)
 		fCurrentWord = lastWord;
 
-	// No command auto-completion (yet)
+	// Now to find the substitutes
+	const char* substitution = NULL;
 	if (fCurrentWord.StartsWith("/") == true)
-		return;
+		substitution = _CommandAutoComplete();
+	else
+		substitution = _UserAutoComplete();
 
+	if (substitution == NULL)
+		fCurrentIndex = 0;
+	else {
+		text.ReplaceLast(lastWord.String(), substitution);
+		SetText(text.String());
+		Select(TextLength(), TextLength());
+	}
+}
+
+
+const char*
+SendTextView::_CommandAutoComplete()
+{
+	int64 instance =
+		fConversationView->GetConversation()->GetProtocolLooper()->GetInstance();
+	CommandMap commands =
+		((TheApp*)be_app)->GetMainWindow()->GetServer()->Commands(instance);
+
+	BString command;
+	BString cmdWord = BString(fCurrentWord).Remove(0, 1);
+	for (int i, j = 0; i < commands.CountItems(); i++)
+		if (commands.KeyAt(i).StartsWith(cmdWord)) {
+			if (j == fCurrentIndex) {
+				command = commands.KeyAt(i);
+				fCurrentIndex++;
+				break;
+			}
+			j++;
+		}
+	if (command.IsEmpty() == true)
+		return NULL;
+	return command.Prepend("/").String();
+}
+
+
+const char*
+SendTextView::_UserAutoComplete()
+{
 	BString user;
 	UserMap users = fConversationView->GetConversation()->Users();
 	for (int i, j = 0; i < users.CountItems(); i++)
@@ -82,14 +129,9 @@ SendTextView::_AutoComplete()
 			}
 			j++;
 		}
-
 	if (user.IsEmpty() == true)
-		fCurrentIndex = 0;
-	else {
-		text.ReplaceLast(lastWord.String(), user.String());
-		SetText(text.String());
-		Select(TextLength(), TextLength());
-	}
+		return NULL;
+	return user.String();
 }
 
 
@@ -112,6 +154,7 @@ SendTextView::_UpHistory()
 	if (fHistoryIndex < fHistory.CountStrings()) {
 		fHistoryIndex++;
 		SetText(fHistory.StringAt(fHistoryIndex - 1));
+		Select(TextLength(), TextLength());
 	}
 }
 
@@ -122,5 +165,6 @@ SendTextView::_DownHistory()
 	if (fHistoryIndex > 1) {
 		fHistoryIndex--;
 		SetText(fHistory.StringAt(fHistoryIndex - 1));
+		Select(TextLength(), TextLength());
 	}
 }

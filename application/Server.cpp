@@ -831,6 +831,17 @@ Server::AddConversation(Conversation* chat, int64 instance)
 }
 
 
+CommandMap
+Server::Commands(int64 instance)
+{
+	ProtocolLooper* looper = fLoopers.ValueFor(instance);
+	CommandMap cmds = fCommands;
+	if (looper != NULL)
+		cmds.AddList(looper->Commands());
+	return cmds;
+}
+
+
 ChatCommand*
 Server::CommandById(BString id, int64 instance)
 {

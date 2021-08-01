@@ -63,6 +63,7 @@ public:
 			Conversation*	ConversationById(BString id, int64 instance);
 			void			AddConversation(Conversation* chat, int64 instance);
 
+			CommandMap		Commands(int64 instance);
 			ChatCommand*	CommandById(BString id, int64 instance);
 
 			BObjectList<BMessage> ChatPopUpItems();
