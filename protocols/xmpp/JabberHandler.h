@@ -126,6 +126,7 @@ private:
 			BPath					fAvatarCachePath;
 			BMessage				fAvatarCache;
 			BList*					fAvatars;
+			bigtime_t				fLastOwnVCard; // Last time VCard updated
 
 			void					_SendMessage(BMessage* msg);
 			void					_MessageSent(const char* id, const char* subject,

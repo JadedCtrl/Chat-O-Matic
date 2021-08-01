@@ -61,7 +61,8 @@ JabberHandler::JabberHandler()
 	:
 	fClient(NULL),
 	fVCardManager(NULL),
-	fSession(NULL)
+	fSession(NULL),
+	fLastOwnVCard(0)
 {
 	fAvatars = new BList();
 }
@@ -1021,10 +1022,9 @@ JabberHandler::_SetupAvatarCache()
 
 	BPath path;
 
-	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
+	if (find_directory(B_SYSTEM_TEMP_DIRECTORY, &path) != B_OK)
 		return B_ERROR;
 
-	path.Append("Cardie/Cache/Accounts");
 	path.Append(GetName());
 
 	if (create_directory(path.Path(), 0755) != B_OK)
@@ -1927,6 +1927,14 @@ JabberHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* card)
 {
 	if (!card)
 		return;
+
+	// Throttles updates to your own VCard― ime some servers spam for no reason
+	if (jid.bare() == fJid.bare()) {
+		bigtime_t last = fLastOwnVCard;
+		fLastOwnVCard = time(NULL);
+		if (fLastOwnVCard - last < 60)
+			return;
+	}
 
 	gloox::VCard::Name name = card->name();
 	gloox::VCard::Photo photo = card->photo();
