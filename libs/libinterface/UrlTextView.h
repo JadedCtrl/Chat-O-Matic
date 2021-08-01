@@ -22,14 +22,15 @@ public:
 
 	virtual void	MessageReceived(BMessage* msg);
 
-	// Only differs in that it changes font face and color of any URLs
-	virtual void	Insert(const char* text, const text_run_array* runs = NULL);
-
 	virtual	void	MouseDown(BPoint where);
 	virtual void	MouseUp(BPoint where);
 	virtual void	MouseMoved(BPoint where, uint32 code, const BMessage* drag);
 
 	virtual void	Select(int32 startOffset, int32 endOffset);
+
+	// Only differs in that it changes font face and color of any URLs
+			void	Insert(const char* text, const text_run_array* runs = NULL);
+			void	SetText(const char* text, const text_run_array* runs = NULL);
 
 		 BString	WordAt(BPoint point);
 			void	FindWordAround(int32 offset, int32* start, int32* end,

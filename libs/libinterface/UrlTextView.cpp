@@ -88,39 +88,6 @@ UrlTextView::MessageReceived(BMessage* msg)
 
 
 void
-UrlTextView::Insert(const char* text, const text_run_array* runs)
-{
-	BString buf(text);
-
-	int32 specStart = 0;
-	int32 specEnd = 0;
-	int32 lastEnd = 0;
-	int32 length = buf.CountChars();
-
-	while (_FindUrlString(buf, &specStart, &specEnd, lastEnd) == true) {
-		if (lastEnd < specStart) {
-			BString normie;
-			buf.CopyCharsInto(normie, lastEnd, specStart - lastEnd);
-			BTextView::Insert(TextLength(), normie.String(), normie.Length(),
-				runs);
-		}
-		BString special;
-		buf.CopyCharsInto(special, specStart, specEnd - specStart);
-		BTextView::Insert(TextLength(), special.String(), special.Length(),
-			&fUrlRun);
-
-		lastEnd = specEnd;
-	}
-	if (lastEnd < length) {
-		BString remaining;
-		buf.CopyCharsInto(remaining, lastEnd, length - lastEnd);
-		BTextView::Insert(TextLength(), remaining.String(), remaining.Length(),
-			runs);
-	}
-}
-
-
-void
 UrlTextView::MouseDown(BPoint where)
 {
 	uint32 buttons = 0;
@@ -177,6 +144,47 @@ UrlTextView::Select(int32 startOffset, int32 endOffset)
 	if (startOffset < endOffset) {
 		fSelecting = true;
 	}
+}
+
+
+void
+UrlTextView::Insert(const char* text, const text_run_array* runs)
+{
+	BString buf(text);
+
+	int32 specStart = 0;
+	int32 specEnd = 0;
+	int32 lastEnd = 0;
+	int32 length = buf.CountChars();
+
+	while (_FindUrlString(buf, &specStart, &specEnd, lastEnd) == true) {
+		if (lastEnd < specStart) {
+			BString normie;
+			buf.CopyCharsInto(normie, lastEnd, specStart - lastEnd);
+			BTextView::Insert(TextLength(), normie.String(), normie.Length(),
+				runs);
+		}
+		BString special;
+		buf.CopyCharsInto(special, specStart, specEnd - specStart);
+		BTextView::Insert(TextLength(), special.String(), special.Length(),
+			&fUrlRun);
+
+		lastEnd = specEnd;
+	}
+	if (lastEnd < length) {
+		BString remaining;
+		buf.CopyCharsInto(remaining, lastEnd, length - lastEnd);
+		BTextView::Insert(TextLength(), remaining.String(), remaining.Length(),
+			runs);
+	}
+}
+
+
+void
+UrlTextView::SetText(const char* text, const text_run_array* runs)
+{
+	BTextView::SetText("");
+	Insert(text, runs);
 }
 
 
