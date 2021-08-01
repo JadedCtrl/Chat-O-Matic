@@ -166,9 +166,13 @@ Conversation::ImMessage(BMessage* msg)
 			BString args = CommandArgs(body);
 			ChatCommand* cmd = _GetServer()->CommandById(name, fLooper->GetInstance());
 
-			if (cmd == NULL) {
+			if (cmd == NULL && name != "me") {
 				_WarnUser(BString(B_TRANSLATE("That isn't a valid command. "
 					"Try /help for a list.")));
+				break;
+			}
+			else {
+				fMessenger.SendMessage(msg);
 				break;
 			}
 

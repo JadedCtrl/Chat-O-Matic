@@ -82,6 +82,7 @@ ConversationView::AttachedToWindow()
 	}
 	NotifyInteger(INT_WINDOW_FOCUSED, 0);
 	fSendView->MakeFocus(true);
+	fSendView->Invalidate();
 }
 
 
@@ -430,6 +431,14 @@ ConversationView::_AppendMessage(BMessage* msg)
 
 		if (sender_name.IsEmpty() == true) {
 			fReceiveView->AppendGeneric(body.String());
+			continue;
+		}
+
+		if (body.StartsWith("/me ")) {
+			BString meMsg = "** ";
+			meMsg << sender_name.String() << " ";
+			meMsg << body.RemoveFirst("/me ");
+			fReceiveView->AppendGeneric(meMsg.String());
 			continue;
 		}
 
