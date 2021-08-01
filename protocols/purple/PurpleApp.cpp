@@ -146,6 +146,8 @@ PurpleApp::MessageReceived(BMessage* msg)
 			BRoster roster;
 			if (roster.IsRunning(APP_SIGNATURE) == false)
 				Quit();
+			if (fAccountThreads.CountItems() == 0 || fAccounts.CountItems() == 0)
+				Quit();
 			break;
 		}
 		case G_MAIN_LOOP:
