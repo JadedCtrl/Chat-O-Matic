@@ -10,9 +10,10 @@
 
 MenuButton::MenuButton(const char* name, const char* label, BMessage* message)
 	:
-	BButton(name, BString(label).Append(" ▾"), message),
+	BButton(name, label, message),
 	fMenu(NULL)
 {
+	SetBehavior(B_POP_UP_BEHAVIOR);
 }
 
 
@@ -21,7 +22,7 @@ MenuButton::MouseDown(BPoint where)
 {
 	BButton::MouseDown(where);
 	if (fMenu != NULL)
-		fMenu->Go(ConvertToScreen(where), true, true, true);
+		fMenu->Go(ConvertToScreen(Bounds().LeftBottom()), true, true, true);
 }
 
 
