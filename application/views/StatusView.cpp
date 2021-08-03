@@ -43,7 +43,7 @@ StatusView::StatusView(const char* name, Server* server)
 	fAccount(-1)
 {
 	// Nick name
-	fNickname = new EnterTextView("nicknameTextView");
+	fNickname = new EnterTextView("nicknameTextView", be_bold_font, NULL);
 	fNickname->MakeEditable(true);
 	fNickname->MakeResizable(true);
 	fNickname->SetTarget(this);
@@ -211,7 +211,7 @@ StatusView::_SetToAccount()
 void	
 StatusView::_SetName(BString name)
 {
-	fNickname->SetText(name.String());	
+	fNickname->SetText(name.String());
 }
 
 

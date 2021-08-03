@@ -138,7 +138,8 @@ enum im_what_code {
 		Requires:	String "user_name" */
 	IM_SET_OWN_NICKNAME					= 80,
 
-	//!	Own nickname was changed		→App
+	/*!	Own nickname was changed		→App
+		Requires:	String "user_name" */
 	IM_OWN_NICKNAME_SET					= 81,
 
 	/*!	Change own status				→Protocol
