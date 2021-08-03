@@ -992,6 +992,30 @@ static PurpleConnectionUiOps _ui_op_connection =
 };
 
 
+static PurpleConversationUiOps _ui_op_conversation =
+{
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	ui_op_chat_rename_user,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};
+
+
 static PurpleRequestUiOps _ui_op_request =
 {
 	ui_op_request_input,
@@ -1031,6 +1055,7 @@ init_ui_ops()
 {
 	purple_eventloop_set_ui_ops(&_ui_op_eventloops);
 	purple_connections_set_ui_ops(&_ui_op_connection);
+	purple_conversations_set_ui_ops(&_ui_op_conversation);
 	purple_request_set_ui_ops(&_ui_op_request);
 	purple_notify_set_ui_ops(&_ui_op_notify);
 }
@@ -1412,6 +1437,29 @@ ui_op_report_disconnect_reason(PurpleConnection* conn,
 		BMessage disabled(PURPLE_SHUTDOWN_ADDON);
 		((PurpleApp*)be_app)->SendMessage(account, disabled);
 	}
+}
+
+
+static void
+ui_op_chat_rename_user(PurpleConversation* conv, const char* old_name,
+	const char* new_name, const char* new_alias)
+{
+	BString text = B_TRANSLATE("User changed name to %nick%");
+	text.ReplaceAll("%nick%", new_name);
+
+	BMessage left(IM_MESSAGE);
+	left.AddInt32("im_what", IM_ROOM_PARTICIPANT_LEFT);
+	left.AddString("user_id", old_name);
+	left.AddString("chat_id", purple_conversation_get_name(conv));
+	left.AddString("body", text);
+	PurpleAccount* account = purple_conversation_get_account(conv);
+	((PurpleApp*)be_app)->SendMessage(account, left);
+
+	BMessage joined(IM_MESSAGE);
+	joined.AddInt32("im_what", IM_ROOM_PARTICIPANT_JOINED);
+	joined.AddString("user_id", new_name);
+	joined.AddString("chat_id", purple_conversation_get_name(conv));
+	((PurpleApp*)be_app)->SendMessage(account, joined);
 }
 
 

@@ -169,6 +169,11 @@ private:
 	 static void		ui_op_report_disconnect_reason(PurpleConnection* conn,
 							PurpleConnectionError reason, const char* text);
 
+// Conversation ui ops
+	 static void		ui_op_chat_rename_user(PurpleConversation* conv, 
+							const char* old_name, const char* new_name,
+							const char* new_alias);
+
 // Request ui ops
 	 static void*		ui_op_request_input(const char* title,
 							const char* primary, const char* secondary,
