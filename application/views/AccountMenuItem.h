@@ -7,10 +7,12 @@
 
 #include <MenuItem.h>
 
+#include <libinterface/BitmapMenuItem.h>
 
-class AccountMenuItem : public BMenuItem {
+
+class AccountMenuItem : public BitmapMenuItem {
 public:
-					AccountMenuItem(const char* label, BMessage* msg);
+					AccountMenuItem(const char* label, BMessage* msg, BBitmap* icon = NULL);
 	
 	virtual void	SetMarked(bool mark);
 };

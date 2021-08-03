@@ -8,9 +8,10 @@
 #include "AccountsMenu.h"
 
 
-AccountMenuItem::AccountMenuItem(const char* label, BMessage* msg)
+AccountMenuItem::AccountMenuItem(const char* label, BMessage* msg,
+	BBitmap* icon)
 	:
-	BMenuItem(label, msg)
+	BitmapMenuItem(label, msg, icon, 0, 0, false)
 {
 }
 

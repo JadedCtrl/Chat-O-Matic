@@ -9,6 +9,8 @@
 
 #include "Observer.h"
 
+class ProtocolLooper;
+
 
 class AccountsMenu : public BMenu, public Observer {
 public:
@@ -22,6 +24,11 @@ public:
 
 private:
 			void	_PopulateMenu();
+
+		BBitmap*	_EnsureProtocolIcon(const char* label,
+						ProtocolLooper* looper);
+		BBitmap*	_EnsureAsteriskIcon();
+			
 
 	BMessage fAccountMessage;
 	BMessage* fAllMessage;
