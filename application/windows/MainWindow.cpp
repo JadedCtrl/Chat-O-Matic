@@ -53,11 +53,11 @@ MainWindow::MainWindow()
 	fRosterWindow(NULL),
 	fServer(NULL)
 {
-	_InitInterface();
-
 	// Filter messages using Server
 	fServer = new Server();
 	AddFilter(fServer);
+
+	_InitInterface();
 
 	//TODO check for errors here
 	ReplicantStatusView::InstallReplicant();
@@ -283,8 +283,12 @@ MainWindow::ImMessage(BMessage* msg)
 			if (fConversation == NULL)
 				fChatView->MessageReceived(msg);
 			_ToggleMenuItems();
+			fStatusView->MessageReceived(msg);
 			break;
 		}
+		case IM_PROTOCOL_DISABLE:
+			fStatusView->MessageReceived(msg);
+			break;
 	}
 }
 
@@ -423,7 +427,7 @@ MainWindow::_InitInterface()
 {
 	// Left side of window, Roomlist + Status
 	fListView = new ConversationListView("roomList");
-	fStatusView = new StatusView("statusView");
+	fStatusView = new StatusView("statusView", fServer);
 	fSplitView = new BSplitView(B_HORIZONTAL, 0);
 
 	// Right-side of window, Chat + Textbox

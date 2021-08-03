@@ -29,7 +29,7 @@ public:
 	virtual	void		DrawContent(void);
 	
 	virtual	void		SetBitmap(BBitmap *bitmap);
-		BBitmap*	Bitmap(void) const;
+		BBitmap*	Bitmap(void) const { return fBitmap; }
 	
 private:
 	BBitmap			*fBitmap;

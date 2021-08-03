@@ -37,6 +37,8 @@ ImageCache::ImageCache()
 	_LoadResource(kBusyReplicant, "kBusyReplicant");
 	_LoadResource(kOfflineReplicant, "kOfflineReplicant");
 	_LoadResource(kOnlineReplicant, "kOnlineReplicant");
+
+	_LoadResource(kAsteriskIcon, "kAsteriskIcon");
 }
 
 

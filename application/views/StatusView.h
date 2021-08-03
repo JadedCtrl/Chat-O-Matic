@@ -12,11 +12,13 @@
 class BPopUpMenu;
 
 class BitmapView;
+class MenuButton;
 class NicknameTextControl;
+class Server;
 
 class StatusView : public BView {
 public:
-							StatusView(const char* name);
+							StatusView(const char* name, Server* server);
 
 	virtual	void			AttachedToWindow();
 	virtual	void			MessageReceived(BMessage* msg);
@@ -26,9 +28,16 @@ public:
 			void			SetAvatarIcon(const BBitmap* bitmap);
 
 private:
-	BPopUpMenu*				fStatusMenu;
+			void			_PopulateAccountMenu();
+
 	NicknameTextControl* 	fNickname;
 	BitmapView*				fAvatar;
+	BPopUpMenu*				fStatusMenu;
+
+	MenuButton*				fAccountsButton;
+	BPopUpMenu*				fAccountsMenu;
+
+	Server*					fServer;
 };
 
 #endif	// _STATUS_VIEW_H

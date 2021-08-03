@@ -100,6 +100,7 @@ RDEFS = Cardie.rdef \
 	data/icons/replicant/MessageReceived.rdef \
 	data/icons/replicant/Offline.rdef \
 	data/icons/replicant/Online.rdef \
+	data/icons/misc/Asterisk.rdef \
 	data/icons/misc/People-1.rdef \
 	data/icons/misc/People-2.rdef \
 	data/icons/misc/People-3.rdef \

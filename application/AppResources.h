@@ -13,6 +13,7 @@ enum {
 
 	kToolIcon					= 20,
 	kSearchIcon					= 21,
+	kAsteriskIcon				= 22,
 
 	kProtocolSettingsTemplate	= 1000,
 

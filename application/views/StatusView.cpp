@@ -11,28 +11,31 @@
 #include <Bitmap.h>
 #include <LayoutBuilder.h>
 #include <Message.h>
-#include <MenuField.h>
-#include <MenuItem.h>
 #include <PopUpMenu.h>
-#include <StringView.h>
 
 #include <libinterface/BitmapMenuItem.h>
 #include <libinterface/BitmapUtils.h>
 #include <libinterface/BitmapView.h>
+#include <libinterface/MenuButton.h>
 
 #include "AccountManager.h"
+#include "ChatProtocolMessages.h"
 #include "ImageCache.h"
 #include "NicknameTextControl.h"
+#include "Server.h"
 #include "StatusMenuItem.h"
 #include "Utils.h"
 
 
-const int32 kSetNickname = 'stnk';
+const int32 kSetNickname = 'SVnk';
+const int32 kSelectAllAccounts = 'SVaa';
+const int32 kSelectAccount = 'SVsa';
 
 
-StatusView::StatusView(const char* name)
+StatusView::StatusView(const char* name, Server* server)
 	:
-	BView(name, B_WILL_DRAW)
+	BView(name, B_WILL_DRAW),
+	fServer(server)
 {
 	// Nick name
 	fNickname = new NicknameTextControl("Nickname",
@@ -72,14 +75,25 @@ StatusView::StatusView(const char* name)
 	fAvatar->SetExplicitPreferredSize(BSize(50, 50));
 	fAvatar->SetBitmap(ImageCache::Get()->GetImage("kPersonIcon"));
 
+	// Changing the account used
+	fAccountsMenu = new BPopUpMenu("statusAccountsMenu", true, false);
+	fAccountsButton = new MenuButton("statusAccountsButton", "", new BMessage());
+	fAccountsButton->SetMenu(fAccountsMenu);
+	_PopulateAccountMenu();
+
+	BMessage selected(kSelectAllAccounts);
+	MessageReceived(&selected);
+
 	// Set layout
-	BLayoutBuilder::Group<>(this, B_HORIZONTAL)
-		.AddGroup(B_VERTICAL)
+	BLayoutBuilder::Group<>(this, B_VERTICAL)
+		.AddGroup(B_HORIZONTAL)
+			.SetInsets(0)
 			.Add(statusField)
-			.AddGroup(B_HORIZONTAL)
-				.Add(fNickname)
-				.Add(fAvatar)
-			.End()
+			.Add(fAccountsButton)
+		.End()
+		.AddGroup(B_HORIZONTAL)
+			.Add(fNickname)
+			.Add(fAvatar)
 		.End()
 	.End();
 }
@@ -106,12 +120,27 @@ StatusView::MessageReceived(BMessage* msg)
 		case kSetStatus:
 		{
 			int32 status;
-
 			if (msg->FindInt32("status", &status) != B_OK)
 				return;
 
 			AccountManager* accountManager = AccountManager::Get();
 			accountManager->SetStatus((UserStatus)status, "");
+			break;
+		}
+		case kSelectAllAccounts:
+		case kSelectAccount:
+		{
+			int32 index = msg->FindInt32("index");
+			BitmapMenuItem* item = (BitmapMenuItem*)fAccountsMenu->ItemAt(index);
+			BBitmap* bitmap = item->Bitmap();
+			fAccountsButton->SetIcon(bitmap);
+			break;
+		}
+		case IM_MESSAGE:
+		{
+			int32 im_what = msg->GetInt32("im_what", 0);
+			if (im_what == IM_PROTOCOL_DISABLE || im_what == IM_PROTOCOL_READY)
+				_PopulateAccountMenu();
 			break;
 		}
 		default:
@@ -145,4 +174,56 @@ StatusView::SetAvatarIcon(const BBitmap* bitmap)
 	// We don't want the default avatar to override a real one
 	if (bitmap != ImageCache::Get()->GetImage("kPersonIcon"))
 		fAvatar->SetBitmap(bitmap);
+}
+
+
+void
+StatusView::_PopulateAccountMenu()
+{
+	AccountInstances accounts = fServer->GetActiveAccounts();
+	BFont font;
+	GetFont(&font);
+
+	if (fAccountsMenu->FindItem(B_TRANSLATE("All")) == NULL) {
+		BBitmap* icon = ImageCache::Get()->GetImage("kAsteriskIcon");
+		BBitmap* resized = RescaleBitmap(icon, font.Size(), font.Size());
+
+		fAccountsMenu->AddItem(new BitmapMenuItem(B_TRANSLATE("All"),
+			new BMessage(kSelectAllAccounts), resized));
+		fAccountsMenu->FindItem(B_TRANSLATE("All"))->SetMarked(true);
+	}
+
+	// Add unpopulated entries
+	for (int i = 0; i < accounts.CountItems(); i++) {
+		BString name = accounts.KeyAt(i);
+		int64 instance = accounts.ValueAt(i);
+		ProtocolLooper* looper = fServer->GetProtocolLooper(instance);
+		if (looper == NULL || looper->Protocol() == NULL
+				|| fAccountsMenu->FindItem(name.String()) != NULL)
+			continue;
+
+		BBitmap* icon = looper->Protocol()->Icon();
+		BBitmap* resized = RescaleBitmap(icon, font.Size(), font.Size());
+
+		BMessage* selected = new BMessage(kSelectAccount);
+		selected->AddInt64("instance", instance);
+		fAccountsMenu->AddItem(new BitmapMenuItem(name.String(), selected,
+			resized));
+	}
+
+	// Remove disabled accounts
+	if (fAccountsMenu->CountItems() - 1 > accounts.CountItems()) {
+		fAccountsMenu->FindMarked()->SetMarked(false);
+		fAccountsMenu->ItemAt(0)->SetMarked(true);
+		BMessage select(kSelectAllAccounts);
+		MessageReceived(&select);
+
+		for (int i = 0; i < fAccountsMenu->CountItems(); i++) {
+			bool found = false;
+			accounts.ValueFor(BString(fAccountsMenu->ItemAt(i)->Label()), &found);
+			if (found == false)
+				fAccountsMenu->RemoveItem(i);
+		}
+	}
+	fAccountsMenu->SetTargetForItems(this);
 }
