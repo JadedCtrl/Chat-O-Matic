@@ -502,13 +502,13 @@ ConversationView::_FakeChatNoRooms()
 	welcome.AddInt32("im_what", IM_MESSAGE_RECEIVED);
 
 	welcome.AddString("user_id", B_TRANSLATE("Master Foo"));
-	welcome.AddString("body", B_TRANSLATE("You know, only if you want. I'm not trying to be pushy."));
+	welcome.AddString("body", B_TRANSLATE("… You know, only if you want. I'm not trying to be pushy."));
 
 	welcome.AddString("user_id", B_TRANSLATE("Master Foo"));
-	welcome.AddString("body", B_TRANSLATE("You can join or create one through the Chat menu.. :-)"));
+	welcome.AddString("body", B_TRANSLATE("You can join or create one through the Chat menu. :-)"));
 
 	welcome.AddString("user_id", B_TRANSLATE("Master Foo"));
-	welcome.AddString("body", B_TRANSLATE("You aren't in any rooms or chats right now."));
+	welcome.AddString("body", B_TRANSLATE("Looks like you aren't in any rooms or chats right now."));
 	_AppendOrEnqueueMessage(&welcome);
 }
 
