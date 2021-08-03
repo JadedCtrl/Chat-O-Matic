@@ -124,6 +124,8 @@ private:
 	 static void		signal_account_error_changed(PurpleAccount* account,
 							const PurpleConnectionErrorInfo* old_error,
 							const PurpleConnectionErrorInfo* current_error);
+	 static void		signal_account_alias_changed(PurpleAccount* account,
+							const char* old);
 	 static void		signal_account_status_changed(PurpleAccount* account,
 							PurpleStatus* old, PurpleStatus* cur);
 
@@ -214,10 +216,14 @@ private:
 							void* user_data, size_t action_count,
 							va_list actions);
 
-	// Notify ui ops
+// Notify ui ops
 	 static void*		ui_op_notify_message(PurpleNotifyMsgType type,
 							const char* title, const char* primary,
 							const char* secondary);
+
+// Callbacks
+	 static void		callback_set_public_alias_failure(PurpleAccount* account,
+							const char* error);
 
 // Util
 			bool		is_own_user(PurpleAccount* account, const char* name);

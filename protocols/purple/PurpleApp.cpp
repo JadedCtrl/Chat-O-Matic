@@ -173,8 +173,17 @@ PurpleApp::ImMessage(BMessage* msg)
 			PurpleStatusPrimitive prim = cardie_status_to_purple(status);
 			const char* primId = purple_primitive_get_id_from_type(prim);
 
-			std::cout << "setting status to " << primId << "…\n";
+			std::cout << "purple setting status to " << primId << "…\n";
 			purple_account_set_status(account, primId, true);
+			break;
+		}
+		case IM_SET_OWN_NICKNAME:
+		{
+			PurpleAccount* account = _AccountFromMessage(msg);
+			const char* nick;
+			if (msg->FindString("user_name", &nick) == B_OK)
+				purple_account_set_public_alias(account, nick,
+					NULL, &callback_set_public_alias_failure);
 			break;
 		}
 		case IM_SEND_MESSAGE:
@@ -1039,6 +1048,8 @@ init_signals()
 		&handle, PURPLE_CALLBACK(signal_account_signed_on), NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-error-changed",
 		&handle, PURPLE_CALLBACK(signal_account_error_changed), NULL);
+	purple_signal_connect(purple_accounts_get_handle(), "account-alias-changed",
+		&handle, PURPLE_CALLBACK(signal_account_alias_changed), NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed",
 		&handle, PURPLE_CALLBACK(signal_account_status_changed), NULL);
 
@@ -1115,6 +1126,15 @@ signal_account_error_changed(PurpleAccount* account,
 	((PurpleApp*)be_app)->SendMessage(account, error);
 }
 
+
+static void
+signal_account_alias_changed(PurpleAccount* account, const char* old)
+{
+	BMessage own(IM_MESSAGE);
+	own.AddInt32("im_what", IM_OWN_NICKNAME_SET);
+	own.AddString("user_name", purple_account_get_alias(account));
+	((PurpleApp*)be_app)->SendMessage(account, own);
+}
 
 
 static void
@@ -1484,7 +1504,7 @@ ui_op_notify_message(PurpleNotifyMsgType type, const char* title,
 	BString text = _tr(primary);
 	text << "\n" << _tr(secondary);
 
-	BAlert* alert = new BAlert(title, text.String(), "OK");
+	BAlert* alert = new BAlert(title, text.String(), B_TRANSLATE("OK"));
 
 	if (type == PURPLE_NOTIFY_MSG_WARNING)
 		alert->SetType(B_WARNING_ALERT);
@@ -1493,6 +1513,18 @@ ui_op_notify_message(PurpleNotifyMsgType type, const char* title,
 
 	alert->Go(NULL);
 	return NULL;
+}
+
+
+static void
+callback_set_public_alias_failure(PurpleAccount* account, const char* error)
+{
+	BString text = B_TRANSLATE("Couldn't set your nick:\n%error%");
+	text.ReplaceAll("%error%", error);
+
+	BAlert* alert = new BAlert(B_TRANSLATE("Failed to set nickname"), text,
+		B_TRANSLATE("OK"));
+	alert->Go(NULL);
 }
 
 
