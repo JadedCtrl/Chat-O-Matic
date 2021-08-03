@@ -6,17 +6,18 @@
 #include "BitmapMenuItem.h"
 #include <Bitmap.h>
 
-BitmapMenuItem::BitmapMenuItem(const char *label, BMessage *msg,
-									BBitmap *bitmap, char shortcut,
-									uint32 modifiers)
+
+BitmapMenuItem::BitmapMenuItem(const char* label, BMessage* msg,
+	BBitmap* bitmap, char shortcut, uint32 modifiers, bool ownership)
 	: 
-	BMenuItem(label,msg,shortcut,modifiers), 
-	fBitmap(bitmap)
+	BMenuItem(label, msg, shortcut, modifiers),
+	fBitmap(bitmap),
+	fOwnership(ownership)
 {
 }
 
 
-BitmapMenuItem::BitmapMenuItem(BMessage *data)
+BitmapMenuItem::BitmapMenuItem(BMessage* data)
 	:	
 	BMenuItem(data)
 {
@@ -26,27 +27,28 @@ BitmapMenuItem::BitmapMenuItem(BMessage *data)
 
 BitmapMenuItem::~BitmapMenuItem(void)
 {
-	delete fBitmap;
+	if (fOwnership == true)
+		delete fBitmap;
 }
 
 
 status_t
-BitmapMenuItem::Archive(BMessage *data, bool deep) const
+BitmapMenuItem::Archive(BMessage* data, bool deep) const
 {
-	status_t status = BMenuItem::Archive(data,deep);
+	status_t status = BMenuItem::Archive(data, deep);
 	
 	if (status == B_OK && fBitmap)
-		status = fBitmap->Archive(data,deep);
+		status = fBitmap->Archive(data, deep);
 	
 	if (status == B_OK)
-		status = data->AddString("class","BitmapMenuItem");
+		status = data->AddString("class", "BitmapMenuItem");
 	
 	return status;
 }
 
 
 void
-BitmapMenuItem::GetContentSize(float *width, float *height)
+BitmapMenuItem::GetContentSize(float* width, float* height)
 {
 	float w,h;
 	BMenuItem::GetContentSize(&w,&h);
@@ -107,7 +109,8 @@ BitmapMenuItem::DrawContent(void)
 void
 BitmapMenuItem::SetBitmap(BBitmap *bitmap)
 {
-	delete fBitmap;
+	if (fOwnership == true)
+		delete fBitmap;
 	fBitmap = bitmap;
 }
 

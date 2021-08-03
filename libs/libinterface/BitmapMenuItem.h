@@ -11,29 +11,31 @@
 /*
 	BitmapMenuItems are simple little items, really. They provide the
 	ability to show a menu item with some text, a picture, or both. The item
-	takes ownership of the BBitmap given to it, so please do not delete it.
+	optionally takes ownership of the BBitmap given to it.
 	Note that it is still possible to see the checkmark on marked
 	BitmapMenuItems -- the bitmap does not obscure the checkmark.
 */
 
 class BitmapMenuItem : public BMenuItem {
 public:
-				BitmapMenuItem(const char *label, BMessage *msg,
-					BBitmap *bitmap, char shortcut = 0,
-					uint32 modifiers = 0);
-			 		BitmapMenuItem(BMessage *data);
-	virtual 		~BitmapMenuItem(void);
-	virtual	status_t	Archive(BMessage *data, bool deep = true) const;
+						BitmapMenuItem(const char* label, BMessage* msg,
+							BBitmap* bitmap, char shortcut = 0,
+							uint32 modifiers = 0, bool ownership = true);
+						BitmapMenuItem(BMessage* data);
+	virtual 			~BitmapMenuItem(void);
+
+	virtual	status_t	Archive(BMessage* data, bool deep = true) const;
 	
-	virtual	void		GetContentSize(float *width, float *height);	
+	virtual	void		GetContentSize(float* width, float* height);
 	virtual	void		DrawContent(void);
 	
-	virtual	void		SetBitmap(BBitmap *bitmap);
-		BBitmap*	Bitmap(void) const { return fBitmap; }
+	virtual	void		SetBitmap(BBitmap* bitmap);
+			BBitmap*	Bitmap(void) const { return fBitmap; }
 	
 private:
-	BBitmap			*fBitmap;
+	BBitmap*		fBitmap;
 	float			fBaselineOffset;
+	bool			fOwnership;
 };
 
 #endif
