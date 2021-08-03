@@ -253,15 +253,18 @@ Server::ImMessage(BMessage* msg)
 		case IM_OWN_STATUS_SET:
 		{
 			int32 status;
-			const char* protocol;
-			if (msg->FindInt32("status", &status) != B_OK)
-				return B_SKIP_MESSAGE;
-			if (msg->FindString("protocol", &protocol) != B_OK)
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+			if (msg->FindInt32("status", &status) != B_OK || looper == NULL)
 				return B_SKIP_MESSAGE;
 
-			AccountManager* accountManager = AccountManager::Get();
-			accountManager->SetStatus((UserStatus)status);
+			Contact* contact = looper->GetOwnContact();
+			if (contact != NULL) {
+				contact->SetNotifyStatus((UserStatus)status);
 
+				BString statusMsg;
+				if (msg->FindString("message", &statusMsg) == B_OK)
+					contact->SetNotifyPersonalStatus(statusMsg);
+			}
 			break;
 		}
 		case IM_STATUS_SET:

@@ -9,8 +9,6 @@
  
 #include <Window.h>
 
-#include "Observer.h"
-
 class BSplitView;
 class BTextView;
 
@@ -25,7 +23,7 @@ class Server;
 class StatusView;
 
 
-class MainWindow: public BWindow, public Observer {
+class MainWindow: public BWindow {
 public:
 						MainWindow();
 
@@ -34,10 +32,6 @@ public:
 
 	virtual	void		MessageReceived(BMessage* message);
 			void		ImMessage(BMessage* msg);
-
-			// Observer inheritance
-			void		ObserveInteger(int32 what, int32 val);
-			void		ObservePointer(int32 what, void* ptr);
 
 	virtual void		WorkspaceActivated(int32 workspace,
 							bool active);

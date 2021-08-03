@@ -5,15 +5,18 @@
 #ifndef _ACCOUNTS_MENU_H
 #define _ACCOUNTS_MENU_H
 
-#include <Menu.h>
+#include <PopUpMenu.h>
 
 #include "Observer.h"
 
 class ProtocolLooper;
+class Server;
 
 
-class AccountsMenu : public BMenu, public Observer {
+class AccountsMenu : public BPopUpMenu, public Observer {
 public:
+					AccountsMenu(const char* name, BMessage msg,
+						BMessage* allMsg, Server* server);
 					AccountsMenu(const char* name, BMessage msg,
 						BMessage* allMsg = NULL);
 					~AccountsMenu();
@@ -33,6 +36,7 @@ private:
 	BMessage fAccountMessage;
 	BMessage* fAllMessage;
 	static int32 fDefaultSelection;
+	Server* fServer;
 };
 
 #endif // _ACCOUNTS_MENU_H

@@ -23,15 +23,11 @@ AccountManager::AccountManager()
 	fStatus(STATUS_OFFLINE),
 	fReplicantMessenger(NULL)
 {
-	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
-	RegisterObserver(theApp->GetMainWindow());
 }
 
 
 AccountManager::~AccountManager()
 {
-	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
-	UnregisterObserver(theApp->GetMainWindow());
 	delete fReplicantMessenger;
 }
 
@@ -46,7 +42,7 @@ AccountManager::Get()
 
 
 void
-AccountManager::SetNickname(BString nick)
+AccountManager::SetNickname(BString nick, int64 instance)
 {
 	// Create message
 	BMessage* msg = new BMessage(IM_MESSAGE);
@@ -56,7 +52,12 @@ AccountManager::SetNickname(BString nick)
 	// Send message
 	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
 	MainWindow* win = theApp->GetMainWindow();
-	win->GetServer()->SendAllProtocolMessage(msg);
+	if (instance > -1) {
+		msg->AddInt64("instance", instance);
+		win->GetServer()->SendProtocolMessage(msg);
+	}
+	else
+		win->GetServer()->SendAllProtocolMessage(msg);
 }
 
 
@@ -75,26 +76,40 @@ AccountManager::Status() const
 
 
 void
-AccountManager::SetStatus(UserStatus status, const char* str)
+AccountManager::SetStatus(UserStatus status, const char* str, int64 instance)
 {
-	if (fStatus != status) {
-		// Create status change message
-		BMessage* msg = new BMessage(IM_MESSAGE);
-		msg->AddInt32("im_what", IM_SET_OWN_STATUS);
-		msg->AddInt32("status", (int32)status);
-		if (str != NULL)
-			msg->AddString("message", str);
+	if (fStatus == status && instance == -1)
+		return;
 
-		// Send message
-		TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
-		MainWindow* win = theApp->GetMainWindow();
+	// Create status change message
+	BMessage* msg = new BMessage(IM_MESSAGE);
+	msg->AddInt32("im_what", IM_SET_OWN_STATUS);
+	msg->AddInt32("status", (int32)status);
+	if (str != NULL)
+		msg->AddString("message", str);
+
+	// Send message
+	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
+	MainWindow* win = theApp->GetMainWindow();
+
+	if (instance > -1) {
+		msg->AddInt64("instance", instance);
+		win->GetServer()->SendProtocolMessage(msg);
+	}
+	else
 		win->GetServer()->SendAllProtocolMessage(msg);
 
-		// Notify status change
-		fStatus = status;
-		NotifyInteger(INT_ACCOUNT_STATUS, (int32)fStatus);
-		ReplicantStatusNotify((UserStatus)status);
-	}
+	// Notify status change
+	fStatus = status;
+	NotifyInteger(INT_ACCOUNT_STATUS, (int32)fStatus);
+	ReplicantStatusNotify((UserStatus)status);
+}
+
+
+void
+AccountManager::SetStatus(UserStatus status, int64 instance)
+{
+	SetStatus(status, NULL, instance);
 }
 
 

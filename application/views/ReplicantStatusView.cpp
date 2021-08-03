@@ -32,7 +32,6 @@
 #include "AppMessages.h"
 #include "AppPreferences.h"
 #include "ChatProtocolMessages.h"
-#include "NicknameTextControl.h"
 #include "ReplicantMenuItem.h"
 #include "Utils.h"
 

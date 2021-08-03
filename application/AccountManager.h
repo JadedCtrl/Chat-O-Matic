@@ -15,11 +15,12 @@ class AccountManager : public Notifier {
 public:
 	static	AccountManager*	Get();
 
-			void			SetNickname(BString nick);
+			void			SetNickname(BString nick, int64 instance = -1);
 
 			UserStatus		Status() const;
-			void			SetStatus(UserStatus status,
-								const char* str = NULL);
+			void			SetStatus(UserStatus status, int64 instance = -1);
+			void			SetStatus(UserStatus status, const char* str,
+								int64 instance = -1);
 
 			void			SetReplicantMessenger(BMessenger* messenger);
 			void			ReplicantStatusNotify(UserStatus status,

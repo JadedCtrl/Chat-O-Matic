@@ -26,27 +26,35 @@
 int32 AccountsMenu::fDefaultSelection = 0;
 
 
-AccountsMenu::AccountsMenu(const char* name, BMessage msg, BMessage* allMsg)
+AccountsMenu::AccountsMenu(const char* name, BMessage msg, BMessage* allMsg,
+	Server* server)
 	:
-	BMenu(name),
+	BPopUpMenu(name),
 	fAccountMessage(msg),
-	fAllMessage(allMsg)
+	fAllMessage(allMsg),
+	fServer(server)
 {
 	_PopulateMenu();
-
 	SetRadioMode(true);
 	SetLabelFromMarked(true);
-
-	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
-	server->RegisterObserver(this);
+	fServer->RegisterObserver(this);
 }
+
+
+AccountsMenu::AccountsMenu(const char* name, BMessage msg, BMessage* allMsg)
+	:
+	AccountsMenu(name, msg, allMsg,
+		((TheApp*)be_app)->GetMainWindow()->GetServer())
+{
+}
+
+
 
 
 AccountsMenu::~AccountsMenu()
 {
 	delete fAllMessage;
-	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
-	server->UnregisterObserver(this);
+	fServer->UnregisterObserver(this);
 }
 
 
@@ -69,9 +77,6 @@ AccountsMenu::SetDefaultSelection(BMenuItem* item)
 void
 AccountsMenu::_PopulateMenu()
 {
-	BFont font;
-	GetFont(&font);
-
 	// Add 'all' item if missing
 	if (fAllMessage != NULL && FindItem(B_TRANSLATE("All")) == NULL) {
 		BBitmap* icon = _EnsureAsteriskIcon();
@@ -79,8 +84,7 @@ AccountsMenu::_PopulateMenu()
 			icon, 0, 0, false));
 	}
 
-	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
-	AccountInstances accounts = server->GetActiveAccounts();
+	AccountInstances accounts = fServer->GetActiveAccounts();
 
 	// Add protocol item if not already in menu
 	for (int i = 0; i < accounts.CountItems(); i++) {
@@ -94,7 +98,7 @@ AccountsMenu::_PopulateMenu()
 		if (FindItem(label.String()) != NULL)
 			continue;
 
-		ProtocolLooper* looper = server->GetProtocolLooper(instance);
+		ProtocolLooper* looper = fServer->GetProtocolLooper(instance);
 		BBitmap* icon = _EnsureProtocolIcon(label.String(), looper);
 
 		BMessage* message = new BMessage(fAccountMessage);
@@ -132,7 +136,6 @@ BBitmap*
 AccountsMenu::_EnsureProtocolIcon(const char* label, ProtocolLooper* looper)
 {
 	BFont font;
-	GetFont(&font);
 	BBitmap* icon = ImageCache::Get()->GetImage(label);
 
 	if (icon == NULL && looper != NULL && looper->Protocol()->Icon() != NULL) {
@@ -148,7 +151,6 @@ BBitmap*
 AccountsMenu::_EnsureAsteriskIcon()
 {
 	BFont font;
-	GetFont(&font);
 	BBitmap* icon = ImageCache::Get()->GetImage("kAsteriskScaled");
 
 	if (icon == NULL) {

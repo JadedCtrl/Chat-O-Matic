@@ -1,5 +1,6 @@
 /*
  * Copyright 2009, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _STATUS_VIEW_H
@@ -8,34 +9,42 @@
 #include <View.h>
 
 #include "AppConstants.h"
+#include "Observer.h"
 
 class BPopUpMenu;
 
+class AccountsMenu;
 class BitmapView;
+class EnterTextView;
 class MenuButton;
-class NicknameTextControl;
 class Server;
 
-class StatusView : public BView {
+class StatusView : public BView, public Observer {
 public:
 							StatusView(const char* name, Server* server);
 
 	virtual	void			AttachedToWindow();
 	virtual	void			MessageReceived(BMessage* msg);
 
-			void			SetName(BString name);
-			void			SetStatus(UserStatus status);
-			void			SetAvatarIcon(const BBitmap* bitmap);
+	virtual void			ObserveString(int32 what, BString str);
+	virtual void			ObserveInteger(int32 what, int32 value);
+	virtual void			ObservePointer(int32 what, void* ptr);
+
 
 private:
-			void			_PopulateAccountMenu();
+			void			_SetName(BString name);
+			void			_SetStatus(UserStatus status);
+			void			_SetAvatarIcon(const BBitmap* bitmap);
 
-	NicknameTextControl* 	fNickname;
+			void			_SetToAccount();
+
+	EnterTextView*		 	fNickname;
 	BitmapView*				fAvatar;
 	BPopUpMenu*				fStatusMenu;
 
 	MenuButton*				fAccountsButton;
-	BPopUpMenu*				fAccountsMenu;
+	AccountsMenu*			fAccountsMenu;
+	int64					fAccount;
 
 	Server*					fServer;
 };
