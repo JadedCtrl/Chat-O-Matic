@@ -43,8 +43,7 @@ public:
 
 	void				SetNotifyName(const char* name);
 	void				SetNotifySubject(const char* subject);
-
-	bool				SetIconBitmap(BBitmap* icon);
+	bool				SetNotifyIconBitmap(BBitmap* icon);
 
 	BMessenger			Messenger() const;
 	void				SetMessenger(BMessenger messenger);

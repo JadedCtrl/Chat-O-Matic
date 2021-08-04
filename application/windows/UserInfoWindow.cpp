@@ -18,6 +18,7 @@
 #include <libinterface/BitmapView.h>
 
 #include "ImageCache.h"
+#include "NotifyMessage.h"
 #include "User.h"
 #include "Utils.h"
 
@@ -29,12 +30,20 @@
 UserInfoWindow::UserInfoWindow(User* user)
 	:
 	BWindow(BRect(200, 200, 300, 400),
-		B_TRANSLATE("User information"), B_FLOATING_WINDOW,
-		B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS),
-		fUser(user)
+		B_TRANSLATE("User information"), B_FLOATING_WINDOW_LOOK,
+		B_NORMAL_WINDOW_FEEL, B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS),
+	fUser(user)
 {
 	_InitInterface();
 	MoveTo(BAlert::AlertPosition(Bounds().Width(), Bounds().Height() / 2));
+
+	fUser->RegisterObserver(this);
+}
+
+
+UserInfoWindow::~UserInfoWindow()
+{
+	fUser->UnregisterObserver(this);
 }
 
 
@@ -50,23 +59,64 @@ UserInfoWindow::MessageReceived(BMessage* message)
 
 
 void
+UserInfoWindow::ObserveString(int32 what, BString string)
+{
+	Lock();
+	switch (what) {
+		case STR_CONTACT_NAME:
+			fNameLabel->SetText(string);
+			break;
+		case STR_PERSONAL_STATUS:
+			fTextStatusLabel->SetText(string);
+			break;
+	}
+	Unlock();
+}
+
+
+void
+UserInfoWindow::ObserveInteger(int32 what, int32 num)
+{
+	Lock();
+	switch (what) {
+		case INT_CONTACT_STATUS:
+			_UpdateStatusViews((UserStatus)num);
+			break;
+	}
+	Unlock();
+}
+
+
+void
+UserInfoWindow::ObservePointer(int32 what, void* ptr)
+{
+	Lock();
+	switch (what) {
+		case PTR_AVATAR_BITMAP:
+			fAvatar->SetBitmap((BBitmap*)ptr);
+			break;
+	}
+	Unlock();
+}
+
+
+
+void
 UserInfoWindow::_InitInterface()
 {
 	fNameLabel = new BStringView("nameLabel", fUser->GetName().String());
 	fNameLabel->SetFont(be_bold_font);
 
-	UserStatus status = fUser->GetNotifyStatus();
-	fStatusLabel = new BStringView("statusLabel", UserStatusToString(status));
+	fStatusLabel = new BStringView("statusLabel", "");
 
 	float iconSize = be_plain_font->Size() + 5;
-	BBitmap* statusBitmap =
-		ImageCache::Get()->GetImage(UserStatusToImageKey(status));
 	fStatusIcon = new BitmapView("statusIcon");
 	fStatusIcon->SetExplicitMaxSize(BSize(iconSize, iconSize));
-	fStatusIcon->SetBitmap(statusBitmap);
 
 	fTextStatusLabel = new BStringView("statusMessageLabel",
 		fUser->GetNotifyPersonalStatus());
+
+	_UpdateStatusViews(fUser->GetNotifyStatus());
 
 	const char* userId = fUser->GetId().String();
 	fIdLabel = new BTextView("idLabel");
@@ -108,4 +158,15 @@ UserInfoWindow::_InitInterface()
 			.End()
 		.End()
 	.End();
+}
+
+
+void
+UserInfoWindow::_UpdateStatusViews(UserStatus status)
+{
+	fStatusLabel->SetText(UserStatusToString(status));
+
+	BBitmap* statusBitmap =
+		ImageCache::Get()->GetImage(UserStatusToImageKey(status));
+	fStatusIcon->SetBitmap(statusBitmap);
 }

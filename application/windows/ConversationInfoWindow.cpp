@@ -15,6 +15,8 @@
 #include <StringView.h>
 #include <TextView.h>
 
+#include "NotifyMessage.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "ConversationInfoWindow"
@@ -23,8 +25,8 @@
 ConversationInfoWindow::ConversationInfoWindow(Conversation* chat)
 	:
 	BWindow(BRect(200, 200, 300, 400),
-		B_TRANSLATE("Room information"), B_FLOATING_WINDOW,
-		B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS),
+		B_TRANSLATE("Room information"), B_FLOATING_WINDOW_LOOK,
+		B_NORMAL_WINDOW_FEEL, B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS),
 	fChat(chat)
 {
 	_InitInterface();
@@ -37,6 +39,45 @@ ConversationInfoWindow::ConversationInfoWindow(Conversation* chat)
 ConversationInfoWindow::~ConversationInfoWindow()
 {
 	fChat->UnregisterObserver(this);
+}
+
+
+void
+ConversationInfoWindow::ObserveString(int32 what, BString string)
+{
+	Lock();
+	switch (what) {
+		case STR_ROOM_NAME:
+			fNameLabel->SetText(string);
+			break;
+	}
+	Unlock();
+}
+
+
+void
+ConversationInfoWindow::ObserveInteger(int32 what, int32 num)
+{
+	Lock();
+	switch (what) {
+		case INT_ROOM_MEMBERS:
+			_SetUserCountLabel(num);
+			break;
+	}
+	Unlock();
+}
+
+
+void
+ConversationInfoWindow::ObservePointer(int32 what, void* ptr)
+{
+	Lock();
+	switch (what) {
+		case PTR_ROOM_BITMAP:
+			fIcon->SetBitmap((BBitmap*)ptr);
+			break;
+	}
+	Unlock();
 }
 
 

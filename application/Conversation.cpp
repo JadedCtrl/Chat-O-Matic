@@ -293,11 +293,12 @@ Conversation::SetNotifySubject(const char* subject)
 
 
 bool
-Conversation::SetIconBitmap(BBitmap* icon)
+Conversation::SetNotifyIconBitmap(BBitmap* icon)
 {
 	if (icon != NULL) {
 		fIcon = icon;
 		GetView()->UpdateIcon();
+		NotifyPointer(PTR_ROOM_BITMAP, (void*)icon);
 		return true;
 	}
 	return false;
@@ -434,7 +435,9 @@ Conversation::RemoveUser(User* user)
 	user->UnregisterObserver(this);
 	GetView()->UpdateUserList(fUsers);
 	_SortConversationList();
+
 	_UpdateIcon();
+	NotifyInteger(INT_ROOM_MEMBERS, fUsers.CountItems());
 }
 
 
@@ -594,6 +597,7 @@ Conversation::_EnsureUser(BMessage* msg)
 		user = serverUser;
 		GetView()->UpdateUserList(fUsers);
 		_UpdateIcon(user);
+		NotifyInteger(INT_ROOM_MEMBERS, fUsers.CountItems());
 	}
 	// Not anywhere; create user
 	else if (user == NULL) {
@@ -604,6 +608,7 @@ Conversation::_EnsureUser(BMessage* msg)
 		fUsers.AddItem(id, user);
 		GetView()->UpdateUserList(fUsers);
 		_UpdateIcon(user);
+		NotifyInteger(INT_ROOM_MEMBERS, fUsers.CountItems());
 	}
 
 	if (name.IsEmpty() == false) {
@@ -642,7 +647,7 @@ Conversation::_UpdateIcon(User* user)
 	if (user != NULL && fUsers.CountItems() == 2
 			&& user->GetId() != GetOwnContact()->GetId()
 			&& _IsDefaultIcon(user->AvatarBitmap()) == false) {
-		fUserIcon = SetIconBitmap(user->AvatarBitmap());
+		fUserIcon = SetNotifyIconBitmap(user->AvatarBitmap());
 		return;
 	}
 
@@ -650,19 +655,19 @@ Conversation::_UpdateIcon(User* user)
 	{
 		case 0:
 		case 1:
-			SetIconBitmap(ImageCache::Get()->GetImage("kOnePersonIcon"));
+			SetNotifyIconBitmap(ImageCache::Get()->GetImage("kOnePersonIcon"));
 			break;
 		case 2:
-			SetIconBitmap(ImageCache::Get()->GetImage("kTwoPeopleIcon"));
+			SetNotifyIconBitmap(ImageCache::Get()->GetImage("kTwoPeopleIcon"));
 			break;
 		case 3:
-			SetIconBitmap(ImageCache::Get()->GetImage("kThreePeopleIcon"));
+			SetNotifyIconBitmap(ImageCache::Get()->GetImage("kThreePeopleIcon"));
 			break;
 		case 4:
-			SetIconBitmap(ImageCache::Get()->GetImage("kFourPeopleIcon"));
+			SetNotifyIconBitmap(ImageCache::Get()->GetImage("kFourPeopleIcon"));
 			break;
 		default:
-			SetIconBitmap(ImageCache::Get()->GetImage("kMorePeopleIcon"));
+			SetNotifyIconBitmap(ImageCache::Get()->GetImage("kMorePeopleIcon"));
 			break;
 	}
 	fUserIcon = false;

@@ -22,7 +22,10 @@ public:
 					ConversationInfoWindow(Conversation* chat);
 					~ConversationInfoWindow();
 
-//	virtual void	Observer
+	virtual void	ObserveString(int32 what, BString string);
+	virtual void	ObserveInteger(int32 what, int32 num);
+	virtual void	ObservePointer(int32 what, void* ptr);
+
 private:
 			void	_InitInterface();
 
