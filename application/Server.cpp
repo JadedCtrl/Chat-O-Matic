@@ -28,9 +28,10 @@
 #include "Account.h"
 #include "AccountManager.h"
 #include "AppMessages.h"
+#include "AppPreferences.h"
 #include "Cardie.h"
 #include "ChatProtocol.h"
-#include "AppPreferences.h"
+#include "ConversationInfoWindow.h"
 #include "ChatProtocolMessages.h"
 #include "Flags.h"
 #include "ImageCache.h"
@@ -69,11 +70,13 @@ Server::Server()
 	}
 
 	// Loading room pop-up items
-	BMessage leave;
-	size_t leaveSize;
-	const void* leaveBuff = res.LoadResource(B_MESSAGE_TYPE, 1120, &leaveSize);
-	leave.Unflatten((const char*)leaveBuff);
-	fChatItems.AddItem(new BMessage(leave));
+	for (int i = 0; i < 2; i++) {
+		size_t size;
+		BMessage temp;
+		const void* buff = res.LoadResource(B_MESSAGE_TYPE, 1120 + i, &size);
+		temp.Unflatten((const char*)buff);
+		fChatItems.AddItem(new BMessage(temp));
+	}
 
 	// Loading default chat commands
 	for (int i = 0; i < 9; i++) {
@@ -163,6 +166,15 @@ Server::Filter(BMessage* message, BHandler **target)
 			AccountManager* accountManager = AccountManager::Get();
 			accountManager->SetReplicantMessenger(messenger);
 			accountManager->ReplicantStatusNotify(accountManager->Status());
+			break;
+		}
+		case APP_ROOM_INFO:
+		{
+			Conversation* chat = _EnsureConversation(message);
+			if (chat != NULL) {
+				ConversationInfoWindow* win = new ConversationInfoWindow(chat);
+				win->Show();
+			}
 			break;
 		}
 		case APP_USER_INFO:

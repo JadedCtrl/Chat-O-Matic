@@ -15,7 +15,6 @@
 #include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
-#include <ScrollView.h>
 #include <TranslationUtils.h>
 
 #include "AccountManager.h"

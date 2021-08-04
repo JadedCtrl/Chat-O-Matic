@@ -56,6 +56,9 @@ const uint32 APP_REQUEST_HELP = 'CYhm';
 //! Display a "user info" window
 const uint32 APP_USER_INFO = 'CYuw';
 
+//! Display a "room info" window
+const uint32 APP_ROOM_INFO = 'CYrw';
+
 //! Edit the contact roster
 const uint32 APP_EDIT_ROSTER = 'CYer';
 

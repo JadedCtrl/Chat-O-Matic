@@ -76,6 +76,7 @@ SRCS = \
 	application/views/UserListView.cpp \
 	application/views/UserPopUp.cpp \
 	application/windows/AboutWindow.cpp \
+	application/windows/ConversationInfoWindow.cpp \
 	application/windows/MainWindow.cpp \
 	application/windows/PreferencesWindow.cpp \
 	application/windows/RosterEditWindow.cpp \
