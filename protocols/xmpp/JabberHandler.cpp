@@ -117,6 +117,14 @@ JabberHandler::Process(BMessage* msg)
 			}
 			break;
 		}
+		case IM_SET_OWN_NICKNAME:
+		{
+			const char* nick = msg->FindString("user_name");
+			if (nick != NULL)
+				for (int i = 0; i < fRooms.CountItems(); i++)
+					fRooms.ValueAt(i)->setNick(nick);
+			break;
+		}
 		case IM_SEND_MESSAGE:
 		{
 			const char* id = msg->FindString("chat_id");
@@ -1619,16 +1627,27 @@ JabberHandler::handleMUCParticipantPresence(gloox::MUCRoom *room,
 	if (chat_id.IsEmpty() == true || user_id.IsEmpty() == true)
 		return;
 
-	if (isSelf == true) {
-		int im_what = IM_ROOM_JOINED;
-		if (presence.presence() == 5)
-			im_what = IM_ROOM_LEFT;
+	if (participant.flags & gloox::UserSelf) {
+		if ((participant.flags & gloox::UserNickChanged)
+				|| (participant.flags & gloox::UserNickAssigned))
+		{
+			BMessage nickChanged(IM_MESSAGE);
+			nickChanged.AddInt32("im_what", IM_OWN_NICKNAME_SET);
+			nickChanged.AddString("user_name", participant.newNick.c_str());
+			_SendMessage(&nickChanged);
+			fNick = participant.newNick.c_str();
+		}
+		else {
+			int im_what = IM_ROOM_JOINED;
+			if (presence.presence() == 5)
+				im_what = IM_ROOM_LEFT;
 
-		BMessage joinedMsg(IM_MESSAGE);
-		joinedMsg.AddInt32("im_what", im_what);
-		joinedMsg.AddString("chat_id", chat_id);
-		_SendMessage(&joinedMsg);
-		_RoleChangedMsg(chat_id, user_id, role, aff);
+			BMessage joinedMsg(IM_MESSAGE);
+			joinedMsg.AddInt32("im_what", im_what);
+			joinedMsg.AddString("chat_id", chat_id);
+			_SendMessage(&joinedMsg);
+			_RoleChangedMsg(chat_id, user_id, role, aff);
+		}
 		return;
 	}
 
@@ -1866,7 +1885,7 @@ JabberHandler::handleSelfPresence(const gloox::RosterItem& item, const std::stri
 	msg.AddInt32("im_what", IM_OWN_CONTACT_INFO);
 	msg.AddString("protocol", Signature());
 	msg.AddString("user_id", item.jidJID().full().c_str());
-	msg.AddString("user_name", item.name().c_str());
+	msg.AddString("user_name", fNick.String());
 	msg.AddInt32("subscription", item.subscription());
 	msg.AddInt32("status", _GlooxStatusToApp(type));
 	msg.AddString("message", presenceMsg.c_str());
