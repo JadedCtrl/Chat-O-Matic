@@ -270,6 +270,7 @@ PurpleApp::ImMessage(BMessage* msg)
 				GList* users = purple_conv_chat_get_users(chat);
 				for (int i = 0; users != NULL; users = users->next) {
 					PurpleConvChatBuddy* user = (PurpleConvChatBuddy*)users->data;
+
 					const char* user_name = purple_conv_chat_cb_get_name(user);
 					if (is_own_user(account, user_name) == false)
 						user_ids.Add(BString(user_name));
@@ -1347,6 +1348,7 @@ signal_chat_buddy_joined(PurpleConversation* conv, const char* name,
 		if (is_own_user(purple_conversation_get_account(conv), name) == true)
 			return;
 	}
+
 	joined.AddString("chat_id", purple_conversation_get_name(conv));
 	joined.AddString("user_id", name);
 
@@ -1444,6 +1446,17 @@ static void
 ui_op_chat_rename_user(PurpleConversation* conv, const char* old_name,
 	const char* new_name, const char* new_alias)
 {
+	PurpleAccount* account = purple_conversation_get_account(conv);
+	PurpleApp* app = (PurpleApp*)be_app;
+
+	if (is_own_user(account, old_name) == true) {
+		const char* username = purple_account_get_username(account);
+		app->fUserNicks.RemoveItemFor(username);
+		app->fUserNicks.AddItem(username, new_name);
+		purple_account_set_alias(account, new_name);
+		return;
+	}
+
 	BString text = B_TRANSLATE("User changed name to %nick%");
 	text.ReplaceAll("%nick%", new_name);
 
@@ -1452,14 +1465,13 @@ ui_op_chat_rename_user(PurpleConversation* conv, const char* old_name,
 	left.AddString("user_id", old_name);
 	left.AddString("chat_id", purple_conversation_get_name(conv));
 	left.AddString("body", text);
-	PurpleAccount* account = purple_conversation_get_account(conv);
-	((PurpleApp*)be_app)->SendMessage(account, left);
+	app->SendMessage(account, left);
 
 	BMessage joined(IM_MESSAGE);
 	joined.AddInt32("im_what", IM_ROOM_PARTICIPANT_JOINED);
 	joined.AddString("user_id", new_name);
 	joined.AddString("chat_id", purple_conversation_get_name(conv));
-	((PurpleApp*)be_app)->SendMessage(account, joined);
+	app->SendMessage(account, joined);
 }
 
 
