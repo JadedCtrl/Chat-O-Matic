@@ -22,7 +22,6 @@ class BBitmap;
 
 class Conversation;
 class ProtocolLooper;
-class UserItem;
 class UserPopUp;
 
 
@@ -51,8 +50,6 @@ public:
 	void			SetProtocolLooper(ProtocolLooper* looper);
 	BBitmap*		ProtocolBitmap() const;
 
-	UserItem*		GetListItem();
-
 	BString			GetName() const;
 	BBitmap*		AvatarBitmap() const;
 	UserStatus		GetNotifyStatus() const;
@@ -75,8 +72,6 @@ protected:
 
 	BMessenger		fMessenger;
 	ProtocolLooper*	fLooper;
-
-	UserItem*		fListItem;
 
 	BString			fID;
 	BString			fName;

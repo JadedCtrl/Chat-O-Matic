@@ -10,7 +10,9 @@
 #include "Role.h"
 
 class BPopUpMenu;
+
 class Conversation;
+class User;
 
 
 enum
@@ -32,6 +34,10 @@ public:
 	virtual void	MouseDown(BPoint where);
 
 			void	Sort();
+
+			bool	HasUser(User* user);
+			void	AddUser(User* user);
+			void	RemoveUser(User* user);
 
 			void	SetConversation(Conversation* chat) { fChat = chat; }
 

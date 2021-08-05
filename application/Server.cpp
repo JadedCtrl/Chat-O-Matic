@@ -279,6 +279,17 @@ Server::ImMessage(BMessage* msg)
 			}
 			break;
 		}
+		case IM_OWN_NICKNAME_SET:
+		{
+			BString nick = msg->FindString("user_name");
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+			if (looper == NULL)
+				break;
+			Contact* contact = looper->GetOwnContact();
+			if (contact != NULL)
+				contact->SetNotifyName(nick.String());
+			break;
+		}
 		case IM_STATUS_SET:
 		{
 			int32 status;

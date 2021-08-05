@@ -69,6 +69,32 @@ UserListView::Sort()
 }
 
 
+bool
+UserListView::HasUser(User* user)
+{
+	for (int i = 0; i < CountItems(); i++)
+		if (user == ((UserItem*)ItemAt(i))->GetUser())
+			return true;
+	return false;
+}
+
+
+void
+UserListView::AddUser(User* user)
+{
+	AddItem(new UserItem(user));
+}
+
+
+void
+UserListView::RemoveUser(User* user)
+{
+	for (int i = 0; i < CountItems(); i++)
+		if (user == ((UserItem*)ItemAt(i))->GetUser())
+			RemoveItem(i);
+}
+
+
 BPopUpMenu*
 UserListView::_UserPopUp()
 {

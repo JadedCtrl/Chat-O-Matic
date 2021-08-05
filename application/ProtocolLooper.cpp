@@ -193,8 +193,10 @@ ProtocolLooper::GetOwnContact()
 void
 ProtocolLooper::SetOwnContact(Contact* contact)
 {
-	if (contact != NULL)
+	if (contact != NULL) {
 		fMySelf = contact;
+		AddUser(contact);
+	}
 }
 
 

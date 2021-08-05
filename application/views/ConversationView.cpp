@@ -30,7 +30,6 @@
 #include "RenderView.h"
 #include "SendTextView.h"
 #include "User.h"
-#include "UserItem.h"
 #include "UserListView.h"
 #include "Utils.h"
 
@@ -273,8 +272,8 @@ ConversationView::UpdateUserList(UserMap users)
 	fUserList->MakeEmpty();
 	for (int i = 0; i < users.CountItems(); i++) {
 		User* user = users.ValueAt(i);
-		if (fUserList->HasItem(user->GetListItem()) == false) {
-			fUserList->AddItem(user->GetListItem());
+		if (fUserList->HasUser(user) == false) {
+			fUserList->AddUser(user);
 			fUserList->Sort();
 		}
 	}

@@ -22,7 +22,6 @@
 #include "NotifyMessage.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
-#include "UserItem.h"
 #include "UserPopUp.h"
 #include "Utils.h"
 
@@ -33,7 +32,6 @@ User::User(BString id, BMessenger msgn)
 	fName(id),
 	fMessenger(msgn),
 	fLooper(NULL),
-	fListItem(NULL),
 	fItemColor(ForegroundColor(ui_color(B_LIST_BACKGROUND_COLOR))),
 	fStatus(STATUS_ONLINE),
 	fAvatarBitmap(NULL),
@@ -145,17 +143,6 @@ User::ProtocolBitmap() const
 		= ProtocolManager::Get()->ProtocolAddOn(protocol->Signature());
 
 	return addOn->ProtoIcon();
-}
-
-
-UserItem*
-User::GetListItem()
-{
-	if (fListItem == NULL) {
-		fListItem = new UserItem(fName, this, (int32)fStatus);
-		RegisterObserver(fListItem);
-	}
-	return fListItem;
 }
 
 

@@ -14,12 +14,19 @@
 #include "Utils.h"
 
 
-UserItem::UserItem(const char* name, User* user, int32 status)
+UserItem::UserItem(User* user)
 	:
-	BStringItem(name),
+	BStringItem(user->GetName()),
 	fUser(user),
-	fStatus(status)
+	fStatus(user->GetNotifyStatus())
 {
+	user->RegisterObserver(this);
+}
+
+
+UserItem::~UserItem()
+{
+	fUser->UnregisterObserver(this);
 }
 
 
@@ -81,5 +88,3 @@ UserItem::_GetTextColor(rgb_color highColor)
 	}
 	return highColor;
 }
-
-

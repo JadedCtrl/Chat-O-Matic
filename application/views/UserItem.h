@@ -15,23 +15,22 @@ class User;
 
 class UserItem : public BStringItem, public Observer {
 public:
-	UserItem(const char* name, User* user, int32 status);
+					UserItem(User* user);
+					~UserItem();
 
-	void DrawItem(BView* owner, BRect frame, bool complete);
+	virtual void	DrawItem(BView* owner, BRect frame, bool complete);
 
-	void ObserveString(int32 what, BString str);
-	void ObserveInteger(int32 what, int32 value);
+	virtual void	ObserveString(int32 what, BString str);
+	virtual void	ObserveInteger(int32 what, int32 value);
 
-	User* GetUser();
+			User*	GetUser();
 
 protected:
-	rgb_color _GetTextColor(rgb_color highColor);
+		rgb_color	_GetTextColor(rgb_color highColor);
 
 private:
 	User* fUser;
 	int fStatus;
 };
 
-
 #endif // USERITEM_H
-
