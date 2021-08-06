@@ -62,4 +62,7 @@ const uint32 APP_ROOM_INFO = 'CYrw';
 //! Edit the contact roster
 const uint32 APP_EDIT_ROSTER = 'CYer';
 
+//! Edit a specific account
+const uint32 APP_EDIT_ACCOUNT = 'CYea';
+
 #endif	// _APP_MESSAGES_H

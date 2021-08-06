@@ -9,6 +9,9 @@
  
 #include <Window.h>
 
+#include "Server.h"
+
+class BMenu;
 class BSplitView;
 class BTextView;
 
@@ -16,6 +19,7 @@ class Conversation;
 class ConversationItem;
 class ConversationListView;
 class ConversationView;
+class ProtocolSettings;
 class RosterItem;
 class RosterEditWindow;
 class RosterWindow;
@@ -44,11 +48,19 @@ public:
 
 private:
 			void		_InitInterface();
+
 			BMenuBar*	_CreateMenuBar();
+			BMenu*		_CreateAccountsMenu();
+			void		_RefreshAccountsMenu();
+
 			void		_ToggleMenuItems();
 
 			ConversationItem*
 						_EnsureConversationItem(BMessage* msg);
+	
+			void		_PopulateWithAccounts(BMenu* menu,
+							ProtocolSettings* settings);
+			void		_ReplaceMenu(const char* name, BMenu* newMenu);
 
 	Server*				fServer;
 	RosterWindow*		fRosterWindow;

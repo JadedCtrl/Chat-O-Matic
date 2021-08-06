@@ -17,11 +17,13 @@
 #include <MenuBar.h>
 #include <TranslationUtils.h>
 
+#include "AccountDialog.h"
 #include "AccountManager.h"
 #include "AccountsWindow.h"
 #include "AppMessages.h"
 #include "AppPreferences.h"
 #include "Cardie.h"
+#include "ChatProtocolAddOn.h"
 #include "ChatProtocolMessages.h"
 #include "ConversationItem.h"
 #include "ConversationListView.h"
@@ -29,10 +31,11 @@
 #include "MainWindow.h"
 #include "NotifyMessage.h"
 #include "PreferencesWindow.h"
+#include "ProtocolManager.h"
+#include "ProtocolSettings.h"
 #include "ReplicantStatusView.h"
 #include "RosterEditWindow.h"
 #include "RosterWindow.h"
-#include "Server.h"
 #include "StatusView.h"
 #include "TemplateWindow.h"
 
@@ -115,6 +118,19 @@ MainWindow::MessageReceived(BMessage* message)
 		{
 			AccountsWindow* win = new AccountsWindow();
 			win->Show();
+			break;
+		}
+		case APP_EDIT_ACCOUNT:
+		{
+			void* settings = NULL;
+			BString account = message->FindString("name");
+			message->FindPointer("settings", &settings);
+
+			if (account.IsEmpty() != true || settings != NULL) {
+				AccountDialog* win = new AccountDialog("Editing account",
+					(ProtocolSettings*)settings, account.String());
+				win->Show();
+			}
 			break;
 		}
 		case APP_NEW_CHAT:
@@ -218,9 +234,11 @@ MainWindow::MessageReceived(BMessage* message)
 			}
 			break;
 		}
-		case APP_ACCOUNT_DISABLED:
+		case APP_ACCOUNT_DISABLED: {
 			_ToggleMenuItems();
+			_RefreshAccountsMenu();
 			break;
+		}
 		case IM_MESSAGE:
 			ImMessage(message);
 			break;
@@ -283,8 +301,9 @@ MainWindow::ImMessage(BMessage* msg)
 		case IM_PROTOCOL_READY: {
 			if (fConversation == NULL)
 				fChatView->MessageReceived(msg);
-			_ToggleMenuItems();
 			fStatusView->MessageReceived(msg);
+			_ToggleMenuItems();
+			_RefreshAccountsMenu();
 			break;
 		}
 		case IM_PROTOCOL_DISABLE:
@@ -456,13 +475,6 @@ MainWindow::_CreateMenuBar()
 		new BMessage(B_QUIT_REQUESTED), 'Q', B_COMMAND_KEY));
 	programMenu->SetTargetForItems(this);
 
-	// Accounts
-	BMenu* accountsMenu = new BMenu(B_TRANSLATE("Accounts"));
-	accountsMenu->AddItem(
-		new BMenuItem(B_TRANSLATE("Manage accounts" B_UTF8_ELLIPSIS),
-			new BMessage(APP_SHOW_ACCOUNTS), '.', B_COMMAND_KEY));
-	accountsMenu->SetTargetForItems(this);
-
 	// Chat
 	BMenu* chatMenu = new BMenu(B_TRANSLATE("Chat"));
 	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("Join room" B_UTF8_ELLIPSIS),
@@ -492,12 +504,41 @@ MainWindow::_CreateMenuBar()
 	windowMenu->SetTargetForItems(this);
 
 	menuBar->AddItem(programMenu);
-	menuBar->AddItem(accountsMenu);
+	menuBar->AddItem(_CreateAccountsMenu());
 	menuBar->AddItem(chatMenu);
 	menuBar->AddItem(rosterMenu);
 	menuBar->AddItem(windowMenu);
 
 	return menuBar;
+}
+
+
+BMenu*
+MainWindow::_CreateAccountsMenu()
+{
+	BMenu* accountsMenu = new BMenu(B_TRANSLATE("Accounts"));
+	ProtocolManager* pm = ProtocolManager::Get();
+
+	for (uint32 i = 0; i < pm->CountProtocolAddOns(); i++) {
+		ChatProtocolAddOn* addOn = pm->ProtocolAddOnAt(i);
+		ProtocolSettings* settings = new ProtocolSettings(addOn);
+
+		_PopulateWithAccounts(accountsMenu, settings);
+	}
+
+	accountsMenu->AddSeparatorItem();
+	accountsMenu->AddItem(
+		new BMenuItem(B_TRANSLATE("Manage accounts" B_UTF8_ELLIPSIS),
+		new BMessage(APP_SHOW_ACCOUNTS), '.', B_COMMAND_KEY));
+	accountsMenu->SetTargetForItems(this);
+	return accountsMenu;
+}
+
+
+void
+MainWindow::_RefreshAccountsMenu()
+{
+	_ReplaceMenu(B_TRANSLATE("Accounts"), _CreateAccountsMenu());
 }
 
 
@@ -550,6 +591,41 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 			fListView->SelectConversation(0);
 		return item;
 	}
-
 	return NULL;
+}
+
+
+void
+MainWindow::_PopulateWithAccounts(BMenu* menu, ProtocolSettings* settings)
+{
+	if (!settings)
+		return;
+	BObjectList<BString> accounts = settings->Accounts();
+
+	// Add accounts to menu
+	for (int32 i = 0; i < accounts.CountItems(); i++) {
+		BString* account = accounts.ItemAt(i);
+		BMenu* accMenu = new BMenu(account->String());
+
+		BMessage* editMsg = new BMessage(APP_EDIT_ACCOUNT);
+		editMsg->AddPointer("settings", settings);
+		editMsg->AddString("account", *account);
+
+		accMenu->AddItem(
+			new BMenuItem(B_TRANSLATE("Modify account" B_UTF8_ELLIPSIS),
+				editMsg));
+		menu->AddItem(accMenu);
+	}
+}
+
+
+void
+MainWindow::_ReplaceMenu(const char* name, BMenu* newMenu)
+{
+	BMenuItem* old = fMenuBar->FindItem(name);
+	if (old == NULL || newMenu == NULL)
+		return;
+	int32 index = fMenuBar->IndexOf(old);
+	fMenuBar->RemoveItem(index);
+	fMenuBar->AddItem(newMenu, index);
 }
