@@ -24,6 +24,7 @@ public:
 	virtual void	ObserveInteger(int32 what, int32 value);
 
 			void	SetDefaultSelection(BMenuItem* item);
+			int64	GetDefaultSelection() { return fDefaultSelection; }
 
 private:
 			void	_PopulateMenu();
@@ -35,7 +36,7 @@ private:
 
 	BMessage fAccountMessage;
 	BMessage* fAllMessage;
-	static int32 fDefaultSelection;
+	static int64 fDefaultSelection;
 	Server* fServer;
 };
 

@@ -23,7 +23,7 @@
 #define B_TRANSLATION_CONTEXT "AccountsMenu"
 
 
-int32 AccountsMenu::fDefaultSelection = 0;
+int64 AccountsMenu::fDefaultSelection = -1;
 
 
 AccountsMenu::AccountsMenu(const char* name, BMessage msg, BMessage* allMsg,
@@ -49,8 +49,6 @@ AccountsMenu::AccountsMenu(const char* name, BMessage msg, BMessage* allMsg)
 }
 
 
-
-
 AccountsMenu::~AccountsMenu()
 {
 	delete fAllMessage;
@@ -68,9 +66,7 @@ AccountsMenu::ObserveInteger(int32 what, int32 value)
 void
 AccountsMenu::SetDefaultSelection(BMenuItem* item)
 {
-	fDefaultSelection = IndexOf(item);
-	if (fAllMessage != NULL)
-		fDefaultSelection--;
+	fDefaultSelection = item->Message()->GetInt64("instance", -1);
 }
 
 
@@ -89,6 +85,10 @@ AccountsMenu::_PopulateMenu()
 	// Add protocol item if not already in menu
 	for (int i = 0; i < accounts.CountItems(); i++) {
 		int64 instance = accounts.ValueAt(i);
+		// Initialize default selection if necessary
+		if (fDefaultSelection == -1)
+			fDefaultSelection = instance;
+
 		BString label = accounts.KeyAt(i).String();
 		if (label.CountChars() > 15) {
 			label.RemoveChars(16, label.CountChars() - 16);
@@ -106,8 +106,6 @@ AccountsMenu::_PopulateMenu()
 		AddItem(new AccountMenuItem(label.String(), message, icon));
 	}
 
-	int32 selection = fDefaultSelection;
-
 	// If an account has been disabled since last population… get ridda it
 	if ((fAllMessage != NULL && CountItems() - 1 > accounts.CountItems())
 			|| (fAllMessage == NULL && CountItems() > accounts.CountItems()))
@@ -118,17 +116,25 @@ AccountsMenu::_PopulateMenu()
 				if (accounts.ValueAt(j) == instance)
 					found = true;
 
+			if (fAllMessage != NULL && i == 0)
+				continue;
 			if (found == false)
 				RemoveItem(i);
 		}
 
+	// Deselect all
+	for (int i = 0; i < CountItems(); i++)
+		ItemAt(i)->SetMarked(false);
+
 	// Apply last/default selection
-	if (fAllMessage == NULL && selection < CountItems() && selection >= 0)
-		ItemAt(selection)->SetMarked(true);
-	else if (CountItems() > 0)
-		ItemAt(0)->SetMarked(true);
-	else
-		SetEnabled(false);
+	BMenuItem* selection = ItemAt(0);
+	if (fAllMessage == NULL)
+		for (int i = 0; i < CountItems(); i++) {
+			BMenuItem* item = ItemAt(i);
+			if (item->Message()->GetInt64("instance", -1) == fDefaultSelection)
+				selection = item;
+		}
+	selection->SetMarked(true);
 }
 
 
