@@ -42,7 +42,7 @@ private:
 			void		_LoadTemplate();
 
 	Server*				fServer;
-	int32				fSelectedAcc;
+	int64				fSelectedAcc;
 	BMenuField*			fMenuField;
 
 	ProtocolTemplate*	fTemplate;

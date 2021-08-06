@@ -38,7 +38,7 @@ TemplateWindow::TemplateWindow(const char* title, const char* templateType,
 	BWindow(BRect(0, 0, 400, 100), title, B_FLOATING_WINDOW,
 		B_NOT_RESIZABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
 	fServer(server),
-	fSelectedAcc(0),
+	fSelectedAcc(-1),
 	fTemplate(NULL),
 	fTemplateType(templateType),
 	fMessage(msg),
@@ -56,7 +56,7 @@ TemplateWindow::TemplateWindow(const char* title, ProtocolTemplate* temp,
 	BWindow(BRect(0, 0, 400, 100), title, B_FLOATING_WINDOW,
 		B_NOT_RESIZABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
 	fServer(server),
-	fSelectedAcc(0),
+	fSelectedAcc(-1),
 	fTemplate(temp),
 	fMessage(msg)
 {
@@ -99,10 +99,7 @@ TemplateWindow::MessageReceived(BMessage* msg)
 				break;
 			}
 
-			AccountInstances accounts = fServer->GetActiveAccounts();
-			ProtocolLooper* looper
-				= fServer->GetProtocolLooper(accounts.ValueAt(fSelectedAcc));
-
+			ProtocolLooper* looper = fServer->GetProtocolLooper(fSelectedAcc);
 			if (looper == NULL)
 				break;
 			looper->PostMessage(settings);
@@ -111,9 +108,9 @@ TemplateWindow::MessageReceived(BMessage* msg)
 		}
 		case kAccSelected:
 		{
-			int32 index;
-			if (msg->FindInt32("index", &index) == B_OK)
-				fSelectedAcc = index;
+			int64 instance;
+			if (msg->FindInt64("instance", &instance) == B_OK)
+				fSelectedAcc = instance;
 			_LoadTemplate();
 			break;
 		}
@@ -152,9 +149,13 @@ TemplateWindow::_InitInterface(bigtime_t instance)
 
 		fMenuField = new BMenuField("accountMenuField", NULL, accountMenu);
 	}
-	else
-		fMenuField = new BMenuField("accountMenuField", NULL,
-			new AccountsMenu("accountMenu", BMessage(kAccSelected)));
+	else {
+		AccountsMenu* accountMenu = new AccountsMenu("accountMenu",
+			BMessage(kAccSelected));
+		fMenuField = new BMenuField("accountMenuField", NULL, accountMenu);
+
+		fSelectedAcc = accountMenu->GetDefaultSelection();
+	}
 
 	BButton* fOkButton = new BButton(B_TRANSLATE("OK"), new BMessage(kOK));
 	if (accounts.CountItems() <= 0)
@@ -181,12 +182,10 @@ TemplateWindow::_InitInterface(bigtime_t instance)
 void
 TemplateWindow::_LoadTemplate()
 {
-	AccountInstances accounts = fServer->GetActiveAccounts();
-	if (accounts.CountItems() == 0 || fTemplateType.IsEmpty() == true)
+	if (fTemplateType.IsEmpty() == true)
 		return;
 
-	ProtocolLooper* looper
-		= fServer->GetProtocolLooper(accounts.ValueAt(fSelectedAcc));
+	ProtocolLooper* looper = fServer->GetProtocolLooper(fSelectedAcc);
 	if (looper == NULL)
 		return;
 
