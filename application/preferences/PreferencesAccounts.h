@@ -29,7 +29,12 @@ private:
 	BButton*		fToggleButton;
 
 	void			_LoadListView(ProtocolSettings* settings);
-	bool			_AccountEnabled(const char* account);
+
+	void			_DisableAccount(const char* account, int64 instance);
+	void			_EnableAccount(const char* account,
+						ProtocolSettings* settings);
+
+	int64			_AccountInstance(const char* account);
 };
 
 #endif	// _PREFERENCES_ACCOUNTS_H

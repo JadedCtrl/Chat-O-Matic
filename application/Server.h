@@ -35,6 +35,7 @@ public:
 							Server();
 			void			Quit();
 			void			LoginAll();
+			void			Login(ProtocolLooper* looper);
 
 	virtual	filter_result	Filter(BMessage* message, BHandler** target);
 			filter_result	ImMessage(BMessage* msg);
@@ -90,12 +91,11 @@ private:
 			ProtocolLoopers	fLoopers;
 			AccountInstances fAccounts;
 			BoolMap fAccountEnabled;
+			bool fStarted;
 
 			CommandMap fCommands;
 			BObjectList<BMessage> fChatItems;
 			BObjectList<BMessage> fUserItems;
 };
 
-
 #endif	// _SERVER_H
-

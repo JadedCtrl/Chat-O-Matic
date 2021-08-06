@@ -87,6 +87,8 @@ Server::Server()
 		ChatCommand* cmd = new ChatCommand(&temp);
 		fCommands.AddItem(cmd->GetName(), cmd);
 	}
+
+	fStarted = false;
 }
 
 
@@ -101,14 +103,21 @@ Server::Quit()
 void
 Server::LoginAll()
 {
-	for (uint32 i = 0; i < fLoopers.CountItems(); i++) {
-		ProtocolLooper* looper = fLoopers.ValueAt(i);
+	for (uint32 i = 0; i < fLoopers.CountItems(); i++)
+		Login(fLoopers.ValueAt(i));
+	fStarted = true;
+}
 
-		BMessage* msg = new BMessage(IM_MESSAGE);
-		msg->AddInt32("im_what", IM_SET_OWN_STATUS);
-		msg->AddInt32("status", STATUS_ONLINE);
+
+void
+Server::Login(ProtocolLooper* looper)
+{
+	BMessage* msg = new BMessage(IM_MESSAGE);
+	msg->AddInt32("im_what", IM_SET_OWN_STATUS);
+	msg->AddInt32("status", STATUS_ONLINE);
+
+	if (looper != NULL)
 		looper->PostMessage(msg);
-	}
 }
 
 
@@ -668,6 +677,9 @@ Server::AddProtocolLooper(bigtime_t instanceId, ChatProtocol* cayap)
 	fLoopers.AddItem(instanceId, looper);
 	fAccounts.AddItem(cayap->GetName(), instanceId);
 	fAccountEnabled.AddItem(cayap->GetName(), false);
+
+	if (fStarted == true)
+		Login(looper);
 }
 
 

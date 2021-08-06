@@ -133,14 +133,10 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 				if (index >= 0) {
 					AccountListItem* item = (AccountListItem*)fListView->ItemAt(fListView->CurrentSelection());
 
-					if (_AccountEnabled(item->Account() ) == true) {
+					if (_AccountInstance(item->Account()) > -1)
 						fToggleButton->SetLabel(B_TRANSLATE("Disable"));
-						fToggleButton->SetEnabled(true);
-					}
-					else {
+					else
 						fToggleButton->SetLabel(B_TRANSLATE("Enable"));
-						fToggleButton->SetEnabled(false);
-					}
 				}
 			}
 			break;
@@ -201,19 +197,13 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 			|| (item = (AccountListItem*)fListView->ItemAt(current)) == NULL)
 				break;
 
-			bool found = false;
-			AccountInstances accs = ((TheApp*)be_app)->GetMainWindow()->GetServer()->GetAccounts();
-			int64 instance = accs.ValueFor(BString(item->Account()), &found);
-			if (found == false)
-				return;
+			const char* account = item->Account();
+			int64 instance = _AccountInstance(account);
 
-			BMessage* remove = new BMessage(IM_MESSAGE);
-			remove->AddInt32("im_what", IM_PROTOCOL_DISABLE);
-			remove->AddInt64("instance", instance);
-			((TheApp*)be_app)->GetMainWindow()->PostMessage(remove);
-
-			fToggleButton->SetLabel(B_TRANSLATE("Enable"));
-			fToggleButton->SetEnabled(false);
+			if (instance == -1)
+				_EnableAccount(account, item->Settings());
+			else
+				_DisableAccount(account, instance);
 			break;
 		}
 		case kAccountAdded:
@@ -245,10 +235,7 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 					= new AccountListItem(settings, account.String());
 				fListView->AddItem(listItem);
 
-				// Add protocol/account instance
-				TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
-				ProtocolManager::Get()->AddAccount(settings->AddOn(),
-					account.String(), theApp->GetMainWindow());
+				_EnableAccount(account, settings);
 			} else {
 				// Rename list item
 				for (int32 i = 0; i < fListView->CountItems(); i++) {
@@ -263,7 +250,6 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 					}
 				}
 			}
-
 			fListView->SortItems(compare_by_name);
 			break;
 		}
@@ -291,14 +277,37 @@ PreferencesAccounts::_LoadListView(ProtocolSettings* settings)
 }
 
 
-bool
-PreferencesAccounts::_AccountEnabled(const char* account)
+void
+PreferencesAccounts::_DisableAccount(const char* account, int64 instance)
 {
-	bool found = false;
-	AccountInstances accs = ((TheApp*)be_app)->GetMainWindow()->GetServer()->GetAccounts();
-	accs.ValueFor(BString(account), &found);
+	BMessage* remove = new BMessage(IM_MESSAGE);
+	remove->AddInt32("im_what", IM_PROTOCOL_DISABLE);
+	remove->AddInt64("instance", instance);
+	((TheApp*)be_app)->GetMainWindow()->PostMessage(remove);
 
-	return found;
+	fToggleButton->SetLabel(B_TRANSLATE("Enable"));
+	fToggleButton->SetEnabled(false);
 }
 
 
+void
+PreferencesAccounts::_EnableAccount(const char* account,
+	ProtocolSettings* settings)
+{
+	ProtocolManager::Get()->AddAccount(settings->AddOn(), account,
+		((TheApp*)be_app)->GetMainWindow());
+}
+
+
+int64
+PreferencesAccounts::_AccountInstance(const char* account)
+{
+	bool found = false;
+	AccountInstances accs =
+		((TheApp*)be_app)->GetMainWindow()->GetServer()->GetAccounts();
+	int64 instance = accs.ValueFor(BString(account), &found);
+
+	if (found == false)
+		instance = -1;
+	return instance;
+}

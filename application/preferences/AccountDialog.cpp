@@ -122,7 +122,6 @@ AccountDialog::MessageReceived(BMessage* msg)
 						saveMsg->AddString("account", fAccountName->Text());
 					BMessenger(fTarget).SendMessage(saveMsg);
 				}
-
 				Close();
 			} else {
 				BAlert* alert = new BAlert("", error.String(),
