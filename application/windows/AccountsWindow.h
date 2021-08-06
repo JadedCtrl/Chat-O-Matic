@@ -1,11 +1,12 @@
 /*
  * Copyright 2009-2010, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef _PREFERENCES_ACCOUNTS_H
-#define _PREFERENCES_ACCOUNTS_H
+#ifndef _ACCOUNTS_WINDOW_H
+#define _ACCOUNTS_WINDOW_H
 
-#include <View.h>
+#include <Window.h>
 
 class BButton;
 class BListView;
@@ -14,11 +15,10 @@ class BPopUpMenu;
 class ProtocolSettings;
 
 
-class PreferencesAccounts : public BView {
+class AccountsWindow : public BWindow {
 public:
-					PreferencesAccounts();
+					AccountsWindow();
 
-	virtual	void	AttachedToWindow();
 	virtual	void	MessageReceived(BMessage* msg);
 
 private:
@@ -37,4 +37,4 @@ private:
 	int64			_AccountInstance(const char* account);
 };
 
-#endif	// _PREFERENCES_ACCOUNTS_H
+#endif	// _ACCOUNTS_WINDOW_H

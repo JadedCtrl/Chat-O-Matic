@@ -52,7 +52,6 @@ SRCS = \
 	application/preferences/AccountListItem.cpp \
 	application/preferences/AppPreferences.cpp \
 	application/preferences/PreferencesChatWindow.cpp \
-	application/preferences/PreferencesAccounts.cpp \
 	application/preferences/PreferencesBehavior.cpp \
 	application/preferences/PreferencesReplicant.cpp \
 	application/views/AccountsMenu.cpp \
@@ -76,6 +75,7 @@ SRCS = \
 	application/views/UserListView.cpp \
 	application/views/UserPopUp.cpp \
 	application/windows/AboutWindow.cpp \
+	application/windows/AccountsWindow.cpp \
 	application/windows/ConversationInfoWindow.cpp \
 	application/windows/MainWindow.cpp \
 	application/windows/PreferencesWindow.cpp \

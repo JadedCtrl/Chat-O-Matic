@@ -8,6 +8,8 @@
  *		Jaidyn Levesque, jadedctrl@teknik.io
  */
 
+#include "AccountsWindow.h"
+
 #include <Button.h>
 #include <Catalog.h>
 #include <ControlLook.h>
@@ -23,7 +25,6 @@
 #include "AccountListItem.h"
 #include "ChatProtocol.h"
 #include "ChatProtocolMessages.h"
-#include "PreferencesAccounts.h"
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
 #include "MainWindow.h"
@@ -32,7 +33,7 @@
 
 
 #undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "PreferencesAccounts"
+#define B_TRANSLATION_CONTEXT "AccountsWindow"
 
 
 const uint32 kAddAccount	= 'adac';
@@ -52,12 +53,16 @@ compare_by_name(const void* _item1, const void* _item2)
 }
 
 
-PreferencesAccounts::PreferencesAccounts()
-	: BView("Accounts", B_WILL_DRAW)
+AccountsWindow::AccountsWindow()
+	:
+	BWindow(BRect(200, 200, 300, 400),
+		B_TRANSLATE("Accounts"), B_TITLED_WINDOW,
+		B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS)
 {
 	fListView = new BListView("accountsListView");
 	fListView->SetInvocationMessage(new BMessage(kEditAccount));
 	fListView->SetSelectionMessage(new BMessage(kSelect));
+	fListView->SetExplicitMinSize(BSize(B_SIZE_UNSET, BFont().Size() * 20));
 
 	BScrollView* scrollView = new BScrollView("scrollView", fListView,
 		B_WILL_DRAW, false, true);
@@ -80,6 +85,7 @@ PreferencesAccounts::PreferencesAccounts()
 			addOn->ProtoFriendlySignature(), msg, addOn->ProtoIcon());
 		fProtosMenu->AddItem(item);
 	}
+	fProtosMenu->SetTargetForItems(this);
 
 	MenuButton* proto = new MenuButton("addButton", B_TRANSLATE("Add"), NULL);
 	proto->SetMenu(fProtosMenu);
@@ -94,9 +100,9 @@ PreferencesAccounts::PreferencesAccounts()
 	fToggleButton->SetEnabled(false);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
+		.SetInsets(B_USE_DEFAULT_SPACING)
 		.Add(scrollView)
 		.AddGroup(B_HORIZONTAL)
-			.SetInsets(B_USE_HALF_ITEM_SPACING)
 			.Add(proto)
 			.Add(fDelButton)
 			.AddGlue()
@@ -108,18 +114,7 @@ PreferencesAccounts::PreferencesAccounts()
 
 
 void
-PreferencesAccounts::AttachedToWindow()
-{
-	fListView->SetTarget(this);
-	fProtosMenu->SetTargetForItems(this);
-	fDelButton->SetTarget(this);
-	fEditButton->SetTarget(this);
-	fToggleButton->SetTarget(this);
-}
-
-
-void
-PreferencesAccounts::MessageReceived(BMessage* msg)
+AccountsWindow::MessageReceived(BMessage* msg)
 {
 	switch (msg->what) {
 		case kSelect: {
@@ -254,13 +249,13 @@ PreferencesAccounts::MessageReceived(BMessage* msg)
 			break;
 		}
 		default:
-			BView::MessageReceived(msg);
+			BWindow::MessageReceived(msg);
 	}
 }
 
 
 void
-PreferencesAccounts::_LoadListView(ProtocolSettings* settings)
+AccountsWindow::_LoadListView(ProtocolSettings* settings)
 {
 	if (!settings)
 		return;
@@ -278,7 +273,7 @@ PreferencesAccounts::_LoadListView(ProtocolSettings* settings)
 
 
 void
-PreferencesAccounts::_DisableAccount(const char* account, int64 instance)
+AccountsWindow::_DisableAccount(const char* account, int64 instance)
 {
 	BMessage* remove = new BMessage(IM_MESSAGE);
 	remove->AddInt32("im_what", IM_PROTOCOL_DISABLE);
@@ -291,7 +286,7 @@ PreferencesAccounts::_DisableAccount(const char* account, int64 instance)
 
 
 void
-PreferencesAccounts::_EnableAccount(const char* account,
+AccountsWindow::_EnableAccount(const char* account,
 	ProtocolSettings* settings)
 {
 	ProtocolManager::Get()->AddAccount(settings->AddOn(), account,
@@ -300,7 +295,7 @@ PreferencesAccounts::_EnableAccount(const char* account,
 
 
 int64
-PreferencesAccounts::_AccountInstance(const char* account)
+AccountsWindow::_AccountInstance(const char* account)
 {
 	bool found = false;
 	AccountInstances accs =

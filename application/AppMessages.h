@@ -8,6 +8,9 @@
 //! Show settings window
 const uint32 APP_SHOW_SETTINGS = 'RPST';
 
+//! Show accounts window
+const uint32 APP_SHOW_ACCOUNTS = 'RPac';
+
 //! Chat messages
 const uint32 APP_CHAT = 'CYch';
 

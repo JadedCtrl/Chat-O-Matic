@@ -18,6 +18,7 @@
 #include <TranslationUtils.h>
 
 #include "AccountManager.h"
+#include "AccountsWindow.h"
 #include "AppMessages.h"
 #include "AppPreferences.h"
 #include "Cardie.h"
@@ -107,6 +108,12 @@ MainWindow::MessageReceived(BMessage* message)
 		case APP_SHOW_SETTINGS:
 		{
 			PreferencesWindow* win = new PreferencesWindow();
+			win->Show();
+			break;
+		}
+		case APP_SHOW_ACCOUNTS:
+		{
+			AccountsWindow* win = new AccountsWindow();
 			win->Show();
 			break;
 		}
@@ -449,6 +456,13 @@ MainWindow::_CreateMenuBar()
 		new BMessage(B_QUIT_REQUESTED), 'Q', B_COMMAND_KEY));
 	programMenu->SetTargetForItems(this);
 
+	// Accounts
+	BMenu* accountsMenu = new BMenu(B_TRANSLATE("Accounts"));
+	accountsMenu->AddItem(
+		new BMenuItem(B_TRANSLATE("Manage accounts" B_UTF8_ELLIPSIS),
+			new BMessage(APP_SHOW_ACCOUNTS), '.', B_COMMAND_KEY));
+	accountsMenu->SetTargetForItems(this);
+
 	// Chat
 	BMenu* chatMenu = new BMenu(B_TRANSLATE("Chat"));
 	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("Join room" B_UTF8_ELLIPSIS),
@@ -478,6 +492,7 @@ MainWindow::_CreateMenuBar()
 	windowMenu->SetTargetForItems(this);
 
 	menuBar->AddItem(programMenu);
+	menuBar->AddItem(accountsMenu);
 	menuBar->AddItem(chatMenu);
 	menuBar->AddItem(rosterMenu);
 	menuBar->AddItem(windowMenu);

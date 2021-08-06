@@ -14,7 +14,6 @@
 #include <LayoutBuilder.h>
 #include <TabView.h>
 
-#include "PreferencesAccounts.h"
 #include "PreferencesBehavior.h"
 #include "PreferencesChatWindow.h"
 #include "PreferencesReplicant.h"
@@ -33,7 +32,6 @@ PreferencesWindow::PreferencesWindow()
 			| B_NOT_ZOOMABLE | B_CLOSE_ON_ESCAPE)
 {
 	BTabView* tabView = new BTabView("tabView", B_WIDTH_AS_USUAL);
-	tabView->AddTab(new PreferencesAccounts());
 	tabView->AddTab(new PreferencesBehavior());
 	tabView->AddTab(new PreferencesChatWindow());
 	tabView->AddTab(new PreferencesReplicant());
