@@ -133,16 +133,6 @@ Server::Filter(BMessage* message, BHandler **target)
 		case IM_ERROR:
 			ImError(message);
 			break;
-		case APP_CLOSE_CHAT_WINDOW:
-		{
-			BString id = message->FindString("chat_id");
-			if (id.Length() > 0) {
-				bool found = false;
-//				Conversation* item = fChatMap.ValueFor(id, &found);
-			}
-			result = B_SKIP_MESSAGE;
-			break;
-		}
 		case APP_ACCOUNT_DISABLED:
 		{
 			BString name;

@@ -54,18 +54,6 @@ ConversationView::ConversationView(Conversation* chat)
 }
 
 
-bool
-ConversationView::QuitRequested()
-{
-	BMessage msg(APP_CLOSE_CHAT_WINDOW);
-	if (fConversation != NULL) {
-		msg.AddString("chat_id", fConversation->GetId());
-		fConversation->Messenger().SendMessage(&msg);
-	}
-	return false;
-}
-
-
 void
 ConversationView::AttachedToWindow()
 {

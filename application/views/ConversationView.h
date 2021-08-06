@@ -28,7 +28,6 @@ class ConversationView : public BGroupView, public Observer, public Notifier {
 public:
 						ConversationView(Conversation* chat = NULL);
 
-	virtual	bool		QuitRequested();
 	virtual void		AttachedToWindow();
 
 	virtual	void		MessageReceived(BMessage* message);

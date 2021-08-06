@@ -8,12 +8,6 @@
 //! Show settings window
 const uint32 APP_SHOW_SETTINGS = 'RPST';
 
-//! Open chat window
-const uint32 APP_OPEN_CHAT_WINDOW = 'CYow';
-
-//! Close chat window
-const uint32 APP_CLOSE_CHAT_WINDOW = 'CYcw';
-
 //! Chat messages
 const uint32 APP_CHAT = 'CYch';
 
