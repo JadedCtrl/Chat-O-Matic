@@ -146,11 +146,6 @@ Server::Filter(BMessage* message, BHandler **target)
 		case APP_ACCOUNT_DISABLED:
 		{
 			BString name;
-			int64 instance;
-			if (message->FindInt64("instance", &instance) != B_OK)
-				return result;
-
-			// "Whoops" notification
 			if (AppPreferences::Get()->NotifyProtocolStatus == true
 					&& message->FindString("name", &name) == B_OK) {
 				BBitmap* icon = new BBitmap(message);
@@ -158,6 +153,19 @@ Server::Filter(BMessage* message, BHandler **target)
 				content.ReplaceAll("%user%", name);
 
 				_SendNotification(B_TRANSLATE("Disabled"), content, icon);
+			}
+			break;
+		}
+		case APP_ACCOUNT_FAILED:
+		{
+			BString name;
+			if (AppPreferences::Get()->NotifyProtocolStatus == true
+					&& message->FindString("name", &name) == B_OK) {
+				BBitmap* icon = new BBitmap(message);
+				BString content(B_TRANSLATE("%user% has been temporarily disabled."));
+				content.ReplaceAll("%user%", name);
+
+				_SendNotification(B_TRANSLATE("Connection failed"), content, icon);
 			}
 			break;
 		}
@@ -625,7 +633,6 @@ Server::ImMessage(BMessage* msg)
 					join.AddString("chat_id", fileName);
 					looper->PostMessage(&join);
 				}
-
 			NotifyInteger(INT_ACCOUNTS_UPDATED, 0);
 			break;
 		}

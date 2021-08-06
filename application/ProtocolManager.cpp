@@ -9,11 +9,13 @@
 #include <stdio.h>
 #include <image.h>
 
+#include <Bitmap.h>
 #include <Directory.h>
 #include <Entry.h>
 #include <Handler.h>
 
 #include "Account.h"
+#include "AppMessages.h"
 #include "ProtocolManager.h"
 #include "ChatProtocol.h"
 #include "MainWindow.h"
@@ -121,12 +123,23 @@ void
 ProtocolManager::AddAccount(ChatProtocolAddOn* addOn, const char* account,
 							BHandler* target)
 {
+	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
 	bigtime_t instanceId = system_time();
 	ChatProtocol* cayap = addOn->Protocol();
-	(void)new Account(instanceId, cayap, account, addOn->Signature(), target);
+	Account* acc =
+		new Account(instanceId, cayap, account, addOn->Signature(), target);
+
+	// Send a "whoops" notification if hits a failure
+	if (acc->InitCheck() != B_OK) {
+		BMessage error(APP_ACCOUNT_FAILED);
+		cayap->Icon()->Archive(&error);
+		error.AddString("name", account);
+		theApp->GetMainWindow()->MessageReceived(&error);
+		return;
+	}
+
 	fProtocolMap.AddItem(instanceId, cayap);
 
-	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
 	theApp->GetMainWindow()->GetServer()->AddProtocolLooper(
 		instanceId, cayap);
 }

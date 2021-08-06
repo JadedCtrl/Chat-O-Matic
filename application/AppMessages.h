@@ -47,8 +47,11 @@ const uint32 APP_MOVE_UP = 'CYmu';
 //! Select the downward conversation
 const uint32 APP_MOVE_DOWN = 'CYmd';
 
-//! Disable a given account
-const uint32 APP_ACCOUNT_DISABLED = 'CYda';
+//! An account has been disabled
+const uint32 APP_ACCOUNT_DISABLED = 'Axwo';
+
+//! An account's initial connection failed
+const uint32 APP_ACCOUNT_FAILED = 'Axwx';
 
 //! Request a "help" message
 const uint32 APP_REQUEST_HELP = 'CYhm';

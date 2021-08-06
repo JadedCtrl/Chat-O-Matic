@@ -23,6 +23,7 @@ Account::Account(bigtime_t instanceId, ChatProtocol* cayap,
 	:
 	fIdentifier(instanceId),
 	fName(name),
+	fStatus(B_ERROR),
 	fProtocol(cayap),
 	fMessenger(target),
 	fSettings(new BMessage())
@@ -39,7 +40,7 @@ Account::Account(bigtime_t instanceId, ChatProtocol* cayap,
 		// Load settings file
 		BFile file(path.Path(), B_READ_ONLY);
 		if (fSettings->Unflatten(&file) == B_OK)
-			fProtocol->UpdateSettings(fSettings);
+			fStatus = fProtocol->UpdateSettings(fSettings);
 	}
 }
 
@@ -47,6 +48,13 @@ Account::Account(bigtime_t instanceId, ChatProtocol* cayap,
 Account::~Account()
 {
 	delete fSettings;
+}
+
+
+status_t
+Account::InitCheck()
+{
+	return fStatus;
 }
 
 
@@ -70,5 +78,3 @@ Account::SendMessage(BMessage* message)
 	message->AddInt64("instance", fIdentifier);
 	return fMessenger.SendMessage(message);
 }
-
-

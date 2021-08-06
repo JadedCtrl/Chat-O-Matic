@@ -19,6 +19,8 @@ public:
 									BHandler* target);
 	virtual					~Account();
 
+			status_t		InitCheck();
+
 			bigtime_t		Identifier() const;
 			const char*		Name() const;
 
@@ -28,6 +30,7 @@ private:
 			bigtime_t		fIdentifier;
 			ChatProtocol*	fProtocol;
 			BString			fName;
+			status_t		fStatus;
 			BMessenger		fMessenger;
 			BMessage*		fSettings;
 };
