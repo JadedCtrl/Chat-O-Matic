@@ -123,13 +123,34 @@ MainWindow::MessageReceived(BMessage* message)
 		case APP_EDIT_ACCOUNT:
 		{
 			void* settings = NULL;
-			BString account = message->FindString("name");
+			BString account = message->FindString("account");
 			message->FindPointer("settings", &settings);
 
-			if (account.IsEmpty() != true || settings != NULL) {
+			if (account.IsEmpty() == false && settings != NULL) {
 				AccountDialog* win = new AccountDialog("Editing account",
 					(ProtocolSettings*)settings, account.String());
 				win->Show();
+			}
+			break;
+		}
+		case APP_TOGGLE_ACCOUNT:
+		{
+			ProtocolSettings* settings = NULL;
+			BString account = message->FindString("account");
+			int64 instance = message->GetInt64("instance", -1);
+			message->FindPointer("settings", (void**)&settings);
+
+			if (account.IsEmpty() == false && settings != NULL) {
+				// Enable
+				if (instance == -1)
+					ProtocolManager::Get()->AddAccount(settings->AddOn(),
+						account, this);
+				else {
+					BMessage remove(IM_MESSAGE);
+					remove.AddInt32("im_what", IM_PROTOCOL_DISABLE);
+					remove.AddInt64("instance", instance);
+					PostMessage(&remove);
+				}
 			}
 			break;
 		}
@@ -519,14 +540,17 @@ MainWindow::_CreateAccountsMenu()
 	BMenu* accountsMenu = new BMenu(B_TRANSLATE("Accounts"));
 	ProtocolManager* pm = ProtocolManager::Get();
 
+	bool hasAccounts = false;
 	for (uint32 i = 0; i < pm->CountProtocolAddOns(); i++) {
 		ChatProtocolAddOn* addOn = pm->ProtocolAddOnAt(i);
 		ProtocolSettings* settings = new ProtocolSettings(addOn);
 
-		_PopulateWithAccounts(accountsMenu, settings);
+		if (_PopulateWithAccounts(accountsMenu, settings) == true)
+			hasAccounts = true;
 	}
 
-	accountsMenu->AddSeparatorItem();
+	if (hasAccounts == true)
+		accountsMenu->AddSeparatorItem();
 	accountsMenu->AddItem(
 		new BMenuItem(B_TRANSLATE("Manage accounts" B_UTF8_ELLIPSIS),
 		new BMessage(APP_SHOW_ACCOUNTS), '.', B_COMMAND_KEY));
@@ -595,11 +619,11 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 }
 
 
-void
+bool
 MainWindow::_PopulateWithAccounts(BMenu* menu, ProtocolSettings* settings)
 {
 	if (!settings)
-		return;
+		return false;
 	BObjectList<BString> accounts = settings->Accounts();
 
 	// Add accounts to menu
@@ -607,15 +631,31 @@ MainWindow::_PopulateWithAccounts(BMenu* menu, ProtocolSettings* settings)
 		BString* account = accounts.ItemAt(i);
 		BMenu* accMenu = new BMenu(account->String());
 
+		BString toggleLabel = B_TRANSLATE("Enable");
+		bool isActive = false;
+		int64 instance = fServer->GetActiveAccounts().ValueFor(*account, &isActive);
+		if (isActive == true)
+			toggleLabel = B_TRANSLATE("Disable");
+
+		BMessage* toggleMsg = new BMessage(APP_TOGGLE_ACCOUNT);
+		toggleMsg->AddPointer("settings", settings);
+		toggleMsg->AddString("account", *account);
+		if (isActive == true)
+			toggleMsg->AddInt64("instance", instance);
+
 		BMessage* editMsg = new BMessage(APP_EDIT_ACCOUNT);
 		editMsg->AddPointer("settings", settings);
 		editMsg->AddString("account", *account);
 
+		accMenu->AddItem(new BMenuItem(toggleLabel.String(), toggleMsg));
+
 		accMenu->AddItem(
 			new BMenuItem(B_TRANSLATE("Modify account" B_UTF8_ELLIPSIS),
 				editMsg));
+
 		menu->AddItem(accMenu);
 	}
+	return (accounts.CountItems() > 0);
 }
 
 

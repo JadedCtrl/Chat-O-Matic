@@ -58,7 +58,7 @@ private:
 			ConversationItem*
 						_EnsureConversationItem(BMessage* msg);
 	
-			void		_PopulateWithAccounts(BMenu* menu,
+			bool		_PopulateWithAccounts(BMenu* menu,
 							ProtocolSettings* settings);
 			void		_ReplaceMenu(const char* name, BMenu* newMenu);
 

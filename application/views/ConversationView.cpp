@@ -512,7 +512,7 @@ ConversationView::_FakeChatNoAccounts()
 	welcome.AddString("body", B_TRANSLATE("Afterward, you can join a room or start a chat through the Chat menu. :-)"));
 
 	welcome.AddString("user_id", B_TRANSLATE("Master Foo"));
-	welcome.AddString("body", B_TRANSLATE("Add an account through the [Program→Preferences] menu to get started."));
+	welcome.AddString("body", B_TRANSLATE("Add an account through the [Accounts] menu to get started."));
 
 	welcome.AddString("user_id", B_TRANSLATE("Master Foo"));
 	welcome.AddString("body", B_TRANSLATE("It looks like you don't have any accounts set up."));

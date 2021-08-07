@@ -65,4 +65,7 @@ const uint32 APP_EDIT_ROSTER = 'CYer';
 //! Edit a specific account
 const uint32 APP_EDIT_ACCOUNT = 'CYea';
 
+//! Toggle a specific account
+const uint32 APP_TOGGLE_ACCOUNT = 'CYta';
+
 #endif	// _APP_MESSAGES_H
