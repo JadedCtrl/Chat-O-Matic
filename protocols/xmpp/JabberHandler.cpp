@@ -1591,10 +1591,10 @@ JabberHandler::handleChatState(const gloox::JID& from, gloox::ChatStateType stat
 
 	switch (state) {
 		case gloox::ChatStateComposing:
-			msg.AddInt32("im_what", IM_PARTICIPANT_STARTED_TYPING);
+			msg.AddInt32("im_what", IM_ROOM_PARTICIPANT_STARTED_TYPING);
 			break;
 		case gloox::ChatStatePaused:
-			msg.AddInt32("im_what", IM_PARTICIPANT_STOPPED_TYPING);
+			msg.AddInt32("im_what", IM_ROOM_PARTICIPANT_STOPPED_TYPING);
 			break;
 		case gloox::ChatStateGone:
 			// TODO
