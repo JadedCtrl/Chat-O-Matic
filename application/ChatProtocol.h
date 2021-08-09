@@ -59,19 +59,25 @@ public:
 		Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
 				  Bool "x_to_protocol", Bool "x_priority", int32 "x_perms",
 				  int32 "x_target_perms", int32 "x_target_antiperms" */
-	virtual BObjectList<BMessage> UserPopUpItems() = 0;
+	virtual BObjectList<BMessage> UserPopUpItems() {
+		return BObjectList<BMessage>();
+	}
 
 	/*! Custom menu items used in the conversation-list right-click menu.
 		Archived BMenuItem with some extra slots.
 		Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
 				  Bool "x_to_protocol", int32 "x_perms" */
-	virtual BObjectList<BMessage> ChatPopUpItems() = 0;
+	virtual BObjectList<BMessage> ChatPopUpItems() {
+		return BObjectList<BMessage>();
+	}
 
 	/*! Custom menubar items (in the "Protocol" menu).
 		Archived BMenuItem with some extra slots.
 		Requires: String "_label", Message "_msg", String "class" = "BMenuItem"
 				  Bool "x_to_protocol" */
-	virtual BObjectList<BMessage> MenuBarItems() = 0;
+	virtual BObjectList<BMessage> MenuBarItems() {
+		return BObjectList<BMessage>();
+	}
 
 	//! Protocol signature
 	virtual const char* Signature() const = 0;
@@ -80,7 +86,7 @@ public:
 	virtual const char* FriendlySignature() const = 0;
 
 	//! Protocol icon
-	virtual BBitmap* Icon() const = 0;
+	virtual BBitmap* Icon() const { return NULL; }
 
 	//! Add-on's path
 	virtual void SetAddOnPath(BPath path) = 0;
@@ -91,7 +97,7 @@ public:
 	virtual void SetName(const char* name) = 0;
 
 	//! Preferred encoding of messages
-	virtual uint32 GetEncoding() = 0;
+	virtual uint32 GetEncoding() { return 0xffff; }
 
 	//! Messenger interface used
 	virtual ChatProtocolMessengerInterface* MessengerInterface() const = 0;
