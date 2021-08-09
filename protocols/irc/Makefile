@@ -18,7 +18,8 @@ NAME = protocols/irc
 TYPE = SHARED
 
 # If you plan to use localization, specify the application's MIME signature.
-APP_MIME_SIG =
+APP_MIME_SIG = application/x-vnd.cardie.irc
+
 
 #	The following lines tell Pe and Eddie where the SRCS, RDEFS, and RSRCS are
 #	so that Pe and Eddie can fill them in for you.
@@ -38,8 +39,7 @@ SRCS = \
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
 RDEFS = \
-	protocols/irc/irc.rdef \
-	protocols/irc/Templates.rdef \
+#	protocols/irc/irc.rdef \
 
 #	Specify the resource files to use. Full or relative paths can be used.
 #	Both RDEFS and RSRCS can be utilized in the same Makefile.
@@ -61,7 +61,7 @@ RSRCS =
 #	- 	if your library does not follow the standard library naming scheme,
 #		you need to specify the path to the library and it's name.
 #		(e.g. for mylib.a, specify "mylib.a" or "path/mylib.a")
-LIBS =  be crypto network support ssl ircclient z $(STDCPPLIBS)
+LIBS =  be bnetapi localestub network support $(STDCPPLIBS)
 
 
 #	Specify additional paths to directories following the standard libXXX.so

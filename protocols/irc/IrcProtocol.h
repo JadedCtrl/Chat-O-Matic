@@ -5,101 +5,82 @@
 #ifndef _IRC_PROTOCOL_H
 #define _IRC_PROTOCOL_H
 
-#include <Path.h>
-#include <Resources.h>
 #include <String.h>
-
-#include <libircclient.h>
-#include <libirc_rfcnumeric.h>
+#include <StringList.h>
 
 #include <ChatProtocol.h>
 
-
-status_t connect_thread(void* data);
-
-
-typedef struct
-{
-	BString nick;
-	BString id;
-} irc_ctx_t;
-
-
+class BSocket;
+class BDataIO;
 
 class IrcProtocol : public ChatProtocol {
 public:
 						IrcProtocol();
+						~IrcProtocol();
 
 	// ChatProtocol inheritance
 	virtual	status_t	Init(ChatProtocolMessengerInterface* interface);
 	virtual	status_t	Shutdown();
 
+	virtual	status_t	UpdateSettings(BMessage* settings);
+
 	virtual	status_t	Process(BMessage* msg);
 
-	virtual	status_t	UpdateSettings(BMessage* msg);
 	virtual	BMessage	SettingsTemplate(const char* name);
 
-	virtual	BObjectList<BMessage> Commands();
-	virtual	BObjectList<BMessage> UserPopUpItems();
-	virtual	BObjectList<BMessage> ChatPopUpItems();
-	virtual	BObjectList<BMessage> MenuBarItems();
+	virtual	const char*	Signature() const { return "irc"; }
+	virtual const char*	FriendlySignature() const { return "IRC"; }
 
-	virtual	const char*	Signature() const;
-	virtual const char*	FriendlySignature() const;
+	virtual	void		SetAddOnPath(BPath path) { fAddOnPath = path; }
+	virtual	BPath		AddOnPath() { return fAddOnPath; }
 
-	virtual	BBitmap*	Icon() const;
-
-	virtual	void		SetAddOnPath(BPath path);
-	virtual	BPath		AddOnPath();
-
-	virtual	const char*	GetName();
-	virtual	void		SetName(const char* name);
-
-	virtual	uint32		GetEncoding();
+	virtual	const char*	GetName() { return fName; }
+	virtual	void		SetName(const char* name) { fName = name; }
 
 	virtual	ChatProtocolMessengerInterface*
-						MessengerInterface() const;
+						MessengerInterface() const { return fMessenger; }
+
 	// IRC
+			status_t	Loop();
+
 	BMessage* fSettings;
-	irc_session_t* fSession;
 
 private:
-	ChatProtocolMessengerInterface* fMessenger;
+			void		_ProcessLine(BString line);
+			void		_ProcessNumeric(int32 numeric, BString sender,
+							BStringList params, BString message);
+			void		_ProcessCommand(BString command, BString sender,
+							BStringList params, BString message);
 
-	thread_id fServerThread;
+			BString		_LineSender(BStringList words);
+			BString		_LineCode(BStringList words);
+			BStringList	_LineParameters(BStringList words);
+			BString		_LineBody(BString line);
 
-	BString fName;
+			void		_SendMsg(BMessage* msg);
+			void		_SendIrc(BString cmd);
+
+	// Read a data stream until newline found; if data found past newline,
+	// append to given buffer for later use
+			BString		_ReadUntilNewline(BDataIO* data, BString* extraBuffer);
+	// Trim given string until newline hit, return trimmed part
+			BString		_TrimStringToNewline(BString* str);
+
+	// GUI templates
+			BMessage	_AccountTemplate();
+			BMessage	_RoomTemplate();
+
+	BSocket* fSocket;
+	BString fRemainingBuf;
+	thread_id fRecvThread;
+
+	BString fNick;
+	const char* fIdent;
+	BString fPartText;
+
 	BPath fAddOnPath;
-	BResources fResources;
+	BString fName;
+	ChatProtocolMessengerInterface* fMessenger;
 };
-
-
-irc_callbacks_t	get_callbacks();
-
-void	event_connect(irc_session_t* session, const char* event,
-						const char* origin, const char** params,
-						unsigned int count);
-
-void	event_numeric(irc_session_t* session, unsigned int event,
-			const char* origin, const char** params, unsigned int count);
-
-void	event_join(irc_session_t* session, const char* event,
-			const char* joiner, const char** channel, unsigned int count);
-void	event_part(irc_session_t* session, const char* event,
-			const char* quitter, const char** chanReason, unsigned int count);
-
-void	event_channel(irc_session_t* session, const char* event,
-			const char* sender, const char** chanBody, unsigned int count);
-void	event_privmsg(irc_session_t* session, const char* event,
-			const char* sender, const char** selfBody, unsigned int count);
-
-void	event_nick(irc_session_t* session, const char* event,
-			const char* oldNick, const char** newNick, unsigned int count);
-
-
-BString	_UserNick(const char* userId);
-bool	_IsOwnUser(const char* userId, irc_session_t* session);
-
-void	_SendMessage(BMessage* msg);
 
 #endif // _IRC_PROTOCOL_H
