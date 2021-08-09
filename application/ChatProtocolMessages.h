@@ -30,29 +30,29 @@ enum im_what_code {
 	 */
 
 	//!	Request a server-side contact list from protocol →Protocol
-	IM_GET_CONTACT_LIST					= 1,
+	IM_GET_ROSTER						= 1,
 
 	/*!	Server-side contact list received →App
 		Requires:	Stringlist "user_id" */
-	IM_CONTACT_LIST						= 2,
+	IM_ROSTER							= 2,
 
 	/*!	Add a contact to the roster		→Protocol
 		The slots for this message are determined by the protocol's
 		"roster" template (ChatProtocol::SettingsTemplate("roster")) */
-	IM_CONTACT_LIST_ADD_CONTACT			= 3,
+	IM_ROSTER_ADD_CONTACT				= 3,
 
 	/*!	Remove a contact				→Protocol
 		Requires:	String "user_id" */
-	IM_CONTACT_LIST_REMOVE_CONTACT		= 4,
+	IM_ROSTER_REMOVE_CONTACT			= 4,
 
 	/*!	Contact(s) removed from the server-side list →App
 		Requires:	String "user_id" */
-	IM_CONTACT_LIST_CONTACT_REMOVED		= 5,
+	IM_ROSTER_CONTACT_REMOVED			= 5,
 
 	/*! Edit some data on contact		→Protocol
 		The slots for this message are determined by the protocol's
 		"roster" template (ChatProtocol::SettingsTemplate("roster")) */
-	IM_CONTACT_LIST_EDIT_CONTACT		= 6,
+	IM_ROSTER_EDIT_CONTACT				= 6,
 
 
 	/*
@@ -79,39 +79,29 @@ enum im_what_code {
 		Accepts:	in64s "when" */
 	IM_LOGS_RECEIVED					= 23,
 
-	/*!	User started typing				→App
-		Requires:	String "chat_id", String "user_id" */
-	IM_USER_STARTED_TYPING				= 24,
-
-	/*!	User stopped typing				→App
-		Requires:	String "chat_id", String "user_id" */
-	IM_USER_STOPPED_TYPING				= 25,
-
 
 	/*
-	 * Messages related to contact changes.
+	 * Messages related changes in general users.
 	 */
 
-	//!	Change contact's status			→Protocol
-	IM_SET_NICKNAME						= 40,
+	/*!	User's nick has changed			→App */
+	IM_USER_NICKNAME_SET				= 40,
 
-	//!	Contact's status has changed	→App
-	IM_NICKNAME_SET						= 41,
+	/*!	Received new status for user	→App
+		Requires:	String "user_id", int32/UserStatus "status" */
+	IM_USER_STATUS_SET					= 41,
+
+	/*!	User's avatar icon was changed	→App
+		Requires:	String "user_id", Ref "ref" */
+	IM_USER_AVATAR_SET					= 42,
 
 
 	/*
 	 * Messages related to contact's information received from protocols.
 	 */
 
-	/*!	Received contact new status		→App
-		Requires:	String "user_id", int32/UserStatus "status" */
-	IM_STATUS_SET						= 60,
-
-	/*!	User's avatar icon was changed	→App
-		Requires:	String "user_id", Ref "ref" */
-	IM_AVATAR_SET						= 61,
-
-	//!	Get contact information			→Protocol
+	/*!	Get contact information			→Protocol
+		Requires:	String "user_id" */
 	IM_GET_CONTACT_INFO					= 62,
 
 	/*!	Received contact information	→App
@@ -120,13 +110,14 @@ enum im_what_code {
 					int32/UserStatus "status" */
 	IM_CONTACT_INFO						= 63,
 
-	//!	Request contact information		→Protocol
+	/*!	Request contact information		→Protocol
+		Requires:	String "user_id" */
 	IM_GET_EXTENDED_CONTACT_INFO		= 64,
 
 	/*!	Received contact information	→App
 		Requires:	String "user_id",
 					non-standard slots used by "roster" template
-		Accepts:	String "user_name", String "full_name" */
+		Accepts:	String "user_name" */
 	IM_EXTENDED_CONTACT_INFO			= 65,
 
 
@@ -169,10 +160,10 @@ enum im_what_code {
 	 * Contacts registration.
 	 */
 
-	//!	Start listening to changes in these contact's statuses
+	//!	Start listening to changes in these contact's statuses [unused]
 	IM_REGISTER_CONTACTS				= 100,
 
-	//!	Stop listening to status changes from these contacts
+	//!	Stop listening to status changes from these contacts [unused]
 	IM_UNREGISTER_CONTACTS				= 101,
 
 
@@ -180,19 +171,19 @@ enum im_what_code {
 	 * Authorization.
 	 */
 
-	//!	Ask authorization to contact
+	//!	Ask authorization to contact [unused]
 	IM_ASK_AUTHORIZATION				= 120,
 
-	//!	Authorization response received from contact
+	//!	Authorization response received from contact [unused]
 	IM_AUTHORIZATION_RECEIVED			= 121,
 
-	//!	Authorization request received from contact
+	//!	Authorization request received from contact [unused]
 	IM_AUTHORIZATION_REQUEST			= 122,
 
-	//!	Authorization response given to contact
+	//!	Authorization response given to contact [unused]
 	IM_AUTHORIZATION_RESPONSE			= 123,
 
-	//!	Contact has been authorized
+	//!	Contact has been authorized [unused]
 	IM_CONTACT_AUTHORIZED				= 124,
 
 
@@ -389,6 +380,19 @@ enum im_what_code {
 
 
 	/*
+	 * Misc. room-related messages
+	 */
+
+	/*!	User started typing				→App [unused]
+		Requires:	String "chat_id", String "user_id" */
+	IM_ROOM_PARTICIPANT_STARTED_TYPING		= 210,
+
+	/*!	User stopped typing				→App [unused]
+		Requires:	String "chat_id", String "user_id" */
+	IM_ROOM_PARTICIPANT_STOPPED_TYPING		= 211,
+
+
+	/*
 	 * Misc. UI messages
 	 */
 
@@ -403,10 +407,10 @@ enum im_what_code {
 	 * Special messages
 	 */
 
-	//!	Special message forwarded to protocol; Unused
+	//!	Special message forwarded to protocol [unused]
 	IM_SPECIAL_TO_PROTOCOL				= 1000,
 
-	//!	Special message forwarded from protocol; Unused
+	//!	Special message forwarded from protocol [unused]
 	IM_SPECIAL_FROM_PROTOCOL			= 1001,
 
 	/*!	Protocol is ready				→App
@@ -417,8 +421,8 @@ enum im_what_code {
 		This requests that the app delete the ChatProtocol and its
 		ProtocolLooper― so invoking ChatProtocol::Shutdown().
 		This should be sent by the protocol after connection errors or a
-		disconnect, when the addon doesn't have anything left to do (other
-		than yearn for the sweet hand of death). */
+		disconnect, when the addon doesn't have anything left to do other
+		than yearn for the sweet hand of death. */
 	IM_PROTOCOL_DISABLE					= 1003
 };
 

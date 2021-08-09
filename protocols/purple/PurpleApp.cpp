@@ -284,7 +284,7 @@ PurpleApp::ImMessage(BMessage* msg)
 			SendMessage(purple_conversation_get_account(conv), parts);
 			break;
 		}
-		case IM_GET_CONTACT_LIST:
+		case IM_GET_ROSTER:
 		{
 			PurpleAccount* account = _AccountFromMessage(msg);
 
@@ -297,12 +297,12 @@ PurpleApp::ImMessage(BMessage* msg)
 			}
 
 			BMessage roster(IM_MESSAGE);
-			roster.AddInt32("im_what", IM_CONTACT_LIST);
+			roster.AddInt32("im_what", IM_ROSTER);
 			roster.AddStrings("user_id", user_ids);
 			SendMessage(_AccountFromMessage(msg), roster);
 			break;
 		}
-		case IM_CONTACT_LIST_ADD_CONTACT:
+		case IM_ROSTER_ADD_CONTACT:
 		{
 			PurpleAccount* account = _AccountFromMessage(msg);
 			BString user_id = msg->FindString("user_id");
@@ -317,7 +317,7 @@ PurpleApp::ImMessage(BMessage* msg)
 			update_buddy(buddy_cache(buddy), user_id, BString(user_name));
 			break;
 		}
-		case IM_CONTACT_LIST_REMOVE_CONTACT:
+		case IM_ROSTER_REMOVE_CONTACT:
 		{
 			PurpleAccount* account = _AccountFromMessage(msg);
 			BString user_id = msg->FindString("user_id");
@@ -331,7 +331,7 @@ PurpleApp::ImMessage(BMessage* msg)
 			BEntry(buddy_cache(buddy)).Remove();
 			break;
 		}
-		case IM_CONTACT_LIST_EDIT_CONTACT:
+		case IM_ROSTER_EDIT_CONTACT:
 		{
 			PurpleAccount* account = _AccountFromMessage(msg);
 			BString user_id = msg->FindString("user_id");
@@ -1186,7 +1186,7 @@ signal_blist_node_added(PurpleBlistNode* node)
 		return;
 
 	BMessage add(IM_MESSAGE);
-	add.AddInt32("im_what", IM_CONTACT_LIST);
+	add.AddInt32("im_what", IM_ROSTER);
 	add.AddString("user_id", purple_buddy_get_name(buddy));
 	((PurpleApp*)be_app)->SendMessage(purple_buddy_get_account(buddy), add);
 
@@ -1215,7 +1215,7 @@ signal_blist_node_removed(PurpleBlistNode* node)
 		return;
 
 	BMessage rem(IM_MESSAGE);
-	rem.AddInt32("im_what", IM_CONTACT_LIST_CONTACT_REMOVED);
+	rem.AddInt32("im_what", IM_ROSTER_CONTACT_REMOVED);
 	rem.AddString("user_id", purple_buddy_get_name(buddy));
 	((PurpleApp*)be_app)->SendMessage(purple_buddy_get_account(buddy), rem);
 }
@@ -1226,7 +1226,7 @@ signal_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* old_status,
 	PurpleStatus* status)
 {
 	BMessage note(IM_MESSAGE);
-	note.AddInt32("im_what", IM_STATUS_SET);
+	note.AddInt32("im_what", IM_USER_STATUS_SET);
 	note.AddInt32("status", purple_status_to_cardie(status));
 	note.AddString("user_id", purple_buddy_get_name(buddy));
 	((PurpleApp*)be_app)->SendMessage(purple_buddy_get_account(buddy), note);
@@ -1242,7 +1242,7 @@ signal_buddy_icon_changed(PurpleBuddy* buddy)
 		return;
 
 	BMessage avatar(IM_MESSAGE);
-	avatar.AddInt32("im_what", IM_AVATAR_SET);
+	avatar.AddInt32("im_what", IM_USER_AVATAR_SET);
 	avatar.AddString("user_id", purple_buddy_get_name(buddy));
 	avatar.AddRef("ref", &ref);
 	((PurpleApp*)be_app)->SendMessage(purple_buddy_get_account(buddy), avatar);

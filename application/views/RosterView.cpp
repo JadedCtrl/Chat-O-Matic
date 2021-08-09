@@ -112,7 +112,7 @@ RosterView::ImMessage(BMessage* msg)
 {
 	int32 im_what = msg->FindInt32("im_what");
 	switch (im_what) {
-		case IM_STATUS_SET:
+		case IM_USER_STATUS_SET:
 		{
 			int32 status;
 			int64 instance;
@@ -181,7 +181,7 @@ RosterView::ImMessage(BMessage* msg)
 			}
 			break;
 		}
-		case IM_CONTACT_LIST_CONTACT_REMOVED:
+		case IM_ROSTER_CONTACT_REMOVED:
 		{
 			int32 status = -1;
 			int64 instance;
@@ -197,7 +197,7 @@ RosterView::ImMessage(BMessage* msg)
 			if (rosterItem)
 				fListView->RemoveItem(rosterItem);
 		}
-		case IM_AVATAR_SET:
+		case IM_USER_AVATAR_SET:
 		case IM_CONTACT_INFO:
 		case IM_EXTENDED_CONTACT_INFO:
 		{

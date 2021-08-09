@@ -85,7 +85,7 @@ friendly_signature()
 uint32
 version()
 {
-	return APP_VERSION_1_PRE_ALPHA_1;
+	return APP_VERSION_1_ALPHA_1;
 }
 
 

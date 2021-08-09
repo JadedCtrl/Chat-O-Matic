@@ -308,11 +308,11 @@ MainWindow::ImMessage(BMessage* msg)
 			delete item->GetConversation();
 			break;
 		}
-		case IM_AVATAR_SET:
-		case IM_STATUS_SET:
+		case IM_USER_AVATAR_SET:
+		case IM_USER_STATUS_SET:
 		case IM_CONTACT_INFO:
 		case IM_EXTENDED_CONTACT_INFO:
-		case IM_CONTACT_LIST_CONTACT_REMOVED: {
+		case IM_ROSTER_CONTACT_REMOVED: {
 			if (fRosterWindow != NULL)
 				fRosterWindow->PostMessage(msg);
 			if (RosterEditWindow::Check() == true)

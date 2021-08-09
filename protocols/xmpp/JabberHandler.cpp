@@ -265,7 +265,7 @@ JabberHandler::Process(BMessage* msg)
 				fVCardManager->fetchVCard(gloox::JID(user_id.String()), this);
 			break;
 		}
-		case IM_CONTACT_LIST_ADD_CONTACT:
+		case IM_ROSTER_ADD_CONTACT:
 		{
 			BString user_name = msg->FindString("user_name");
 			BString user_id;
@@ -278,7 +278,7 @@ JabberHandler::Process(BMessage* msg)
 			fClient->rosterManager()->synchronize();
 			break;
 		}
-		case IM_CONTACT_LIST_REMOVE_CONTACT:
+		case IM_ROSTER_REMOVE_CONTACT:
 		{
 			BString user_id;
 			if (msg->FindString("user_id", &user_id) != B_OK)
@@ -288,12 +288,12 @@ JabberHandler::Process(BMessage* msg)
 			fClient->rosterManager()->synchronize();
 
 			BMessage rm(IM_MESSAGE);
-			rm.AddInt32("im_what", IM_CONTACT_LIST_CONTACT_REMOVED);
+			rm.AddInt32("im_what", IM_ROSTER_CONTACT_REMOVED);
 			rm.AddString("user_id", user_id);
 			_SendMessage(&rm);
 			break;
 		}
-		case IM_CONTACT_LIST_EDIT_CONTACT:
+		case IM_ROSTER_EDIT_CONTACT:
 		{
 			BString user_id;
 			BString user_name = msg->FindString("user_name");
@@ -1001,7 +1001,7 @@ JabberHandler::_StatusSetMsg(const char* user_id, gloox::Presence::PresenceType 
 						  const char* message, const char* resource)
 {
 	BMessage msg(IM_MESSAGE);
-	msg.AddInt32("im_what", IM_STATUS_SET);
+	msg.AddInt32("im_what", IM_USER_STATUS_SET);
 	msg.AddString("user_id", user_id);
 	msg.AddInt32("status", _GlooxStatusToApp(type));
 
@@ -1147,7 +1147,7 @@ JabberHandler::_AvatarChanged(const char* id, const char* filename)
 	if (fJid.bare() == id)
 		msg.AddInt32("im_what", IM_OWN_AVATAR_SET);
 	else {
-		msg.AddInt32("im_what", IM_AVATAR_SET);
+		msg.AddInt32("im_what", IM_USER_AVATAR_SET);
 		msg.AddString("user_id", id);
 	}
 	msg.AddRef("ref", &ref);
@@ -1467,7 +1467,7 @@ JabberHandler::handleRoster(const gloox::Roster& roster)
 	std::list<BMessage> msgs;
 
 	BMessage contactListMsg(IM_MESSAGE);
-	contactListMsg.AddInt32("im_what", IM_CONTACT_LIST);
+	contactListMsg.AddInt32("im_what", IM_ROSTER);
 
 	gloox::Roster::const_iterator it = roster.begin();
 	for (; it != roster.end(); ++it) {
@@ -1591,10 +1591,10 @@ JabberHandler::handleChatState(const gloox::JID& from, gloox::ChatStateType stat
 
 	switch (state) {
 		case gloox::ChatStateComposing:
-			msg.AddInt32("im_what", IM_USER_STARTED_TYPING);
+			msg.AddInt32("im_what", IM_PARTICIPANT_STARTED_TYPING);
 			break;
 		case gloox::ChatStatePaused:
-			msg.AddInt32("im_what", IM_USER_STOPPED_TYPING);
+			msg.AddInt32("im_what", IM_PARTICIPANT_STOPPED_TYPING);
 			break;
 		case gloox::ChatStateGone:
 			// TODO

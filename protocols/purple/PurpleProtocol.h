@@ -101,5 +101,4 @@ private:
 	BObjectList<BMessage> fCommands;
 };
 
-
 #endif // _PURPLE_PROTOCOL_H

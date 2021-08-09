@@ -248,7 +248,7 @@ Server::ImMessage(BMessage* msg)
 	int32 im_what = msg->FindInt32("im_what");
 
 	switch (im_what) {
-		case IM_CONTACT_LIST:
+		case IM_ROSTER:
 		{
 			int i = 0;
 			BString id;
@@ -257,7 +257,7 @@ Server::ImMessage(BMessage* msg)
 			result = B_SKIP_MESSAGE;
 			break;
 		}
-		case IM_CONTACT_LIST_CONTACT_REMOVED:
+		case IM_ROSTER_CONTACT_REMOVED:
 		{
 			Contact* contact = _EnsureContact(msg);
 			ProtocolLooper* looper = _LooperFromMessage(msg);
@@ -297,7 +297,7 @@ Server::ImMessage(BMessage* msg)
 				contact->SetNotifyName(nick.String());
 			break;
 		}
-		case IM_STATUS_SET:
+		case IM_USER_STATUS_SET:
 		{
 			int32 status;
 
@@ -382,7 +382,7 @@ Server::ImMessage(BMessage* msg)
 			}
 			break;
 		}
-		case IM_AVATAR_SET:
+		case IM_USER_AVATAR_SET:
 		{
 			User* user = _EnsureUser(msg);
 			if (!user)
@@ -531,8 +531,8 @@ Server::ImMessage(BMessage* msg)
 			invite->Go();
 			break;
 		}
-		case IM_USER_STARTED_TYPING:
-		case IM_USER_STOPPED_TYPING:
+		case IM_ROOM_PARTICIPANT_STARTED_TYPING:
+		case IM_ROOM_PARTICIPANT_STOPPED_TYPING:
 		{
 //			User* user = _EnsureUser();
 //			Conversation* chat = _EnsureConversation();

@@ -163,7 +163,7 @@ RosterEditWindow::MessageReceived(BMessage* message)
 			}
 
 			BMessage* edit = new BMessage(IM_MESSAGE);
-			edit->AddInt32("im_what", IM_CONTACT_LIST_EDIT_CONTACT);
+			edit->AddInt32("im_what", IM_ROSTER_EDIT_CONTACT);
 
 			const char* title;
 			if (ritem == NULL)
@@ -186,7 +186,7 @@ RosterEditWindow::MessageReceived(BMessage* message)
 		case kAddMember:
 		{
 			BMessage* add = new BMessage(IM_MESSAGE);
-			add->AddInt32("im_what", IM_CONTACT_LIST_ADD_CONTACT);
+			add->AddInt32("im_what", IM_ROSTER_ADD_CONTACT);
 			TemplateWindow* win =
 				new TemplateWindow(B_TRANSLATE(kAddTitle), "roster",
 					add, fServer);
@@ -202,7 +202,7 @@ RosterEditWindow::MessageReceived(BMessage* message)
 			User* user = ritem->GetContact();
 
 			BMessage* rem = new BMessage(IM_MESSAGE);
-			rem->AddInt32("im_what", IM_CONTACT_LIST_REMOVE_CONTACT);
+			rem->AddInt32("im_what", IM_ROSTER_REMOVE_CONTACT);
 			rem->AddString("user_id", user->GetId());
 
 			user->GetProtocolLooper()->PostMessage(rem);
