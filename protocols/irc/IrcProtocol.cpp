@@ -114,6 +114,29 @@ IrcProtocol::Process(BMessage* msg)
 {
 	int32 im_what = msg->FindInt32("im_what");
 	switch (im_what) {
+		case IM_SEND_MESSAGE:
+		{
+			BString chat_id = msg->FindString("chat_id");
+			BString body = msg->FindString("body");
+			if (chat_id.IsEmpty() == false || body.IsEmpty() == false) {
+				BStringList lines;
+				body.Split("\n", true, lines);
+
+				for (int i = 0; i < lines.CountStrings(); i++) {
+					BString cmd = "PRIVMSG ";
+					cmd << chat_id << " :" << lines.StringAt(i) << "\n";
+					_SendIrc(cmd);
+
+					BMessage sent(IM_MESSAGE);
+					sent.AddInt32("im_what", IM_MESSAGE_SENT);
+					sent.AddString("user_id", fIdent);
+					sent.AddString("chat_id", chat_id);
+					sent.AddString("body", lines.StringAt(i));
+					_SendMsg(&sent);
+				}
+			}
+			break;
+		}
 		case IM_JOIN_ROOM:
 		{
 			BString chat_id;
@@ -150,8 +173,9 @@ IrcProtocol::Process(BMessage* msg)
 		default:
 			std::cerr << "Unhandled message for IRC:\n";
 			msg->PrintToStream();
+			return B_ERROR;
 	}
-	return B_ERROR;
+	return B_OK;
 }
 
 
@@ -312,6 +336,20 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 		BString cmd = "PONG ";
 		cmd << params.Last() << "\n";
 		_SendIrc(cmd);
+	}
+	else if (command == "PRIVMSG")
+	{
+		BString chat_id = params.First();
+		BString user_id = _SenderIdent(sender);
+		if (params.First() == fNick)
+			chat_id = _SenderNick(sender);
+
+		BMessage chat(IM_MESSAGE);
+		chat.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+		chat.AddString("chat_id", chat_id);
+		chat.AddString("user_id", user_id);
+		chat.AddString("body", params.Last());
+		_SendMsg(&chat);
 	}
 	else if (command == "NOTICE")
 	{
