@@ -54,9 +54,8 @@ Conversation::~Conversation()
 {
 	((TheApp*)be_app)->GetMainWindow()->RemoveConversation(this);
 
-	ProtocolLooper* looper = GetProtocolLooper();
-	if (looper != NULL)
-		looper->RemoveConversation(this);
+	if (fLooper != NULL)
+		fLooper->RemoveConversation(this);
 
 	delete fChatView;
 	delete fConversationItem;
@@ -235,6 +234,27 @@ Conversation::ImMessage(BMessage* msg)
 
 			SetRole(user_id, role);
 			GetView()->MessageReceived(msg);
+			break;
+		}
+		case IM_USER_NICKNAME_SET:
+		{
+			BString user_id = msg->FindString("user_id");
+			BString user_name = msg->FindString("user_name");
+			if (user_id.IsEmpty() == false && user_name.IsEmpty() == false) {
+				User* user = UserById(user_id);
+
+				BString text(B_TRANSLATE("** %old% has changed their nick to %new%."));
+				text.ReplaceAll("%new%", user_name);
+				if (user != NULL)
+					text.ReplaceAll("%old%", user->GetName());
+				else
+					text.ReplaceAll("%old%", user_id);
+
+				BMessage* notify = new BMessage(IM_MESSAGE);
+				notify->AddInt32("im_what", IM_MESSAGE_RECEIVED);
+				notify->AddString("body", text);
+				GetView()->MessageReceived(notify);
+			}
 			break;
 		}
 		case IM_LOGS_RECEIVED:
@@ -611,9 +631,8 @@ Conversation::_EnsureUser(BMessage* msg)
 		NotifyInteger(INT_ROOM_MEMBERS, fUsers.CountItems());
 	}
 
-	if (name.IsEmpty() == false) {
+	if (name.IsEmpty() == false && user->GetName() != name)
 		user->SetNotifyName(name);
-	}
 	user->RegisterObserver(this);
 	return user;
 }

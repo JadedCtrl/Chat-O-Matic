@@ -288,13 +288,30 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_OWN_NICKNAME_SET:
 		{
-			BString nick = msg->FindString("user_name");
+			BString nick;
 			ProtocolLooper* looper = _LooperFromMessage(msg);
-			if (looper == NULL)
+			if (looper == NULL || msg->FindString("user_name", &nick) != B_OK)
 				break;
 			Contact* contact = looper->GetOwnContact();
 			if (contact != NULL)
 				contact->SetNotifyName(nick.String());
+			break;
+		}
+		case IM_USER_NICKNAME_SET:
+		{
+			BString nick;
+			if (msg->FindString("user_name", &nick) != B_OK)
+				return B_SKIP_MESSAGE;
+
+			User* user = _EnsureUser(msg);
+			if (user == NULL)
+				break;
+
+			ChatMap conv = user->Conversations();
+			for (int i = 0; i < conv.CountItems(); i++)
+				conv.ValueAt(i)->ImMessage(msg);
+
+			user->SetNotifyName(nick);
 			break;
 		}
 		case IM_USER_STATUS_SET:
@@ -984,7 +1001,8 @@ Server::_EnsureConversation(BMessage* message)
 		if (item == NULL) {
 			item = new Conversation(chat_id, Looper());
 			item->SetProtocolLooper(looper);
-			item->AddUser(looper->GetOwnContact());
+			if (looper->GetOwnContact() != NULL)
+				item->AddUser(looper->GetOwnContact());
 			looper->AddConversation(item);
 
 			BMessage meta(IM_MESSAGE);

@@ -84,7 +84,8 @@ enum im_what_code {
 	 * Messages related changes in general users.
 	 */
 
-	/*!	User's nick has changed			→App */
+	/*!	User's nick has changed			→App
+		Requires:	String "user_id", String "user_name" */
 	IM_USER_NICKNAME_SET				= 40,
 
 	/*!	Received new status for user	→App
@@ -256,7 +257,7 @@ enum im_what_code {
 
 	/*!	User has explicitly joined		→App
 		 Requires:	String "chat_id", String "user_id"
-		 Accepts:	String "body" */
+		 Accepts:	String "body", String "user_name" */
 	IM_ROOM_PARTICIPANT_JOINED			= 160,
 
 	/*!	A user left the room			→App
