@@ -8,10 +8,17 @@
 #include <String.h>
 #include <StringList.h>
 
+#include <libsupport/KeyMap.h>
+
 #include <ChatProtocol.h>
+
+
+typedef KeyMap<BString, BString> StringMap;
+
 
 class BSocket;
 class BDataIO;
+
 
 class IrcProtocol : public ChatProtocol {
 public:
@@ -65,6 +72,8 @@ private:
 			BString 	_SenderNick(BString sender);
 			BString 	_SenderIdent(BString sender);
 
+			BString		_IdentNick(BString ident);
+
 			// Read a data stream until newline found; if data found past
 			// newline, append to given buffer for later use
 			BString		_ReadUntilNewline(BDataIO* data, BString* extraBuffer);
@@ -87,6 +96,8 @@ private:
 	// WHOREPLY is requested by the add-on to populate the user-list, but the
 	// user might also use the /who command― if the user does, this is true
 	bool fWhoRequested;
+
+	StringMap fIdentNicks; // User ident → nick
 
 	BPath fAddOnPath;
 	BString fName;

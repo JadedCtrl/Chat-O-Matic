@@ -137,6 +137,7 @@ IrcProtocol::Process(BMessage* msg)
 			}
 			break;
 		}
+		case IM_ROOM_INVITE_ACCEPT:
 		case IM_JOIN_ROOM:
 		{
 			BString chat_id;
@@ -167,6 +168,17 @@ IrcProtocol::Process(BMessage* msg)
 				meta.AddInt32("room_default_flags",
 					ROOM_AUTOJOIN | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
 				_SendMsg(&meta);
+			}
+			break;
+		}
+		case IM_ROOM_SEND_INVITE:
+		{
+			BString chat_id = msg->FindString("chat_id");
+			BString user_id = msg->FindString("user_id");
+			if (chat_id.IsEmpty() == false || user_id.IsEmpty() == false) {
+				BString cmd("INVITE ");
+				cmd << _IdentNick(user_id) << " " << chat_id << "\n";
+				_SendIrc(cmd);
 			}
 			break;
 		}
@@ -271,6 +283,7 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params)
 				user.AddString("chat_id", channel);
 				user.AddString("user_id", ident);
 				user.AddString("user_name", nick);
+				fIdentNicks.AddItem(ident, nick);
 				_SendMsg(&user);
 			}
 			break;
@@ -394,6 +407,7 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 			joined.AddInt32("im_what", IM_ROOM_PARTICIPANT_JOINED);
 			joined.AddString("user_id", _SenderIdent(sender));
 			joined.AddString("user_name", _SenderNick(sender));
+			fIdentNicks.AddItem(_SenderIdent(sender), _SenderNick(sender));
 		}
 		_SendMsg(&joined);
 	}
@@ -415,6 +429,14 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 			left.AddString("user_name", _SenderNick(sender));
 		}
 		_SendMsg(&left);
+	}
+	else if (command == "INVITE")
+	{
+		BMessage invite(IM_MESSAGE);
+		invite.AddInt32("im_what", IM_ROOM_INVITE_RECEIVED);
+		invite.AddString("chat_id", params.Last());
+		invite.AddString("user_id", _SenderIdent(sender));
+		_SendMsg(&invite);
 	}
 }
 
@@ -498,6 +520,17 @@ IrcProtocol::_SenderIdent(BString sender)
 	BStringList split;
 	sender.Split("!", true, split);
 	return split.Last();
+}
+
+
+BString
+IrcProtocol::_IdentNick(BString ident)
+{
+	bool found = false;
+	BString nick = fIdentNicks.ValueFor(ident, &found);
+	if (found == true)
+		return nick;
+	return ident;
 }
 
 
