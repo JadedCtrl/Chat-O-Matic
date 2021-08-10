@@ -76,6 +76,8 @@ private:
 
 			BString		_IdentNick(BString ident);
 
+			bool		_IsChannelName(BString name);
+
 			// Read a data stream until newline found; if data found past
 			// newline, append to given buffer for later use
 			BString		_ReadUntilNewline(BDataIO* data, BString* extraBuffer);
@@ -98,6 +100,7 @@ private:
 	// WHOREPLY is requested by the add-on to populate the user-list, but the
 	// user might also use the /who command― if the user does, this is true
 	bool fWhoRequested;
+	bool fWriteLocked;
 
 	StringMap fIdentNicks; // User ident → nick
 

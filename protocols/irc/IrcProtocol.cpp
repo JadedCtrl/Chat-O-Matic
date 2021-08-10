@@ -36,7 +36,8 @@ IrcProtocol::IrcProtocol()
 	fSocket(NULL),
 	fNick(NULL),
 	fIdent(NULL),
-	fReady(false)
+	fReady(false),
+	fWriteLocked(false)
 {
 }
 
@@ -152,9 +153,17 @@ IrcProtocol::Process(BMessage* msg)
 		{
 			BString chat_id;
 			if (msg->FindString("chat_id", &chat_id) == B_OK) {
-				BString cmd = "PART ";
-				cmd << chat_id << " * :" << fPartText << "\n";
-				_SendIrc(cmd);
+				if (_IsChannelName(chat_id) == true) {
+					BString cmd = "PART ";
+					cmd << chat_id << " * :" << fPartText << "\n";
+					_SendIrc(cmd);
+				}
+				else {
+					BMessage left(IM_MESSAGE);
+					left.AddInt32("im_what", IM_ROOM_LEFT);
+					left.AddString("chat_id", chat_id);
+					_SendMsg(&left);
+				}
 			}
 			break;
 		}
@@ -166,7 +175,7 @@ IrcProtocol::Process(BMessage* msg)
 				meta.AddInt32("im_what", IM_ROOM_METADATA);
 				meta.AddString("chat_id", chat_id);
 				meta.AddInt32("room_default_flags",
-					ROOM_AUTOJOIN | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
+					ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
 				_SendMsg(&meta);
 			}
 			break;
@@ -343,7 +352,7 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 	if (fReady == false && _SenderNick(sender) == fNick)
 		_MakeReady(_SenderNick(sender), _SenderIdent(sender));
 
-	if (command == "PING")
+	if (sender == "PING")
 	{
 		BString cmd = "PONG ";
 		cmd << params.Last() << "\n";
@@ -353,7 +362,7 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 	{
 		BString chat_id = params.First();
 		BString user_id = _SenderIdent(sender);
-		if (params.First() == fNick)
+		if (_IsChannelName(chat_id) == false)
 			chat_id = _SenderNick(sender);
 
 		BMessage chat(IM_MESSAGE);
@@ -439,15 +448,20 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 	}
 	else if (command == "NICK")
 	{
+		BString ident = _SenderIdent(sender);
+		BString user_name = params.Last();
+
 		BMessage nick(IM_MESSAGE);
-		nick.AddString("user_name", params.Last());
-		if (_SenderIdent(sender) == fIdent) {
+		nick.AddString("user_name", user_name);
+		if (ident == fIdent) {
 			nick.AddInt32("im_what", IM_OWN_NICKNAME_SET);
-			fNick = params.Last();
+			fNick = user_name;
 		}
 		else {
 			nick.AddInt32("im_what", IM_USER_NICKNAME_SET);
-			nick.AddString("user_id", _SenderIdent(sender));
+			nick.AddString("user_id", ident);
+			fIdentNicks.RemoveItemFor(ident);
+			fIdentNicks.AddItem(ident, user_name);
 		}
 		_SendMsg(&nick);
 	}
@@ -482,7 +496,7 @@ IrcProtocol::_LineSender(BStringList words)
 {
 	BString sender;
 	if (words.CountStrings() > 1)
-		sender = words.First().RemoveChars(0, 1);
+		sender = words.First().RemoveFirst(":");
 	return sender;
 }
 
@@ -532,8 +546,13 @@ IrcProtocol::_SendMsg(BMessage* msg)
 void
 IrcProtocol::_SendIrc(BString cmd)
 {
-	if (fSocket != NULL && fSocket->IsConnected() == true)
+	if (fSocket != NULL && fSocket->IsConnected() == true) {
+		while (fWriteLocked == true)
+			snooze(1000);
+		fWriteLocked = true;
 		fSocket->Write(cmd.String(), cmd.CountChars());
+		fWriteLocked = false;
+	}
 	else {
 		BMessage disable(IM_MESSAGE);
 		disable.AddInt32("im_what", IM_PROTOCOL_DISABLE);
@@ -567,6 +586,14 @@ IrcProtocol::_IdentNick(BString ident)
 	if (found == true)
 		return nick;
 	return ident;
+}
+
+
+bool
+IrcProtocol::_IsChannelName(BString name)
+{
+	return (name.StartsWith("!") || name.StartsWith("&") || name.StartsWith("#")
+		|| name.StartsWith("+"));
 }
 
 
