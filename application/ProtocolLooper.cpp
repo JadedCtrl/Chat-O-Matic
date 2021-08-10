@@ -47,7 +47,8 @@ ProtocolLooper::~ProtocolLooper()
 	BMessage* msg = new BMessage(APP_ACCOUNT_DISABLED);
 	BBitmap* icon = fProtocol->Icon();
 
-	icon->Archive(msg);
+	if (icon != NULL)
+		icon->Archive(msg);
 	msg->AddString("name", fProtocol->GetName());
 	fProtocol->MessengerInterface()->SendMessage(msg);
 
