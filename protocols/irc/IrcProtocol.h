@@ -61,13 +61,17 @@ private:
 			void		_SendMsg(BMessage* msg);
 			void		_SendIrc(BString cmd);
 
-	// Read a data stream until newline found; if data found past newline,
-	// append to given buffer for later use
+			// Used with "nick!ident"-formatted strings
+			BString 	_SenderNick(BString sender);
+			BString 	_SenderIdent(BString sender);
+
+			// Read a data stream until newline found; if data found past
+			// newline, append to given buffer for later use
 			BString		_ReadUntilNewline(BDataIO* data, BString* extraBuffer);
-	// Trim given string until newline hit, return trimmed part
+			// Trim given string until newline hit, return trimmed part
 			BString		_TrimStringToNewline(BString* str);
 
-	// GUI templates
+			// GUI templates
 			BMessage	_AccountTemplate();
 			BMessage	_RoomTemplate();
 
@@ -79,6 +83,10 @@ private:
 	const char* fUser;
 	BString fIdent;
 	BString fPartText;
+
+	// WHOREPLY is requested by the add-on to populate the user-list, but the
+	// user might also use the /who command― if the user does, this is true
+	bool fWhoRequested;
 
 	BPath fAddOnPath;
 	BString fName;

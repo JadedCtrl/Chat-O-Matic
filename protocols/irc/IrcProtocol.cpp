@@ -13,6 +13,7 @@
 #include <Socket.h>
 
 #include <ChatProtocolMessages.h>
+#include <Flags.h>
 
 #include "Numerics.h"
 
@@ -57,8 +58,8 @@ IrcProtocol::Init(ChatProtocolMessengerInterface* interface)
 status_t
 IrcProtocol::Shutdown()
 {
-	BString cmd = "QUIT";
-	cmd << " :" << fPartText << "\n";
+	BString cmd = "QUIT :";
+	cmd << fPartText << "\n";
 	_SendIrc(cmd);
 
 	kill_thread(fRecvThread);
@@ -123,8 +124,21 @@ IrcProtocol::Process(BMessage* msg)
 			}
 			break;
 		}
+		case IM_GET_ROOM_METADATA:
+		{
+			BString chat_id;
+			if (msg->FindString("chat_id", &chat_id) == B_OK) {
+				BMessage meta(IM_MESSAGE);
+				meta.AddInt32("im_what", IM_ROOM_METADATA);
+				meta.AddString("chat_id", chat_id);
+				meta.AddInt32("room_default_flags",
+					ROOM_AUTOJOIN | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
+				_SendMsg(&meta);
+			}
+			break;
+		}
 		default:
-			std::cout << "Unhandled message for IRC:\n";
+			std::cerr << "Unhandled message for IRC:\n";
 			msg->PrintToStream();
 	}
 	return B_ERROR;
@@ -156,6 +170,7 @@ void
 IrcProtocol::_ProcessLine(BString line)
 {
 	BStringList words;
+	line.RemoveCharsSet("\n\r");
 	line.Split(" ", true, words);
 	BString sender = _LineSender(words);
 	BString code = _LineCode(words);
@@ -187,12 +202,17 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params)
 		}
 		case RPL_WHOREPLY:
 		{
+			BString channel = params.StringAt(1);
 			BString user = params.StringAt(2);
 			BString host = params.StringAt(3);
+			BString nick = params.StringAt(5);
+			BString ident = user;
+			ident << "@" << host;
+
+			// Contains the user's contact info― protocol ready!
 			if (fReady == false) {
 				fUser = user.String();
-				fIdent = user;
-				fIdent << host;
+				fIdent = ident;
 
 				fReady = true;
 				BMessage ready(IM_MESSAGE);
@@ -209,6 +229,31 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params)
 
 				_SendIrc("MOTD\n");
 			}
+
+			// Used to populate a room's userlist
+			if (fWhoRequested == false && channel != "*") {
+				BMessage user(IM_MESSAGE);
+				user.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
+				user.AddString("chat_id", channel);
+				user.AddString("user_id", ident);
+				user.AddString("user_name", nick);
+				_SendMsg(&user);
+			}
+			break;
+		}
+		case RPL_ENDOFWHO:
+			fWhoRequested = false;
+			break;
+		case RPL_TOPIC:
+		{
+			BString chat_id = params.StringAt(1);
+			BString subject = params.Last();
+
+			BMessage topic(IM_MESSAGE);
+			topic.AddInt32("im_what", IM_ROOM_SUBJECT_SET);
+			topic.AddString("subject", subject);
+			topic.AddString("chat_id", chat_id);
+			_SendMsg(&topic);
 			break;
 		}
 		case RPL_MOTDSTART:
@@ -252,13 +297,11 @@ void
 IrcProtocol::_ProcessCommand(BString command, BString sender,
 	BStringList params)
 {
-	std::cout << command.String() << "estas la komando\n";
 	if (command == "PING")
 	{
 		BString cmd = "PONG ";
 		cmd << params.Last() << "\n";
 		_SendIrc(cmd);
-		std::cout << "Ponging with " << cmd.String() << std::endl;
 	}
 	else if (command == "NOTICE")
 	{
@@ -274,6 +317,37 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 			send.AddString("user_id", sender);
 		send.AddString("body", params.Last());
 		_SendMsg(&send);
+	}
+	else if (command == "TOPIC")
+	{
+		BString chat_id = params.First();
+		BString subject = params.Last();
+
+		BMessage topic(IM_MESSAGE);
+		topic.AddInt32("im_what", IM_ROOM_SUBJECT_SET);
+		topic.AddString("subject", subject);
+		topic.AddString("chat_id", chat_id);
+		_SendMsg(&topic);
+	}
+	else if (command == "JOIN")
+	{
+		BString chat_id = params.First();
+
+		BMessage joined(IM_MESSAGE);
+		joined.AddString("chat_id", chat_id);
+		if (_SenderIdent(sender) == fIdent) {
+			joined.AddInt32("im_what", IM_ROOM_JOINED);
+			// Populate the userlist
+			BString cmd("WHO ");
+			cmd << chat_id << "\n";
+			_SendIrc(cmd);
+		}
+		else {
+			joined.AddInt32("im_what", IM_ROOM_PARTICIPANT_JOINED);
+			joined.AddString("user_id", _SenderIdent(sender));
+			joined.AddString("user_name", _SenderNick(sender));
+		}
+		_SendMsg(&joined);
 	}
 }
 
@@ -324,7 +398,7 @@ IrcProtocol::_SendMsg(BMessage* msg)
 	if (fReady == true)
 		fMessenger->SendMessage(msg);
 	else {
-		std::cout << "Tried sending message when not ready: \n";
+		std::cerr << "Tried sending message when not ready: \n";
 		msg->PrintToStream();
 	}
 }
@@ -339,6 +413,24 @@ IrcProtocol::_SendIrc(BString cmd)
 		BMessage disable(IM_MESSAGE);
 		disable.AddInt32("im_what", IM_PROTOCOL_DISABLE);
 	}
+}
+
+
+BString
+IrcProtocol::_SenderNick(BString sender)
+{
+	BStringList split;
+	sender.Split("!", true, split);
+	return split.First();
+}
+
+
+BString
+IrcProtocol::_SenderIdent(BString sender)
+{
+	BStringList split;
+	sender.Split("!", true, split);
+	return split.Last();
 }
 
 
