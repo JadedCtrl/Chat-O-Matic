@@ -34,7 +34,8 @@ IrcProtocol::IrcProtocol()
 	:
 	fSocket(NULL),
 	fNick(NULL),
-	fIdent(NULL)
+	fIdent(NULL),
+	fReady(false)
 {
 }
 
@@ -70,7 +71,7 @@ IrcProtocol::UpdateSettings(BMessage* settings)
 {
 	fNick = settings->FindString("nick");
 	fPartText = settings->GetString("part", "Cardie[0.1]: i've been liquified!");
-	const char* ident = settings->FindString("ident");
+	fUser = settings->FindString("ident");
 	const char* real_name = settings->FindString("real_name");
 	const char* server = settings->FindString("server");
 	const char* password = settings->FindString("password");
@@ -89,7 +90,7 @@ IrcProtocol::UpdateSettings(BMessage* settings)
 	}
 
 	BString userMsg = "USER ";
-	userMsg << ident << " * 0 :" << real_name << "\n";
+	userMsg << fUser << " * 0 :" << real_name << "\n";
 	_SendIrc(userMsg);
 
 	BString nickMsg = "NICK ";
@@ -158,43 +159,83 @@ IrcProtocol::_ProcessLine(BString line)
 	line.Split(" ", true, words);
 	BString sender = _LineSender(words);
 	BString code = _LineCode(words);
-	BStringList params = _LineParameters(words);
-	BString body = _LineBody(line);
+	BStringList params = _LineParameters(words, line);
 
 	int32 numeric;
 	if ((numeric = atoi(code.String())) > 0)
-		_ProcessNumeric(numeric, sender, params, body);
+		_ProcessNumeric(numeric, sender, params);
 	else
-		_ProcessCommand(code, sender, params, body);
+		_ProcessCommand(code, sender, params);
 }
 
 
 void
-IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
-	BString body)
+IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params)
 {
+	if (numeric > 400) {
+		_ProcessNumericError(numeric, sender, params);
+		return;
+	}
+
 	switch (numeric) {
 		case RPL_WELCOME:
 		{
-			BMessage ready(IM_MESSAGE);
-			ready.AddInt32("im_what", IM_PROTOCOL_READY);
-			_SendMsg(&ready);
-
-			BMessage self(IM_MESSAGE);
-			self.AddInt32("im_what", IM_OWN_CONTACT_INFO);
-			self.AddString("user_id", fNick);
-			_SendMsg(&self);
+			BString cmd("WHO ");
+			cmd << fNick << "\n";
+			_SendIrc(cmd);
 			break;
 		}
-		case RPL_MOTD:
+		case RPL_WHOREPLY:
 		{
+			BString user = params.StringAt(2);
+			BString host = params.StringAt(3);
+			if (fReady == false) {
+				fUser = user.String();
+				fIdent = user;
+				fIdent << host;
+
+				fReady = true;
+				BMessage ready(IM_MESSAGE);
+				ready.AddInt32("im_what", IM_PROTOCOL_READY);
+				ready.PrintToStream();
+				_SendMsg(&ready);
+
+				BMessage self(IM_MESSAGE);
+				self.AddInt32("im_what", IM_OWN_CONTACT_INFO);
+				self.AddString("user_id", fIdent);
+				self.AddString("user_name", fNick);
+				self.PrintToStream();
+				_SendMsg(&self);
+
+				_SendIrc("MOTD\n");
+			}
+			break;
+		}
+		case RPL_MOTDSTART:
+		case RPL_MOTD:
+		case RPL_ENDOFMOTD:
+		{
+			BString body = params.Last();
+			if (numeric == RPL_MOTDSTART)
+				body = "――MOTD start――";
+			else if (numeric == RPL_ENDOFMOTD)
+				body = "――MOTD end――";
 			BMessage send(IM_MESSAGE);
 			send.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-			send.AddString("chat_id", sender);
+			send.AddString("chat_id", "*server*");
 			send.AddString("body", body);
 			_SendMsg(&send);
 			break;
 		}
+	}
+}
+
+
+void
+IrcProtocol::_ProcessNumericError(int32 numeric, BString sender,
+	BStringList params)
+{
+	switch (numeric) {
 		case ERR_NICKNAMEINUSE:
 		{
 			fNick << "_";
@@ -209,12 +250,30 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 
 void
 IrcProtocol::_ProcessCommand(BString command, BString sender,
-	BStringList params, BString body)
+	BStringList params)
 {
-	if (command == "PING") {
+	std::cout << command.String() << "estas la komando\n";
+	if (command == "PING")
+	{
 		BString cmd = "PONG ";
-		cmd << body.RemoveChars(0, 1) << "\n";
+		cmd << params.Last() << "\n";
 		_SendIrc(cmd);
+		std::cout << "Ponging with " << cmd.String() << std::endl;
+	}
+	else if (command == "NOTICE")
+	{
+		BString chat_id = params.First();
+		if (chat_id == "AUTH" || chat_id == "*") {
+			chat_id = "*server*";
+			sender = "";
+		}
+		BMessage send(IM_MESSAGE);
+		send.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+		send.AddString("chat_id", chat_id);
+		if (sender.IsEmpty() == false)
+			send.AddString("user_id", sender);
+		send.AddString("body", params.Last());
+		_SendMsg(&send);
 	}
 }
 
@@ -224,7 +283,7 @@ IrcProtocol::_LineSender(BStringList words)
 {
 	BString sender;
 	if (words.CountStrings() > 1)
-		sender = words.StringAt(0).RemoveChars(0, 1);
+		sender = words.First().RemoveChars(0, 1);
 	return sender;
 }
 
@@ -240,7 +299,7 @@ IrcProtocol::_LineCode(BStringList words)
 
 
 BStringList
-IrcProtocol::_LineParameters(BStringList words)
+IrcProtocol::_LineParameters(BStringList words, BString line)
 {
 	BStringList params;
 	BString current;
@@ -249,25 +308,25 @@ IrcProtocol::_LineParameters(BStringList words)
 			params.Add(current);
 		else
 			break;
-	return params;
-}
 
-
-BString
-IrcProtocol::_LineBody(BString line)
-{
-	BString body;
+	// Last parameter is preceded by a colon
 	int32 index = line.RemoveChars(0, 1).FindFirst(":");
 	if (index != B_ERROR)
-		body = line.RemoveChars(0, index + 1);
-	return body;
+		params.Add(line.RemoveChars(0, index + 1));
+	return params;
 }
 
 
 void
 IrcProtocol::_SendMsg(BMessage* msg)
 {
-	fMessenger->SendMessage(msg);
+	msg->AddString("protocol", Signature());
+	if (fReady == true)
+		fMessenger->SendMessage(msg);
+	else {
+		std::cout << "Tried sending message when not ready: \n";
+		msg->PrintToStream();
+	}
 }
 
 
@@ -362,7 +421,7 @@ IrcProtocol::_AccountTemplate()
 
 	BMessage ident;
 	ident.AddString("name", "ident");
-	ident.AddString("description", B_TRANSLATE("Ident:"));
+	ident.AddString("description", B_TRANSLATE("Username:"));
 	ident.AddString("error", B_TRANSLATE("You need a username in order to connect!"));
 	ident.AddInt32("type", B_STRING_TYPE);
 	settings.AddMessage("setting", &ident);

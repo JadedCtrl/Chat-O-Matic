@@ -48,14 +48,15 @@ public:
 private:
 			void		_ProcessLine(BString line);
 			void		_ProcessNumeric(int32 numeric, BString sender,
-							BStringList params, BString message);
+							BStringList params);
+			void		_ProcessNumericError(int32 numeric, BString sender,
+							BStringList params);
 			void		_ProcessCommand(BString command, BString sender,
-							BStringList params, BString message);
+							BStringList params);
 
 			BString		_LineSender(BStringList words);
 			BString		_LineCode(BStringList words);
-			BStringList	_LineParameters(BStringList words);
-			BString		_LineBody(BString line);
+			BStringList	_LineParameters(BStringList words, BString line);
 
 			void		_SendMsg(BMessage* msg);
 			void		_SendIrc(BString cmd);
@@ -75,12 +76,14 @@ private:
 	thread_id fRecvThread;
 
 	BString fNick;
-	const char* fIdent;
+	const char* fUser;
+	BString fIdent;
 	BString fPartText;
 
 	BPath fAddOnPath;
 	BString fName;
 	ChatProtocolMessengerInterface* fMessenger;
+	bool fReady;
 };
 
 #endif // _IRC_PROTOCOL_H
