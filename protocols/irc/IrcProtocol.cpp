@@ -256,24 +256,9 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params)
 			ident << "@" << host;
 
 			// Contains the user's contact info― protocol ready!
-			if (fReady == false) {
+			if (fReady == false && nick == fNick) {
 				fUser = user.String();
-				fIdent = ident;
-
-				fReady = true;
-				BMessage ready(IM_MESSAGE);
-				ready.AddInt32("im_what", IM_PROTOCOL_READY);
-				ready.PrintToStream();
-				_SendMsg(&ready);
-
-				BMessage self(IM_MESSAGE);
-				self.AddInt32("im_what", IM_OWN_CONTACT_INFO);
-				self.AddString("user_id", fIdent);
-				self.AddString("user_name", fNick);
-				self.PrintToStream();
-				_SendMsg(&self);
-
-				_SendIrc("MOTD\n");
+				_MakeReady(nick, ident);
 			}
 
 			// Used to populate a room's userlist
@@ -344,6 +329,10 @@ void
 IrcProtocol::_ProcessCommand(BString command, BString sender,
 	BStringList params)
 {
+	// If protocol uninitialized and the user's ident is mentioned― use it!
+	if (fReady == false && _SenderNick(sender) == fNick)
+		_MakeReady(_SenderNick(sender), _SenderIdent(sender));
+
 	if (command == "PING")
 	{
 		BString cmd = "PONG ";
@@ -438,6 +427,29 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 		invite.AddString("user_id", _SenderIdent(sender));
 		_SendMsg(&invite);
 	}
+}
+
+
+void
+IrcProtocol::_MakeReady(BString nick, BString ident)
+{
+	fNick = nick;
+	fIdent = ident;
+
+	fReady = true;
+	BMessage ready(IM_MESSAGE);
+	ready.AddInt32("im_what", IM_PROTOCOL_READY);
+	ready.PrintToStream();
+	_SendMsg(&ready);
+
+	BMessage self(IM_MESSAGE);
+	self.AddInt32("im_what", IM_OWN_CONTACT_INFO);
+	self.AddString("user_id", fIdent);
+	self.AddString("user_name", fNick);
+	self.PrintToStream();
+	_SendMsg(&self);
+
+	_SendIrc("MOTD\n");
 }
 
 

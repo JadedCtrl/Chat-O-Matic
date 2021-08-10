@@ -61,6 +61,8 @@ private:
 			void		_ProcessCommand(BString command, BString sender,
 							BStringList params);
 
+			void		_MakeReady(BString nick, BString ident);
+
 			BString		_LineSender(BStringList words);
 			BString		_LineCode(BStringList words);
 			BStringList	_LineParameters(BStringList words, BString line);
