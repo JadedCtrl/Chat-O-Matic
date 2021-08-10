@@ -124,6 +124,16 @@ IrcProtocol::Process(BMessage* msg)
 			}
 			break;
 		}
+		case IM_LEAVE_ROOM:
+		{
+			BString chat_id;
+			if (msg->FindString("chat_id", &chat_id) == B_OK) {
+				BString cmd = "PART ";
+				cmd << chat_id << " * :" << fPartText << "\n";
+				_SendIrc(cmd);
+			}
+			break;
+		}
 		case IM_GET_ROOM_METADATA:
 		{
 			BString chat_id;
@@ -348,6 +358,25 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 			joined.AddString("user_name", _SenderNick(sender));
 		}
 		_SendMsg(&joined);
+	}
+	else if (command == "PART" || command == "QUIT")
+	{
+		BString body = B_TRANSLATE("left: ");
+		if (command == "QUIT")
+			body = B_TRANSLATE("quit: ");
+		body << params.Last();
+
+		BMessage left(IM_MESSAGE);
+		left.AddString("chat_id",params.First());
+		left.AddString("body", body);
+		if (_SenderIdent(sender) == fIdent)
+			left.AddInt32("im_what", IM_ROOM_LEFT);
+		else {
+			left.AddInt32("im_what", IM_ROOM_PARTICIPANT_LEFT);
+			left.AddString("user_id", _SenderIdent(sender));
+			left.AddString("user_name", _SenderNick(sender));
+		}
+		_SendMsg(&left);
 	}
 }
 
