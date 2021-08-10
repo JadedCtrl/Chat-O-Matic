@@ -182,6 +182,16 @@ IrcProtocol::Process(BMessage* msg)
 			}
 			break;
 		}
+		case IM_SET_OWN_NICKNAME:
+		{
+			BString user_name;
+			if (msg->FindString("user_name", &user_name) == B_OK) {
+				BString cmd("NICK ");
+				cmd << user_name << "\n";
+				_SendIrc(cmd);
+			}
+			break;
+		}
 		default:
 			std::cerr << "Unhandled message for IRC:\n";
 			msg->PrintToStream();
@@ -427,6 +437,20 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 		invite.AddString("user_id", _SenderIdent(sender));
 		_SendMsg(&invite);
 	}
+	else if (command == "NICK")
+	{
+		BMessage nick(IM_MESSAGE);
+		nick.AddString("user_name", params.Last());
+		if (_SenderIdent(sender) == fIdent) {
+			nick.AddInt32("im_what", IM_OWN_NICKNAME_SET);
+			fNick = params.Last();
+		}
+		else {
+			nick.AddInt32("im_what", IM_USER_NICKNAME_SET);
+			nick.AddString("user_id", _SenderIdent(sender));
+		}
+		_SendMsg(&nick);
+	}
 }
 
 
@@ -610,7 +634,7 @@ IrcProtocol::_AccountTemplate()
 
 	BMessage ssl;
 	ssl.AddString("name", "ssl");
-	ssl.AddString("description", B_TRANSLATE("SSL:"));
+	ssl.AddString("description", B_TRANSLATE("SSL"));
 	ssl.AddBool("default", true);
 	ssl.AddInt32("type", B_BOOL_TYPE);
 	settings.AddMessage("setting", &ssl);
