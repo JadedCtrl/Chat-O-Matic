@@ -39,7 +39,8 @@ SRCS = \
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
 RDEFS = \
-#	protocols/irc/irc.rdef \
+	data/icons/protocols/IRC.rdef \
+	protocols/irc/irc.rdef \
 
 #	Specify the resource files to use. Full or relative paths can be used.
 #	Both RDEFS and RSRCS can be utilized in the same Makefile.
@@ -136,3 +137,5 @@ include $(DEVEL_DIRECTORY)/etc/makefile-engine
 
 include Makefile.common
 include protocols/Makefile.common
+
+CATKEYS_DIR = locales/irc

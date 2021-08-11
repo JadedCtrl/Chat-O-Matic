@@ -7,7 +7,7 @@ resource app_version {
 	variety = B_APPV_ALPHA,
 	internal = 0,
 
-	short_info = "IRC Protocol AddOn",
+	short_info = "Cardie IRC add-on",
 	long_info = "©2021 Jaidyn Levesque"
 };
 

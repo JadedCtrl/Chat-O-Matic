@@ -38,6 +38,8 @@ public:
 	virtual	const char*	Signature() const { return "irc"; }
 	virtual const char*	FriendlySignature() const { return "IRC"; }
 
+	virtual BBitmap*	Icon() const;
+
 	virtual	void		SetAddOnPath(BPath path) { fAddOnPath = path; }
 	virtual	BPath		AddOnPath() { return fAddOnPath; }
 

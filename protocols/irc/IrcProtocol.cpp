@@ -12,6 +12,8 @@
 #include <SecureSocket.h>
 #include <Socket.h>
 
+#include <libinterface/BitmapUtils.h>
+
 #include <ChatProtocolMessages.h>
 #include <Flags.h>
 
@@ -219,6 +221,13 @@ IrcProtocol::SettingsTemplate(const char* name)
 	else if (strcmp(name, "join_room") == 0 || strcmp(name, "create_room") == 0)
 		settings = _RoomTemplate();
 	return settings;
+}
+
+
+BBitmap*
+IrcProtocol::Icon() const
+{
+	return ReadNodeIcon(fAddOnPath.Path(), B_LARGE_ICON, true);
 }
 
 
