@@ -1,7 +1,7 @@
 # Cardie
 ![GSoC 2021](https://img.shields.io/badge/GSoC-2021-green.svg)
 
-A multi-protocol chat program.
+A multi-protocol chat program based on [Caya](https://github.com/Augustolo/Caya).
 
 ![Screenshot](data/screenshots/update-2.png)
 
@@ -18,8 +18,7 @@ Cardie itself requires the `expat_devel` package, the XMPP protocol requires
 `gloox_devel`, and the libpurple add-on requires `libpurple_devel` and
 `glib2_devel`.
 
-The (provisional) IRC protocol requires `libircclient_devel`, `openssl_devel`,
-and `zlib_devel`, though you have to build it specifically:
+The (provisional) IRC protocol has to be built specifically:
 
 `$ make -f protocols/irc/Makefile`
 
