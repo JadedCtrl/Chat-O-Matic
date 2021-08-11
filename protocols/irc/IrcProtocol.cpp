@@ -523,9 +523,9 @@ IrcProtocol::_LineParameters(BStringList words, BString line)
 			break;
 
 	// Last parameter is preceded by a colon
-	int32 index = line.RemoveChars(0, 1).FindFirst(":");
+	int32 index = line.RemoveChars(0, 1).FindFirst(" :");
 	if (index != B_ERROR)
-		params.Add(line.RemoveChars(0, index + 1));
+		params.Add(line.RemoveChars(0, index + 2));
 	return params;
 }
 
