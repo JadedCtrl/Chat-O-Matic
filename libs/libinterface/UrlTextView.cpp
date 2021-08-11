@@ -5,6 +5,8 @@
 
 #include "UrlTextView.h"
 
+#include <ctype.h>
+
 #include <Cursor.h>
 #include <Locale.h>
 #include <MenuItem.h>
@@ -101,7 +103,7 @@ UrlTextView::MouseDown(BPoint where)
 	if ((buttons & B_PRIMARY_MOUSE_BUTTON) && OverUrl(where)) {
 		fMouseDown = true;
 
-		BUrl url(WordAt(where));
+		BUrl url = UrlAt(where);
 		if (url.IsValid() == true) {
 			fLastClicked = url;
 		}
@@ -239,6 +241,22 @@ UrlTextView::GetLine(int32 line)
 }
 
 
+BUrl
+UrlTextView::UrlAt(BPoint where)
+{
+	BString urlStr, line = GetLine(LineAt(where));
+	BUrl url;
+
+	int32 start;
+	int32 end;
+	if (_FindUrlString(line, &start, &end, 0) == true) {
+		line.CopyCharsInto(urlStr, start, end - start);
+		url.SetUrlString(urlStr);
+	}
+	return url;
+}
+
+
 bool
 UrlTextView::OverText(BPoint where)
 {
@@ -312,13 +330,39 @@ UrlTextView::_FindUrlString(BString text, int32* start, int32* end, int32 offset
 	int32 urlOffset = text.FindFirst("://", offset);
 	int32 urlStart = text.FindLast(" ", urlOffset) + 1;
 	int32 urlEnd = text.FindFirst(" ", urlOffset);
+
+	if (urlOffset == B_ERROR)
+		return false;
+
 	if (urlStart == B_ERROR)	urlStart = 0;
 	if (urlEnd == B_ERROR)		urlEnd = text.CountChars();
 
-	if (urlOffset != B_ERROR) {
-		*start = urlStart;
-		*end = urlEnd;
-		return true;
-	}
-	return false;
+	// Find first char of protocol
+	for (int32 i = urlStart; i < urlOffset; i++)
+		if (_IsValidUrlChar(text.ByteAt(i)) == true) {
+			urlStart = i;
+			break;
+		}
+
+	// Find last char of URL
+	for (int32 i = urlOffset; i < urlEnd; i++)
+		if (_IsValidUrlChar(text.ByteAt(i)) == false) {
+			urlEnd = i;
+			break;
+		}
+
+	*start = urlStart;
+	*end = urlEnd;
+	return true;
+}
+
+
+bool
+UrlTextView::_IsValidUrlChar(char c)
+{
+	return (isalpha(c) || isdigit(c) || c == ':' || c == '%' || c == ':'
+		|| c == '/' || c == '?' || c == '#' || c == '[' || c == ']' || c == '@'
+		|| c == '!' || c == '$' || c == '&' || c == '(' || c == ')' || c == '*'
+		|| c == '*' || c == '+' || c == ',' || c == ';' || c == '=' || c == '-'
+		|| c == '.' || c == '_' || c == '~' || c == '\'');
 }

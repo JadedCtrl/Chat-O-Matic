@@ -28,7 +28,7 @@ public:
 
 	virtual void	Select(int32 startOffset, int32 endOffset);
 
-	// Only differs in that it changes font face and color of any URLs
+			// Only differs in that it changes font face and color of any URLs
 			void	Insert(const char* text, const text_run_array* runs = NULL);
 			void	SetText(const char* text, const text_run_array* runs = NULL);
 
@@ -36,6 +36,8 @@ public:
 			void	FindWordAround(int32 offset, int32* start, int32* end,
 						BString* _word = NULL);
 	 const char*	GetLine(int32 line);
+
+			BUrl	UrlAt(BPoint point);
 
 			bool	OverText(BPoint where);
 			bool	OverUrl(BPoint where);
@@ -46,7 +48,11 @@ private:
 			bool	_FindUrlString(BString text, int32* start, int32* end,
 						int32 offset);
 
+			// Checks if char is allowed in a url, as per rfc3986
+			bool	_IsValidUrlChar(char c);
+
 	// For safe-keeping
+	text_run_array fNormalRun;
 	text_run_array fUrlRun;
 	BCursor* fUrlCursor;
 
