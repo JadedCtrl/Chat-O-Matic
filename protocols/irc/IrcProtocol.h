@@ -106,6 +106,8 @@ private:
 
 	StringMap fIdentNicks; // User ident → nick
 
+	BStringList fChannels;
+
 	BPath fAddOnPath;
 	BString fName;
 	ChatProtocolMessengerInterface* fMessenger;

@@ -14,6 +14,7 @@
 
 #include <libinterface/BitmapUtils.h>
 
+#include <AppConstants.h>
 #include <ChatProtocolMessages.h>
 #include <Flags.h>
 
@@ -204,7 +205,7 @@ IrcProtocol::Process(BMessage* msg)
 			break;
 		}
 		default:
-			std::cerr << "Unhandled message for IRC:\n";
+			std::cout << "Unhandled message for IRC:\n";
 			msg->PrintToStream();
 			return B_ERROR;
 	}
@@ -419,6 +420,8 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 			BString cmd("WHO ");
 			cmd << chat_id << "\n";
 			_SendIrc(cmd);
+
+			fChannels.Add(chat_id);
 		}
 		else {
 			joined.AddInt32("im_what", IM_ROOM_PARTICIPANT_JOINED);
@@ -428,24 +431,45 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 		}
 		_SendMsg(&joined);
 	}
-	else if (command == "PART" || command == "QUIT")
+	else if (command == "PART")
 	{
+		BString chat_id = params.First();
 		BString body = B_TRANSLATE("left: ");
-		if (command == "QUIT")
-			body = B_TRANSLATE("quit: ");
 		body << params.Last();
 
 		BMessage left(IM_MESSAGE);
-		left.AddString("chat_id",params.First());
+		left.AddString("chat_id", chat_id);
 		left.AddString("body", body);
-		if (_SenderIdent(sender) == fIdent)
+		if (_SenderIdent(sender) == fIdent) {
 			left.AddInt32("im_what", IM_ROOM_LEFT);
+			fChannels.Remove(chat_id);
+		}
 		else {
 			left.AddInt32("im_what", IM_ROOM_PARTICIPANT_LEFT);
 			left.AddString("user_id", _SenderIdent(sender));
 			left.AddString("user_name", _SenderNick(sender));
 		}
 		_SendMsg(&left);
+	}
+	else if (command == "QUIT")
+	{
+		BString body = B_TRANSLATE("quit: ");
+		body << params.Last();
+
+		for (int i = 0; i < fChannels.CountStrings(); i++) {
+			BMessage left(IM_MESSAGE);
+			left.AddInt32("im_what", IM_ROOM_PARTICIPANT_LEFT);
+			left.AddString("user_id", _SenderIdent(sender));
+			left.AddString("user_name", _SenderNick(sender));
+			left.AddString("chat_id", fChannels.StringAt(i));
+			_SendMsg(&left);
+		}
+
+		BMessage status(IM_MESSAGE);
+		status.AddInt32("im_what", IM_USER_STATUS_SET);
+		status.AddString("user_id", _SenderIdent(sender));
+		status.AddInt32("status", STATUS_OFFLINE);
+		_SendMsg(&status);
 	}
 	else if (command == "INVITE")
 	{
@@ -546,7 +570,7 @@ IrcProtocol::_SendMsg(BMessage* msg)
 	if (fReady == true)
 		fMessenger->SendMessage(msg);
 	else {
-		std::cerr << "Tried sending message when not ready: \n";
+		std::cout << "Tried sending message when not ready: \n";
 		msg->PrintToStream();
 	}
 }
@@ -624,7 +648,8 @@ IrcProtocol::_ReadUntilNewline(BDataIO* io, BString* extraBuffer)
 	while (!(strstr(buf, "\n"))) {
 		io->Read(buf, 1023);
 		std::cerr << buf << std::endl;
-		total << buf;
+		if (DEBUG_ENABLED)
+			total << buf;
 	}
 
 	BString currentLine = _TrimStringToNewline(&total);
