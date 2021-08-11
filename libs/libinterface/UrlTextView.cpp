@@ -39,6 +39,15 @@ UrlTextView::UrlTextView(const char* name, const BFont* initialFont,
 	AdoptSystemColors();
 	SetViewCursor(B_CURSOR_SYSTEM_DEFAULT);
 
+	BFont font;
+	if (initialFont != NULL)
+		font = BFont(initialFont);
+	rgb_color color = ui_color(B_PANEL_TEXT_COLOR);
+	if (initialColor != NULL)
+		color = *initialColor;
+	text_run normalRun = { 0, font, color };
+	fNormalRun = { 1, {normalRun} };
+
 	BFont urlFont;
 	urlFont.SetFace(B_REGULAR_FACE | B_UNDERSCORE_FACE);
 	text_run urlRun = { 0, urlFont, ui_color(B_LINK_TEXT_COLOR) };
@@ -159,6 +168,9 @@ UrlTextView::Insert(const char* text, const text_run_array* runs)
 	int32 lastEnd = 0;
 	int32 length = buf.CountChars();
 
+	if (runs == NULL)
+		runs = &fNormalRun;
+
 	while (_FindUrlString(buf, &specStart, &specEnd, lastEnd) == true) {
 		if (lastEnd < specStart) {
 			BString normie;
@@ -244,12 +256,18 @@ UrlTextView::GetLine(int32 line)
 BUrl
 UrlTextView::UrlAt(BPoint where)
 {
-	BString urlStr, line = GetLine(LineAt(where));
+	int32 lineNo = LineAt(where);
+	BString urlStr, line = GetLine(lineNo);
 	BUrl url;
+
+	int32 clickedOffset = OffsetAt(where) - OffsetAt(lineNo);
+	int32 offset = line.FindLast(" ", clickedOffset);
+	if (offset == B_ERROR)
+		offset = 0;
 
 	int32 start;
 	int32 end;
-	if (_FindUrlString(line, &start, &end, 0) == true) {
+	if (_FindUrlString(line, &start, &end, offset) == true) {
 		line.CopyCharsInto(urlStr, start, end - start);
 		url.SetUrlString(urlStr);
 	}
