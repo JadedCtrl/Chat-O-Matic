@@ -17,7 +17,7 @@
 SendTextView::SendTextView(const char* name, ConversationView* convView)
 	:
 	BTextView(name),
-	fConversationView(convView),
+	fChatView(convView),
 	fCurrentIndex(0),
 	fHistoryIndex(0)
 {
@@ -50,7 +50,7 @@ SendTextView::KeyDown(const char* bytes, int32 numBytes)
 		Insert("\n");
 	else if ((bytes[0] == B_ENTER) && (modifiers == 0)) {
 		_AppendHistory();
-		fConversationView->MessageReceived(new BMessage(APP_CHAT));
+		fChatView->MessageReceived(new BMessage(APP_CHAT));
 	}
 	else
 		BTextView::KeyDown(bytes, numBytes);
@@ -60,7 +60,7 @@ SendTextView::KeyDown(const char* bytes, int32 numBytes)
 void
 SendTextView::_AutoComplete()
 {
-	if (fConversationView == NULL || fConversationView->GetConversation() == NULL)
+	if (fChatView == NULL || fChatView->GetConversation() == NULL)
 		return;
 
 	BStringList words;
@@ -74,64 +74,77 @@ SendTextView::_AutoComplete()
 		fCurrentWord = lastWord;
 
 	// Now to find the substitutes
-	const char* substitution = NULL;
-	if (fCurrentWord.StartsWith("/") == true)
-		substitution = _CommandAutoComplete();
+	BString substitution;
+	if (fCurrentWord.StartsWith("/") == true) {
+		substitution = _NextMatch(_CommandNames(), fCurrentWord.RemoveFirst("/"));
+		if (substitution.IsEmpty() == true)
+			substitution.Prepend("/");
+	}
 	else
-		substitution = _UserAutoComplete();
+		substitution = _NextMatch(_UserNames(), fCurrentWord);
 
-	if (substitution == NULL)
+	// Apply the substitution
+	if (substitution.IsEmpty() == true)
 		fCurrentIndex = 0;
 	else {
-		text.ReplaceLast(lastWord.String(), substitution);
-		SetText(text.String());
-		Select(TextLength(), TextLength());
+		int32 index = text.FindLast(lastWord);
+		int32 newindex = index + substitution.Length();
+
+		Delete(index, lastWord.CountChars());
+		Insert(index, substitution, substitution.Length());
+		Select(newindex, newindex);
 	}
 }
 
 
-const char*
-SendTextView::_CommandAutoComplete()
+BString
+SendTextView::_NextMatch(BStringList list, BString current)
 {
-	int64 instance =
-		fConversationView->GetConversation()->GetProtocolLooper()->GetInstance();
-	CommandMap commands =
-		((TheApp*)be_app)->GetMainWindow()->GetServer()->Commands(instance);
-
-	BString command;
-	BString cmdWord = BString(fCurrentWord).Remove(0, 1);
-	for (int i, j = 0; i < commands.CountItems(); i++)
-		if (commands.KeyAt(i).StartsWith(cmdWord)) {
+	BString match;
+	for (int i = 0, j = 0; i < list.CountStrings(); i++)
+		if (list.StringAt(i).StartsWith(current)) {
 			if (j == fCurrentIndex) {
-				command = commands.KeyAt(i);
+				match = list.StringAt(i);
 				fCurrentIndex++;
 				break;
 			}
 			j++;
 		}
-	if (command.IsEmpty() == true)
-		return NULL;
-	return command.Prepend("/").String();
+	return match;
 }
 
 
-const char*
-SendTextView::_UserAutoComplete()
+BStringList
+SendTextView::_CommandNames()
 {
-	BString user;
-	UserMap users = fConversationView->GetConversation()->Users();
-	for (int i, j = 0; i < users.CountItems(); i++)
-		if (users.KeyAt(i).StartsWith(fCurrentWord)) {
-			if (j == fCurrentIndex) {
-				user = users.KeyAt(i);
-				fCurrentIndex++;
-				break;
-			}
-			j++;
+	if (fCurrentIndex == 0) {
+		int64 instance = fChatView->GetConversation()->GetProtocolLooper()->GetInstance();
+		BStringList cmdNames;
+		CommandMap cmds =
+			((TheApp*)be_app)->GetMainWindow()->GetServer()->Commands(instance);
+
+		for (int i = 0; i < cmds.CountItems(); i++)
+			cmdNames.Add(cmds.KeyAt(i));
+		fCurrentList = cmdNames;
+	}
+	return fCurrentList;
+}
+
+
+BStringList
+SendTextView::_UserNames()
+{
+	if (fCurrentIndex == 0) {
+		BStringList nameAndId;
+		UserMap users = fChatView->GetConversation()->Users();
+
+		for (int i = 0; i < users.CountItems(); i++) {
+			nameAndId.Add(users.KeyAt(i));
+			nameAndId.Add(users.ValueAt(i)->GetName());
 		}
-	if (user.IsEmpty() == true)
-		return NULL;
-	return user.String();
+		fCurrentList = nameAndId;
+	}
+	return fCurrentList;
 }
 
 

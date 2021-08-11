@@ -19,18 +19,21 @@ public:
 
 private:
 			void	_AutoComplete();
-	  const char*	_CommandAutoComplete();
-	  const char*	_UserAutoComplete();
+		 BString	_NextMatch(BStringList list, BString current);
+
+	  BStringList	_CommandNames();
+	  BStringList	_UserNames();
 
 			void	_AppendHistory();
 			void	_UpHistory();
 			void	_DownHistory();
 
-	ConversationView* fConversationView;
+	ConversationView* fChatView;
 
 	// Used for auto-completion
 	int32 fCurrentIndex;
 	BString fCurrentWord;
+	BStringList fCurrentList;
 
 	// Used for history
 	BStringList fHistory;
