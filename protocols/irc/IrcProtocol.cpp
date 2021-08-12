@@ -331,7 +331,6 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 				body = "――MOTD end――";
 			BMessage send(IM_MESSAGE);
 			send.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-			send.AddString("chat_id", "*server*");
 			send.AddString("body", body);
 			_SendMsg(&send);
 			break;
@@ -357,7 +356,6 @@ IrcProtocol::_ProcessNumericError(int32 numeric, BString sender,
 		{
 			BMessage err(IM_MESSAGE);
 			err.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-			err.AddString("chat_id", "*server*");
 			err.AddString("body", line);
 			_SendMsg(&err);
 		}
@@ -397,13 +395,12 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 	else if (command == "NOTICE")
 	{
 		BString chat_id = params.First();
-		if (chat_id == "AUTH" || chat_id == "*") {
-			chat_id = "*server*";
-			sender = "";
-		}
 		BMessage send(IM_MESSAGE);
 		send.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-		send.AddString("chat_id", chat_id);
+		if (chat_id != "AUTH" && chat_id != "*") {
+			send.AddString("chat_id", chat_id);
+			sender = "";
+		}
 		if (sender.IsEmpty() == false)
 			send.AddString("user_id", sender);
 		send.AddString("body", params.Last());
@@ -522,14 +519,12 @@ IrcProtocol::_MakeReady(BString nick, BString ident)
 	fReady = true;
 	BMessage ready(IM_MESSAGE);
 	ready.AddInt32("im_what", IM_PROTOCOL_READY);
-	ready.PrintToStream();
 	_SendMsg(&ready);
 
 	BMessage self(IM_MESSAGE);
 	self.AddInt32("im_what", IM_OWN_CONTACT_INFO);
 	self.AddString("user_id", fIdent);
 	self.AddString("user_name", fNick);
-	self.PrintToStream();
 	_SendMsg(&self);
 
 	_SendIrc("MOTD\n");
