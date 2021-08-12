@@ -253,17 +253,18 @@ IrcProtocol::_ProcessLine(BString line)
 
 	int32 numeric;
 	if ((numeric = atoi(code.String())) > 0)
-		_ProcessNumeric(numeric, sender, params);
+		_ProcessNumeric(numeric, sender, params, line);
 	else
-		_ProcessCommand(code, sender, params);
+		_ProcessCommand(code, sender, params, line);
 }
 
 
 void
-IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params)
+IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
+	BString line)
 {
 	if (numeric > 400) {
-		_ProcessNumericError(numeric, sender, params);
+		_ProcessNumericError(numeric, sender, params, line);
 		return;
 	}
 
@@ -341,7 +342,7 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params)
 
 void
 IrcProtocol::_ProcessNumericError(int32 numeric, BString sender,
-	BStringList params)
+	BStringList params, BString line)
 {
 	switch (numeric) {
 		case ERR_NICKNAMEINUSE:
@@ -354,13 +355,10 @@ IrcProtocol::_ProcessNumericError(int32 numeric, BString sender,
 		}
 		default:
 		{
-			BString body = std::to_string(numeric).c_str();
-			body << params.Last();
-
 			BMessage err(IM_MESSAGE);
 			err.AddInt32("im_what", IM_MESSAGE_RECEIVED);
 			err.AddString("chat_id", "*server*");
-			err.AddString("body", body);
+			err.AddString("body", line);
 			_SendMsg(&err);
 		}
 	}
@@ -369,7 +367,7 @@ IrcProtocol::_ProcessNumericError(int32 numeric, BString sender,
 
 void
 IrcProtocol::_ProcessCommand(BString command, BString sender,
-	BStringList params)
+	BStringList params, BString line)
 {
 	// If protocol uninitialized and the user's ident is mentioned― use it!
 	if (fReady == false && _SenderNick(sender) == fNick)
@@ -392,6 +390,7 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 		chat.AddInt32("im_what", IM_MESSAGE_RECEIVED);
 		chat.AddString("chat_id", chat_id);
 		chat.AddString("user_id", user_id);
+		chat.AddString("user_name", _SenderNick(sender));
 		chat.AddString("body", params.Last());
 		_SendMsg(&chat);
 	}
@@ -660,9 +659,9 @@ IrcProtocol::_ReadUntilNewline(BDataIO* io, BString* extraBuffer)
 
 	while (!(strstr(buf, "\n"))) {
 		io->Read(buf, 1023);
-		std::cerr << buf << std::endl;
+		total << buf;
 		if (DEBUG_ENABLED)
-			total << buf;
+			std::cerr << buf << std::endl;
 	}
 
 	BString currentLine = _TrimStringToNewline(&total);

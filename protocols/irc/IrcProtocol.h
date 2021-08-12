@@ -57,11 +57,11 @@ public:
 private:
 			void		_ProcessLine(BString line);
 			void		_ProcessNumeric(int32 numeric, BString sender,
-							BStringList params);
+							BStringList params, BString line);
 			void		_ProcessNumericError(int32 numeric, BString sender,
-							BStringList params);
+							BStringList params, BString line);
 			void		_ProcessCommand(BString command, BString sender,
-							BStringList params);
+							BStringList params, BString line);
 
 			void		_MakeReady(BString nick, BString ident);
 
