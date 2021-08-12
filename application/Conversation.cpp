@@ -504,53 +504,61 @@ Conversation::_LogChatMessage(BMessage* msg)
 	fDateFormatter.Format(date, time(0), B_SHORT_DATE_FORMAT, B_MEDIUM_TIME_FORMAT);
 
 	BString id = msg->FindString("user_id");
+	BString name = msg->FindString("user_name");
 	BString body = msg->FindString("body");
 
 	if (id.IsEmpty() == true)
 		return;
 
+	if (name.IsEmpty() == true) {
+		User* user = UserById(id);
+		if (user == NULL)
+			name = id;
+		else
+			name = user->GetName();
+	}
+
 	// Binary logs
-	// TODO: Don't hardcode 21, expose maximum as a setting
-	BStringList users, bodies;
-	int64 times[21] = { 0 };
+	// TODO: Don't hardcode 31, expose maximum as a setting
+	int32 max = 31;
+	BStringList user_ids, user_names, bodies;
+	int64 times[max] = { 0 };
 	times[0] = (int64)time(NULL);
 
 	BMessage logMsg;
 	if (_GetChatLogs(&logMsg) == B_OK) {
 		logMsg.FindStrings("body", &bodies);
-		logMsg.FindStrings("user_id", &users);
+		logMsg.FindStrings("user_id", &user_ids);
+		logMsg.FindStrings("user_name", &user_names);
 
 		int64 found;
-		for (int i = 0; i < 21; i++)
+		for (int i = 0; i < max; i++)
 			if (logMsg.FindInt64("when", i, &found) == B_OK)
 				times[i + 1] = found;
 
-		bodies.Remove(21);
-		users.Remove(21);
+		bodies.Remove(max);
+		user_ids.Remove(max);
+		user_names.Remove(max);
 		bodies.Add(body, 0);
-		users.Add(id, 0);
+		user_ids.Add(id, 0);
+		user_names.Add(name, 0);
 	}
 
 	BMessage newLogMsg(IM_MESSAGE);
 	newLogMsg.AddInt32("im_what", IM_LOGS_RECEIVED);
 	newLogMsg.AddStrings("body", bodies);
-	newLogMsg.AddStrings("user_id", users);
+	newLogMsg.AddStrings("user_id", user_ids);
+	newLogMsg.AddStrings("user_name", user_names);
 	newLogMsg.AddInt64("when", time(NULL));
-	for (int i = 0; i < 21; i++)
+	for (int i = 0; i < max; i++)
 		newLogMsg.AddInt64("when", times[i]);
 
 	BFile logFile(fCachePath.Path(), B_READ_WRITE | B_OPEN_AT_END | B_CREATE_FILE);
 	WriteAttributeMessage(&logFile, "Chat:logs", &newLogMsg);
 
 	// Plain-text logs
-	BString uname;
-	if (id.IsEmpty() == false)
-		uname = UserById(id)->GetName();
-	else
-		uname = "You";
-
 	BString logLine("[");
-	logLine << date << "] <" << uname << "> " << body << "\n";
+	logLine << date << "] <" << name << "> " << body << "\n";
 
 	logFile.Write(logLine.String(), logLine.Length());
 }

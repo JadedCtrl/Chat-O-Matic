@@ -287,7 +287,7 @@ ConversationView::ObserveString(int32 what, BString str)
 		{
 			fSubjectTextView->SetText(str);
 
-			BString body = B_TRANSLATE("** The subject was changed: %subject%");
+			BString body = B_TRANSLATE("** The subject is now: %subject%");
 			body.ReplaceAll("%subject%", str);
 
 			BMessage topic(IM_MESSAGE);
@@ -401,16 +401,18 @@ ConversationView::_AppendOrEnqueueMessage(BMessage* msg)
 void
 ConversationView::_AppendMessage(BMessage* msg)
 {
-	BStringList users, bodies;
+	BStringList user_ids, user_names, bodies;
 	if (msg->FindStrings("body", &bodies) != B_OK)
 		return;
-	msg->FindStrings("user_id", &users);
+	msg->FindStrings("user_id", &user_ids);
+	msg->FindStrings("user_name", &user_names);
 
 	for (int i = bodies.CountStrings(); i >= 0; i--) {
 		User* sender = NULL;
 		if (fConversation != NULL)
-			sender = fConversation->UserById(users.StringAt(i));
-		BString sender_name = users.StringAt(i);
+			sender = fConversation->UserById(user_ids.StringAt(i));
+		BString sender_id = user_ids.StringAt(i);
+		BString sender_name = user_names.StringAt(i);
 		BString body = bodies.StringAt(i);
 		rgb_color userColor = ui_color(B_PANEL_TEXT_COLOR);
 		int64 timeInt;
@@ -423,7 +425,10 @@ ConversationView::_AppendMessage(BMessage* msg)
 			userColor = sender->fItemColor;
 		}
 
-		if (sender_name.IsEmpty() == true) {
+		if (sender_name.IsEmpty() == true && sender_id.IsEmpty() == false)
+			sender_name = sender_id;
+
+		if (sender_id.IsEmpty() == true && sender_name.IsEmpty() == true) {
 			fReceiveView->AppendGeneric(body.String());
 			continue;
 		}
