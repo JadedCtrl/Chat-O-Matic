@@ -63,7 +63,7 @@ status_t
 IrcProtocol::Shutdown()
 {
 	BString cmd = "QUIT :";
-	cmd << fPartText << "\n";
+	cmd << fPartText;
 	_SendIrc(cmd);
 
 	kill_thread(fRecvThread);
@@ -90,16 +90,16 @@ IrcProtocol::UpdateSettings(BMessage* settings)
 
 	if (password != NULL) {
 		BString passMsg = "PASS ";
-		passMsg << password << "\n";
+		passMsg << password;
 		_SendIrc(passMsg);
 	}
 
 	BString userMsg = "USER ";
-	userMsg << fUser << " * 0 :" << real_name << "\n";
+	userMsg << fUser << " * 0 :" << real_name;
 	_SendIrc(userMsg);
 
 	BString nickMsg = "NICK ";
-	nickMsg << fNick << "\n";
+	nickMsg << fNick;
 	_SendIrc(nickMsg);
 
 	fRecvThread = spawn_thread(connect_thread, "what_a_tangled_web_we_weave",
@@ -128,7 +128,7 @@ IrcProtocol::Process(BMessage* msg)
 
 				for (int i = 0; i < lines.CountStrings(); i++) {
 					BString cmd = "PRIVMSG ";
-					cmd << chat_id << " :" << lines.StringAt(i) << "\n";
+					cmd << chat_id << " :" << lines.StringAt(i);
 					_SendIrc(cmd);
 
 					BMessage sent(IM_MESSAGE);
@@ -147,7 +147,7 @@ IrcProtocol::Process(BMessage* msg)
 			BString chat_id;
 			if (msg->FindString("chat_id", &chat_id) == B_OK) {
 				BString cmd = "JOIN ";
-				cmd << chat_id << "\n";
+				cmd << chat_id;
 				_SendIrc(cmd);
 			}
 			break;
@@ -158,7 +158,7 @@ IrcProtocol::Process(BMessage* msg)
 			if (msg->FindString("chat_id", &chat_id) == B_OK) {
 				if (_IsChannelName(chat_id) == true) {
 					BString cmd = "PART ";
-					cmd << chat_id << " * :" << fPartText << "\n";
+					cmd << chat_id << " * :" << fPartText;
 					_SendIrc(cmd);
 				}
 				else {
@@ -189,7 +189,7 @@ IrcProtocol::Process(BMessage* msg)
 			BString user_id = msg->FindString("user_id");
 			if (chat_id.IsEmpty() == false || user_id.IsEmpty() == false) {
 				BString cmd("INVITE ");
-				cmd << _IdentNick(user_id) << " " << chat_id << "\n";
+				cmd << _IdentNick(user_id) << " " << chat_id;
 				_SendIrc(cmd);
 			}
 			break;
@@ -199,7 +199,7 @@ IrcProtocol::Process(BMessage* msg)
 			BString user_name;
 			if (msg->FindString("user_name", &user_name) == B_OK) {
 				BString cmd("NICK ");
-				cmd << user_name << "\n";
+				cmd << user_name;
 				_SendIrc(cmd);
 			}
 			break;
@@ -591,11 +591,12 @@ IrcProtocol::_SendMsg(BMessage* msg)
 void
 IrcProtocol::_SendIrc(BString cmd)
 {
+	cmd << "\r\n";
 	if (fSocket != NULL && fSocket->IsConnected() == true) {
 		while (fWriteLocked == true)
 			snooze(1000);
 		fWriteLocked = true;
-		fSocket->Write(cmd.String(), cmd.CountChars());
+		fSocket->Write(cmd.String(), cmd.CountBytes(0, cmd.CountChars()));
 		fWriteLocked = false;
 	}
 	else {
