@@ -32,6 +32,7 @@
 #include "Cardie.h"
 #include "ChatProtocol.h"
 #include "ConversationInfoWindow.h"
+#include "ConversationView.h"
 #include "ChatProtocolMessages.h"
 #include "Flags.h"
 #include "ImageCache.h"
@@ -461,8 +462,14 @@ Server::ImMessage(BMessage* msg)
 			}
 			break;
 		}
-		case IM_MESSAGE_SENT:
 		case IM_MESSAGE_RECEIVED:
+			if (msg->HasString("chat_id") == false) {
+				ProtocolLooper* looper = _LooperFromMessage(msg);
+				if (looper != NULL)
+					looper->GetView()->MessageReceived(msg);
+				return B_SKIP_MESSAGE;
+			}
+		case IM_MESSAGE_SENT:
 		case IM_ROOM_JOINED:
 		case IM_ROOM_CREATED:
 		case IM_ROOM_METADATA:
@@ -992,7 +999,7 @@ Server::_EnsureConversation(BMessage* message)
 	if (!message || (looper = _LooperFromMessage(message)) == NULL)
 		return NULL;
 
-	BString chat_id = message->FindString("chat_id");
+	BString chat_id = message->GetString("chat_id", "");
 	Conversation* item = NULL;
 
 	if (chat_id.IsEmpty() == false) {

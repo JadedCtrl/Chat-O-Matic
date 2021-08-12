@@ -5,11 +5,15 @@
 
 #include "ConversationAccountItem.h"
 
+#include "ProtocolLooper.h"
 
-ConversationAccountItem::ConversationAccountItem(const char* name, int64 instance)
+
+ConversationAccountItem::ConversationAccountItem(const char* name,
+	int64 instance, ProtocolLooper* looper)
 	:
 	BStringItem(name),
-	fInstance(instance)
+	fInstance(instance),
+	fProtocolLooper(looper)
 {
 }
 
@@ -21,3 +25,8 @@ ConversationAccountItem::GetInstance()
 }
 
 
+ProtocolLooper*
+ConversationAccountItem::GetLooper()
+{
+	return fProtocolLooper;
+}

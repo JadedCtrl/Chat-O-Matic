@@ -24,6 +24,9 @@ class User;
 class UserListView;
 
 
+const uint32 kClearText = 'CVct';
+
+
 class ConversationView : public BGroupView, public Observer, public Notifier {
 public:
 						ConversationView(Conversation* chat = NULL);
@@ -36,12 +39,11 @@ public:
 			Conversation* GetConversation();
 			void		SetConversation(Conversation* chat);
 
-			void		UpdateIcon();
-
 			void		UpdateUserList(UserMap users);
 			void		InvalidateUserList();
 
 			void		ObserveString(int32 what, BString str);
+			void		ObservePointer(int32 what, void* ptr);
 
 			void		GetWeights(float* horizChat, float* horizList,
 							float* vertChat, float* vertSend);

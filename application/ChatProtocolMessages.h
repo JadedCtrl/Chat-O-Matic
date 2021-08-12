@@ -70,7 +70,13 @@ enum im_what_code {
 	IM_MESSAGE_SENT						= 21,
 
 	/*!	Chat message received			→App
-		Requires:	String "chat_id", String "user_id", String "body" */
+		To send a normal chat message, specify chat_id and user_id― if
+		user_id is ommitted, the message is treated as a "system message"
+		printed in chat.
+		If chat_id is ommitted, the message is sent to the protocol's system
+		buffer, rather than a specific conversation.
+		Requires:	String "body"
+		Allows:		String "chat_id", String "user_id", String "user_name" */
 	IM_MESSAGE_RECEIVED					= 22,
 
 	/*!	Logs received					→App

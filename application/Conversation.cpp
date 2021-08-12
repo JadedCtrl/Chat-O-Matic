@@ -317,7 +317,6 @@ Conversation::SetNotifyIconBitmap(BBitmap* icon)
 {
 	if (icon != NULL) {
 		fIcon = icon;
-		GetView()->UpdateIcon();
 		NotifyPointer(PTR_ROOM_BITMAP, (void*)icon);
 		return true;
 	}

@@ -24,10 +24,6 @@ public:
 			void	RemoveConversation(Conversation* chat);
 			void	SortConversation(Conversation* chat);
 
-			int32	CountConversations();
-			int32	ConversationIndexOf(Conversation* chat);
-			void	SelectConversation(int32 index);
-
 private:
 	  BPopUpMenu*	_ConversationPopUp();
 	  BPopUpMenu*	_BlankPopUp();

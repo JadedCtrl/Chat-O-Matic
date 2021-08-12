@@ -41,6 +41,7 @@ public:
 							bool active);
 
 			void		SetConversation(Conversation* chat);
+			void		SetConversationView(ConversationView* chatView);
 			void		RemoveConversation(Conversation* chat);
 			void		SortConversation(Conversation* chat);
 
@@ -75,8 +76,9 @@ private:
 
 	// Right panel, chat
 	BSplitView*			fRightView;
-	ConversationView*	fChatView;
 	Conversation*		fConversation;
+	ConversationView*	fChatView;
+	ConversationView*	fBackupChatView;
 };
 
 

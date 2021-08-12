@@ -59,7 +59,7 @@ ConversationView::AttachedToWindow()
 {
 	while (fMessageQueue.IsEmpty() == false) {
 		BMessage* msg = fMessageQueue.RemoveItemAt(0);
-		ImMessage(msg);
+		MessageReceived(msg);
 	}
 	if (fConversation != NULL) {
 		if (fNameTextView->Text() != fConversation->GetName())
@@ -95,6 +95,9 @@ ConversationView::MessageReceived(BMessage* message)
 			fSendView->ScrollToOffset(0);
 			break;
 		}
+		case kClearText:
+			_AppendOrEnqueueMessage(message);
+			break;
 		case IM_MESSAGE:
 			ImMessage(message);
 			break;
@@ -244,14 +247,6 @@ ConversationView::SetConversation(Conversation* chat)
 
 
 void
-ConversationView::UpdateIcon()
-{
-	if (fConversation != NULL && fConversation->IconBitmap() != NULL)
-		fIcon->SetBitmap(fConversation->IconBitmap());
-}
-
-
-void
 ConversationView::UpdateUserList(UserMap users)
 {
 	fUserList->MakeEmpty();
@@ -293,6 +288,21 @@ ConversationView::ObserveString(int32 what, BString str)
 			BMessage topic(IM_MESSAGE);
 			topic.AddString("body", body);
 			_AppendOrEnqueueMessage(&topic);
+			break;
+		}
+	}
+}
+
+
+void
+ConversationView::ObservePointer(int32 what, void* ptr)
+{
+	switch (what)
+	{
+		case PTR_ROOM_BITMAP:
+		{
+			if (ptr != NULL)		
+				fIcon->SetBitmap((BBitmap*)ptr);
 			break;
 		}
 	}
@@ -401,6 +411,13 @@ ConversationView::_AppendOrEnqueueMessage(BMessage* msg)
 void
 ConversationView::_AppendMessage(BMessage* msg)
 {
+	// If ordered to clear buffer… well, I guess we can't refuse
+	if (msg->what == kClearText) {
+		fReceiveView->SetText("");
+		return;
+	}
+
+	// … else we're jamming a message into this view no matter what it takes!
 	BStringList user_ids, user_names, bodies;
 	if (msg->FindStrings("body", &bodies) != B_OK)
 		return;

@@ -210,23 +210,17 @@ MainWindow::MessageReceived(BMessage* message)
 		}
 		case APP_MOVE_UP:
 		{
-			if (fConversation == NULL)
-				break;
-
-			int32 index = fListView->ConversationIndexOf(fConversation);
+			int32 index = fListView->CurrentSelection();
 			if (index > 0)
-				fListView->SelectConversation(index - 1);
+				fListView->Select(index - 1);
 			break;
 		}
 		case APP_MOVE_DOWN:
 		{
-			if (fConversation == NULL)
-				break;
-
-			int32 index = fListView->ConversationIndexOf(fConversation);
-			int32 count = fListView->CountConversations();
+			int32 index = fListView->CurrentSelection();
+			int32 count = fListView->CountItems();
 			if (index < (count - 1))
-				fListView->SelectConversation(index + 1);
+				fListView->Select(index + 1);
 			break;
 		}
 		case APP_REPLICANT_STATUS_SET:
@@ -347,6 +341,24 @@ MainWindow::WorkspaceActivated(int32 workspace, bool active)
 void
 MainWindow::SetConversation(Conversation* chat)
 {
+	fConversation = chat;
+	if (chat != NULL) {
+		SetConversationView(chat->GetView());
+
+		BString title(chat->GetName());
+		title << " ― " << APP_NAME;
+		SetTitle(title.String());
+	}
+	else {
+		SetConversationView(fBackupChatView);
+		SetTitle(APP_NAME);
+	}
+}
+
+
+void
+MainWindow::SetConversationView(ConversationView* chatView)
+{
 	// Save split weights
 	float weightChat = fRightView->ItemWeight((int32)0);
 	float weightSend = fRightView->ItemWeight((int32)1);
@@ -354,17 +366,7 @@ MainWindow::SetConversation(Conversation* chat)
 	fChatView->GetWeights(&horizChat, &horizList, &vertChat, &vertSend);
 
 	fRightView->RemoveChild(fRightView->FindView("chatView"));
-
-	if (chat != NULL) {
-		fChatView = chat->GetView();
-		fConversation = chat;
-
-		BString title(chat->GetName());
-		title << " ― " << APP_NAME;
-		SetTitle(title.String());
-	}
-	else
-		SetTitle(APP_NAME);
+	fChatView = chatView;
 
 	fRightView->AddChild(fChatView, 9);
 
@@ -418,18 +420,16 @@ MainWindow::SetConversation(Conversation* chat)
 void
 MainWindow::RemoveConversation(Conversation* chat)
 {
-	int32 index = fListView->ConversationIndexOf(chat);
+	SetConversation(NULL);
+
+	int32 index = fListView->IndexOf(chat->GetListItem());
 	if (index > 0)
 		index--;
 
 	fListView->RemoveConversation(chat);
 
-	if (fListView->CountConversations() == 0) {
-		fChatView = new ConversationView();
-		SetConversation(NULL);
-	}
-	else
-		fListView->SelectConversation(index);
+	if (fListView->CountItems() > 0)
+		fListView->Select(index);
 	_ToggleMenuItems();
 }
 
@@ -451,7 +451,8 @@ MainWindow::_InitInterface()
 
 	// Right-side of window, Chat + Textbox
 	fRightView = new BSplitView(B_VERTICAL, 0);
-	fChatView = new ConversationView();
+	fBackupChatView = new ConversationView();
+	fChatView = fBackupChatView;
 
 	// Load weights from settings
 	float horizChat, horizList, vertChat, vertSend;
@@ -587,7 +588,7 @@ MainWindow::_ToggleMenuItems()
 
 	BMenuItem* windowMenuItem = fMenuBar->FindItem(B_TRANSLATE("Window"));
 	BMenu* windowMenu = windowMenuItem->Submenu();
-	enabled = (fListView->CountConversations() > 0);
+	enabled = (fListView->CountItems() > 0);
 
 	for (int i = 0; i < windowMenu->CountItems(); i++)
 		windowMenu->ItemAt(i)->SetEnabled(enabled);
@@ -611,8 +612,8 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 			_ToggleMenuItems();
 		}
 
-		if (fListView->CountConversations() == 1)
-			fListView->SelectConversation(0);
+		if (fListView->CountItems() == 1)
+			fListView->Select(0);
 		return item;
 	}
 	return NULL;

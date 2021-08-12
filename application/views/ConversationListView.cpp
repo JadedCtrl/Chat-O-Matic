@@ -75,16 +75,22 @@ ConversationListView::MessageReceived(BMessage* msg)
 	switch (msg->what) {
 		case kOpenSelectedChat:
 		{
-			ConversationItem* item;
+			ConversationItem* citem;
+			ConversationAccountItem* caitem;
 			int32 selIndex = CurrentSelection();
 
 			if (selIndex >= 0
-				&& (item = (ConversationItem*)ItemAt(selIndex)) != NULL
-				&& item->OutlineLevel() == 1)
-				item->GetConversation()->ShowView(false, true);
+					&& (citem = (ConversationItem*)ItemAt(selIndex)) != NULL
+					&& citem->OutlineLevel() == 1)
+				citem->GetConversation()->ShowView(false, true);
+
+			else if (selIndex >= 0
+					&& (caitem = (ConversationAccountItem*)ItemAt(selIndex))
+						!= NULL
+					&& caitem->OutlineLevel() == 0)
+				caitem->GetLooper()->ShowView();
 			break;
 		}
-
 		default:
 			BListView::MessageReceived(msg);
 	}
@@ -95,18 +101,10 @@ void
 ConversationListView::MouseDown(BPoint where)
 {
 	int32 selection = CurrentSelection();
-
 	BOutlineListView::MouseDown(where);
-
 	int32 newSel = CurrentSelection();
 
-	// Don't allow selecting an AccountItem
-	if (newSel >= 0 && ItemAt(newSel)->OutlineLevel() == 0) {
-		Select(selection);
-		return;
-	}
-
-	// Don't allow deselecting a room
+	// Don't allow deselecting anything
 	if (newSel < 0 && selection >= 0)
 		Select(selection);
 
@@ -155,49 +153,6 @@ ConversationListView::SortConversation(Conversation* chat)
 {
 	ConversationAccountItem* superItem = _EnsureAccountItem(chat);
 	SortItemsUnder(superItem, true, compare_conversations);
-}
-
-
-int32
-ConversationListView::CountConversations()
-{
-	int32 count = 0;
-	for (int32 i = 0; i < CountItems(); i++)
-		if (ItemAt(i)->OutlineLevel() == 1)
-			count++;
-	return count;
-}
-
-
-int32
-ConversationListView::ConversationIndexOf(Conversation* chat)
-{
-	ConversationItem* item = chat->GetListItem();
-	int32 index = IndexOf(item);
-	int32 chatIndex = index;
-
-	if (item == NULL || index < 0)
-		return -1;
-
-	for (int i = 0; i < index; i++)
-		if (ItemAt(i)->OutlineLevel() == 0) // If AccountItem
-			chatIndex--;
-	return chatIndex;
-}
-
-
-void
-ConversationListView::SelectConversation(int32 index)
-{
-	for (int32 i = 0, cindex = -1; i < CountItems(); i++) {
-		if (ItemAt(i)->OutlineLevel() == 1) // If ConversationItem
-			cindex++;
-
-		if (cindex == index) {
-			Select(i);
-			break;
-		}
-	}
 }
 
 

@@ -19,6 +19,7 @@
 class Contact;
 class Conversation;
 class ConversationAccountItem;
+class ConversationView;
 class User;
 
 
@@ -33,6 +34,10 @@ public:
 							~ProtocolLooper();
 
 			void			MessageReceived(BMessage* msg);
+
+			ConversationView*
+							GetView();
+			void			ShowView();
 
 			ChatProtocol*	Protocol();
 
@@ -64,6 +69,8 @@ public:
 			void			LoadCommands();
 
 private:
+			void			_InitChatView();
+
 			ChatProtocol*	fProtocol;
 			int64			fInstance;
 
@@ -74,6 +81,8 @@ private:
 			UserMap			fUserMap;
 			CommandMap		fCommands;
 
+			ConversationView*
+							fSystemChatView;
 			ConversationAccountItem*
 							fListItem;
 };

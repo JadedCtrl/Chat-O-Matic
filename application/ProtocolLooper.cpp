@@ -17,8 +17,13 @@
 
 #include "Account.h"
 #include "AppMessages.h"
+#include "ChatProtocolMessages.h"
 #include "Conversation.h"
 #include "ConversationAccountItem.h"
+#include "ConversationView.h"
+#include "MainWindow.h"
+#include "NotifyMessage.h"
+#include "TheApp.h"
 
 
 ProtocolLooper::ProtocolLooper(ChatProtocol* protocol, int64 instance)
@@ -36,8 +41,10 @@ ProtocolLooper::ProtocolLooper(ChatProtocol* protocol, int64 instance)
 
 	BString name(protocol->FriendlySignature());
 	name << " - " << account->Name();
-
 	SetName(name.String());
+
+	_InitChatView();
+
 	Run();
 }
 
@@ -62,6 +69,22 @@ ProtocolLooper::MessageReceived(BMessage* msg)
 {
 	if (Protocol()->Process(msg) != B_OK)
 		BLooper::MessageReceived(msg);
+}
+
+
+ConversationView*
+ProtocolLooper::GetView()
+{
+	return fSystemChatView;
+}
+
+
+void
+ProtocolLooper::ShowView()
+{
+	MainWindow* win = ((TheApp*)be_app)->GetMainWindow();
+	win->SetConversation(NULL);
+	win->SetConversationView(fSystemChatView);
 }
 
 
@@ -213,7 +236,7 @@ ProtocolLooper::GetListItem()
 {
 	if (fListItem == NULL)
 		fListItem = new ConversationAccountItem(fProtocol->GetName(),
-						fInstance);
+				fInstance, this);
 	return fListItem;
 }
 
@@ -227,4 +250,27 @@ ProtocolLooper::LoadCommands()
 		ChatCommand* cmd = new ChatCommand(commands.ItemAt(i));
 		fCommands.AddItem(cmd->GetName(), cmd);
 	}
+}
+
+
+void
+ProtocolLooper::_InitChatView()
+{
+	fSystemChatView = new ConversationView();
+
+	BMessage clear(kClearText);
+	fSystemChatView->MessageReceived(&clear);
+
+	BMessage init(IM_MESSAGE);
+	init.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+	init.AddString("user_name", "Cardie");
+	init.AddString("body", B_TRANSLATE("I'm rearing to go!"));
+	fSystemChatView->MessageReceived(&init);
+
+	fSystemChatView->ObserveString(STR_ROOM_NAME, fProtocol->GetName());
+	fSystemChatView->ObserveString(STR_ROOM_SUBJECT, "System buffer");
+
+	BBitmap* icon = fProtocol->Icon();
+	if (icon != NULL)
+		fSystemChatView->ObservePointer(PTR_ROOM_BITMAP, (void*)icon);
 }
