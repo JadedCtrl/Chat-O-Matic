@@ -120,7 +120,6 @@ ConversationView::ImMessage(BMessage* msg)
 		}
 		case IM_MESSAGE_RECEIVED:
 		{
-			msg->AddInt64("when", (int64)time(NULL));
 			_AppendOrEnqueueMessage(msg);
 			fReceiveView->ScrollToBottom();
 			break;
@@ -137,7 +136,6 @@ ConversationView::ImMessage(BMessage* msg)
 		{
 			BMessage msg;
 			msg.AddString("body", B_TRANSLATE("** You joined the room.\n"));
-			msg.AddInt64("when", (int64)time(NULL));
 			_AppendOrEnqueueMessage(&msg);
 			fReceiveView->ScrollToBottom();
 		}
@@ -145,7 +143,6 @@ ConversationView::ImMessage(BMessage* msg)
 		{
 			BMessage msg;
 			msg.AddString("body", B_TRANSLATE("** You created the room.\n"));
-			msg.AddInt64("when", (int64)time(NULL));
 			_AppendOrEnqueueMessage(&msg);
 			fReceiveView->ScrollToBottom();
 		}
@@ -289,6 +286,13 @@ ConversationView::ObserveString(int32 what, BString str)
 		case STR_ROOM_SUBJECT:
 		{
 			fSubjectTextView->SetText(str);
+
+			BString body = B_TRANSLATE("** The subject was changed: %subject%");
+			body.ReplaceAll("%subject%", str);
+
+			BMessage topic(IM_MESSAGE);
+			topic.AddString("body", body);
+			_AppendOrEnqueueMessage(&topic);
 			break;
 		}
 	}
@@ -377,6 +381,9 @@ ConversationView::_InitInterface()
 bool
 ConversationView::_AppendOrEnqueueMessage(BMessage* msg)
 {
+	if (msg->HasInt64("when") == false)
+		msg->AddInt64("when", (int64)time(NULL));
+
 	// If not attached to the chat window, then re-handle this message
 	// later [AttachedToWindow()], since you can't edit an unattached 
 	// RenderView.
@@ -459,7 +466,6 @@ ConversationView::_UserMessage(const char* format, const char* bodyFormat,
 
 	BMessage newMsg;
 	newMsg.AddString("body", newBody);
-	newMsg.AddInt64("when", (int64)time(NULL));
 	_AppendOrEnqueueMessage(&newMsg);
 	fReceiveView->ScrollToBottom();
 }
