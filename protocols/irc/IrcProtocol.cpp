@@ -270,6 +270,8 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params)
 	switch (numeric) {
 		case RPL_WELCOME:
 		{
+			if (params.CountStrings() == 2)
+				fNick = params.First();
 			BString cmd("WHO ");
 			cmd << fNick << "\n";
 			_SendIrc(cmd);
@@ -349,6 +351,17 @@ IrcProtocol::_ProcessNumericError(int32 numeric, BString sender,
 			cmd << fNick << "\n";
 			_SendIrc(cmd);
 			break;
+		}
+		default:
+		{
+			BString body = std::to_string(numeric).c_str();
+			body << params.Last();
+
+			BMessage err(IM_MESSAGE);
+			err.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+			err.AddString("chat_id", "*server*");
+			err.AddString("body", body);
+			_SendMsg(&err);
 		}
 	}
 }
