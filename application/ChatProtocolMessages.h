@@ -75,8 +75,12 @@ enum im_what_code {
 		printed in chat.
 		If chat_id is ommitted, the message is sent to the protocol's system
 		buffer, rather than a specific conversation.
+		face_start and face_length specify the location of formatted text in
+		the body, and "face" is the desired font face. Unsupported in bulk,
+		i.e., IM_LOGS_RECEIVED.
 		Requires:	String "body"
-		Allows:		String "chat_id", String "user_id", String "user_name" */
+		Allows:		String "chat_id", String "user_id", String "user_name",
+					int32s "face_start", int32s "face_length", uint16s "face" */
 	IM_MESSAGE_RECEIVED					= 22,
 
 	/*!	Logs received					→App

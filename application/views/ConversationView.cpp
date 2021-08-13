@@ -418,6 +418,12 @@ ConversationView::_AppendMessage(BMessage* msg)
 	}
 
 	// … else we're jamming a message into this view no matter what it takes!
+	if (msg->HasInt32("face_start") == true) {
+		_AppendFormattedMessage(msg);
+		return;
+	}
+
+	// For unformatted (normal or bulk) messages
 	BStringList user_ids, user_names, bodies;
 	if (msg->FindStrings("body", &bodies) != B_OK)
 		return;
@@ -465,8 +471,117 @@ ConversationView::_AppendMessage(BMessage* msg)
 
 
 void
+ConversationView::_AppendFormattedMessage(BMessage* msg)
+{
+	int64 timeInt;
+	BString user_id;
+	BString user_name;
+	BString body;
+	rgb_color userColor = ui_color(B_PANEL_TEXT_COLOR);
+
+	if (msg->FindString("body", &body) != B_OK)
+		return;
+
+	if (msg->FindInt64("when", &timeInt) != B_OK)
+		timeInt = (int64)time(NULL);
+
+	if (msg->FindString("user_id", &user_id) == B_OK)
+		if (fConversation != NULL) {
+			User* user = fConversation->UserById(user_id);
+			if (user != NULL) {
+				user_name = user->GetName();
+				userColor = user->fItemColor;
+			}
+			else
+				user_name = user_id;
+		}
+	else if (msg->FindString("user_name", &user_name) != B_OK) {
+		fReceiveView->AppendGeneric(body);
+		return;
+	}
+
+	fReceiveView->AppendTimestamp(timeInt);
+	fReceiveView->AppendUserstamp(user_name, userColor);
+
+	// And here we append the body…
+	uint16 face = 0;
+	UInt16IntMap face_indices;
+	rgb_color color = ui_color(B_PANEL_TEXT_COLOR);
+
+	BFont font;
+	for (int i = 0; i < body.CountChars(); i++) {
+		_EnableStartingFaces(msg, i, &face, &face_indices);
+
+		if (face == B_REGULAR_FACE) {
+			font = BFont();
+			face = 0;
+		}
+		else if (face > 0) {
+			font.SetFace(face);
+		}
+
+		int32 bytes;
+		const char* curChar = body.CharAt(i, &bytes);
+		char append[bytes];
+
+		for (int i = 0; i < bytes; i++)
+			append[i] = curChar[i];
+		append[bytes] = '\0';
+		fReceiveView->Append(append, color, &font);
+
+		_DisableEndingFaces(msg, &face, &face_indices);
+	}
+	fReceiveView->Append("\n");
+}
+
+
+void
+ConversationView::_EnableStartingFaces(BMessage* msg, int32 index, uint16* face,
+	UInt16IntMap* indices)
+{
+	int32 face_start;
+	int32 face_length;
+	uint16 newFace;
+
+	int32 i = 0;
+	while (msg->FindInt32("face_start", i, &face_start) == B_OK) {
+		if (face_start == index) {
+			if (msg->FindInt32("face_length", i, &face_length) != B_OK)
+				continue;
+			if (msg->FindUInt16("face", i, &newFace) != B_OK)
+				continue;
+
+			*face |= newFace;
+			indices->AddItem(newFace, face_length);
+		}
+		i++;
+	}
+}
+
+
+void
+ConversationView::_DisableEndingFaces(BMessage* msg, uint16* face,
+	UInt16IntMap* indices)
+{
+	for (int32 i = 0; i < indices->CountItems(); i++) {
+		uint16 key = indices->KeyAt(i);
+		int32 value = indices->ValueAt(i) - 1;
+
+		indices->RemoveItemAt(i);
+		if (value <= 0) {
+			*face = *face & ~key;
+			if (indices->CountItems() == 0)
+				*face = B_REGULAR_FACE;
+		}
+		else
+			indices->AddItem(key, value);
+	}
+}
+
+
+void
 ConversationView::_UserMessage(const char* format, const char* bodyFormat,
-							   BMessage* msg)
+	BMessage* msg)
 {
 	BString user_id;
 	BString user_name = msg->FindString("user_name");

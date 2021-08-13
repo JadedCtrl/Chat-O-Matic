@@ -24,9 +24,7 @@ RenderView::AppendMessage(const char* nick, const char* message,
 	if (BString(message).IsEmpty() == true)	return;
 
 	AppendTimestamp(time);
-	Append("<", nameColor);
-	Append(nick);
-	Append("> ", nameColor);
+	AppendUserstamp(nick, nameColor);
 	Append(message);
 
 	if (BString(message).EndsWith("\n") == false)	Append("\n");
@@ -44,6 +42,15 @@ RenderView::AppendGeneric(const char* message)
 
 
 void
+RenderView::AppendUserstamp(const char* nick, rgb_color nameColor)
+{
+	Append("<", nameColor, B_BOLD_FACE);
+	Append(nick, nameColor, B_BOLD_FACE);
+	Append("> ", nameColor, B_BOLD_FACE);
+}
+
+
+void
 RenderView::AppendTimestamp(time_t time)
 {
 	tm* tm = localtime(&time);
@@ -55,17 +62,18 @@ RenderView::AppendTimestamp(time_t time)
 		BString stamp("――― %date% ―――\n");
 		stamp.ReplaceAll("%date%", datestamp);
 
-		Append(stamp.String(), ui_color(B_PANEL_TEXT_COLOR), B_ITALIC_FACE);
+		Append(stamp.String(), ui_color(B_PANEL_TEXT_COLOR),
+			B_ITALIC_FACE | B_BOLD_FACE);
 
 		fLastDay = tm->tm_yday;
 		fLastYear = tm->tm_year;
 	}
 
 	if (time == 0) {
-		Append("[xx:xx] ", ui_color(B_LINK_HOVER_COLOR));
+		Append("[xx:xx] ", ui_color(B_LINK_HOVER_COLOR), B_BOLD_FACE);
 		return;
 	}
 	char timestamp[9] = { '\0' };
 	strftime(timestamp, 8, "[%H:%M] ", tm);
-	Append(timestamp, ui_color(B_LINK_HOVER_COLOR));
+	Append(timestamp, ui_color(B_LINK_HOVER_COLOR), B_BOLD_FACE);
 }
