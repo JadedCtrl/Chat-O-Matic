@@ -641,13 +641,22 @@ IrcProtocol::_IsChannelName(BString name)
 }
 
 
+#define disable_all_faces(current) { \
+	if (bold > -1)		_ToggleAndAdd(msg, B_BOLD_FACE, &bold, current); \
+	if (italics > -1)	_ToggleAndAdd(msg, B_ITALIC_FACE, &italics, current); \
+	if (strike > -1)	_ToggleAndAdd(msg, B_STRIKEOUT_FACE, &strike, current); \
+	if (underline > -1)	_ToggleAndAdd(msg, B_UNDERSCORE_FACE, &underline, current); \
+};
+
+
 void
 IrcProtocol::_AddFormatted(BMessage* msg, const char* name, BString text)
 {
 	BString newText;
 	int32 italics = -1, bold = -1, underline = -1, strike = -1, mono = -1;
 
-	for (int32 j=0, i=0; j < text.CountBytes(0, text.CountChars()); j++) {
+	int32 length = text.CountBytes(0, text.CountChars());
+	for (int32 j=0, i=0; j < length; j++) {
 		char c = text.ByteAt(j);
 
 		switch (c) {
@@ -664,16 +673,14 @@ IrcProtocol::_AddFormatted(BMessage* msg, const char* name, BString text)
 				_ToggleAndAdd(msg, B_STRIKEOUT_FACE, &strike, i);
 				break;
 			case 0x0f:
-				if (bold > -1)		_ToggleAndAdd(msg, B_BOLD_FACE, &bold, i);
-				if (italics > -1)	_ToggleAndAdd(msg, B_ITALIC_FACE, &italics, i);
-				if (strike > -1)	_ToggleAndAdd(msg, B_STRIKEOUT_FACE, &strike, i);
-				if (underline > -1)	_ToggleAndAdd(msg, B_UNDERSCORE_FACE, &underline, i);
+				disable_all_faces(i);
 				break;
 			default:
 				newText << c;
 				i++;
 		}
 	}
+	disable_all_faces(length);
 	msg->AddString(name, newText);
 }
 
@@ -687,7 +694,7 @@ IrcProtocol::_ToggleAndAdd(BMessage* msg, uint16 face, int32* start,
 	else {
 		msg->AddInt32("face_start", *start);
 		msg->AddInt32("face_length", current - *start);
-		msg->AddInt16("face", face);
+		msg->AddUInt16("face", face);
 		*start = -1;
 	}
 }
