@@ -10,7 +10,7 @@ resource app_version {
 	variety = B_APPV_ALPHA,
 	internal = 0,
 
-	short_info = "Libpurple add-on for Cardie",
+	short_info = "Cardie libpurple add-on",
 	long_info = "©2021 Jaidyn Levesque"
 };
 

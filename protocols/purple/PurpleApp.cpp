@@ -170,6 +170,21 @@ PurpleApp::ImMessage(BMessage* msg)
 		{
 			PurpleAccount* account = _AccountFromMessage(msg);
 			UserStatus status = (UserStatus)msg->FindInt32("status");
+
+			switch (status) {
+				case STATUS_ONLINE:
+					if (purple_account_is_disconnected(account)) {
+						purple_account_set_enabled(account, PURPLE_UI_ID, true);
+						purple_account_connect(account);
+					}
+					break;
+				case STATUS_OFFLINE: {
+					SendMessage(account, BMessage(PURPLE_SHUTDOWN_ADDON));
+					purple_account_disconnect(account);
+					break;
+				}
+			}
+
 			PurpleStatusPrimitive prim = cardie_status_to_purple(status);
 			const char* primId = purple_primitive_get_id_from_type(prim);
 
@@ -981,7 +996,7 @@ static PurpleConnectionUiOps _ui_op_connection =
 {
 	NULL,
 	NULL,
-	NULL,
+	ui_op_disconnected,
 	NULL,
 	NULL,
 	NULL,
@@ -1134,6 +1149,11 @@ signal_account_signed_on(PurpleAccount* account)
 
 	send_own_info(account);
 	load_account_buddies(account);
+
+	BMessage status(IM_MESSAGE);
+	status.AddInt32("im_what", IM_OWN_STATUS_SET);
+	status.AddInt32("status", (int32)STATUS_ONLINE);
+	((PurpleApp*)be_app)->SendMessage(account, status);
 
 	((PurpleApp*)be_app)->fUserNicks.AddItem(username, display);
 }
@@ -1419,6 +1439,21 @@ ui_op_input_add(gint fd, PurpleInputCondition condition,
 
 	g_io_channel_unref(channel);
 	return closure->result;
+}
+
+
+static void
+ui_op_disconnected(PurpleConnection* conn)
+{
+	PurpleAccount* account = purple_connection_get_account(conn);
+	const PurpleConnectionErrorInfo* err
+		= purple_account_get_current_error(account);
+	if (!err) {
+		BMessage status(IM_MESSAGE);
+		status.AddInt32("im_what", IM_OWN_STATUS_SET);
+		status.AddInt32("status", (int32)STATUS_OFFLINE);
+		((PurpleApp*)be_app)->SendMessage(account, status);
+	}
 }
 
 

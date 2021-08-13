@@ -128,7 +128,6 @@ connect_thread(void* data)
 		BMessage* msg = new BMessage(receive_message());
 		switch (msg->what) {
 			case PURPLE_SHUTDOWN_ADDON: {
-				protocol->Shutdown();
 				BMessage* disabled = new BMessage(IM_MESSAGE);
 				disabled->AddInt32("im_what", IM_PROTOCOL_DISABLE);
 				protocol->SendMessage(disabled);
@@ -235,17 +234,17 @@ PurpleProtocol::UpdateSettings(BMessage* msg)
 	msg->what = PURPLE_CONNECT_ACCOUNT;
 	_SendPrplMessage(msg);
 
-	thread_id thread = spawn_thread(connect_thread, "fly_away_little_bird",
+	fBirdThread = spawn_thread(connect_thread, "god_has_abandoned_us",
 		B_NORMAL_PRIORITY, (void*)this);
 
-	if (thread < B_OK)
+	if (fBirdThread < B_OK)
 		return B_ERROR;
 
 	BMessage* account = new BMessage(PURPLE_REGISTER_THREAD);
-	account->AddInt64("thread_id", thread);
+	account->AddInt64("thread_id", fBirdThread);
 	_SendPrplMessage(account);
 
-	resume_thread(thread);
+	resume_thread(fBirdThread);
 	return B_OK;
 }
 

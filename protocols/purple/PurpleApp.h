@@ -166,6 +166,7 @@ private:
 							PurpleInputFunction function, gpointer data);
 
 // Connection ui ops
+	 static void		ui_op_disconnected(PurpleConnection* conn);
 	 static void		ui_op_report_disconnect_reason(PurpleConnection* conn,
 							PurpleConnectionError reason, const char* text);
 
