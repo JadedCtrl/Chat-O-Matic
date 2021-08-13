@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include <Catalog.h>
+#include <Font.h>
 #include <Resources.h>
 #include <SecureSocket.h>
 #include <Socket.h>
@@ -379,8 +380,10 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 	}
 	else if (command == "PRIVMSG")
 	{
+
 		BString chat_id = params.First();
 		BString user_id = _SenderIdent(sender);
+		BString body = params.Last();
 		if (_IsChannelName(chat_id) == false)
 			chat_id = _SenderNick(sender);
 
@@ -389,7 +392,7 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 		chat.AddString("chat_id", chat_id);
 		chat.AddString("user_id", user_id);
 		chat.AddString("user_name", _SenderNick(sender));
-		chat.AddString("body", params.Last());
+		_AddFormatted(&chat, "body", body);
 		_SendMsg(&chat);
 	}
 	else if (command == "NOTICE")
@@ -635,6 +638,58 @@ IrcProtocol::_IsChannelName(BString name)
 {
 	return (name.StartsWith("!") || name.StartsWith("&") || name.StartsWith("#")
 		|| name.StartsWith("+"));
+}
+
+
+void
+IrcProtocol::_AddFormatted(BMessage* msg, const char* name, BString text)
+{
+	BString newText;
+	int32 italics = -1, bold = -1, underline = -1, strike = -1, mono = -1;
+
+	for (int32 j=0, i=0; j < text.CountBytes(0, text.CountChars()); j++) {
+		char c = text.ByteAt(j);
+
+		switch (c) {
+			case 0x02:
+				_ToggleAndAdd(msg, B_BOLD_FACE, &bold, i);
+				break;
+			case 0x1d:
+				_ToggleAndAdd(msg, B_ITALIC_FACE, &italics, i);
+				break;
+			case 0x1f:
+				_ToggleAndAdd(msg, B_UNDERSCORE_FACE, &underline, i);
+				break;
+			case 0x1e:
+				_ToggleAndAdd(msg, B_STRIKEOUT_FACE, &strike, i);
+				break;
+			case 0x0f:
+				if (bold > -1)		_ToggleAndAdd(msg, B_BOLD_FACE, &bold, i);
+				if (italics > -1)	_ToggleAndAdd(msg, B_ITALIC_FACE, &italics, i);
+				if (strike > -1)	_ToggleAndAdd(msg, B_STRIKEOUT_FACE, &strike, i);
+				if (underline > -1)	_ToggleAndAdd(msg, B_UNDERSCORE_FACE, &underline, i);
+				break;
+			default:
+				newText << c;
+				i++;
+		}
+	}
+	msg->AddString(name, newText);
+}
+
+
+void
+IrcProtocol::_ToggleAndAdd(BMessage* msg, uint16 face, int32* start,
+	int32 current)
+{
+	if (*start == -1)
+		*start = current;
+	else {
+		msg->AddInt32("face_start", *start);
+		msg->AddInt32("face_length", current - *start);
+		msg->AddInt16("face", face);
+		*start = -1;
+	}
 }
 
 

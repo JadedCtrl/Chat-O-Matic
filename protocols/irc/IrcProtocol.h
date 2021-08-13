@@ -80,6 +80,11 @@ private:
 
 			bool		_IsChannelName(BString name);
 
+			void		_AddFormatted(BMessage* msg, const char* name,
+							BString text);
+			void		_ToggleAndAdd(BMessage* msg, uint16 face, int32* start,
+							int32 current);
+
 			// Read a data stream until newline found; if data found past
 			// newline, append to given buffer for later use
 			BString		_ReadUntilNewline(BDataIO* data, BString* extraBuffer);
