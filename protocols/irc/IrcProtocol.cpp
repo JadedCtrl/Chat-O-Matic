@@ -30,6 +30,7 @@ status_t
 connect_thread(void* data)
 {
 	IrcProtocol* protocol = (IrcProtocol*)data;
+	protocol->Connect();
 	status_t status = protocol->Loop();
 	exit(status);
 }
@@ -78,38 +79,17 @@ IrcProtocol::UpdateSettings(BMessage* settings)
 	fNick = settings->FindString("nick");
 	fPartText = settings->GetString("part", "Cardie[0.1]: i've been liquified!");
 	fUser = settings->FindString("ident");
-	const char* real_name = settings->FindString("real_name");
-	const char* server = settings->FindString("server");
-	const char* password = settings->FindString("password");
-	int32 port = settings->FindInt32("port");
-	bool ssl = settings->GetBool("ssl", false);
-
-	fSocket = ssl ? new BSecureSocket : new BSocket;
-
-	if (fSocket->Connect(BNetworkAddress(server, port)) != B_OK)
-		return B_ERROR;
-
-	if (password != NULL) {
-		BString passMsg = "PASS ";
-		passMsg << password;
-		_SendIrc(passMsg);
-	}
-
-	BString userMsg = "USER ";
-	userMsg << fUser << " * 0 :" << real_name;
-	_SendIrc(userMsg);
-
-	BString nickMsg = "NICK ";
-	nickMsg << fNick;
-	_SendIrc(nickMsg);
+	fRealName = settings->FindString("real_name");
+	fServer = settings->FindString("server");
+	fPassword = settings->FindString("password");
+	fPort = settings->FindInt32("port");
+	fSsl = settings->GetBool("ssl", false);
 
 	fRecvThread = spawn_thread(connect_thread, "what_a_tangled_web_we_weave",
 		B_NORMAL_PRIORITY, (void*)this);
 
 	if (fRecvThread < B_OK)
 		return B_ERROR;
-
-	resume_thread(fRecvThread);
 	return B_OK;
 }
 
@@ -119,6 +99,30 @@ IrcProtocol::Process(BMessage* msg)
 {
 	int32 im_what = msg->FindInt32("im_what");
 	switch (im_what) {
+		case IM_SET_OWN_STATUS:
+		{
+			int32 status = msg->FindInt32("status");
+			BString status_msg = msg->FindString("message");
+
+			BMessage statusSet(IM_MESSAGE);
+			statusSet.AddInt32("im_what", IM_OWN_STATUS_SET);
+
+			switch (status) {
+				case STATUS_ONLINE:
+					statusSet.AddInt32("status", STATUS_ONLINE);
+					resume_thread(fRecvThread);
+					break;
+				case STATUS_OFFLINE:
+					statusSet.AddInt32("status", STATUS_OFFLINE);
+					Shutdown();
+					break;
+				default:
+					break;
+			}
+			if (status == STATUS_ONLINE || status == STATUS_OFFLINE)
+				_SendMsg(&statusSet);
+			break;
+		}
 		case IM_SEND_MESSAGE:
 		{
 			BString chat_id = msg->FindString("chat_id");
@@ -230,6 +234,31 @@ BBitmap*
 IrcProtocol::Icon() const
 {
 	return ReadNodeIcon(fAddOnPath.Path(), B_LARGE_ICON, true);
+}
+
+
+status_t
+IrcProtocol::Connect()
+{
+	fSocket = fSsl ? new BSecureSocket : new BSocket;
+
+	if (fSocket->Connect(BNetworkAddress(fServer, fPort)) != B_OK)
+		return B_ERROR;
+
+	if (fPassword.IsEmpty() == false) {
+		BString passMsg = "PASS ";
+		passMsg << fPassword;
+		_SendIrc(passMsg);
+	}
+
+	BString userMsg = "USER ";
+	userMsg << fUser << " * 0 :" << fRealName;
+	_SendIrc(userMsg);
+
+	BString nickMsg = "NICK ";
+	nickMsg << fNick;
+	_SendIrc(nickMsg);
+	return B_OK;
 }
 
 

@@ -50,6 +50,7 @@ public:
 						MessengerInterface() const { return fMessenger; }
 
 	// IRC
+			status_t	Connect();
 			status_t	Loop();
 
 	BMessage* fSettings;
@@ -99,10 +100,16 @@ private:
 	BString fRemainingBuf;
 	thread_id fRecvThread;
 
+	// Settings
 	BString fNick;
-	const char* fUser;
+	BString fUser;
 	BString fIdent;
 	BString fPartText;
+	BString fRealName;
+	BString fPassword;
+	BString fServer;
+	int32 fPort;
+	bool fSsl;
 
 	// WHOREPLY is requested by the add-on to populate the user-list, but the
 	// user might also use the /who command― if the user does, this is true
