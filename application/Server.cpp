@@ -277,8 +277,35 @@ Server::ImMessage(BMessage* msg)
 			if (msg->FindInt32("status", &status) != B_OK || looper == NULL)
 				return B_SKIP_MESSAGE;
 
+			// If online/offline, send a message to the protocol's buffer.
+			if (status == STATUS_OFFLINE || status == STATUS_ONLINE) {
+				BMessage info(IM_MESSAGE);
+				info.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+				info.AddString("user_name", "Cardie");
+				if (status == STATUS_OFFLINE)
+					info.AddString("body", B_TRANSLATE("Account now offline and disconnected."));
+				else
+					info.AddString("body", B_TRANSLATE("Account now online!"));
+				looper->GetView()->MessageReceived(&info);
+			}
+
 			Contact* contact = looper->GetOwnContact();
 			if (contact != NULL) {
+				// Send notification, if appropriate
+				UserStatus oldStatus = contact->GetNotifyStatus();
+				if ((oldStatus == STATUS_ONLINE && status == STATUS_OFFLINE)
+					|| (oldStatus == STATUS_OFFLINE && status == STATUS_ONLINE))
+				{
+					if (status == STATUS_ONLINE)
+						_ProtocolNotification(looper,
+							BString(B_TRANSLATE("Connected")),
+							BString(B_TRANSLATE("%user% has connected!")));
+					else
+						_ProtocolNotification(looper,
+							BString(B_TRANSLATE("Disconnected")),
+							BString(B_TRANSLATE("%user% is now offline!")));
+				}
+
 				contact->SetNotifyStatus((UserStatus)status);
 
 				BString statusMsg;
