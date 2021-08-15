@@ -56,7 +56,7 @@ compare_by_name(const void* _item1, const void* _item2)
 AccountsWindow::AccountsWindow()
 	:
 	BWindow(BRect(200, 200, 300, 400),
-		B_TRANSLATE("Accounts"), B_TITLED_WINDOW,
+		B_TRANSLATE("Accounts"), B_FLOATING_WINDOW,
 		B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS)
 {
 	fListView = new BListView("accountsListView");

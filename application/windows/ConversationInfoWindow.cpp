@@ -25,8 +25,8 @@
 ConversationInfoWindow::ConversationInfoWindow(Conversation* chat)
 	:
 	BWindow(BRect(200, 200, 300, 400),
-		B_TRANSLATE("Room information"), B_FLOATING_WINDOW_LOOK,
-		B_NORMAL_WINDOW_FEEL, B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS),
+		B_TRANSLATE("Room information"), B_FLOATING_WINDOW,
+		B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS),
 	fChat(chat)
 {
 	_InitInterface();
