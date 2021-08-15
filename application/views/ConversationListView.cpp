@@ -75,19 +75,18 @@ ConversationListView::MessageReceived(BMessage* msg)
 	switch (msg->what) {
 		case kOpenSelectedChat:
 		{
-			ConversationItem* citem;
-			ConversationAccountItem* caitem;
 			int32 selIndex = CurrentSelection();
+			if (selIndex < 0)
+				break;
 
-			if (selIndex >= 0
-					&& (citem = (ConversationItem*)ItemAt(selIndex)) != NULL
-					&& citem->OutlineLevel() == 1)
+			ConversationItem* citem
+				= dynamic_cast<ConversationItem*>(ItemAt(selIndex));
+			ConversationAccountItem* caitem
+				= dynamic_cast<ConversationAccountItem*>(ItemAt(selIndex));
+
+			if (citem != NULL)
 				citem->GetConversation()->ShowView(false, true);
-
-			else if (selIndex >= 0
-					&& (caitem = (ConversationAccountItem*)ItemAt(selIndex))
-						!= NULL
-					&& caitem->OutlineLevel() == 0)
+			else if (caitem != NULL)
 				caitem->GetLooper()->ShowView();
 			break;
 		}
@@ -132,6 +131,20 @@ ConversationListView::SelectionChanged()
 
 
 void
+ConversationListView::RemoveItemSelecting(BListItem* item)
+{
+	int32 selection = CurrentSelection();
+	int32 itemIndex = IndexOf(item);
+	RemoveItem(item);
+
+	if (itemIndex == selection && CountItems() > selection)
+		Select(selection);
+	else if (itemIndex == selection && CountItems() >= 1)
+		Select(0);
+}
+
+
+void
 ConversationListView::AddConversation(Conversation* chat)
 {
 	ConversationAccountItem* superItem = _EnsureAccountItem(chat);
@@ -147,7 +160,37 @@ ConversationListView::AddConversation(Conversation* chat)
 void
 ConversationListView::RemoveConversation(Conversation* chat)
 {
-	RemoveItem(chat->GetListItem());
+	RemoveItemSelecting(chat->GetListItem());
+}
+
+
+void
+ConversationListView::AddAccount(int64 instance)
+{
+	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
+	ProtocolLooper* looper = server->GetProtocolLooper(instance);
+	if (looper == NULL)
+		return;
+	AddItem(looper->GetListItem());
+	if (CurrentSelection() < 0)
+		Select(0);
+}
+
+
+void
+ConversationListView::RemoveAccount(int64 instance)
+{
+	int32 selection = 0;
+	for (int i = 0; i < CountItems(); i++) {
+		ConversationAccountItem* item
+			= dynamic_cast<ConversationAccountItem*>(ItemAt(i));
+		if (item != NULL && item->GetInstance() == instance) {
+			RemoveItemSelecting(item);
+			break;
+		}
+	}
+	if (CountItems() == 0)
+		((TheApp*)be_app)->GetMainWindow()->SetConversation(NULL);
 }
 
 

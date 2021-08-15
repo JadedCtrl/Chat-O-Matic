@@ -20,8 +20,13 @@ public:
 	virtual	void	SelectionChanged();
 	virtual void	MouseDown(BPoint where);
 
+			// After removing item, select another
+			void	RemoveItemSelecting(BListItem* item);
+
 			void	AddConversation(Conversation* chat);
 			void	RemoveConversation(Conversation* chat);
+			void	AddAccount(int64 instance);
+			void	RemoveAccount(int64 instance);
 			void	SortConversation(Conversation* chat);
 
 private:

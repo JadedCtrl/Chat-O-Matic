@@ -252,6 +252,7 @@ MainWindow::MessageReceived(BMessage* message)
 		case APP_ACCOUNT_DISABLED: {
 			_ToggleMenuItems();
 			_RefreshAccountsMenu();
+			fListView->RemoveAccount(message->GetInt64("instance", -1));
 			break;
 		}
 		case IM_MESSAGE:
@@ -315,10 +316,11 @@ MainWindow::ImMessage(BMessage* msg)
 		}
 		case IM_PROTOCOL_READY: {
 			if (fConversation == NULL)
-				fChatView->MessageReceived(msg);
+				fBackupChatView->MessageReceived(msg);
 			fStatusView->MessageReceived(msg);
 			_ToggleMenuItems();
 			_RefreshAccountsMenu();
+			fListView->AddAccount(msg->GetInt64("instance", -1));
 			break;
 		}
 		case IM_PROTOCOL_DISABLE:
