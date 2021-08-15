@@ -37,14 +37,14 @@ protocol_count()
 const char*
 signature()
 {
-	return "jabber";
+	return "xmpp";
 }
 
 
 const char*
 friendly_signature()
 {
-	return "Jabber";
+	return "XMPP";
 }
 
 

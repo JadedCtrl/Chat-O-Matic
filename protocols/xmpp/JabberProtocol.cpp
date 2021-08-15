@@ -32,14 +32,14 @@ JabberProtocol::~JabberProtocol()
 const char*
 JabberProtocol::Signature() const
 {
-	return "jabber";
+	return "xmpp";
 }
 
 
 const char*
 JabberProtocol::FriendlySignature() const
 {
-	return "Jabber";
+	return "XMPP";
 }
 
 
@@ -54,7 +54,7 @@ BMessage
 JabberProtocol::SettingsTemplate(const char* name)
 {
 	if (strcmp(name, "account") == 0)
-		return JabberHandler::_SettingsTemplate(B_TRANSLATE("Jabber identifier:"),
+		return JabberHandler::_SettingsTemplate(B_TRANSLATE("XMPP identifier:"),
 			true);
 	if (strcmp(name, "join_room") == 0 || strcmp(name, "create_room") == 0)
 		return JabberHandler::_RoomTemplate();
