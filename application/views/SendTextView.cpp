@@ -1,3 +1,4 @@
+#include <iostream>
 /*
  * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
  * All rights reserved. Distributed under the terms of the MIT license.
@@ -76,21 +77,22 @@ SendTextView::_AutoComplete()
 	// Now to find the substitutes
 	BString substitution;
 	if (fCurrentWord.StartsWith("/") == true) {
-		substitution = _NextMatch(_CommandNames(), fCurrentWord.RemoveFirst("/"));
-		if (substitution.IsEmpty() == true)
+		substitution =
+			_NextMatch(_CommandNames(), BString(fCurrentWord).RemoveFirst("/"));
+		if (substitution.IsEmpty() == false)
 			substitution.Prepend("/");
 	}
 	else
 		substitution = _NextMatch(_UserNames(), fCurrentWord);
 
-	// Apply the substitution
+	// Apply the substitution or jet off
 	if (substitution.IsEmpty() == true)
 		fCurrentIndex = 0;
 	else {
 		int32 index = text.FindLast(lastWord);
 		int32 newindex = index + substitution.Length();
 
-		Delete(index, lastWord.CountChars());
+		Delete(index, index + lastWord.CountChars());
 		Insert(index, substitution, substitution.Length());
 		Select(newindex, newindex);
 	}
