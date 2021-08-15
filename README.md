@@ -3,7 +3,7 @@
 
 A multi-protocol chat program based on [Caya](https://github.com/Augustolo/Caya).
 
-![Screenshot](data/screenshots/update-2.png)
+![Screenshot](data/screenshots/update-3.png)
 
 ## Building
 You can make Cardie and its protocols with:
