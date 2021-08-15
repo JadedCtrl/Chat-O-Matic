@@ -114,8 +114,11 @@ ConversationListView::MouseDown(BPoint where)
 	if (!(buttons & B_SECONDARY_MOUSE_BUTTON))
 		return;
 
-	if (CurrentSelection() >= 0)
-		_ConversationPopUp()->Go(ConvertToScreen(where), true, false);
+	if (CurrentSelection() >= 0) {
+		BPopUpMenu* menu = _ConversationPopUp();
+		if (menu != NULL)
+			menu->Go(ConvertToScreen(where), true, false);
+	}
 	else
 		_BlankPopUp()->Go(ConvertToScreen(where), true, false);
 }
@@ -163,8 +166,8 @@ ConversationListView::_ConversationPopUp()
 	int32 selIndex = CurrentSelection();
 
 	ConversationItem* item;
-	if ((item = (ConversationItem*)ItemAt(selIndex)) == NULL)
-		return _BlankPopUp();
+	if ((item = dynamic_cast<ConversationItem*>(ItemAt(selIndex))) == NULL)
+		return NULL;
 	Conversation* chat = item->GetConversation();
 	ProtocolLooper* looper = chat->GetProtocolLooper();
 
