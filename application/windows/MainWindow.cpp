@@ -70,6 +70,10 @@ MainWindow::MainWindow()
 void
 MainWindow::Start()
 {
+	// No accounts, show account window
+	if (ProtocolManager::Get()->CountProtocolInstances() == 0)
+		MessageReceived(new BMessage(APP_SHOW_ACCOUNTS));
+
 	// Login all accounts
 	fServer->LoginAll();
 }

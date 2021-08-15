@@ -13,7 +13,6 @@
 #include "TheApp.h"
 
 #include <stdio.h>
-#include <iostream>
 
 #include <Alert.h>
 #include <Catalog.h>
