@@ -1,5 +1,5 @@
 LIBPATHS = $(OBJ_DIR)
-PROTOCOL_DIR = $(OBJ_DIR)/protocols/
+PROTOCOL_DIR = $(OBJ_DIR)/cardie/
 
 DEBUG_ENABLED ?= false
 DEFINES := VERSION="\"0.0.2\"" \
