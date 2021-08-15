@@ -35,7 +35,7 @@ extern "C" _EXPORT const char* friendly_signature();
 extern "C" _EXPORT uint32 version();
 
 BMessenger* ensure_app_messenger();
-void ensure_app();
+bool ensure_app();
 
 status_t connect_thread(void* data);
 BMessage receive_message();

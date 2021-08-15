@@ -19,12 +19,15 @@
 
 #include "PurpleProtocol.h"
 
+#include <iostream>
+
 #include <Application.h>
 #include <Catalog.h>
 #include <Resources.h>
 #include <Roster.h>
 #include <TranslationUtils.h>
 
+#include <Cardie.h>
 #include <ChatProtocolMessages.h>
 
 #include "Purple.h"
@@ -42,6 +45,8 @@ ChatProtocol*
 protocol_at(int32 i)
 {
 	BMessenger* msgr = ensure_app_messenger();
+	if (msgr == NULL)
+		return NULL;
 
 	BMessage* msg = new BMessage(PURPLE_REQUEST_PROTOCOL_INFO);
 	msg->AddInt64("thread_id", find_thread(NULL));
@@ -59,9 +64,13 @@ protocol_at(int32 i)
 int32
 protocol_count()
 {
+	BMessenger* msgr = ensure_app_messenger();
+	if (msgr == NULL)
+		return 0;
+
 	BMessage* msg = new BMessage(PURPLE_REQUEST_PROTOCOL_COUNT);
 	msg->AddInt64("thread_id", find_thread(NULL));
-	ensure_app_messenger()->SendMessage(msg);
+	msgr->SendMessage(msg);
 
 	thread_id sender;
 	return receive_data(&sender, NULL, 0);
@@ -93,30 +102,40 @@ BMessenger*
 ensure_app_messenger()
 {
 	if (kAppMessenger == NULL || kAppMessenger->IsValid() == false) {
-		ensure_app();
-		kAppMessenger = new BMessenger(PURPLE_SIGNATURE);
+		if (ensure_app() == true)
+			kAppMessenger = new BMessenger(PURPLE_SIGNATURE);
 	}
 	return kAppMessenger;
 }
 
 
-void
+bool
 ensure_app()
 {
 	BRoster roster;
 	if (roster.IsRunning(PURPLE_SIGNATURE) == true)
-		return;
+		return true;
+
+	if (roster.Launch(PURPLE_SIGNATURE) == B_OK) {
+		snooze(100000);
+		return true;
+	}
 
 	app_info aInfo;
 	be_app->GetAppInfo(&aInfo);
 	BPath protoPath(&aInfo.ref);
 	protoPath.GetParent(&protoPath);
-	protoPath.Append("protocols/purple");
+	protoPath.Append(BString(APP_NAME).ToLower().Append("/purple"));
 
 	entry_ref protoRef;
 	BEntry(protoPath.Path()).GetRef(&protoRef);
-	roster.Launch(&protoRef);
-	snooze(100000);
+	if (roster.Launch(&protoRef) == B_OK) {
+		snooze(100000);
+		return true;
+	}
+
+	std::cerr << "libpurple add-on could not find its binary! All is lost!\n";
+	return false;
 }
 
 
