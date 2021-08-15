@@ -20,7 +20,7 @@ class BHandler;
 
 class ProtocolManager {
 public:
-			void				Init(BDirectory dir, BHandler* target);
+			bool				Init(BDirectory dir, BHandler* target);
 
 	static	ProtocolManager*	Get();
 

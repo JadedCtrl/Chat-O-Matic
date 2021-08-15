@@ -1,16 +1,19 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  *		Andrea Anzani, andrea.anzani@gmail.com
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
+ *		Jaidyn Levesque, jadedctrl@teknik.io
  */
 
 #include "TheApp.h"
 
 #include <stdio.h>
+#include <iostream>
 
 #include <Alert.h>
 #include <Catalog.h>
@@ -79,16 +82,16 @@ TheApp::ReadyToRun()
 		}
 		printf("Loaded Emoticons settings from: %s\n", currentPath.Path());
 
-		currentPath = appDir;
-		currentPath.Append("protocols");
-		if (BEntry(currentPath.Path()).Exists()) {
-			printf("Looking for protocols from: %s\n", currentPath.Path());
+		bool win = false;
+		if (_LoadProtocols(B_SYSTEM_ADDONS_DIRECTORY))				win = true;
+		if (_LoadProtocols(B_USER_ADDONS_DIRECTORY))				win = true;
+		if (_LoadProtocols(B_SYSTEM_NONPACKAGED_ADDONS_DIRECTORY))	win = true;
+		if (_LoadProtocols(B_USER_NONPACKAGED_ADDONS_DIRECTORY))	win = true;
+		if (_LoadProtocols(appDir))									win = true;
 
-			ProtocolManager::Get()->Init(BDirectory(currentPath.Path()),
-				fMainWin);
-		} else {
-			BString msg("Can't find protocols in:\n\n%path%");
-			msg.ReplaceAll("%path%", currentPath.Path());
+		if (win == false) {
+			BString msg(B_TRANSLATE("No protocols found!\nPlease make sure %app% was installed correctly."));
+			msg.ReplaceAll("%app%", APP_NAME);
 			BAlert* alert = new BAlert("", msg.String(), B_TRANSLATE("Ouch!"));
 			alert->Go();
 			PostMessage(B_QUIT_REQUESTED);
@@ -119,8 +122,8 @@ TheApp::AboutRequested()
 		NULL
 	};
 
-	BString extraInfo(B_TRANSLATE("%app% is released under the GNU GPL "
-		"License.\nSome parts of %app% are available under MIT license.\n"
+	BString extraInfo(B_TRANSLATE("%app% is released under the MIT License.\n"
+		"Add-on and library licenses may vary.\n"
 		"Built: %buildDate%"));
 	extraInfo.ReplaceAll("%buildDate", BUILD_DATE);
 	extraInfo.ReplaceAll("%app%", B_TRANSLATE_SYSTEM_NAME(APP_NAME));
@@ -157,4 +160,26 @@ TheApp::MessageReceived(BMessage* message)
 		default:
 			BLooper::MessageReceived(message);
 	}
+}
+
+
+bool
+TheApp::_LoadProtocols(directory_which finddir)
+{
+	BPath path;
+	if (find_directory(finddir, &path) == B_OK)
+		return _LoadProtocols(path);
+	return false;
+}
+
+
+bool
+TheApp::_LoadProtocols(BPath path)
+{
+	path.Append(BString(APP_NAME).ToLower());
+	if (BEntry(path.Path()).Exists()) {
+		printf("Looking for protocols from: %s\n", path.Path());
+		return ProtocolManager::Get()->Init(BDirectory(path.Path()), fMainWin);
+	}
+	return false;
 }

@@ -26,11 +26,12 @@
 static ProtocolManager*	fInstance = NULL;
 
 
-void
+bool
 ProtocolManager::Init(BDirectory dir, BHandler* target)
 {
 	BEntry entry;
 	BPath path;
+	bool ret = false;
 
 	dir.Rewind();
 
@@ -42,10 +43,11 @@ ProtocolManager::Init(BDirectory dir, BHandler* target)
 		if (id < 0)
 			continue;
 
-		// If add-on's API version fits then load accounts...
+		// If add-on's API version fits then load accounts…
 		ChatProtocolAddOn* addOn = new ChatProtocolAddOn(id, path.Path());
 		if (addOn->Version() != APP_VERSION)
 			continue;
+		ret = true;
 
 		// If add-on has multiple protocols, also load them
 		for (int32 i = 0; i < addOn->CountProtocols(); i++) {
@@ -60,6 +62,7 @@ ProtocolManager::Init(BDirectory dir, BHandler* target)
 			delete proto;
 		}
 	}
+	return ret;
 }
 
 
@@ -158,9 +161,8 @@ ProtocolManager::_LoadAccounts(const char* image_path, ChatProtocolAddOn* addOn,
 	BEntry entry;
 	bool firstDone = false;
 
-	while (dir.GetNextEntry(&entry) == B_OK) {
-			_LoadAccount(addOn, entry, target);
-	}
+	while (dir.GetNextEntry(&entry) == B_OK)
+		_LoadAccount(addOn, entry, target);
 }
 
 
@@ -196,5 +198,3 @@ ProtocolManager::_LoadAccount(ChatProtocolAddOn* addOn, BEntry accountEntry,
 		}
 	}
 }
-
-
