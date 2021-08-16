@@ -8,6 +8,8 @@
 #include <iostream>
 
 #include <Catalog.h>
+#include <Directory.h>
+#include <FindDirectory.h>
 #include <Font.h>
 #include <Resources.h>
 #include <SecureSocket.h>
@@ -16,6 +18,7 @@
 #include <libinterface/BitmapUtils.h>
 
 #include <AppConstants.h>
+#include <Cardie.h>
 #include <ChatProtocolMessages.h>
 #include <Flags.h>
 
@@ -64,6 +67,8 @@ IrcProtocol::Init(ChatProtocolMessengerInterface* interface)
 status_t
 IrcProtocol::Shutdown()
 {
+	_SaveContacts();
+
 	BString cmd = "QUIT :";
 	cmd << fPartText;
 	_SendIrc(cmd);
@@ -159,6 +164,7 @@ IrcProtocol::Process(BMessage* msg)
 				created.AddString("chat_id", user_name);
 				created.AddString("user_id", user_id);
 				_SendMsg(&created);
+				fChannels.Add(user_name);
 				break;
 			}
 			// If it's not a known user, we need to get their ID/nick somehow
@@ -196,6 +202,7 @@ IrcProtocol::Process(BMessage* msg)
 					left.AddInt32("im_what", IM_ROOM_LEFT);
 					left.AddString("chat_id", chat_id);
 					_SendMsg(&left);
+					fChannels.Remove(chat_id);
 				}
 			}
 			break;
@@ -250,6 +257,41 @@ IrcProtocol::Process(BMessage* msg)
 			}
 			break;
 		}
+		case IM_ROSTER_ADD_CONTACT:
+		{
+			BString user_nick;
+			if (msg->FindString("user_id", &user_nick) == B_OK)
+				_AddContact(user_nick);
+			break;
+		}
+		case IM_ROSTER_REMOVE_CONTACT:
+		{
+			BString user_id;
+			if (msg->FindString("user_id", &user_id) == B_OK)
+				_RemoveContact(_NickIdent(user_id));
+			break;
+		}
+		case IM_GET_CONTACT_INFO:
+		case IM_GET_EXTENDED_CONTACT_INFO:
+		{
+			BString user_id;
+			if (msg->FindString("user_id", &user_id) != B_OK)
+				break;
+
+			BMessage info(IM_MESSAGE);
+			if (im_what == IM_GET_CONTACT_INFO)
+				info.AddInt32("im_what", IM_CONTACT_INFO);
+			else
+				info.AddInt32("im_what", IM_EXTENDED_CONTACT_INFO);
+			info.AddString("user_id", user_id);
+			info.AddString("user_name", _IdentNick(user_id));
+			if (fOfflineContacts.HasString(_IdentNick(user_id)) == true)
+				info.AddInt32("status", (int32)STATUS_OFFLINE);
+			else
+				info.AddInt32("status", (int32)STATUS_ONLINE);
+			_SendMsg(&info);
+			break;
+		}
 		default:
 			std::cout << "Unhandled message for IRC:\n";
 			msg->PrintToStream();
@@ -267,6 +309,8 @@ IrcProtocol::SettingsTemplate(const char* name)
 		settings = _AccountTemplate();
 	else if (strcmp(name, "join_room") == 0 || strcmp(name, "create_room") == 0)
 		settings = _RoomTemplate();
+	else if (strcmp(name, "roster") == 0)
+		settings = _RosterTemplate();
 	return settings;
 }
 
@@ -362,6 +406,9 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 			fIdentNicks.RemoveItemFor(ident);
 			fIdentNicks.AddItem(ident, nick);
 
+			// If is a contact, let's go!
+			_UpdateContact(nick, ident, true);
+
 			// Contains the own user's contact info― protocol ready!
 			if (fReady == false && nick == fNick) {
 				fUser = user.String();
@@ -375,9 +422,10 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 				created.AddString("chat_id", nick);
 				created.AddString("user_id", ident);
 				_SendMsg(&created);
+				fChannels.Add(nick);
 			}
 			// Used to populate a one-on-one chat's userlist… lol, I know.
-			else if (fWhoIsRequested == false && nick != fNick) {
+			else if (fWhoIsRequested == false && fChannels.HasString(nick)) {
 				BMessage user(IM_MESSAGE);
 				user.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
 				user.AddString("chat_id", nick);
@@ -489,15 +537,20 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 	{
 		BString chat_id = params.First();
 		BString user_id = _SenderIdent(sender);
+		BString user_name = _SenderNick(sender);
 		BString body = params.Last();
 		if (_IsChannelName(chat_id) == false)
 			chat_id = _SenderNick(sender);
+		if (fChannels.HasString(chat_id) == false)
+			fChannels.Add(chat_id);
+
+		_UpdateContact(user_name, user_id, true);
 
 		BMessage chat(IM_MESSAGE);
 		chat.AddInt32("im_what", IM_MESSAGE_RECEIVED);
 		chat.AddString("chat_id", chat_id);
 		chat.AddString("user_id", user_id);
-		chat.AddString("user_name", _SenderNick(sender));
+		chat.AddString("user_name", user_name);
 		_AddFormatted(&chat, "body", body);
 		_SendMsg(&chat);
 	}
@@ -509,6 +562,8 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 
 		if (_IsChannelName(chat_id) == false)
 			chat_id = _SenderNick(sender);
+		if (fChannels.HasString(chat_id) == false)
+			fChannels.Add(chat_id);
 
 		if (chat_id != "AUTH" || chat_id != "*")
 			send.AddString("chat_id", chat_id);
@@ -534,6 +589,9 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 	else if (command == "JOIN")
 	{
 		BString chat_id = params.First();
+		BString user_id = _SenderIdent(sender);
+		BString user_name = _SenderNick(sender);
+		_UpdateContact(user_name, user_id, true);
 
 		BMessage joined(IM_MESSAGE);
 		joined.AddString("chat_id", chat_id);
@@ -543,9 +601,9 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 		}
 		else {
 			joined.AddInt32("im_what", IM_ROOM_PARTICIPANT_JOINED);
-			joined.AddString("user_id", _SenderIdent(sender));
-			joined.AddString("user_name", _SenderNick(sender));
-			fIdentNicks.AddItem(_SenderIdent(sender), _SenderNick(sender));
+			joined.AddString("user_id", user_id);
+			joined.AddString("user_name", user_name);
+			fIdentNicks.AddItem(user_id, user_name);
 		}
 		_SendMsg(&joined);
 	}
@@ -571,21 +629,27 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 	}
 	else if (command == "QUIT")
 	{
+		BString user_id = _SenderIdent(sender);
+		BString user_name = _SenderNick(sender);
+		_UpdateContact(user_name, user_id, false);
+
 		BString body = B_TRANSLATE("quit: ");
 		body << params.Last();
 
 		for (int i = 0; i < fChannels.CountStrings(); i++) {
+			if (_IsChannelName(fChannels.StringAt(i)) == false)
+				continue;
 			BMessage left(IM_MESSAGE);
 			left.AddInt32("im_what", IM_ROOM_PARTICIPANT_LEFT);
-			left.AddString("user_id", _SenderIdent(sender));
-			left.AddString("user_name", _SenderNick(sender));
+			left.AddString("user_id", user_id);
+			left.AddString("user_name", user_name);
 			left.AddString("chat_id", fChannels.StringAt(i));
 			_SendMsg(&left);
 		}
 
 		BMessage status(IM_MESSAGE);
 		status.AddInt32("im_what", IM_USER_STATUS_SET);
-		status.AddString("user_id", _SenderIdent(sender));
+		status.AddString("user_id", user_id);
 		status.AddInt32("status", STATUS_OFFLINE);
 		_SendMsg(&status);
 	}
@@ -611,6 +675,8 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 		else {
 			nick.AddInt32("im_what", IM_USER_NICKNAME_SET);
 			nick.AddString("user_id", ident);
+
+			_RenameContact(ident, user_name);
 			fIdentNicks.RemoveItemFor(ident);
 			fIdentNicks.AddItem(ident, user_name);
 		}
@@ -637,6 +703,8 @@ IrcProtocol::_MakeReady(BString nick, BString ident)
 	_SendMsg(&self);
 
 	_SendIrc("MOTD\n");
+
+	_LoadContacts();
 }
 
 
@@ -744,6 +812,16 @@ IrcProtocol::_IdentNick(BString ident)
 }
 
 
+BString
+IrcProtocol::_NickIdent(BString nick)
+{
+	for (int i = 0; i < fIdentNicks.CountItems(); i++)
+		if (fIdentNicks.ValueAt(i) == nick)
+			return fIdentNicks.KeyAt(i);
+	return nick;
+}
+
+
 bool
 IrcProtocol::_IsChannelName(BString name)
 {
@@ -808,6 +886,119 @@ IrcProtocol::_ToggleAndAdd(BMessage* msg, uint16 face, int32* start,
 		msg->AddUInt16("face", face);
 		*start = -1;
 	}
+}
+
+
+void
+IrcProtocol::_UpdateContact(BString nick, BString ident, bool online)
+{
+	if (fContacts.HasString(nick) == false)
+		return;
+
+	if (online == true && fOfflineContacts.HasString(nick) == true) {
+		_RemoveContact(nick);
+		_AddContact(ident);
+		fOfflineContacts.Remove(nick);
+	}
+	else if (online == false && fOfflineContacts.HasString(nick) == false) {
+		fOfflineContacts.Add(nick);
+	}
+}
+
+
+void
+IrcProtocol::_AddContact(BString nick)
+{
+	fContacts.Add(nick);
+	BString user_id = _NickIdent(nick);
+
+	BMessage added(IM_MESSAGE);
+	added.AddInt32("im_what", IM_ROSTER);
+	added.AddString("user_id", user_id);
+	_SendMsg(&added);
+
+	if (user_id == nick)
+		fOfflineContacts.Add(nick);
+}
+
+
+void
+IrcProtocol::_RemoveContact(BString user_id)
+{
+	BString nick = _IdentNick(user_id);
+	fContacts.Remove(nick);
+	fOfflineContacts.Remove(nick);
+
+	BMessage removed(IM_MESSAGE);
+	removed.AddInt32("im_what", IM_ROSTER_CONTACT_REMOVED);
+	removed.AddString("user_id", _NickIdent(user_id));
+	_SendMsg(&removed);
+}
+
+
+void
+IrcProtocol::_RenameContact(BString user_id, BString newNick)
+{
+	BString oldNick = _IdentNick(user_id);
+
+	if (fContacts.HasString(oldNick) == true) {
+		fContacts.Remove(_IdentNick(user_id));
+		fOfflineContacts.Remove(_IdentNick(user_id));
+		fContacts.Add(newNick);
+	}
+}
+
+
+void
+IrcProtocol::_LoadContacts()
+{
+	BMessage contacts;
+	BFile file(_ContactsCache(), B_READ_ONLY);
+	if (file.InitCheck() == B_OK)
+		contacts.Unflatten(&file);
+
+	int i = 0;
+	BString user_name;
+	while (contacts.FindString("user_name", i, &user_name) == B_OK) {
+		_AddContact(user_name);
+		i++;
+	}
+}
+
+
+void
+IrcProtocol::_SaveContacts()
+{
+	BMessage contacts;
+	for (int i = 0; i < fContacts.CountStrings(); i++)
+		contacts.AddString("user_name", fContacts.StringAt(i));
+
+	BFile file(_ContactsCache(), B_WRITE_ONLY | B_CREATE_FILE);
+	if (file.InitCheck() == B_OK)
+		contacts.Flatten(&file);
+}
+
+
+const char*
+IrcProtocol::_CachePath()
+{
+	BPath path;
+	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
+		return NULL;
+	path.Append(APP_NAME "/Cache/Accounts");
+	path.Append(fName);
+	if (create_directory(path.Path(), 0755) != B_OK)
+		return NULL;
+	return path.Path();
+}
+
+
+const char*
+IrcProtocol::_ContactsCache()
+{
+	BPath path(_CachePath());
+	path.Append("contact_list");
+	return path.Path();
 }
 
 
@@ -930,6 +1121,22 @@ IrcProtocol::_RoomTemplate()
 	id.AddString("error", B_TRANSLATE("Please enter a channel― skipping it doesn't make sense!"));
 	id.AddInt32("type", B_STRING_TYPE);
 	settings.AddMessage("setting", &id);
+
+	return settings;
+}
+
+
+BMessage
+IrcProtocol::_RosterTemplate()
+{
+	BMessage settings;
+
+	BMessage nick;
+	nick.AddString("name", "user_id");
+	nick.AddString("description", B_TRANSLATE("Nick:"));
+	nick.AddString("error", B_TRANSLATE("How can someone be your friend if you don't know their name?"));
+	nick.AddInt32("type", B_STRING_TYPE);
+	settings.AddMessage("setting", &nick);
 
 	return settings;
 }

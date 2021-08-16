@@ -78,6 +78,7 @@ private:
 			BString 	_SenderIdent(BString sender);
 
 			BString		_IdentNick(BString ident);
+			BString		_NickIdent(BString nick);
 
 			bool		_IsChannelName(BString name);
 
@@ -85,6 +86,16 @@ private:
 							BString text);
 			void		_ToggleAndAdd(BMessage* msg, uint16 face, int32* start,
 							int32 current);
+
+			void		_UpdateContact(BString nick, BString ident, bool online);
+			void		_AddContact(BString nick);
+			void		_RemoveContact(BString user_id);
+			void		_RenameContact(BString user_id, BString newNick);
+			void		_LoadContacts();
+			void		_SaveContacts();
+
+			const char*	_CachePath();
+			const char*	_ContactsCache();
 
 			// Read a data stream until newline found; if data found past
 			// newline, append to given buffer for later use
@@ -95,6 +106,7 @@ private:
 			// GUI templates
 			BMessage	_AccountTemplate();
 			BMessage	_RoomTemplate();
+			BMessage	_RosterTemplate();
 
 	BSocket* fSocket;
 	BString fRemainingBuf;
@@ -122,6 +134,9 @@ private:
 	StringMap fIdentNicks; // User ident → nick
 
 	BStringList fChannels;
+
+	BStringList fContacts;
+	BStringList fOfflineContacts;
 
 	BPath fAddOnPath;
 	BString fName;
