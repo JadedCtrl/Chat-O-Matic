@@ -22,8 +22,6 @@
 #include <ChatProtocolMessages.h>
 #include <Flags.h>
 
-#include "Numerics.h"
-
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "IrcProtocol"
@@ -480,6 +478,7 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 			BString user = params.StringAt(2);
 			BString host = params.StringAt(3);
 			BString nick = params.StringAt(5);
+			BString role = params.StringAt(6);
 			BString ident = user;
 			ident << "@" << host;
 
@@ -488,12 +487,58 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 
 			// Used to populate a room's userlist (one-by-one… :p)
 			if (fWhoRequested == false && _IsChannelName(channel)) {
+				// Send the participant themself
 				BMessage user(IM_MESSAGE);
 				user.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
 				user.AddString("chat_id", channel);
 				user.AddString("user_id", ident);
 				user.AddString("user_name", nick);
 				_SendMsg(&user);
+
+				// Now let's crunch the appropriate role…
+				bool away = false;
+				UserRole priority = ROOM_MEMBER;
+				for (int i=0; i < role.CountBytes(0, role.CountChars()); i++) {
+					char c = role.ByteAt(i);
+					switch (c) {
+						case 'G':
+						case 'H':
+							away = false;
+							break;
+						case 'A':
+							away = true;
+							break;
+						case '%':
+							priority = ROOM_HALFOP;
+							break;
+						case '@':
+							priority = ROOM_OPERATOR;
+							break;
+						case '*':
+							priority = IRC_OPERATOR;
+							break;
+					}
+				}
+
+				// And send the user's role
+				BMessage sensei(IM_MESSAGE);
+				sensei.AddInt32("im_what", IM_ROOM_ROLECHANGED);
+				sensei.AddString("chat_id", channel);
+				sensei.AddString("user_id", ident);
+				sensei.AddInt32("role_priority", priority);
+				sensei.AddString("role_title", _RoleTitle(priority));
+				sensei.AddInt32("role_perms", _RolePerms(priority));
+				_SendMsg(&sensei);
+
+				// Also status! Can't forget that
+				BMessage status(IM_MESSAGE);
+				status.AddInt32("im_what", IM_USER_STATUS_SET);
+				status.AddString("user_id", ident);
+				if (away == true)
+					status.AddInt32("status", STATUS_AWAY);
+				else
+					status.AddInt32("status", STATUS_ONLINE);
+				_SendMsg(&status);
 			}
 			break;
 		}
@@ -660,6 +705,12 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 			fIdentNicks.AddItem(user_id, user_name);
 		}
 		_SendMsg(&joined);
+
+		BMessage status(IM_MESSAGE);
+		status.AddInt32("im_what", IM_USER_STATUS_SET);
+		status.AddString("user_id", user_id);
+		status.AddInt32("status", STATUS_ONLINE);
+		_SendMsg(&status);
 	}
 	else if (command == "PART")
 	{
@@ -1030,6 +1081,37 @@ IrcProtocol::_SaveContacts()
 	BFile file(_ContactsCache(), B_WRITE_ONLY | B_CREATE_FILE);
 	if (file.InitCheck() == B_OK)
 		contacts.Flatten(&file);
+}
+
+
+int32
+IrcProtocol::_RolePerms(UserRole role)
+{
+	switch (role) {
+		case ROOM_HALFOP:
+			return PERM_READ | PERM_WRITE | PERM_NICK | PERM_KICK
+				| PERM_ROOM_SUBJECT;
+		case IRC_OPERATOR:
+		case ROOM_OPERATOR:
+			return PERM_READ | PERM_WRITE | PERM_NICK | PERM_KICK | PERM_BAN
+				| PERM_ROOM_SUBJECT | PERM_ROLECHANGE;
+	}
+	return PERM_READ | PERM_WRITE | PERM_NICK;
+}
+
+
+const char*
+IrcProtocol::_RoleTitle(UserRole role)
+{
+	switch (role) {
+		case ROOM_HALFOP:
+			return B_TRANSLATE("Half-Op");
+		case ROOM_OPERATOR:
+			return B_TRANSLATE("Operator");
+		case IRC_OPERATOR:
+			return B_TRANSLATE("IRC Wizard");
+	}
+	return B_TRANSLATE("Member");
 }
 
 

@@ -12,6 +12,8 @@
 
 #include <ChatProtocol.h>
 
+#include "IrcConstants.h"
+
 
 typedef KeyMap<BString, BString> StringMap;
 
@@ -95,6 +97,9 @@ private:
 			void		_RenameContact(BString user_id, BString newNick);
 			void		_LoadContacts();
 			void		_SaveContacts();
+
+			int32		_RolePerms(UserRole role);
+			const char*	_RoleTitle(UserRole role);
 
 			const char*	_CachePath();
 			const char*	_ContactsCache();

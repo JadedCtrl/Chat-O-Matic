@@ -1,5 +1,13 @@
-#ifndef _RESPONSE_NUMERICS_H
-#define _RESPONSE_NUMERICS_H
+#ifndef _IRC_CONSTANTS_H
+#define _IRC_CONSTANTS_H
+
+enum UserRole {
+	ROOM_MEMBER				= 0,
+	ROOM_HALFOP				= 1,
+	ROOM_OPERATOR			= 2,
+	IRC_OPERATOR			= 3
+};
+
 
 #define RPL_WELCOME 1
 #define RPL_WHOISUSER 311
@@ -16,4 +24,4 @@
 #define ERR_ERRONEUSNICKNAME 432
 #define ERR_NICKNAMEINUSE 433
 
-#endif // _RESPONSE_NUMERICS_H
+#endif // _IRC_CONSTANTS_H
