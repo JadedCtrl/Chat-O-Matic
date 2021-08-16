@@ -1,6 +1,7 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _PROTOCOL_MANAGER_H
@@ -18,6 +19,11 @@ class BBitmap;
 class BDirectory;
 class BHandler;
 
+class MainWindow;
+class ProtocolSettings;
+class Server;
+
+
 class ProtocolManager {
 public:
 			bool				Init(BDirectory dir, BHandler* target);
@@ -33,8 +39,14 @@ public:
 			ChatProtocol*		ProtocolInstance(bigtime_t identifier);
 
 			void				AddAccount(ChatProtocolAddOn* addOn,
-									const char* account,
-									BHandler* target);
+									const char* account, BHandler* target);
+
+			void				EnableAccount(ProtocolSettings* settings,
+									const char* account);
+			void				DisableAccount(ProtocolSettings* settings,
+									const char* account);
+			void				ToggleAccount(ProtocolSettings* settings,
+									const char* account);
 
 private:
 	typedef KeyMap<BString, ChatProtocolAddOn*> AddOnMap;
@@ -50,6 +62,9 @@ private:
 									BHandler* target);
 			void				_LoadAccount(ChatProtocolAddOn* addOn,
 									BEntry accountEntry, BHandler* target);
+
+			MainWindow*			_MainWin();
+			Server*				_Server();
 
 			AddOnMap			fAddOnMap;
 			ProtocolMap			fProtocolMap;

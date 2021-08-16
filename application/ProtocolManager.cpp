@@ -1,9 +1,11 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
+ * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  *		Andrea Anzani, andrea.anzani@gmail.com
+ *		Jaidyn Levesque, jadedctrl@teknik.io
  */
 
 #include <stdio.h>
@@ -16,7 +18,9 @@
 
 #include "Account.h"
 #include "AppMessages.h"
+#include "ChatProtocolMessages.h"
 #include "ProtocolManager.h"
+#include "ProtocolSettings.h"
 #include "ChatProtocol.h"
 #include "MainWindow.h"
 #include "Server.h"
@@ -124,33 +128,96 @@ ProtocolManager::ProtocolInstance(bigtime_t identifier)
 
 void
 ProtocolManager::AddAccount(ChatProtocolAddOn* addOn, const char* account,
-							BHandler* target)
+	BHandler* target)
 {
-	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
+	// If already active, don't double-dip!
+	bool active = false;
+	_Server()->GetActiveAccounts().ValueFor(BString(account), &active);
+	if (active == true)
+		return;
+
 	bigtime_t instanceId = system_time();
 	ChatProtocol* cayap = addOn->Protocol();
 	Account* acc =
 		new Account(instanceId, cayap, account, addOn->Signature(), target);
 
+	// If account is disabled, just let it go
+	if (acc->InitCheck() == B_DONT_DO_THAT) {
+		delete acc;
+		return;
+	}
 	// Send a "whoops" notification if hits a failure
-	if (acc->InitCheck() != B_OK) {
+	else if (acc->InitCheck() != B_OK) {
 		BMessage error(APP_ACCOUNT_FAILED);
 		cayap->Icon()->Archive(&error);
 		error.AddString("name", account);
-		theApp->GetMainWindow()->MessageReceived(&error);
+		_MainWin()->MessageReceived(&error);
 		return;
 	}
 
 	fProtocolMap.AddItem(instanceId, cayap);
 
-	theApp->GetMainWindow()->GetServer()->AddProtocolLooper(
-		instanceId, cayap);
+	_Server()->AddProtocolLooper(instanceId, cayap);
+}
+
+
+void
+ProtocolManager::EnableAccount(ProtocolSettings* settings, const char* account)
+{
+	BMessage* msg = NULL;
+	if (settings->Load(account, &msg) == B_OK) {
+		if (msg->HasBool("disabled"))
+			msg->ReplaceBool("disabled", false);
+		else
+			msg->AddBool("disabled", false);
+		settings->Save(account, *msg);
+	}
+	AddAccount(settings->AddOn(), account, _MainWin());
+}
+
+
+void
+ProtocolManager::DisableAccount(ProtocolSettings* settings, const char* account)
+{
+	bool active = false;
+	int64 instance
+		= _Server()->GetActiveAccounts().ValueFor(BString(account), &active);
+	if (active == false)
+		return;
+
+	BMessage* msg = NULL;
+	if (settings->Load(account, &msg) == B_OK) {
+		if (msg->HasBool("disabled"))
+			msg->ReplaceBool("disabled", true);
+		else
+			msg->AddBool("disabled", true);
+		settings->Save(account, *msg);
+	}
+
+	BMessage remove(IM_MESSAGE);
+	remove.AddInt32("im_what", IM_PROTOCOL_DISABLE);
+	remove.AddInt64("instance", instance);
+	_MainWin()->PostMessage(&remove);
+}
+
+
+void
+ProtocolManager::ToggleAccount(ProtocolSettings* settings, const char* account)
+{
+	bool active = false;
+	int64 instance
+		= _Server()->GetActiveAccounts().ValueFor(BString(account), &active);
+
+	if (active == true)
+		DisableAccount(settings, account);
+	else
+		EnableAccount(settings, account);
 }
 
 
 void
 ProtocolManager::_LoadAccounts(const char* image_path, ChatProtocolAddOn* addOn,
-							   int protoIndex, BHandler* target)
+	int protoIndex, BHandler* target)
 {
 	// Find accounts path for this protocol
 	BPath path(AccountPath(addOn->Signature(), addOn->Protocol()->Signature()));
@@ -168,13 +235,13 @@ ProtocolManager::_LoadAccounts(const char* image_path, ChatProtocolAddOn* addOn,
 
 void
 ProtocolManager::_LoadAccount(const char* imagePath, BEntry accountEntry,
-							  int protoIndex, BHandler* target)
+	int protoIndex, BHandler* target)
 {
 	image_id id = load_add_on(imagePath);
 	if (id < 0)
 		return;
 
-	// If add-on's API version fits then load accounts...
+	// If add-on's API version fits then load accounts…
 	ChatProtocolAddOn* addOn = new ChatProtocolAddOn(id, imagePath, protoIndex);
 	if (addOn->Version() != APP_VERSION)
 		return;
@@ -185,7 +252,7 @@ ProtocolManager::_LoadAccount(const char* imagePath, BEntry accountEntry,
 
 void
 ProtocolManager::_LoadAccount(ChatProtocolAddOn* addOn, BEntry accountEntry,
-							  BHandler* target)
+	BHandler* target)
 {
 	BFile file(&accountEntry, B_READ_ONLY);
 	BMessage msg;
@@ -197,4 +264,19 @@ ProtocolManager::_LoadAccount(ChatProtocolAddOn* addOn, BEntry accountEntry,
 			AddAccount(addOn, buffer, target);
 		}
 	}
+}
+
+
+MainWindow*
+ProtocolManager::_MainWin()
+{
+	return ((TheApp*)be_app)->GetMainWindow();
+}
+
+
+Server*
+ProtocolManager::_Server()
+{
+	MainWindow* win = _MainWin();
+	return win ? win->GetServer() : NULL;
 }

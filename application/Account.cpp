@@ -40,7 +40,10 @@ Account::Account(bigtime_t instanceId, ChatProtocol* cayap,
 		// Load settings file
 		BFile file(path.Path(), B_READ_ONLY);
 		if (fSettings->Unflatten(&file) == B_OK)
-			fStatus = fProtocol->UpdateSettings(fSettings);
+			if (fSettings->GetBool("disabled", false) == false)
+				fStatus = fProtocol->UpdateSettings(fSettings);
+			else
+				fStatus = B_DONT_DO_THAT;
 	}
 }
 

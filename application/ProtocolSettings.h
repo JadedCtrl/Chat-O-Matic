@@ -25,15 +25,16 @@ public:
 	BObjectList<BString> Accounts() const;
 
 	status_t			Load(const char* account, BView* parent);
+	status_t			Load(const char* account, BMessage** settings);
+
 	status_t			Save(const char* account, BView* parent,
 							BString* errorText = NULL);
+	status_t			Save(const char* account, BMessage settings);
 
 	status_t			Rename(const char* from, const char* to);
 	status_t			Delete(const char* account);
 
 private:
-	status_t			_Load(const char* account, BMessage** settings);
-
 	ChatProtocolAddOn*	fAddOn;
 	ProtocolTemplate	fTemplate;
 	status_t			fStatus;

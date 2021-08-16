@@ -30,10 +30,6 @@ private:
 
 	void			_LoadListView(ProtocolSettings* settings);
 
-	void			_DisableAccount(const char* account, int64 instance);
-	void			_EnableAccount(const char* account,
-						ProtocolSettings* settings);
-
 	int64			_AccountInstance(const char* account);
 };
 

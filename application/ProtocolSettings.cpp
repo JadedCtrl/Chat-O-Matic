@@ -76,11 +76,35 @@ ProtocolSettings::Load(const char* account, BView* parent)
 	BMessage* settings = NULL;
 
 	if (account) {
-		status_t ret = _Load(account, &settings);
+		status_t ret = Load(account, &settings);
 		if (ret != B_OK)
 			return ret;
 	}
 	return fTemplate.Load(parent, settings);
+}
+
+
+status_t
+ProtocolSettings::Load(const char* account, BMessage** settings)
+{
+	if (!account || !settings)
+		return B_BAD_VALUE;
+
+	status_t ret = B_ERROR;
+
+	// Find user's settings path
+	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
+
+	if ((ret = path.InitCheck()) != B_OK)
+		return ret;
+
+	// Load settings file
+	path.Append(account);
+	BFile file(path.Path(), B_READ_ONLY);
+	BMessage* msg = new BMessage();
+	ret = msg->Unflatten(&file);
+	*settings = msg;
+	return ret;
 }
 
 
@@ -95,12 +119,17 @@ ProtocolSettings::Save(const char* account, BView* parent, BString* errorText)
 
 	if (status != B_OK)
 		return status;
+	return Save(account, settings);
+}
 
-	status_t ret = B_ERROR;
 
+status_t
+ProtocolSettings::Save(const char* account, BMessage settings)
+{
 	// Find user's settings path
 	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
 
+	status_t ret;
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
 
@@ -155,27 +184,3 @@ ProtocolSettings::Delete(const char* account)
 }
 
 
-status_t
-ProtocolSettings::_Load(const char* account, BMessage** settings)
-{
-	*settings = NULL;
-
-	if (!account || !settings)
-		return B_BAD_VALUE;
-
-	status_t ret = B_ERROR;
-
-	// Find user's settings path
-	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
-
-	if ((ret = path.InitCheck()) != B_OK)
-		return ret;
-
-	// Load settings file
-	path.Append(account);
-	BFile file(path.Path(), B_READ_ONLY);
-	BMessage* msg = new BMessage();
-	ret = msg->Unflatten(&file);
-	*settings = msg;
-	return ret;
-}

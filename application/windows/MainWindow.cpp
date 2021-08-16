@@ -139,23 +139,14 @@ MainWindow::MessageReceived(BMessage* message)
 		}
 		case APP_TOGGLE_ACCOUNT:
 		{
+			ProtocolManager* protoMan = ProtocolManager::Get();
 			ProtocolSettings* settings = NULL;
 			BString account = message->FindString("account");
 			int64 instance = message->GetInt64("instance", -1);
 			message->FindPointer("settings", (void**)&settings);
 
-			if (account.IsEmpty() == false && settings != NULL) {
-				// Enable
-				if (instance == -1)
-					ProtocolManager::Get()->AddAccount(settings->AddOn(),
-						account, this);
-				else {
-					BMessage remove(IM_MESSAGE);
-					remove.AddInt32("im_what", IM_PROTOCOL_DISABLE);
-					remove.AddInt64("instance", instance);
-					PostMessage(&remove);
-				}
-			}
+			if (account.IsEmpty() == false && settings != NULL)
+				protoMan->ToggleAccount(settings, account);
 			break;
 		}
 		case APP_NEW_CHAT:
