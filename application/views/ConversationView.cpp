@@ -203,11 +203,6 @@ ConversationView::ImMessage(BMessage* msg)
 			fSubjectTextView->SetText(fConversation->GetSubject());
 			break;
 		}
-		case IM_PROTOCOL_READY:
-		{
-			fReceiveView->SetText("");
-			_FakeChatNoRooms();
-		}
 		default:
 			break;
 	}
@@ -475,7 +470,7 @@ ConversationView::_AppendFormattedMessage(BMessage* msg)
 {
 	int64 timeInt;
 	BString user_id;
-	BString user_name;
+	BString user_name = msg->FindString("user_name");
 	BString body;
 	rgb_color userColor = ui_color(B_PANEL_TEXT_COLOR);
 
@@ -485,20 +480,22 @@ ConversationView::_AppendFormattedMessage(BMessage* msg)
 	if (msg->FindInt64("when", &timeInt) != B_OK)
 		timeInt = (int64)time(NULL);
 
-	if (msg->FindString("user_id", &user_id) == B_OK)
-		if (fConversation != NULL) {
-			User* user = fConversation->UserById(user_id);
-			if (user != NULL) {
-				user_name = user->GetName();
-				userColor = user->fItemColor;
-			}
-			else
-				user_name = user_id;
+	if (msg->FindString("user_id", &user_id) == B_OK) {
+		User* user = NULL;
+		if (fConversation != NULL
+				&& (user = fConversation->UserById(user_id)) != NULL) {
+			user_name = user->GetName();
+			userColor = user->fItemColor;
 		}
-	else if (msg->FindString("user_name", &user_name) != B_OK) {
+		else if (user_name.IsEmpty() == true)
+			user_name = user_id;
+	}
+
+	if (user_name.IsEmpty() == true) {
 		fReceiveView->AppendGeneric(body);
 		return;
 	}
+
 
 	fReceiveView->AppendTimestamp(timeInt);
 	fReceiveView->AppendUserstamp(user_name, userColor);
@@ -615,49 +612,42 @@ ConversationView::_UserMessage(const char* format, const char* bodyFormat,
 void
 ConversationView::_FakeChat()
 {
-	if (ProtocolManager::Get()->CountProtocolInstances() <= 0)
-		_FakeChatNoAccounts();
-	else
-		_FakeChatNoRooms();
-}
-
-
-void
-ConversationView::_FakeChatNoRooms()
-{
-	fNameTextView->SetText(B_TRANSLATE("Cardie"));
-	fSubjectTextView->SetText(B_TRANSLATE("No current rooms or chats."));
-
-	BMessage welcome(IM_MESSAGE);
-	welcome.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-
-	welcome.AddString("user_id", B_TRANSLATE("Master Foo"));
-	welcome.AddString("body", B_TRANSLATE("… You know, only if you want. I'm not trying to be pushy."));
-
-	welcome.AddString("user_id", B_TRANSLATE("Master Foo"));
-	welcome.AddString("body", B_TRANSLATE("You can join or create one through the Chat menu. :-)"));
-
-	welcome.AddString("user_id", B_TRANSLATE("Master Foo"));
-	welcome.AddString("body", B_TRANSLATE("Looks like you aren't in any rooms or chats right now."));
-	_AppendOrEnqueueMessage(&welcome);
-}
-
-void
-ConversationView::_FakeChatNoAccounts()
-{
 	fNameTextView->SetText(B_TRANSLATE("Cardie setup"));
 	fSubjectTextView->SetText(B_TRANSLATE("No accounts configured, no joy."));
 
+	BMessage obsv(IM_MESSAGE);
+	obsv.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+	obsv.AddString("user_name", B_TRANSLATE("Master Foo"));
+	obsv.AddString("body", B_TRANSLATE("It looks like you don't have any accounts enabled."));
+	_AppendOrEnqueueMessage(&obsv);
+
+	BString body = B_TRANSLATE("Manage accounts through the %menu% menu to get started.");
+	BString menu = B_TRANSLATE("Accounts");
+	int32 boldStart = body.FindFirst("%");
+	int32 boldLength = menu.CountChars();
+	body.ReplaceAll("%menu%", menu);
+
+	BMessage add(IM_MESSAGE);
+	add.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+	add.AddString("user_name", B_TRANSLATE("Master Foo"));
+	add.AddString("body", body);
+	add.AddInt32("face_start", boldStart);
+	add.AddInt32("face_length", boldLength);
+	add.AddUInt16("face", B_BOLD_FACE);
+	_AppendOrEnqueueMessage(&add);
+
+	body = B_TRANSLATE("Afterward, you can join a room or start a chat through the %menu% menu. :-)");
+	menu = B_TRANSLATE("Chat");
+	boldStart = body.FindFirst("%");
+	boldLength = menu.CountChars();
+	body.ReplaceAll("%menu%", menu);
+
 	BMessage welcome(IM_MESSAGE);
 	welcome.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-
-	welcome.AddString("user_id", B_TRANSLATE("Master Foo"));
-	welcome.AddString("body", B_TRANSLATE("Afterward, you can join a room or start a chat through the Chat menu. :-)"));
-
-	welcome.AddString("user_id", B_TRANSLATE("Master Foo"));
-	welcome.AddString("body", B_TRANSLATE("Add an account through the [Accounts] menu to get started."));
-
-	welcome.AddString("user_id", B_TRANSLATE("Master Foo"));
-	welcome.AddString("body", B_TRANSLATE("It looks like you don't have any accounts set up."));
+	welcome.AddString("user_name", B_TRANSLATE("Master Foo"));
+	welcome.AddString("body", body);
+	welcome.AddInt32("face_start", boldStart);
+	welcome.AddInt32("face_length", boldLength);
+	welcome.AddUInt16("face", B_BOLD_FACE);
 	_AppendOrEnqueueMessage(&welcome);
 }

@@ -70,8 +70,6 @@ private:
 
 			// When the user hasn't joined any real conversations
 			void		_FakeChat();
-			void		_FakeChatNoRooms();
-			void		_FakeChatNoAccounts();
 
 		Conversation* fConversation;
 		BObjectList<BMessage> fMessageQueue;
