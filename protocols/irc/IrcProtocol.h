@@ -114,6 +114,7 @@ private:
 	// WHOREPLY is requested by the add-on to populate the user-list, but the
 	// user might also use the /who command― if the user does, this is true
 	bool fWhoRequested;
+	bool fWhoIsRequested;
 	BString fWhoIm;
 
 	bool fWriteLocked;

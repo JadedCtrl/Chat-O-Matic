@@ -161,9 +161,10 @@ IrcProtocol::Process(BMessage* msg)
 				_SendMsg(&created);
 				break;
 			}
+			// If it's not a known user, we need to get their ID/nick somehow
+			// … that is, through the WHO.
 			fWhoIm = user_id;
-
-			BString cmd("WHO ");
+			BString cmd("WHOIS ");
 			cmd << user_id << "\n";
 			_SendIrc(cmd);
 			break;
@@ -210,6 +211,22 @@ IrcProtocol::Process(BMessage* msg)
 					ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
 				_SendMsg(&meta);
 			}
+			break;
+		}
+		case IM_GET_ROOM_PARTICIPANTS:
+		{
+			BString chat_id;
+			if (msg->FindString("chat_id", &chat_id) != B_OK)
+				break;
+
+			// Rooms are populated with RPL_WHOREPLY, chats RPL_WHOISUSER
+			BString cmd;
+			if (_IsChannelName(chat_id) == true)
+				cmd = "WHO ";
+			else
+				cmd = "WHOIS ";
+			cmd << chat_id << "\n";
+			_SendIrc(cmd);
 			break;
 		}
 		case IM_ROOM_SEND_INVITE:
@@ -289,6 +306,8 @@ IrcProtocol::Connect()
 status_t
 IrcProtocol::Loop()
 {
+	fWhoIsRequested = false;
+	fWhoRequested = false;
 	while (fSocket != NULL && fSocket->IsConnected() == true)
 		_ProcessLine(_ReadUntilNewline(fSocket, &fRemainingBuf));
 	return B_OK;
@@ -327,11 +346,50 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 		{
 			if (params.CountStrings() == 2)
 				fNick = params.First();
-			BString cmd("WHO ");
+			BString cmd("WHOIS ");
 			cmd << fNick << "\n";
 			_SendIrc(cmd);
 			break;
 		}
+		case RPL_WHOISUSER:
+		{
+			BString nick = params.StringAt(1);
+			BString user = params.StringAt(2);
+			BString host = params.StringAt(3);
+			BString ident = user;
+			ident << "@" << host;
+
+			fIdentNicks.RemoveItemFor(ident);
+			fIdentNicks.AddItem(ident, nick);
+
+			// Contains the own user's contact info― protocol ready!
+			if (fReady == false && nick == fNick) {
+				fUser = user.String();
+				_MakeReady(nick, ident);
+			}
+			// Used in the creation of a one-on-one chat
+			else if (fWhoIm == user || fWhoIm == nick) {
+				fWhoIm = "";
+				BMessage created(IM_MESSAGE);
+				created.AddInt32("im_what", IM_CHAT_CREATED);
+				created.AddString("chat_id", nick);
+				created.AddString("user_id", ident);
+				_SendMsg(&created);
+			}
+			// Used to populate a one-on-one chat's userlist… lol, I know.
+			else if (fWhoIsRequested == false && nick != fNick) {
+				BMessage user(IM_MESSAGE);
+				user.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
+				user.AddString("chat_id", nick);
+				user.AddString("user_id", ident);
+				user.AddString("user_name", nick);
+				_SendMsg(&user);
+			}
+			break;
+		}
+		case RPL_ENDOFWHOIS:
+			fWhoIsRequested = false;
+			break;
 		case RPL_WHOREPLY:
 		{
 			BString channel = params.StringAt(1);
@@ -341,31 +399,17 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 			BString ident = user;
 			ident << "@" << host;
 
-			// Contains the user's contact info― protocol ready!
-			if (fReady == false && nick == fNick) {
-				fUser = user.String();
-				_MakeReady(nick, ident);
-			}
+			fIdentNicks.RemoveItemFor(ident);
+			fIdentNicks.AddItem(ident, nick);
 
-			// Used to populate a room's userlist
-			if (fWhoRequested == false && channel != "*") {
+			// Used to populate a room's userlist (one-by-one… :p)
+			if (fWhoRequested == false && _IsChannelName(channel)) {
 				BMessage user(IM_MESSAGE);
 				user.AddInt32("im_what", IM_ROOM_PARTICIPANTS);
 				user.AddString("chat_id", channel);
 				user.AddString("user_id", ident);
 				user.AddString("user_name", nick);
-				fIdentNicks.AddItem(ident, nick);
 				_SendMsg(&user);
-			}
-			// Here, used in the creation of a one-on-one chat
-			else if (fWhoIm == user || fWhoIm == nick) {
-				fWhoIm = "";
-				BMessage created(IM_MESSAGE);
-				created.AddInt32("im_what", IM_CHAT_CREATED);
-				created.AddString("chat_id", nick);
-				created.AddString("user_id", ident);
-				fIdentNicks.AddItem(ident, nick);
-				_SendMsg(&created);
 			}
 			break;
 		}
@@ -495,11 +539,6 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 		joined.AddString("chat_id", chat_id);
 		if (_SenderIdent(sender) == fIdent) {
 			joined.AddInt32("im_what", IM_ROOM_JOINED);
-			// Populate the userlist
-			BString cmd("WHO ");
-			cmd << chat_id << "\n";
-			_SendIrc(cmd);
-
 			fChannels.Add(chat_id);
 		}
 		else {
