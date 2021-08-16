@@ -34,6 +34,8 @@ public:
 	virtual	status_t	Process(BMessage* msg);
 
 	virtual	BMessage	SettingsTemplate(const char* name);
+	virtual BObjectList<BMessage>
+						Commands();
 
 	virtual	const char*	Signature() const { return "irc"; }
 	virtual const char*	FriendlySignature() const { return "IRC"; }

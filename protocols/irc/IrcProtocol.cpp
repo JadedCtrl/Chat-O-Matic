@@ -29,6 +29,9 @@
 #define B_TRANSLATION_CONTEXT "IrcProtocol"
 
 
+const int32 IRC_CMD = 'ICmd';
+
+
 status_t
 connect_thread(void* data)
 {
@@ -104,6 +107,21 @@ IrcProtocol::Process(BMessage* msg)
 {
 	int32 im_what = msg->FindInt32("im_what");
 	switch (im_what) {
+		case IRC_CMD:
+		{
+			BStringList words;
+			BString line = msg->GetString("misc_str", "");
+			line.Split(" ", true, words);
+
+			BString command = words.First();
+			if (command.ICompare("WHOIS") == 0)
+				fWhoIsRequested = true;
+			else if (command.ICompare("WHO") == 0)
+				fWhoRequested = true;
+
+			_SendIrc(line);
+			break;
+		}
 		case IM_SET_OWN_STATUS:
 		{
 			int32 status = msg->FindInt32("status");
@@ -315,6 +333,26 @@ IrcProtocol::SettingsTemplate(const char* name)
 }
 
 
+BObjectList<BMessage>
+IrcProtocol::Commands()
+{
+	BMessage handle(IM_MESSAGE);
+	handle.AddInt32("im_what", IRC_CMD);
+	handle.AddString("cmd_name", "/");
+
+	BMessage* cmd = new BMessage();
+	cmd->AddString("_name", "/");
+	cmd->AddString("_desc", B_TRANSLATE("Send a raw IRC command to the server. E.g., '// HELP' or '// WHOIS'."));
+	cmd->AddBool("_proto", true);
+	cmd->AddMessage("_msg", &handle);
+	cmd->AddString("class", "ChatCommand");
+
+	BObjectList<BMessage> cmds;
+	cmds.AddItem(cmd);
+	return cmds;
+}
+
+
 BBitmap*
 IrcProtocol::Icon() const
 {
@@ -385,6 +423,7 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 		return;
 	}
 
+	// Act on the numeric as appropriate
 	switch (numeric) {
 		case RPL_WELCOME:
 		{
@@ -435,9 +474,6 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 			}
 			break;
 		}
-		case RPL_ENDOFWHOIS:
-			fWhoIsRequested = false;
-			break;
 		case RPL_WHOREPLY:
 		{
 			BString channel = params.StringAt(1);
@@ -461,9 +497,6 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 			}
 			break;
 		}
-		case RPL_ENDOFWHO:
-			fWhoRequested = false;
-			break;
 		case RPL_TOPIC:
 		{
 			BString chat_id = params.StringAt(1);
@@ -476,6 +509,16 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 			_SendMsg(&topic);
 			break;
 		}
+	}
+
+	// Now, to determine if the line should be sent to system buffer
+	switch (numeric) {
+		case RPL_ENDOFWHO:
+			fWhoRequested = false;
+			break;
+		case RPL_ENDOFWHOIS:
+			fWhoIsRequested = false;
+			break;
 		case RPL_MOTDSTART:
 		case RPL_MOTD:
 		case RPL_ENDOFMOTD:
@@ -491,6 +534,17 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 			_SendMsg(&send);
 			break;
 		}
+		case RPL_WHOREPLY:
+			if (fWhoRequested == false)
+				break;
+		case RPL_WHOISUSER:
+			if (fWhoIsRequested == false)
+				break;
+		default:
+			BMessage send(IM_MESSAGE);
+			send.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+			send.AddString("body", line);
+			_SendMsg(&send);
 	}
 }
 
