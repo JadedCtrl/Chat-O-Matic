@@ -444,11 +444,9 @@ Server::ImMessage(BMessage* msg)
 		}
 		case IM_CREATE_CHAT:
 		{
-			BString user_id = msg->FindString("user_id");
-			if (user_id.IsEmpty() == false) {
-				User* user = ContactById(user_id, msg->FindInt64("instance"));
-				user->GetProtocolLooper()->PostMessage(msg);
-			}
+			ProtocolLooper* looper = _LooperFromMessage(msg);
+			if (looper != NULL)
+				looper->PostMessage(msg);
 			break;
 		}
 		case IM_CHAT_CREATED:

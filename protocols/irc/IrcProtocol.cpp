@@ -409,7 +409,6 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 	}
 	else if (command == "PRIVMSG")
 	{
-
 		BString chat_id = params.First();
 		BString user_id = _SenderIdent(sender);
 		BString body = params.Last();
@@ -429,12 +428,17 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 		BString chat_id = params.First();
 		BMessage send(IM_MESSAGE);
 		send.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-		if (chat_id != "AUTH" && chat_id != "*") {
+
+		if (_IsChannelName(chat_id) == false)
+			chat_id = _SenderNick(sender);
+
+		if (chat_id != "AUTH" || chat_id != "*")
 			send.AddString("chat_id", chat_id);
-			sender = "";
+
+		if (sender.IsEmpty() == false) {
+			send.AddString("user_id", _SenderIdent(sender));
+			send.AddString("user_name", _SenderNick(sender));
 		}
-		if (sender.IsEmpty() == false)
-			send.AddString("user_id", sender);
 		send.AddString("body", params.Last());
 		_SendMsg(&send);
 	}
@@ -567,8 +571,13 @@ BString
 IrcProtocol::_LineSender(BStringList words)
 {
 	BString sender;
-	if (words.CountStrings() > 1)
-		sender = words.First().RemoveFirst(":");
+	if (words.CountStrings() > 1) {
+		sender = words.First();
+		if (sender.StartsWith(":") == true)
+			sender.RemoveFirst(":");
+		else if (sender.StartsWith("*:") == true)
+			sender.RemoveFirst("*:");
+	}
 	return sender;
 }
 
