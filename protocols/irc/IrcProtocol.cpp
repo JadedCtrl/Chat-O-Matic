@@ -252,11 +252,39 @@ IrcProtocol::Process(BMessage* msg)
 			_SendIrc(cmd);
 			break;
 		}
+		case IM_ROOM_BAN_PARTICIPANT:
+		case IM_ROOM_KICK_PARTICIPANT:
+		{
+			BString chat_id = msg->FindString("chat_id");
+			BString user_id = msg->FindString("user_id");
+			BString body;
+
+			if (chat_id.IsEmpty() == true || user_id.IsEmpty() == true)
+				break;
+
+			if (im_what == IM_ROOM_BAN_PARTICIPANT) {
+				BString cmd("MODE ");
+				cmd << chat_id << " +b " << _IdentNick(user_id) << "!*@*";
+				_SendIrc(cmd);
+			}
+
+			if (msg->FindString("body", &body) != B_OK
+					&& im_what == IM_ROOM_BAN_PARTICIPANT)
+				body = B_TRANSLATE("You've been banned, nerd");
+			else if (body.IsEmpty() == true)
+				body = B_TRANSLATE("Watch the door on your way out");
+
+			BString cmd("KICK ");
+			cmd << chat_id << " " << _IdentNick(user_id);
+			cmd << " :" << body;
+			_SendIrc(cmd);
+			break;
+		}
 		case IM_ROOM_SEND_INVITE:
 		{
 			BString chat_id = msg->FindString("chat_id");
 			BString user_id = msg->FindString("user_id");
-			if (chat_id.IsEmpty() == false || user_id.IsEmpty() == false) {
+			if (chat_id.IsEmpty() == false && user_id.IsEmpty() == false) {
 				BString cmd("INVITE ");
 				cmd << _IdentNick(user_id) << " " << chat_id;
 				_SendIrc(cmd);
@@ -731,6 +759,19 @@ IrcProtocol::_ProcessCommand(BString command, BString sender,
 			left.AddString("user_name", _SenderNick(sender));
 		}
 		_SendMsg(&left);
+	}
+	else if (command == "KICK")
+	{
+		BString chat_id = params.First();
+		BString user_id = params.StringAt(1);
+
+		BMessage foot(IM_MESSAGE);
+		foot.AddInt32("im_what", IM_ROOM_PARTICIPANT_KICKED);
+		foot.AddString("chat_id", chat_id);
+		foot.AddString("user_id", _NickIdent(user_id));
+		if (params.CountStrings() == 3)
+			foot.AddString("body", params.StringAt(2));
+		_SendMsg(&foot);
 	}
 	else if (command == "QUIT")
 	{
