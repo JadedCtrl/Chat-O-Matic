@@ -33,7 +33,6 @@ APP_MIME_SIG = application/x-vnd.cardie
 #	Also note that spaces in folder names do not work well with this Makefile.
 SRCS = \
 	application/Account.cpp \
-	application/AccountManager.cpp \
 	application/ChatProtocolAddOn.cpp \
 	application/ChatCommand.cpp \
 	application/Contact.cpp \
@@ -45,6 +44,7 @@ SRCS = \
 	application/ProtocolSettings.cpp \
 	application/ProtocolTemplate.cpp \
 	application/Server.cpp \
+	application/StatusManager.cpp \
 	application/TheApp.cpp \
 	application/User.cpp \
 	application/Utils.cpp \

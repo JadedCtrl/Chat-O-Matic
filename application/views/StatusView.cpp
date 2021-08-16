@@ -21,13 +21,13 @@
 #include <libinterface/EnterTextView.h>
 #include <libinterface/MenuButton.h>
 
-#include "AccountManager.h"
 #include "AccountsMenu.h"
 #include "ChatProtocolMessages.h"
 #include "Contact.h"
 #include "ImageCache.h"
 #include "NotifyMessage.h"
 #include "Server.h"
+#include "StatusManager.h"
 #include "StatusMenuItem.h"
 #include "Utils.h"
 
@@ -123,7 +123,7 @@ StatusView::MessageReceived(BMessage* msg)
 		{
 			BString nick;
 			if (msg->FindString("nick", &nick) == B_OK)
-				AccountManager::Get()->SetNickname(nick, fAccount);
+				StatusManager::Get()->SetNickname(nick, fAccount);
 			_SetToAccount();
 			break;
 		}
@@ -131,7 +131,7 @@ StatusView::MessageReceived(BMessage* msg)
 		{
 			int32 status;
 			if (msg->FindInt32("status", &status) == B_OK)
-				AccountManager::Get()->SetStatus((UserStatus)status, "",
+				StatusManager::Get()->SetStatus((UserStatus)status, "",
 					fAccount);
 			_SetToAccount();
 			break;

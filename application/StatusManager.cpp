@@ -6,19 +6,21 @@
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  */
 
-#include "AccountManager.h"
+#include "StatusManager.h"
+
+#include <stdio.h>
+
 #include "ChatProtocolMessages.h"
 #include "MainWindow.h"
 #include "NotifyMessage.h"
 #include "Server.h"
 #include "TheApp.h"
 
-#include <stdio.h>
 
-static AccountManager* fInstance = NULL;
+static StatusManager* fInstance = NULL;
 
 
-AccountManager::AccountManager()
+StatusManager::StatusManager()
 	:
 	fStatus(STATUS_OFFLINE),
 	fReplicantMessenger(NULL)
@@ -26,23 +28,23 @@ AccountManager::AccountManager()
 }
 
 
-AccountManager::~AccountManager()
+StatusManager::~StatusManager()
 {
 	delete fReplicantMessenger;
 }
 
 
-AccountManager*
-AccountManager::Get()
+StatusManager*
+StatusManager::Get()
 {
 	if (fInstance == NULL)
-		fInstance = new AccountManager();
+		fInstance = new StatusManager();
 	return fInstance;
 }
 
 
 void
-AccountManager::SetNickname(BString nick, int64 instance)
+StatusManager::SetNickname(BString nick, int64 instance)
 {
 	// Create message
 	BMessage* msg = new BMessage(IM_MESSAGE);
@@ -62,21 +64,21 @@ AccountManager::SetNickname(BString nick, int64 instance)
 
 
 void
-AccountManager::SetReplicantMessenger(BMessenger* messenger)
+StatusManager::SetReplicantMessenger(BMessenger* messenger)
 {
 	fReplicantMessenger = messenger;
 }
 
 
 UserStatus
-AccountManager::Status() const
+StatusManager::Status() const
 {
 	return fStatus;
 }
 
 
 void
-AccountManager::SetStatus(UserStatus status, const char* str, int64 instance)
+StatusManager::SetStatus(UserStatus status, const char* str, int64 instance)
 {
 	if (fStatus == status && instance == -1)
 		return;
@@ -107,14 +109,14 @@ AccountManager::SetStatus(UserStatus status, const char* str, int64 instance)
 
 
 void
-AccountManager::SetStatus(UserStatus status, int64 instance)
+StatusManager::SetStatus(UserStatus status, int64 instance)
 {
 	SetStatus(status, NULL, instance);
 }
 
 
 void
-AccountManager::ReplicantStatusNotify(UserStatus status, bool wait)
+StatusManager::ReplicantStatusNotify(UserStatus status, bool wait)
 {
 	if(fReplicantMessenger != NULL && fReplicantMessenger->IsValid()) {
 		printf("notification sent\n");

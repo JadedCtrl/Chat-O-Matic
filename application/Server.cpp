@@ -26,7 +26,6 @@
 #include <TranslationUtils.h>
 
 #include "Account.h"
-#include "AccountManager.h"
 #include "AppMessages.h"
 #include "AppPreferences.h"
 #include "Cardie.h"
@@ -41,6 +40,7 @@
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
 #include "RosterItem.h"
+#include "StatusManager.h"
 #include "UserInfoWindow.h"
 #include "Utils.h"
 
@@ -171,9 +171,9 @@ Server::Filter(BMessage* message, BHandler **target)
 				printf("err %s\n", strerror(ret));
 				break;
 			}
-			AccountManager* accountManager = AccountManager::Get();
-			accountManager->SetReplicantMessenger(messenger);
-			accountManager->ReplicantStatusNotify(accountManager->Status());
+			StatusManager* statusMan = StatusManager::Get();
+			statusMan->SetReplicantMessenger(messenger);
+			statusMan->ReplicantStatusNotify(statusMan->Status());
 			break;
 		}
 		case APP_ROOM_INFO:

@@ -18,7 +18,6 @@
 #include <TranslationUtils.h>
 
 #include "AccountDialog.h"
-#include "AccountManager.h"
 #include "AccountsWindow.h"
 #include "AppMessages.h"
 #include "AppPreferences.h"
@@ -36,6 +35,7 @@
 #include "ReplicantStatusView.h"
 #include "RosterEditWindow.h"
 #include "RosterWindow.h"
+#include "StatusManager.h"
 #include "StatusView.h"
 #include "TemplateWindow.h"
 
@@ -231,8 +231,8 @@ MainWindow::MessageReceived(BMessage* message)
 		{
 			int32 status;
 			message->FindInt32("status", &status);
-			AccountManager* accountManager = AccountManager::Get();
-			accountManager->SetStatus((UserStatus)status);
+			StatusManager* statusMan = StatusManager::Get();
+			statusMan->SetStatus((UserStatus)status);
 			break;
 		}
 		case APP_REPLICANT_SHOW_WINDOW:

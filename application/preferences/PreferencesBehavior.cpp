@@ -13,7 +13,6 @@
 #include <ControlLook.h>
 #include <LayoutBuilder.h>
 
-#include "AccountManager.h"
 #include "AppPreferences.h"
 
 

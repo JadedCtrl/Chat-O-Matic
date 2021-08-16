@@ -27,10 +27,9 @@
 #include <libinterface/BitmapUtils.h>
 #include <libinterface/BitmapView.h>
 
-#include "AccountManager.h"
-#include "Cardie.h"
 #include "AppMessages.h"
 #include "AppPreferences.h"
+#include "Cardie.h"
 #include "ChatProtocolMessages.h"
 #include "ReplicantMenuItem.h"
 #include "Utils.h"

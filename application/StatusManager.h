@@ -2,8 +2,8 @@
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef _ACCOUNT_MANAGER_H
-#define _ACCOUNT_MANAGER_H
+#ifndef _STATUS_MANAGER_H
+#define _STATUS_MANAGER_H
 
 #include <Messenger.h>
 
@@ -11,9 +11,9 @@
 #include "Notifier.h"
 
 
-class AccountManager : public Notifier {
+class StatusManager : public Notifier {
 public:
-	static	AccountManager*	Get();
+	static	StatusManager*	Get();
 
 			void			SetNickname(BString nick, int64 instance = -1);
 
@@ -26,12 +26,12 @@ public:
 			void			ReplicantStatusNotify(UserStatus status,
 								bool wait = false);
 private:
-							AccountManager();
-							~AccountManager();
+							StatusManager();
+							~StatusManager();
 
 	UserStatus				fStatus;
 	BMessenger*				fReplicantMessenger;
 
 };
 
-#endif	// _ACCOUNT_MANAGER_H
+#endif	// _STATUS_MANAGER_H
