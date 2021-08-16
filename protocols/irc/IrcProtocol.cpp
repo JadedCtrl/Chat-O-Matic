@@ -146,8 +146,32 @@ IrcProtocol::Process(BMessage* msg)
 			}
 			break;
 		}
-		case IM_ROOM_INVITE_ACCEPT:
+		case IM_CREATE_CHAT:
+		{
+			BString user_id;
+			if (msg->FindString("user_id", &user_id) != B_OK)
+				break;
+			BString user_name = _IdentNick(user_id);
+
+			if (user_name != user_id) {
+				BMessage created(IM_MESSAGE);
+				created.AddInt32("im_what", IM_CHAT_CREATED);
+				created.AddString("chat_id", user_name);
+				created.AddString("user_id", user_id);
+				_SendMsg(&created);
+				break;
+			}
+			fWhoIm = user_id;
+
+			BString cmd("WHO ");
+			cmd << user_id << "\n";
+			_SendIrc(cmd);
+			break;
+
+		}
 		case IM_JOIN_ROOM:
+		case IM_CREATE_ROOM:
+		case IM_ROOM_INVITE_ACCEPT:
 		{
 			BString chat_id;
 			if (msg->FindString("chat_id", &chat_id) == B_OK) {
@@ -332,6 +356,16 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 				user.AddString("user_name", nick);
 				fIdentNicks.AddItem(ident, nick);
 				_SendMsg(&user);
+			}
+			// Here, used in the creation of a one-on-one chat
+			else if (fWhoIm == user || fWhoIm == nick) {
+				fWhoIm = "";
+				BMessage created(IM_MESSAGE);
+				created.AddInt32("im_what", IM_CHAT_CREATED);
+				created.AddString("chat_id", nick);
+				created.AddString("user_id", ident);
+				fIdentNicks.AddItem(ident, nick);
+				_SendMsg(&created);
 			}
 			break;
 		}
@@ -617,7 +651,7 @@ IrcProtocol::_SendMsg(BMessage* msg)
 	msg->AddString("protocol", Signature());
 	if (fReady == true)
 		fMessenger->SendMessage(msg);
-	else {
+	else if (DEBUG_ENABLED == true) {
 		std::cout << "Tried sending message when not ready: \n";
 		msg->PrintToStream();
 	}
