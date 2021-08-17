@@ -64,6 +64,8 @@ private:
 							uint16* face, UInt16IntMap* indices);
 			void		_DisableEndingFaces(BMessage* msg, uint16* face,
 							UInt16IntMap* indices);
+			void		_EnableStartingColor(BMessage* msg, int32 index,
+							rgb_color* color, int32* indice);
 
 			void		_UserMessage(const char* format, const char* bodyFormat,
 									 BMessage* msg);

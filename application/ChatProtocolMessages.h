@@ -77,10 +77,13 @@ enum im_what_code {
 		buffer, rather than a specific conversation.
 		face_start and face_length specify the location of formatted text in
 		the body, and "face" is the desired font face. Unsupported in bulk,
+		color_* works much the same, but with colors. Not much else to say.
 		i.e., IM_LOGS_RECEIVED.
 		Requires:	String "body"
 		Allows:		String "chat_id", String "user_id", String "user_name",
-					int32s "face_start", int32s "face_length", uint16s "face" */
+					int32s "face_start", int32s "face_length", uint16s "face"
+					int32s "color_start", int32s "color_length",
+					rgb_colors "color" */
 	IM_MESSAGE_RECEIVED					= 22,
 
 	/*!	Logs received					→App
