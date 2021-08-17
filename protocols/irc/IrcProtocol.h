@@ -1,5 +1,6 @@
 /*
  * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
+ * Copyright 2017, Akshay Agarwal <agarwal.akshay.akshay8@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #ifndef _IRC_PROTOCOL_H
@@ -88,8 +89,8 @@ private:
 
 			void		_AddFormatted(BMessage* msg, const char* name,
 							BString text);
-			void		_ToggleAndAdd(BMessage* msg, uint16 face, int32* start,
-							int32 current);
+			void		_FormatToggleFace(BMessage* msg, uint16 face,
+							int32* start, int32 current);
 
 			void		_UpdateContact(BString nick, BString ident, bool online);
 			void		_AddContact(BString nick);
@@ -109,6 +110,9 @@ private:
 			BString		_ReadUntilNewline(BDataIO* data, BString* extraBuffer);
 			// Trim given string until newline hit, return trimmed part
 			BString		_TrimStringToNewline(BString* str);
+
+			// Borrowed from Calendar's ColorConverter
+			rgb_color	_IntToRgb(int rgb);
 
 			// GUI templates
 			BMessage	_AccountTemplate();

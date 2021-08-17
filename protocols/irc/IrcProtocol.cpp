@@ -1,5 +1,6 @@
 /*
  * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
+ * Copyright 2017, Akshay Agarwal <agarwal.akshay.akshay8@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -990,10 +991,22 @@ IrcProtocol::_IsChannelName(BString name)
 
 
 #define disable_all_faces(current) { \
-	if (bold > -1)		_ToggleAndAdd(msg, B_BOLD_FACE, &bold, current); \
-	if (italics > -1)	_ToggleAndAdd(msg, B_ITALIC_FACE, &italics, current); \
-	if (strike > -1)	_ToggleAndAdd(msg, B_STRIKEOUT_FACE, &strike, current); \
-	if (underline > -1)	_ToggleAndAdd(msg, B_UNDERSCORE_FACE, &underline, current); \
+	if (bold > -1)		_FormatToggleFace(msg, B_BOLD_FACE, &bold, current); \
+	if (italics > -1)	_FormatToggleFace(msg, B_ITALIC_FACE, &italics, current); \
+	if (strike > -1)	_FormatToggleFace(msg, B_STRIKEOUT_FACE, &strike, current); \
+	if (underline > -1)	_FormatToggleFace(msg, B_UNDERSCORE_FACE, &underline, current); \
+	if (reverse > -1)	_FormatToggleFace(msg, B_NEGATIVE_FACE, &reverse, current); \
+};
+
+
+#define disable_color(current) { \
+	if (colorStart > -1) { \
+		msg->AddInt32("color_start", colorStart); \
+		msg->AddInt32("color_length", current - colorStart); \
+		msg->AddColor("color", _IntToRgb(color)); \
+		colorStart = -1; \
+		color = -1; \
+	} \
 };
 
 
@@ -1002,26 +1015,72 @@ IrcProtocol::_AddFormatted(BMessage* msg, const char* name, BString text)
 {
 	BString newText;
 	int32 italics = -1, bold = -1, underline = -1, strike = -1, mono = -1;
+	int32 reverse = -1;
+	int32 color = -1, colorStart = -1;
 
 	int32 length = text.CountBytes(0, text.CountChars());
 	for (int32 j=0, i=0; j < length; j++) {
 		char c = text.ByteAt(j);
 
 		switch (c) {
-			case 0x02:
-				_ToggleAndAdd(msg, B_BOLD_FACE, &bold, i);
+			case FORMAT_COLOR:
+			{
+				// Apply and reset previous color, if existant
+				disable_color(i);
+
+				char one = text.ByteAt(j + 1);
+				char two = text.ByteAt(j + 2);
+
+				// Try and get colors from either two-digits or one-digits
+				int32 colorIndex = -1;
+				if (isdigit(one) == true && isdigit(two) == true) {
+					char num[3] = { one, two, '\0' };
+					colorIndex = atoi(num);
+					if (colorIndex >= 0 && colorIndex <= 99)
+						j += 2;
+				}
+				else if (isdigit(one) == true) {
+					char num[2] = { one, '\0' };
+					colorIndex = atoi(num);
+					if (colorIndex >= 0 && colorIndex <= 99)
+						j++;
+				}
+				else
+					break;
+
+				// Use color if valid
+				if (colorIndex >= 0 && colorIndex <= 99) {
+					int colors[FORMAT_COLOR_COUNT] = FORMAT_COLORS;
+					color = colors[colorIndex];
+					colorStart = i;
+				}
+
+				// Ignore setting of background
+				if (text.ByteAt(j + 1) == ',')
+					if (isdigit(text.ByteAt(j+2)) && isdigit(text.ByteAt(j+3)))
+						j += 3;
+					else if (isdigit(text.ByteAt(j + 2)))
+						j += 2;
 				break;
-			case 0x1d:
-				_ToggleAndAdd(msg, B_ITALIC_FACE, &italics, i);
+			}
+			case FORMAT_BOLD:
+				_FormatToggleFace(msg, B_BOLD_FACE, &bold, i);
 				break;
-			case 0x1f:
-				_ToggleAndAdd(msg, B_UNDERSCORE_FACE, &underline, i);
+			case FORMAT_ITALIC:
+				_FormatToggleFace(msg, B_ITALIC_FACE, &italics, i);
 				break;
-			case 0x1e:
-				_ToggleAndAdd(msg, B_STRIKEOUT_FACE, &strike, i);
+			case FORMAT_UNDERSCORE:
+				_FormatToggleFace(msg, B_UNDERSCORE_FACE, &underline, i);
 				break;
-			case 0x0f:
+			case FORMAT_STRIKEOUT:
+				_FormatToggleFace(msg, B_STRIKEOUT_FACE, &strike, i);
+				break;
+			case FORMAT_REVERSE:
+				_FormatToggleFace(msg, B_NEGATIVE_FACE, &reverse, i);
+				break;
+			case FORMAT_RESET:
 				disable_all_faces(i);
+				disable_color(i);
 				break;
 			default:
 				newText << c;
@@ -1029,12 +1088,13 @@ IrcProtocol::_AddFormatted(BMessage* msg, const char* name, BString text)
 		}
 	}
 	disable_all_faces(length);
+	disable_color(length);
 	msg->AddString(name, newText);
 }
 
 
 void
-IrcProtocol::_ToggleAndAdd(BMessage* msg, uint16 face, int32* start,
+IrcProtocol::_FormatToggleFace(BMessage* msg, uint16 face, int32* start,
 	int32 current)
 {
 	if (*start == -1)
@@ -1231,6 +1291,16 @@ IrcProtocol::_TrimStringToNewline(BString* str)
 		str->RemoveChars(0, lineEnd + 1);
 	}
 	return line;
+}
+
+
+rgb_color
+IrcProtocol::_IntToRgb(int rgb)
+{
+	uint8 r = rgb >> 16;
+	uint8 g = rgb >> 8 & 0xFF;
+	uint8 b = rgb & 0xFF;
+	return (rgb_color){r, g, b};
 }
 
 
