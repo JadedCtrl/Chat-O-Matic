@@ -393,7 +393,16 @@ ConversationView::_AppendOrEnqueueMessage(BMessage* msg)
 	// later [AttachedToWindow()], since you can't edit an unattached 
 	// RenderView.
 	if (Window() == NULL) {
-		fMessageQueue.AddItem(new BMessage(*msg));
+		// If contains multiple chat messages (e.g., IM_LOGS_RECEIVED), add all
+		int32 i = -1;
+		BMessage text;
+		while (msg->FindMessage("message", i + 1, &text) == B_OK) {
+			fMessageQueue.AddItem(new BMessage(text));
+			i++;
+		}
+		// Else, add the lonely, lonely, single-messaged one
+		if (i == -1)
+			fMessageQueue.AddItem(new BMessage(*msg));
 		return false;
 	}
 
@@ -412,62 +421,7 @@ ConversationView::_AppendMessage(BMessage* msg)
 		return;
 	}
 
-	// … else we're jamming a message into this view no matter what it takes!
-	if (msg->HasInt32("face_start") || msg->HasInt32("color_start")) {
-		_AppendFormattedMessage(msg);
-		return;
-	}
-
-	// For unformatted (normal or bulk) messages
-	BStringList user_ids, user_names, bodies;
-	if (msg->FindStrings("body", &bodies) != B_OK)
-		return;
-	msg->FindStrings("user_id", &user_ids);
-	msg->FindStrings("user_name", &user_names);
-
-	for (int i = bodies.CountStrings(); i >= 0; i--) {
-		User* sender = NULL;
-		if (fConversation != NULL)
-			sender = fConversation->UserById(user_ids.StringAt(i));
-		BString sender_id = user_ids.StringAt(i);
-		BString sender_name = user_names.StringAt(i);
-		BString body = bodies.StringAt(i);
-		rgb_color userColor = ui_color(B_PANEL_TEXT_COLOR);
-		int64 timeInt;
-
-		if (msg->FindInt64("when", i, &timeInt) != B_OK)
-			timeInt = (int64)time(NULL);
-
-		if (sender != NULL) {
-			sender_name = sender->GetName();
-			userColor = sender->fItemColor;
-		}
-
-		if (sender_name.IsEmpty() == true && sender_id.IsEmpty() == false)
-			sender_name = sender_id;
-
-		if (sender_id.IsEmpty() == true && sender_name.IsEmpty() == true) {
-			fReceiveView->AppendGeneric(body.String());
-			continue;
-		}
-
-		if (body.StartsWith("/me ")) {
-			BString meMsg = "** ";
-			meMsg << sender_name.String() << " ";
-			meMsg << body.RemoveFirst("/me ");
-			fReceiveView->AppendGeneric(meMsg.String());
-			continue;
-		}
-
-		fReceiveView->AppendMessage(sender_name.String(), body.String(),
-									userColor, (time_t)timeInt);
-	}
-}
-
-
-void
-ConversationView::_AppendFormattedMessage(BMessage* msg)
-{
+	// Otherwise, it's message time!
 	int64 timeInt;
 	BString user_id;
 	BString user_name = msg->FindString("user_name");
@@ -496,6 +450,13 @@ ConversationView::_AppendFormattedMessage(BMessage* msg)
 		return;
 	}
 
+	if (body.StartsWith("/me ")) {
+		BString meMsg = "** ";
+		meMsg << user_name.String() << " ";
+		meMsg << body.RemoveFirst("/me ");
+		fReceiveView->AppendGeneric(meMsg.String());
+		return;
+	}
 
 	fReceiveView->AppendTimestamp(timeInt);
 	fReceiveView->AppendUserstamp(user_name, userColor);

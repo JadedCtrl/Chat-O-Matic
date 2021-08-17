@@ -76,9 +76,8 @@ enum im_what_code {
 		If chat_id is ommitted, the message is sent to the protocol's system
 		buffer, rather than a specific conversation.
 		face_start and face_length specify the location of formatted text in
-		the body, and "face" is the desired font face. Unsupported in bulk,
+		the body, and "face" is the desired font face.
 		color_* works much the same, but with colors. Not much else to say.
-		i.e., IM_LOGS_RECEIVED.
 		Requires:	String "body"
 		Allows:		String "chat_id", String "user_id", String "user_name",
 					int32s "face_start", int32s "face_length", uint16s "face"
@@ -87,9 +86,8 @@ enum im_what_code {
 	IM_MESSAGE_RECEIVED					= 22,
 
 	/*!	Logs received					→App
-		Without "when" (a time_t), the logged message will lack a timestamp
-		Requires:	Strings "chat_id", Strings "user_id", Strings "body"
-		Accepts:	in64s "when" */
+		Should be a message with several sub-messages of IM_MESSAGE_RECEIVED.
+		Requires:	Messages "message" */
 	IM_LOGS_RECEIVED					= 23,
 
 

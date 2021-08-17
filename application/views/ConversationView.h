@@ -57,7 +57,6 @@ private:
 
 			bool		_AppendOrEnqueueMessage(BMessage* msg);
 			void		_AppendMessage(BMessage* msg);
-			void		_AppendFormattedMessage(BMessage* msg);
 
 			// Helper functions for _AppendFormattedMessage()
 			void		_EnableStartingFaces(BMessage* msg, int32 index,
