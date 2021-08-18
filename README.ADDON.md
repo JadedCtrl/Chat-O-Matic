@@ -12,11 +12,11 @@ An add-on should export a few functions, and offer at least one class inheriting
 ChatProtocol.
 
 Each add-on must export the following functions;
-	* `ChatProtocol* protocol_at(int32 i)`
-	* `int32 protocol_count()`
-	* `const char* signature()`
-	* `const char* friendly_signature()`
-	* `uint32 version()`
+- `ChatProtocol* protocol_at(int32 i)`
+- `int32 protocol_count()`
+- `const char* signature()`
+- `const char* friendly_signature()`
+- `uint32 version()`
 
 A single add-on can support multiple protocols (the Purple add-on being the
 only current example of this)― but generally returning a "1" from
@@ -68,7 +68,7 @@ and "roster" for adding/editing a contact on the roster.
 
 Here's a shorter version of the XMPP add-on's "account" settings:
 
-``
+```
 BMessage('IMst') {
         setting[0] = BMessage(0x0) {
                 name = string("username")
@@ -90,7 +90,7 @@ BMessage('IMst') {
                 type = int32(0x43535452 or 1129534546)
         }
 }
-``
+```
 
 The template is a BMessage with sub-messages named "setting", each with, at
 least, an internal "name" (the slot used by Cardie in the message parameter of
