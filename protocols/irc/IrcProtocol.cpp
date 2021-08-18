@@ -349,6 +349,17 @@ IrcProtocol::Process(BMessage* msg)
 			_SendMsg(&info);
 			break;
 		}
+		case IM_SET_ROOM_SUBJECT:
+		{
+			BString chat_id;
+			BString body = msg->FindString("subject");
+			if (msg->FindString("chat_id", &chat_id) == B_OK) {
+				BString cmd("TOPIC ");
+				cmd << chat_id << " :" << body;
+				_SendIrc(cmd);
+			}
+			break;
+		}
 		default:
 			std::cout << "Unhandled message for IRC:\n";
 			msg->PrintToStream();
