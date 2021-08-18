@@ -8,6 +8,7 @@
 #include <DateTimeFormat.h>
 #include <Messenger.h>
 #include <Path.h>
+#include <StringList.h>
 
 #include <libsupport/KeyMap.h>
 
@@ -83,7 +84,7 @@ private:
 	void				_LoadRoomFlags();
 
 	void				_EnsureCachePath();
-	User*				_EnsureUser(BMessage* msg);
+	User*				_EnsureUser(BMessage* msg, bool implicit = true);
 	Role*				_GetRole(BMessage* msg);
 
 	void				_UpdateIcon(User* user = NULL);
@@ -113,7 +114,8 @@ private:
 	int32 fRoomFlags;
 	int32 fDisallowedFlags;
 
-	UserMap fUsers;
+	UserMap fUsers; // For defined, certain members of the room
+	BStringList fGuests; // IDs of implicitly-defined users
 	RoleMap fRoles;
 };
 

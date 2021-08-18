@@ -10,7 +10,6 @@
 #include <Locale.h>
 #include <Notification.h>
 #include <StringFormat.h>
-#include <StringList.h>
 
 #include "AppPreferences.h"
 #include "Cardie.h"
@@ -199,6 +198,28 @@ Conversation::ImMessage(BMessage* msg)
 			_CacheRoomFlags();
 			break;
 		}
+		case IM_ROOM_PARTICIPANTS:
+		{
+			// Get rid of implicity-defined users rq
+			for (int i = 0; i < fGuests.CountStrings(); i++) {
+				RemoveUser(UserById(fGuests.StringAt(i)));
+				fGuests.Remove(i);
+			}
+
+			BStringList ids;
+			BStringList names;
+			msg->FindStrings("user_name", &names);
+			if (msg->FindStrings("user_id", &ids) != B_OK)
+				break;
+
+			for (int i = 0; i < ids.CountStrings(); i++) {
+				BMessage user;
+				user.AddString("user_name", names.StringAt(i));
+				user.AddString("user_id", ids.StringAt(i));
+				_EnsureUser(&user, false);
+			}
+			break;
+		}
 		case IM_ROOM_PARTICIPANT_JOINED:
 		{
 			BString user_id;
@@ -206,7 +227,7 @@ Conversation::ImMessage(BMessage* msg)
 				break;
 
 			if (UserById(user_id) == NULL) {
-				_EnsureUser(msg);
+				_EnsureUser(msg, false);
 				GetView()->MessageReceived(msg);
 			}
 			break;
@@ -437,10 +458,12 @@ Conversation::UserById(BString id)
 void
 Conversation::AddUser(User* user)
 {
+	if (user == NULL)
+		return;
 	BMessage msg;
 	msg.AddString("user_id", user->GetId());
 	msg.AddString("user_name", user->GetName());
-	_EnsureUser(&msg);
+	_EnsureUser(&msg, false);
 	_SortConversationList();
 }
 
@@ -448,6 +471,8 @@ Conversation::AddUser(User* user)
 void
 Conversation::RemoveUser(User* user)
 {
+	if (user == NULL)
+		return;
 	fUsers.RemoveItemFor(user->GetId());
 	user->UnregisterObserver(this);
 	GetView()->UpdateUserList(fUsers);
@@ -473,7 +498,8 @@ Conversation::SetRole(BString id, Role* role)
 		fRoles.RemoveItemFor(id);
 		delete oldRole;
 	}
-	fRoles.AddItem(id, role);
+	if (role != NULL)
+		fRoles.AddItem(id, role);
 }
 
 
@@ -579,7 +605,7 @@ Conversation::_EnsureCachePath()
 
 
 User*
-Conversation::_EnsureUser(BMessage* msg)
+Conversation::_EnsureUser(BMessage* msg, bool implicit)
 {
 	BString id = msg->FindString("user_id");
 	BString name = msg->FindString("user_name");
@@ -589,19 +615,27 @@ Conversation::_EnsureUser(BMessage* msg)
 	User* serverUser = fLooper->UserById(id);
 
 	// Not here, but found in server
-	if (user == NULL && serverUser != NULL) {
-		fUsers.AddItem(id, serverUser);
+	if (user == NULL && serverUser != NULL)
 		user = serverUser;
-		GetView()->UpdateUserList(fUsers);
-		_UpdateIcon(user);
-		NotifyInteger(INT_ROOM_MEMBERS, fUsers.CountItems());
-	}
 	// Not anywhere; create user
 	else if (user == NULL) {
 		user = new User(id, _GetServer()->Looper());
 		user->SetProtocolLooper(fLooper);
-
 		fLooper->AddUser(user);
+	}
+
+	// It's been implicitly defined (rather than explicit join), shame!
+	if (UserById(id) == NULL && implicit == true) {
+		fGuests.Add(id);
+		// The response to this will be used to determine if this guest stays
+		BMessage msg(IM_MESSAGE);
+		msg.AddInt32("im_what", IM_GET_ROOM_PARTICIPANTS);
+		msg.AddString("chat_id", fID);
+		fLooper->MessageReceived(&msg);
+	}
+
+	if (UserById(id) == NULL) {
+		fUsers.AddItem(id, user);
 		fUsers.AddItem(id, user);
 		GetView()->UpdateUserList(fUsers);
 		_UpdateIcon(user);

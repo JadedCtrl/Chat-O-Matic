@@ -458,33 +458,11 @@ Server::ImMessage(BMessage* msg)
 				chat->AddUser(user);
 				chat->ShowView(false, true);
 			}
-
 			break;
 		}
 		case IM_JOIN_ROOM:
 		{
 			SendProtocolMessage(msg);
-			break;
-		}
-		case IM_ROOM_PARTICIPANTS:
-		{
-			Conversation* chat = _EnsureConversation(msg);
-			BStringList ids;
-			BStringList name;
-
-			msg->FindStrings("user_name", &name);
-			if (msg->FindStrings("user_id", &ids) != B_OK)
-				break;
-
-			ProtocolLooper* protoLooper = _LooperFromMessage(msg);
-
-			for (int i = 0; i < ids.CountStrings(); i++) {
-				User* user = _EnsureUser(ids.StringAt(i), protoLooper);
-
-				if (name.CountStrings() >= i && !name.StringAt(i).IsEmpty())
-					user->SetNotifyName(name.StringAt(i));
-				chat->AddUser(user);
-			}
 			break;
 		}
 		case IM_MESSAGE_RECEIVED:
@@ -499,6 +477,7 @@ Server::ImMessage(BMessage* msg)
 		case IM_ROOM_CREATED:
 		case IM_ROOM_METADATA:
 		case IM_ROOM_ROLECHANGED:
+		case IM_ROOM_PARTICIPANTS:
 		case IM_ROOM_PARTICIPANT_JOINED:
 		case IM_ROOM_PARTICIPANT_LEFT:
 		case IM_ROOM_PARTICIPANT_BANNED:
