@@ -60,11 +60,11 @@ private:
 
 			// Helper functions for _AppendFormattedMessage()
 			void		_EnableStartingFaces(BMessage* msg, int32 index,
+							uint16* face, UInt16IntMap* indices, int32* next);
+			void		_DisableEndingFaces(BMessage* msg, int32 index,
 							uint16* face, UInt16IntMap* indices);
-			void		_DisableEndingFaces(BMessage* msg, uint16* face,
-							UInt16IntMap* indices);
 			void		_EnableStartingColor(BMessage* msg, int32 index,
-							rgb_color* color, int32* indice);
+							rgb_color* color, int32* indice, int32* next);
 
 			void		_UserMessage(const char* format, const char* bodyFormat,
 									 BMessage* msg);

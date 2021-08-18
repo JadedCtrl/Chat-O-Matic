@@ -466,11 +466,13 @@ ConversationView::_AppendMessage(BMessage* msg)
 	UInt16IntMap face_indices;
 	rgb_color color = ui_color(B_PANEL_TEXT_COLOR);
 	int32 colorIndice = -1;
+	int32 next = body.CountChars();
 
 	BFont font;
 	for (int i = 0; i < body.CountChars(); i++) {
-		_EnableStartingFaces(msg, i, &face, &face_indices);
-		_EnableStartingColor(msg, i, &color, &colorIndice);
+		_DisableEndingFaces(msg, i, &face, &face_indices);
+		_EnableStartingFaces(msg, i, &face, &face_indices, &next);
+		_EnableStartingColor(msg, i, &color, &colorIndice, &next);
 
 		if (face == B_REGULAR_FACE) {
 			font = BFont();
@@ -480,20 +482,34 @@ ConversationView::_AppendMessage(BMessage* msg)
 			font.SetFace(face);
 		}
 
-		if (colorIndice <= 0)
+		if (colorIndice > 0 && colorIndice <= i) {
 			color = ui_color(B_PANEL_TEXT_COLOR);
+			colorIndice == -1;
+		}
 
-		int32 bytes;
-		const char* curChar = body.CharAt(i, &bytes);
-		char append[bytes];
+		// If formatting doesn't change for a while, send text in bulk
+		if ((next - i) > 1) {
+			BString append;
+			body.CopyCharsInto(append, i, next - i);
+			fReceiveView->Append(append, color, &font);
+			i = next - 1;
+			next = body.CountChars();
+		}
+		// Otherwise, send only current character
+		else {
+			int32 bytes;
+			const char* curChar = body.CharAt(i, &bytes);
+			char append[bytes];
 
-		for (int i = 0; i < bytes; i++)
-			append[i] = curChar[i];
-		append[bytes] = '\0';
-		fReceiveView->Append(append, color, &font);
+			for (int i = 0; i < bytes; i++)
+				append[i] = curChar[i];
+			append[bytes] = '\0';
+			fReceiveView->Append(append, color, &font);
+		}
 
-		_DisableEndingFaces(msg, &face, &face_indices);
-		colorIndice--;
+		if (next < i)
+			next = body.CountChars() - 1;
+
 	}
 	fReceiveView->Append("\n");
 }
@@ -501,7 +517,7 @@ ConversationView::_AppendMessage(BMessage* msg)
 
 void
 ConversationView::_EnableStartingFaces(BMessage* msg, int32 index, uint16* face,
-	UInt16IntMap* indices)
+	UInt16IntMap* indices, int32* next)
 {
 	int32 face_start;
 	int32 face_length;
@@ -509,6 +525,11 @@ ConversationView::_EnableStartingFaces(BMessage* msg, int32 index, uint16* face,
 
 	int32 i = 0;
 	while (msg->FindInt32("face_start", i, &face_start) == B_OK) {
+		// Change 'next' value for new fonts
+		if (face_start > index && face_start < *next)
+			*next = face_start;
+
+		// Set face normally
 		if (face_start == index) {
 			if (msg->FindInt32("face_length", i, &face_length) != B_OK)
 				continue;
@@ -516,46 +537,56 @@ ConversationView::_EnableStartingFaces(BMessage* msg, int32 index, uint16* face,
 				continue;
 
 			*face |= newFace;
-			indices->AddItem(newFace, face_length);
+			indices->AddItem(newFace, index + face_length);
 		}
 		i++;
+	}
+
+	// Change 'next' for ending old fonts
+	for (int i = 0; i < indices->CountItems(); i++) {
+		int faceEnd = indices->ValueAt(i);
+		if (faceEnd > 0 && faceEnd > index && faceEnd < *next)
+			*next = faceEnd;
 	}
 }
 
 
 void
-ConversationView::_DisableEndingFaces(BMessage* msg, uint16* face,
+ConversationView::_DisableEndingFaces(BMessage* msg, int32 index, uint16* face,
 	UInt16IntMap* indices)
 {
 	for (int32 i = 0; i < indices->CountItems(); i++) {
 		uint16 key = indices->KeyAt(i);
-		int32 value = indices->ValueAt(i) - 1;
+		int32 value = indices->ValueAt(i);
 
-		indices->RemoveItemAt(i);
-		if (value <= 0) {
+		if (value <= index) {
+			indices->RemoveItemAt(i);
 			*face = *face & ~key;
 			if (indices->CountItems() == 0)
 				*face = B_REGULAR_FACE;
 		}
-		else
-			indices->AddItem(key, value);
 	}
 }
 
 
 void
 ConversationView::_EnableStartingColor(BMessage* msg, int32 index,
-	rgb_color* color, int32* indice)
+	rgb_color* color, int32* indice, int32* next)
 {
 	rgb_color newColor;
 	int32 color_start, color_length, i = 0;
 	while (msg->FindInt32("color_start", i, &color_start) == B_OK) {
+		if (color_start > index && color_start < *next)
+			*next = color_start - 1;
+
 		if (color_start == index
 				&& msg->FindInt32("color_length", i, &color_length) == B_OK
 				&& msg->FindColor("color", i, &newColor) == B_OK)
 		{
-			*indice = color_length;
+			*indice = color_length + index;
 			*color = newColor;
+			if (*indice > index && (*indice < *next || *next < index))
+				*next = *indice;
 			break;
 		}
 		i++;

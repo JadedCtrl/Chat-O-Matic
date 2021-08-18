@@ -18,20 +18,6 @@ RenderView::RenderView(const char* name)
 
 
 void
-RenderView::AppendMessage(const char* nick, const char* message,
-	rgb_color nameColor, time_t time)
-{
-	if (BString(message).IsEmpty() == true)	return;
-
-	AppendTimestamp(time);
-	AppendUserstamp(nick, nameColor);
-	Append(message);
-
-	if (BString(message).EndsWith("\n") == false)	Append("\n");
-}
-
-
-void
 RenderView::AppendGeneric(const char* message)
 {
 	if (BString(message).IsEmpty() == true)	return;

@@ -12,8 +12,6 @@ class RenderView : public RunView {
 public:
 				RenderView(const char* name);
 
-		void	AppendMessage(const char* nick, const char* message,
-							  rgb_color nameColor, time_t time = 0);
 		void	AppendGeneric(const char* message);
 		void	AppendUserstamp(const char* nick, rgb_color nameColor);
 		void	AppendTimestamp(time_t time = 0);
