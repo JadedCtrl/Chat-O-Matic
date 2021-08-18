@@ -13,6 +13,9 @@
 #include <libsupport/List.h>
 
 class Conversation;
+class User;
+
+typedef KeyMap<BString, User*> UserMap;
 
 
 enum cmd_arg_type
@@ -45,6 +48,8 @@ public:
 private:
 	bool			_ProcessArgs(BString args, BMessage* msg, BString* errorMsg,
 								 Conversation* chat);
+
+	User*			_FindUser(BString idOrName, UserMap users);
 
 	bool			_Send(BMessage* msg, Conversation* chat);
 

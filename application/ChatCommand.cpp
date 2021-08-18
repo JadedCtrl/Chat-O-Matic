@@ -109,24 +109,26 @@ ChatCommand::_ProcessArgs(BString args, BMessage* msg, BString* errorMsg,
 		{
 			case CMD_ROOM_PARTICIPANT:
 			{
-				if (chat->UserById(arg) == NULL) {
+				User* user = _FindUser(arg, chat->Users());
+				if (user == NULL) {
 					errorMsg->SetTo(B_TRANSLATE("%user% isn't a member of this "
 						"room."));
 					errorMsg->ReplaceAll("%user%", arg);
 					return false;
 				}
-				msg->AddString("user_id", arg);
+				msg->AddString("user_id", user->GetId());
 				break;
 			}
 			case CMD_KNOWN_USER:
 			{
-				if (chat->GetProtocolLooper()->UserById(arg) == NULL) {
+				User* user = _FindUser(arg, chat->GetProtocolLooper()->Users());
+				if (user == NULL) {
 					errorMsg->SetTo(B_TRANSLATE("You aren't contacts with and "
 						"have no chats in common with %user%. Shame."));
 					errorMsg->ReplaceAll("%user%", arg);
 					return false;
 				}
-				msg->AddString("user_id", arg);
+				msg->AddString("user_id", user->GetId());
 				break;
 			}
 			case CMD_ANY_USER:
@@ -143,6 +145,24 @@ ChatCommand::_ProcessArgs(BString args, BMessage* msg, BString* errorMsg,
 		}
 	}
 	return true;
+}
+
+
+User*
+ChatCommand::_FindUser(BString idOrName, UserMap users)
+{
+	if (idOrName.IsEmpty() == true)
+		return NULL;
+
+	bool idFound = false;
+	User* user = users.ValueFor(idOrName, &idFound);
+	if (idFound == false)
+		for (int i = 0; i < users.CountItems(); i++) {
+			User* check = users.ValueAt(i);
+			if (check != NULL && check->GetName() == idOrName)
+				return check;
+		}
+	return user;
 }
 
 
