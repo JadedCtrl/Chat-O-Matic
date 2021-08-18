@@ -190,7 +190,7 @@ User::SetNotifyAvatarBitmap(BBitmap* bitmap)
 	if ((fAvatarBitmap != bitmap) && (bitmap != NULL)) {
 		fAvatarBitmap = bitmap;
 		_SetCachedAvatar(bitmap);
-		NotifyPointer(PTR_AVATAR_BITMAP, (void*)bitmap);
+		NotifyPointer(PTR_AVATAR_BITMAP, (void*)_GetCachedAvatar());
 	}
 }
 

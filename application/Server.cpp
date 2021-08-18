@@ -434,12 +434,10 @@ Server::ImMessage(BMessage* msg)
 				break;
 
 			entry_ref ref;
-
 			if (msg->FindRef("ref", &ref) == B_OK) {
 				BBitmap* bitmap = BTranslationUtils::GetBitmap(&ref);
 				user->SetNotifyAvatarBitmap(bitmap);
-			} else
-				user->SetNotifyAvatarBitmap(NULL);
+			}
 			break;
 		}
 		case IM_CREATE_CHAT:
