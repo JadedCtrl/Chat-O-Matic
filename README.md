@@ -3,17 +3,15 @@
 
 Cardie is a multi-protocol chat program based on [Caya](https://github.com/Augustolo/Caya).
 
-It can use native protocol add-ons and protocols supported by libpurple, the
-library used by [Pidgin](https://pidgin.im/).
+![Screenshot](data/screenshots/update-3.png)
 
-Protocols natively supported are:
-- IRC
-- XMPP
+It can use protocols through native add-ons as well as through libpurple,
+the library used by [Pidgin](https://pidgin.im/).
+
+Protocols natively supported include IRC and XMPP.
 
 Protocols generally supported through libpurple include GroupWise, Zephyr, and
 [others through plugins](https://pidgin.im/plugins/?type=Protocol).
-
-![Screenshot](data/screenshots/update-3.png)
 
 
 ## Building
@@ -28,6 +26,15 @@ Or one-by-one:
 Cardie itself requires the `expat_devel` package, the XMPP protocol requires
 `gloox_devel`, and the libpurple add-on requires `libpurple_devel` and
 `glib2_devel`― though it's worth noting that libpurple doesn't work on x86_gcc2.
+
+
+## Installation
+Protocol add-ons can be installed in any add-ons directory under `cardie`
+(i.e., `~/config/non-packaged/add-ons/cardie/`) or in the binary's CWD
+(`./cardie/`).
+
+libpurple plugins can be installed to any lib directory under `purple-2`
+(i.e., `~/config/non-packaged/lib/purple-2/`).
 
 
 ## License
