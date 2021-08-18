@@ -1368,6 +1368,8 @@ IrcProtocol::_AccountTemplate()
 	realName.AddString("name", "real_name");
 	realName.AddString("description", B_TRANSLATE("Real name:"));
 	realName.AddInt32("type", B_STRING_TYPE);
+	realName.AddString("default", "Gord the Destroyer");
+	realName.AddString("error", B_TRANSLATE("A real name must be defined. (P.S.: You can lie!)"));
 	settings.AddMessage("setting", &realName);
 
 	BMessage part;
