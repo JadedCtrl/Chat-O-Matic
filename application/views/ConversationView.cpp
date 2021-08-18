@@ -331,7 +331,7 @@ ConversationView::_InitInterface()
 {
 	fReceiveView = new RenderView("receiveView");
 	BScrollView* scrollViewReceive = new BScrollView("receiveScrollView",
-		fReceiveView, B_WILL_DRAW, false, true);
+		fReceiveView, B_WILL_DRAW, false, true, B_NO_BORDER);
 
 	fSendView = new SendTextView("sendView", this);
 

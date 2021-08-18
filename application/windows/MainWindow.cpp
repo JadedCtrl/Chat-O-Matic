@@ -15,6 +15,7 @@
 #include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
+#include <ScrollView.h>
 #include <TranslationUtils.h>
 
 #include "AccountDialog.h"
@@ -446,6 +447,9 @@ MainWindow::_InitInterface()
 	fStatusView = new StatusView("statusView", fServer);
 	fSplitView = new BSplitView(B_HORIZONTAL, 0);
 
+	BScrollView* listScroll = new BScrollView("roomListScroll", fListView,
+		true, false, B_NO_BORDER);
+
 	// Right-side of window, Chat + Textbox
 	fRightView = new BSplitView(B_VERTICAL, 0);
 	fBackupChatView = new ConversationView();
@@ -465,7 +469,7 @@ MainWindow::_InitInterface()
 			.SetInsets(5, 5, 0, 10)
 			.AddSplit(fSplitView)
 				.AddGroup(B_VERTICAL)
-					.Add(fListView, 1)
+					.Add(listScroll, 1)
 					.Add(fStatusView)
 				.End()
 				.Add(fRightView, 5)
