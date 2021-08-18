@@ -20,11 +20,13 @@ public:
 
 			bool 	MoveToCurrentWorkspace;
 			bool 	RaiseOnMessageReceived;
-			bool 	RaiseUserIsTyping;
 			bool	MarkUnreadWindow;
+
 			bool 	NotifyProtocolStatus;
 			bool 	NotifyContactStatus;
 			bool	NotifyNewMessage;
+			bool	SoundOnMessageReceived;
+			bool	SoundOnMention;
 
 			bool 	HideDeskbar;
 			bool 	DisableReplicant;

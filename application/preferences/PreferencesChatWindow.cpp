@@ -31,7 +31,7 @@ PreferencesChatWindow::PreferencesChatWindow()
 
 	fIgnoreEmoticons = new BCheckBox("IgnoreEmoticons",
 		B_TRANSLATE("Ignore emoticons"), new BMessage(kIgnoreEmoticons));
-	fIgnoreEmoticons->SetEnabled(true);
+	fIgnoreEmoticons->SetEnabled(false); // No emoticon support currently
 
 	const float spacing = be_control_look->DefaultItemSpacing();
 

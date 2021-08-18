@@ -16,7 +16,7 @@
 
 #include "PreferencesBehavior.h"
 #include "PreferencesChatWindow.h"
-#include "PreferencesReplicant.h"
+#include "PreferencesNotifications.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -34,7 +34,7 @@ PreferencesWindow::PreferencesWindow()
 	BTabView* tabView = new BTabView("tabView", B_WIDTH_AS_USUAL);
 	tabView->AddTab(new PreferencesBehavior());
 	tabView->AddTab(new PreferencesChatWindow());
-	tabView->AddTab(new PreferencesReplicant());
+	tabView->AddTab(new PreferencesNotifications());
 
 	// Tab resizing here is a bit wonky. We want each tab to be visible,
 	// but we don't want the tab-view to be too wide…

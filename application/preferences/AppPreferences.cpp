@@ -35,11 +35,12 @@ AppPreferences::Load()
 
 	MoveToCurrentWorkspace = settings.GetBool("MoveToCurrentWorkpace", false);
 	RaiseOnMessageReceived = settings.GetBool("RaiseOnMessageReceived", false);
-	RaiseUserIsTyping = settings.GetBool("RaiseUserIsTyping", false);
 	MarkUnreadWindow = settings.GetBool("MarkUnreadWindow", true);
 	NotifyProtocolStatus = settings.GetBool("NotifyProtocolStatus", true);
 	NotifyNewMessage = settings.GetBool("NotifyNewMessage", true);
 	NotifyContactStatus = settings.GetBool("NotifyContactStatus", false);
+	SoundOnMessageReceived = settings.GetBool("SoundOnMessageReceived", false);
+	SoundOnMention = settings.GetBool("SoundOnMention", true);
 	HideDeskbar = settings.GetBool("HideDeskbar", false);
 	DisableReplicant = settings.GetBool("DisableReplicant", true);
 	DisableQuitConfirm = settings.GetBool("DisableQuitConfirm", false);
@@ -67,11 +68,12 @@ AppPreferences::Save()
 	BMessage settings;
 	settings.AddBool("MoveToCurrentWorkpace", MoveToCurrentWorkspace);
 	settings.AddBool("RaiseOnMessageReceived", RaiseOnMessageReceived);
-	settings.AddBool("RaiseUserIsTyping", RaiseUserIsTyping);
 	settings.AddBool("MarkUnreadWindow", MarkUnreadWindow);
 	settings.AddBool("NotifyProtocolStatus", NotifyProtocolStatus);
 	settings.AddBool("NotifyNewMessage", NotifyNewMessage);
 	settings.AddBool("NotifyContactStatus", NotifyContactStatus);
+	settings.AddBool("SoundOnMessageReceived", SoundOnMessageReceived);
+	settings.AddBool("SoundOnMention", SoundOnMention);
 	settings.AddBool("HideDeskbar", HideDeskbar);
 	settings.AddBool("DisableReplicant", DisableReplicant);
 	settings.AddBool("DisableQuitConfirm", DisableQuitConfirm);

@@ -3,28 +3,26 @@
  * Copyright 2012, Dario Casalinuovo. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
-#ifndef _PREFERENCES_BEHAVIOR_H
-#define _PREFERENCES_BEHAVIOR_H
+#ifndef _PREFERENCES_NOTIFICATIONS_H
+#define _PREFERENCES_NOTIFICATIONS_H
 
 #include <View.h>
 
 class BCheckBox;
 
-class PreferencesBehavior : public BView {
+class PreferencesNotifications : public BView {
 public:
-					PreferencesBehavior();
+					PreferencesNotifications();
 
 	virtual	void	AttachedToWindow();
 	virtual	void	MessageReceived(BMessage* msg);
 
 private:
-
-	BCheckBox*		fHideOffline;
-	BCheckBox*		fToCurrentWorkspace;
-	BCheckBox*		fRaiseOnMessageReceived;
-	BCheckBox*		fMarkUnreadWindow;
-
-	BCheckBox*		fDisableQuitConfirm;
+	BCheckBox*		fNotifyProtocols;
+	BCheckBox*		fNotifyContactStatus;	
+	BCheckBox*		fNotifyNewMessage;
+	BCheckBox*		fSoundOnMessageReceived;
+	BCheckBox*		fSoundOnMention;
 };
 
 #endif	// _PREFERENCES_BEHAVIOR_H

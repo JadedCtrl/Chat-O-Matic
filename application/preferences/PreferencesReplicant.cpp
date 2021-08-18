@@ -35,6 +35,7 @@ PreferencesReplicant::PreferencesReplicant()
 	fDisableReplicant = new BCheckBox("DisableReplicant",
 		B_TRANSLATE("Disable deskbar replicant"),
 		new BMessage(kDisableReplicant));
+	fDisableReplicant->SetEnabled(false); // Replicant is broken currently
 
 	if (!AppPreferences::Get()->HideDeskbar)
 		Looper()->PostMessage(new BMessage(kDisableReplicant));

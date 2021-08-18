@@ -51,9 +51,9 @@ SRCS = \
 	application/preferences/AccountDialog.cpp \
 	application/preferences/AccountListItem.cpp \
 	application/preferences/AppPreferences.cpp \
-	application/preferences/PreferencesChatWindow.cpp \
 	application/preferences/PreferencesBehavior.cpp \
-	application/preferences/PreferencesReplicant.cpp \
+	application/preferences/PreferencesChatWindow.cpp \
+	application/preferences/PreferencesNotifications.cpp \
 	application/views/AccountsMenu.cpp \
 	application/views/AccountMenuItem.cpp \
 	application/views/RenderView.cpp \
