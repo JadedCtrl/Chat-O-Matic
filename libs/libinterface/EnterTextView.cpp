@@ -33,8 +33,11 @@ EnterTextView::KeyDown(const char* bytes, int32 numBytes)
 	if (fTarget != NULL && (bytes[0] == B_ENTER) && (modifiers == 0))
 	{
 		BMessage* msg = new BMessage(fMessage);
-		if (fTextSlot.IsEmpty() == false)
+		if (fTextSlot.IsEmpty() == false) {
 			msg->AddString(fTextSlot.String(), Text());
+			SetText("");
+			ScrollToOffset(0);
+		}
 		fTarget->MessageReceived(msg);
 	}
 	else
