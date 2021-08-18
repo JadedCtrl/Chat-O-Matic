@@ -3,15 +3,26 @@
 app:
 	$(MAKE) -f application/Makefile
 
-protocols:
-	$(MAKE) -f protocols/Makefile
 libs:
 	$(MAKE) -f libs/Makefile
-	
-clean:
-	$(MAKE) -f application/Makefile clean
+
+irc:
+	$(MAKE) -f protocols/irc/Makefile
+
+xmpp:
+	$(MAKE) -f protocols/xmpp/Makefile
+
+purple:
+ifneq ($(shell uname -m), x86_gcc2)
+	$(MAKE) -f protocols/purple/Makefile
+endif
+
+protocols: irc xmpp purple
 
 all: libs protocols app
+
+clean:
+	$(MAKE) -f application/Makefile clean
 
 .PHONY: libs protocols
 
