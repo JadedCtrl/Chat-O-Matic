@@ -143,7 +143,7 @@ Server::Filter(BMessage* message, BHandler **target)
 				BString content(B_TRANSLATE("%user% has been disabled!"));
 				content.ReplaceAll("%user%", name);
 
-				_SendNotification(B_TRANSLATE("Disabled"), content, icon);
+				_SendNotification(B_TRANSLATE("Disabled"), content, name, icon);
 			}
 			break;
 		}
@@ -156,7 +156,8 @@ Server::Filter(BMessage* message, BHandler **target)
 				BString content(B_TRANSLATE("%user% has been temporarily disabled."));
 				content.ReplaceAll("%user%", name);
 
-				_SendNotification(B_TRANSLATE("Connection failed"), content, icon);
+				_SendNotification(B_TRANSLATE("Connection failed"), content,
+					name, icon);
 			}
 			break;
 		}
@@ -297,13 +298,15 @@ Server::ImMessage(BMessage* msg)
 					|| (oldStatus == STATUS_OFFLINE && status == STATUS_ONLINE))
 				{
 					if (status == STATUS_ONLINE)
-						_ProtocolNotification(looper,
-							BString(B_TRANSLATE("Connected")),
-							BString(B_TRANSLATE("%user% has connected!")));
+						if (AppPreferences::Get()->NotifyProtocolStatus == true)
+							_ProtocolNotification(looper,
+								BString(B_TRANSLATE("Connected")),
+								BString(B_TRANSLATE("%user% has connected!")));
 					else
-						_ProtocolNotification(looper,
-							BString(B_TRANSLATE("Disconnected")),
-							BString(B_TRANSLATE("%user% is now offline!")));
+						if (AppPreferences::Get()->NotifyProtocolStatus == true)
+							_ProtocolNotification(looper,
+								BString(B_TRANSLATE("Disconnected")),
+								BString(B_TRANSLATE("%user% is now offline!")));
 				}
 
 				contact->SetNotifyStatus((UserStatus)status);
@@ -701,6 +704,10 @@ Server::AddProtocolLooper(bigtime_t instanceId, ChatProtocol* cayap)
 	fAccounts.AddItem(cayap->GetName(), instanceId);
 	fAccountEnabled.AddItem(cayap->GetName(), false);
 
+	if (AppPreferences::Get()->NotifyProtocolStatus == true)
+		_ProtocolNotification(looper, BString(B_TRANSLATE("Connecting")),
+			BString(B_TRANSLATE("%user% is readying…")));
+
 	if (fStarted == true)
 		Login(looper);
 }
@@ -1035,21 +1042,24 @@ Server::_ProtocolNotification(ProtocolLooper* looper, BString title,
 	BString desc, notification_type type)
 {
 	if (looper == NULL || title.IsEmpty() == true)	return;
-	title.ReplaceAll("%user%", looper->Protocol()->GetName());
-	desc.ReplaceAll("%user%", looper->Protocol()->GetName());
-	_SendNotification(title, desc, looper->Protocol()->Icon(), type);
+	BString account = looper->Protocol()->GetName();
+	title.ReplaceAll("%user%", account);
+	desc.ReplaceAll("%user%", account);
+	_SendNotification(title, desc, account, looper->Protocol()->Icon(), type);
 }
 
 
 void
-Server::_SendNotification(BString title, BString content, BBitmap* icon,
-	notification_type type)
+Server::_SendNotification(BString title, BString content, BString id,
+	BBitmap* icon, notification_type type)
 {
 	BNotification notification(type);
 	notification.SetGroup(BString(APP_NAME));
 	notification.SetTitle(title);
 	if (content.IsEmpty() == false)
 		notification.SetContent(content);
+	if (id.IsEmpty() == false)
+		notification.SetMessageID(id);
 	if (icon != NULL)
 		notification.SetIcon(icon);
 	notification.Send();
