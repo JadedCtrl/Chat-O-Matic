@@ -90,31 +90,31 @@ Conversation::ImMessage(BMessage* msg)
 			Contact* contact = GetOwnContact();
 			BWindow* win = fChatView->Window();
 
-			bool winFocused = (win != NULL &&
+			bool winFocus = (win != NULL &&
 				(win->IsFront() && !(win->IsMinimized())));
 			bool mentioned = ((contact->GetName().IsEmpty() == false
 						&& text.IFindFirst(contact->GetName()) != B_ERROR)
 					|| (text.IFindFirst(contact->GetId()) != B_ERROR));
 
 			// Sound the bell, if appropriate
-			if (mentioned == true && winFocused == false
-					&& AppPreferences::Get()->SoundOnMention == true)
-				system_beep(APP_MENTION_BEEP);
-			else if (winFocused == false && (fUsers.CountItems() <= 2)
-					&& AppPreferences::Get()->SoundOnMessageReceived == true)
-				system_beep(APP_MESSAGE_BEEP);
+			if (winFocus == false) {
+				if (mentioned == true
+						&& AppPreferences::Get()->SoundOnMention == true)
+					system_beep(APP_MENTION_BEEP);
+				else if (AppPreferences::Get()->SoundOnMessageReceived == true
+						&& ((fUsers.CountItems() <=2 && (fRoomFlags & ROOM_NOTIFY_DM))
+							|| (fRoomFlags & ROOM_NOTIFY_ALL)))
+					system_beep(APP_MESSAGE_BEEP);
+			}
 
 			// Send a notification, if appropriate
-			if (winFocused  == false && AppPreferences::Get()->NotifyNewMessage
-				&& (fUsers.CountItems() <= 2 || mentioned == true))
-			{
+			if (winFocus == false && AppPreferences::Get()->NotifyNewMessage) {
 				BString notifyTitle = B_TRANSLATE("New mention");
 				BString notifyText = B_TRANSLATE("You've been summoned from "
 					"%source%.");
 
 				if (mentioned == false) {
 					fNotifyMessageCount++;
-
 					notifyTitle.SetTo(B_TRANSLATE("New message"));
 					notifyText.SetTo("");
 
@@ -128,17 +128,21 @@ Conversation::ImMessage(BMessage* msg)
 
 				notifyText.ReplaceAll("%source%", GetName());
 
-				BBitmap* icon = IconBitmap();
-				if (icon == NULL)
-					icon = ProtocolBitmap();
+				if ((fUsers.CountItems() <= 2 && (fRoomFlags & ROOM_NOTIFY_DM))
+						|| (fRoomFlags & ROOM_NOTIFY_ALL) || mentioned == true)
+				{
+					BBitmap* icon = IconBitmap();
+					if (icon == NULL)
+						icon = ProtocolBitmap();
 
-				BNotification notification(B_INFORMATION_NOTIFICATION);
-				notification.SetGroup(BString(APP_NAME));
-				notification.SetTitle(notifyTitle);
-				notification.SetIcon(icon);
-				notification.SetContent(notifyText);
-				notification.SetMessageID(fID);
-				notification.Send();
+					BNotification notification(B_INFORMATION_NOTIFICATION);
+					notification.SetGroup(BString(APP_NAME));
+					notification.SetTitle(notifyTitle);
+					notification.SetIcon(icon);
+					notification.SetContent(notifyText);
+					notification.SetMessageID(fID);
+					notification.Send();
+				}
 			}
 
 			// If unattached, highlight the ConversationItem
@@ -517,6 +521,14 @@ Role*
 Conversation::GetRole(BString id)
 {
 	return fRoles.ValueFor(id);
+}
+
+
+void
+Conversation::SetFlags(int32 flags)
+{
+	fRoomFlags = flags;
+	_CacheRoomFlags();
 }
 
 

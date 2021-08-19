@@ -317,7 +317,8 @@ enum im_what_code {
 		Recommendations on default room flags: Unless your protocol has remote
 		logs, ROOM_LOG_LOCALLY and ROOM_POPULATE_LOGS should be enabled; and for
 		multi-user rooms, ROOM_AUTOJOIN should be enabled by default (again,
-		unless the protocol manages auto-joins).
+		unless the protocol manages auto-joins). ROOM_NOTIFY_DM should be
+		enabled by default for all rooms― ROOM_NOTIFY_ALL should be off.
 		Requires:	String "chat_id"
 		Allows:		String "chat_name", String "subject",
 					int32 "room_default_flags", int32 "room_disallowed_flags" */

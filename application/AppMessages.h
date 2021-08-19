@@ -59,6 +59,9 @@ const uint32 APP_USER_INFO = 'CYuw';
 //! Display a "room info" window
 const uint32 APP_ROOM_INFO = 'CYrw';
 
+//! Toggle a specific flag for a room
+const uint32 APP_ROOM_FLAG = 'Rlag';
+
 //! Edit the contact roster
 const uint32 APP_EDIT_ROSTER = 'CYer';
 

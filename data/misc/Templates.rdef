@@ -115,23 +115,6 @@ resource(1106) message
 };
 
 
-// Room pop-up menu items
-resource(1120) message
-{
-	"class" = "BMenuItem",
-	"_label" = "Room info…",
-	"_msg" = message('CYrw'),
-	bool "x_to_protocol" = false
-};
-resource(1121) message
-{
-	"class" = "BMenuItem",
-	"_label" = "Leave chat",
-	"_msg" = message('IMme') { int32 "im_what" = 156 },
-	bool "x_to_protocol" = true
-};
-
-
 // Chat commands
 resource(1140) message
 {

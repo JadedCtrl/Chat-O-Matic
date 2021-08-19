@@ -31,6 +31,7 @@ public:
 
 private:
 	  BPopUpMenu*	_ConversationPopUp();
+			void	_AddDefaultItems(BPopUpMenu* menu, Conversation* chat);
 	  BPopUpMenu*	_BlankPopUp();
 
 	ConversationAccountItem*

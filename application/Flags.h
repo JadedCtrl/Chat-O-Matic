@@ -5,9 +5,10 @@
 #ifndef FLAGS_H
 #define FLAGS_H
 
-// AUTOJOIN, AUTOCREATE, LOG, POPULATE
+// AUTOJOIN, AUTOCREATE, LOG, POPULATE, NOTIFY
 // Auto-join on login, auto-create on login (non-persistent rooms), keep local
-// logs, populate chat with local logs on join…
+// logs, populate chat with local logs on join, notify on direct message,
+// notify on all new messages…
 
 // JCLP
 // 0000
@@ -16,6 +17,8 @@
 #define ROOM_AUTOCREATE		2
 #define ROOM_LOG_LOCALLY	4
 #define ROOM_POPULATE_LOGS	8
+#define ROOM_NOTIFY_DM		16
+#define ROOM_NOTIFY_ALL		32
 
 
 // NAME, SUBJECT, ROLECHANGE, BAN, KICK, DEAFEN, MUTE, NICK, READ, WRITE

@@ -206,6 +206,7 @@ BPopUpMenu*
 ConversationListView::_ConversationPopUp()
 {
 	BPopUpMenu* menu = new BPopUpMenu("chatPopUp");
+	menu->SetRadioMode(false);
 	int32 selIndex = CurrentSelection();
 
 	ConversationItem* item;
@@ -215,9 +216,11 @@ ConversationListView::_ConversationPopUp()
 	ProtocolLooper* looper = chat->GetProtocolLooper();
 
 	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
-	BObjectList<BMessage> items = server->ChatPopUpItems();
-	BObjectList<BMessage> protoItems = looper->Protocol()->ChatPopUpItems();
-	items.AddList(&protoItems);
+	_AddDefaultItems(menu, chat);
+	BObjectList<BMessage> items = looper->Protocol()->ChatPopUpItems();
+
+	if (items.CountItems() > 0)
+		menu->AddSeparatorItem();
 
 	for (int i = 0; i < items.CountItems(); i++) {
 		BMessage* itemMsg = items.ItemAt(i);
@@ -236,6 +239,61 @@ ConversationListView::_ConversationPopUp()
 		menu->AddItem(item);
 	}
 	return menu;
+}
+
+
+#define add_flag_item(name, flag) { \
+	msg = new BMessage(APP_ROOM_FLAG); \
+	msg->AddString("chat_id", id); \
+	msg->AddInt64("instance", instance); \
+	msg->AddInt32("flag", flag); \
+\
+	item = new BMenuItem(name, msg); \
+	item->SetTarget(Window()); \
+\
+	if (!(chat->DisallowedFlags() &flag)) { \
+		if (chat->GetFlags() & flag) \
+			item->SetMarked(true); \
+		menu->AddItem(item); \
+	} \
+}
+
+
+void
+ConversationListView::_AddDefaultItems(BPopUpMenu* menu,
+	Conversation* chat)
+{
+	if (chat == NULL || menu == NULL)
+		return;
+	BString id = chat->GetId();
+	ProtocolLooper* looper = chat->GetProtocolLooper();
+	int64 instance = looper->GetInstance();
+
+	BMessage* infoMsg = new BMessage(APP_ROOM_INFO);
+	infoMsg->AddString("chat_id", id);
+	infoMsg->AddInt64("instance", instance);
+	BMenuItem* joinItem = new BMenuItem(B_TRANSLATE("Room info…"), infoMsg);
+	joinItem->SetTarget(Window());
+	menu->AddItem(joinItem);
+
+	menu->AddSeparatorItem();
+
+	BMessage* msg;
+	BMenuItem* item;
+	add_flag_item(B_TRANSLATE("Auto-join room"), ROOM_AUTOJOIN);
+	add_flag_item(B_TRANSLATE("Log messages"), ROOM_LOG_LOCALLY);
+	add_flag_item(B_TRANSLATE("Notify on every message"), ROOM_NOTIFY_ALL);
+	add_flag_item(B_TRANSLATE("Notify on direct-messages"), ROOM_NOTIFY_DM);
+
+	menu->AddSeparatorItem();
+
+	BMessage* leaveMsg = new BMessage(IM_MESSAGE);
+	leaveMsg->AddInt32("im_what", IM_LEAVE_ROOM);
+	leaveMsg->AddString("chat_id", id);
+	leaveMsg->AddInt64("instance", instance);
+	BMenuItem* leave = new BMenuItem(B_TRANSLATE("Leave room"), leaveMsg);
+	leave->SetTarget(looper);
+	menu->AddItem(leave);
 }
 
 

@@ -53,8 +53,7 @@ Server::Server()
 	:
 	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
 {
-	if (fChatItems.IsEmpty() == false || fUserItems.IsEmpty() == false
-			|| fCommands.CountItems() > 0)
+	if (fUserItems.IsEmpty() == false || fCommands.CountItems() > 0)
 		return;
 
 	BResources res = ChatResources();
@@ -68,15 +67,6 @@ Server::Server()
 		const void* buff = res.LoadResource(B_MESSAGE_TYPE, 1100 + i, &size);
 		temp.Unflatten((const char*)buff);
 		fUserItems.AddItem(new BMessage(temp));
-	}
-
-	// Loading room pop-up items
-	for (int i = 0; i < 2; i++) {
-		size_t size;
-		BMessage temp;
-		const void* buff = res.LoadResource(B_MESSAGE_TYPE, 1120 + i, &size);
-		temp.Unflatten((const char*)buff);
-		fChatItems.AddItem(new BMessage(temp));
 	}
 
 	// Loading default chat commands
@@ -184,6 +174,18 @@ Server::Filter(BMessage* message, BHandler **target)
 				ConversationInfoWindow* win = new ConversationInfoWindow(chat);
 				win->Show();
 			}
+			break;
+		}
+		case APP_ROOM_FLAG:
+		{
+			int32 flag;
+			Conversation* chat = _EnsureConversation(message);
+			if (chat == NULL || message->FindInt32("flag", &flag) != B_OK)
+				break;
+
+			int32 flags = chat->GetFlags();
+			flags ^= flag;
+			chat->SetFlags(flags);
 			break;
 		}
 		case APP_USER_INFO:
@@ -922,13 +924,6 @@ Server::CommandById(BString id, int64 instance)
 	if (result == NULL)
 		result = fCommands.ValueFor(id);
 	return result;
-}
-
-
-BObjectList<BMessage>
-Server::ChatPopUpItems()
-{
-	return fChatItems;
 }
 
 

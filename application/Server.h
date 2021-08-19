@@ -67,7 +67,6 @@ public:
 			CommandMap		Commands(int64 instance);
 			ChatCommand*	CommandById(BString id, int64 instance);
 
-			BObjectList<BMessage> ChatPopUpItems();
 			BObjectList<BMessage> UserPopUpItems();
 
 private:
@@ -94,7 +93,6 @@ private:
 			bool fStarted;
 
 			CommandMap fCommands;
-			BObjectList<BMessage> fChatItems;
 			BObjectList<BMessage> fUserItems;
 };
 

@@ -72,7 +72,9 @@ public:
 	void				SetRole(BString id, Role* role);
 	Role*				GetRole(BString id);
 
-	int32				GetFlags(int32 flags) { return fRoomFlags; }
+	int32				GetFlags() { return fRoomFlags; }
+	void				SetFlags(int32 flags);
+	int32				DisallowedFlags() { return fDisallowedFlags; }
 
 private:
 	void				_WarnUser(BString message);
