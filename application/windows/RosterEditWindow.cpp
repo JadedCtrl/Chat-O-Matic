@@ -130,7 +130,6 @@ RosterEditWindow::MessageReceived(BMessage* message)
 				fEditingWindow->Quit();
 				fEditingUser.SetTo("");
 			}
-
 			int index = message->FindInt32("index");
 			RosterItem* ritem = fRosterView->ListView()->RosterItemAt(index);
 			const char* search = fRosterView->SearchBox()->Text();
