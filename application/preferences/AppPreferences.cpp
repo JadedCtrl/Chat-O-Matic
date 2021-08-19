@@ -35,11 +35,11 @@ AppPreferences::Load()
 
 	MoveToCurrentWorkspace = settings.GetBool("MoveToCurrentWorkpace", false);
 	RaiseOnMessageReceived = settings.GetBool("RaiseOnMessageReceived", false);
-	MarkUnreadWindow = settings.GetBool("MarkUnreadWindow", true);
+	MarkUnreadWindow = settings.GetBool("MarkUnreadWindow", false);
 	NotifyProtocolStatus = settings.GetBool("NotifyProtocolStatus", true);
 	NotifyNewMessage = settings.GetBool("NotifyNewMessage", true);
 	NotifyContactStatus = settings.GetBool("NotifyContactStatus", false);
-	SoundOnMessageReceived = settings.GetBool("SoundOnMessageReceived", false);
+	SoundOnMessageReceived = settings.GetBool("SoundOnMessageReceived", true);
 	SoundOnMention = settings.GetBool("SoundOnMention", true);
 	HideDeskbar = settings.GetBool("HideDeskbar", false);
 	DisableReplicant = settings.GetBool("DisableReplicant", true);

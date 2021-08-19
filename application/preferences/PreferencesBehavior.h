@@ -19,7 +19,6 @@ public:
 
 private:
 
-	BCheckBox*		fHideOffline;
 	BCheckBox*		fToCurrentWorkspace;
 	BCheckBox*		fRaiseOnMessageReceived;
 	BCheckBox*		fMarkUnreadWindow;

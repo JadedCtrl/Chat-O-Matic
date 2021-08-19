@@ -24,7 +24,6 @@ const uint32 kToCurrentWorkspace = 'CBcw';
 const uint32 kRaiseOnMessageReceived = 'FCmr';
 const uint32 kRaiseUserIsTyping = 'FCit';
 const uint32 kMarkUnreadWindow = 'MKuw';
-const uint32 kHideOffline = 'HiOf';
 const uint32 kDisablePrompt = 'DiPr';
 
 
@@ -34,25 +33,17 @@ PreferencesBehavior::PreferencesBehavior()
 	BBox* incomingBox = new BBox("incoming");
 	incomingBox->SetLabel(B_TRANSLATE("On incoming" B_UTF8_ELLIPSIS));
 	
-	fHideOffline = new BCheckBox("HideOfflineContacts",
-		B_TRANSLATE("Hide offline contacts"),
-		new BMessage(kHideOffline));
-	fHideOffline->SetEnabled(false); //not implemented as yet
-
 	fToCurrentWorkspace = new BCheckBox("ToCurrentWorkspace",
 		B_TRANSLATE("Move window to current workspace"),
 		new BMessage(kToCurrentWorkspace));
-	fToCurrentWorkspace->SetEnabled(false); // not this either
 
 	fRaiseOnMessageReceived = new BCheckBox("FocusOnMessageReceived",
 		B_TRANSLATE("Auto-raise when a message is received"),
 		new BMessage(kRaiseOnMessageReceived));
-	fRaiseOnMessageReceived->SetEnabled(false); // nor this
 
 	fMarkUnreadWindow = new BCheckBox("MarkUnreadWindow",
 		B_TRANSLATE("Mark unread window chat"),
 		new BMessage(kMarkUnreadWindow));
-	fMarkUnreadWindow->SetEnabled(false); // of unimplemented settings!
 
 	BBox* generalBox = new BBox("general");
 	generalBox->SetLabel(B_TRANSLATE("General"));
@@ -70,7 +61,6 @@ PreferencesBehavior::PreferencesBehavior()
 
 	BLayoutBuilder::Group<>(incomingBox, B_VERTICAL)
 		.SetInsets(spacing, spacing * 2, spacing, spacing)
-		.Add(fHideOffline)
 		.Add(fToCurrentWorkspace)
 		.Add(fRaiseOnMessageReceived)
 		.Add(fMarkUnreadWindow)
@@ -88,13 +78,11 @@ PreferencesBehavior::PreferencesBehavior()
 void
 PreferencesBehavior::AttachedToWindow()
 {
-	fHideOffline->SetTarget(this);
 	fToCurrentWorkspace->SetTarget(this);
 	fRaiseOnMessageReceived->SetTarget(this);
+	fMarkUnreadWindow->SetTarget(this);
 	fDisableQuitConfirm->SetTarget(this);
 	
-	fHideOffline->SetValue(
-		AppPreferences::Get()->HideOffline);
 	fToCurrentWorkspace->SetValue(
 		AppPreferences::Get()->MoveToCurrentWorkspace);
 	fRaiseOnMessageReceived->SetValue(
@@ -110,10 +98,6 @@ void
 PreferencesBehavior::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case kHideOffline:
-			AppPreferences::Get()->HideOffline
-				= fHideOffline->Value();
-			break;
 		case kToCurrentWorkspace:
 			AppPreferences::Get()->MoveToCurrentWorkspace
 				= fToCurrentWorkspace->Value();

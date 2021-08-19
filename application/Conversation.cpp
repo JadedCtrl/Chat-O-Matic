@@ -145,6 +145,18 @@ Conversation::ImMessage(BMessage* msg)
 				}
 			}
 
+			// Misc. features Caya contributors planned on adding 
+			BWindow* mainWin = ((TheApp*)be_app)->GetMainWindow();
+			if (win == NULL && AppPreferences::Get()->MarkUnreadWindow == true)
+				mainWin->SetTitle(BString(mainWin->Title()).Prepend("[!]"));
+
+			if (win == NULL && AppPreferences::Get()->MoveToCurrentWorkspace)
+				mainWin->SetWorkspaces(B_CURRENT_WORKSPACE);
+
+			if (win == NULL && AppPreferences::Get()->RaiseOnMessageReceived)
+				mainWin->Activate(true);
+
+
 			// If unattached, highlight the ConversationItem
 			if (win == NULL && mentioned == true)
 				NotifyInteger(INT_NEW_MENTION, fNotifyMentionCount);
