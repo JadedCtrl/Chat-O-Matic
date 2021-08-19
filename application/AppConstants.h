@@ -19,6 +19,9 @@ const rgb_color APP_BLACK_COLOR = {0, 0, 0, 255};
 const rgb_color APP_SELSTART_COLOR = {254, 150, 57};
 const rgb_color APP_SELEND_COLOR = {230, 113, 9};
 
+#define APP_MENTION_BEEP "Chat-o-Matic mention"
+#define APP_MESSAGE_BEEP "Chat-o-Matic message"
+
 /**
  * Miscellaneous.
  */

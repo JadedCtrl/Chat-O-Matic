@@ -8,10 +8,12 @@
 #include "PreferencesNotifications.h"
 
 #include <Box.h>
+#include <Button.h>
 #include <Catalog.h>
 #include <CheckBox.h>
 #include <ControlLook.h>
 #include <LayoutBuilder.h>
+#include <Roster.h>
 
 #include "AppPreferences.h"
 
@@ -25,6 +27,7 @@ const uint32 kNotifyContactStatus = 'NTcl';
 const uint32 kNotifyNewMessage = 'NTms';
 const uint32 kSoundOnMessageReceived = 'Fmsn';
 const uint32 kSoundOnMention = 'FMsn';
+const uint32 kEditSounds = 'HKsn';
 
 
 PreferencesNotifications::PreferencesNotifications()
@@ -50,12 +53,15 @@ PreferencesNotifications::PreferencesNotifications()
 	soundsBox->SetLabel(B_TRANSLATE("Sounds"));
 
 	fSoundOnMessageReceived = new BCheckBox("SoundOnMessageReceived",
-		B_TRANSLATE("Sound on message received"), NULL);
-	fSoundOnMessageReceived->SetEnabled(false); // wow that's a lot
+		B_TRANSLATE("Sound on message received"),
+		new BMessage(kSoundOnMessageReceived));
 
 	fSoundOnMention = new BCheckBox("SoundOnMention",
-		B_TRANSLATE("Sound when mentioned"), NULL);
-	fSoundOnMention->SetEnabled(false); // wow that's a lot
+		B_TRANSLATE("Sound when mentioned"),
+		new BMessage(kSoundOnMention));
+
+	fSoundsButton = new BButton("EditSoundsButton",
+		B_TRANSLATE("Edit sounds" B_UTF8_ELLIPSIS), new BMessage(kEditSounds));
 
 	const float spacing = be_control_look->DefaultItemSpacing();
 
@@ -71,6 +77,7 @@ PreferencesNotifications::PreferencesNotifications()
 		.SetInsets(spacing, spacing * 2, spacing, spacing)
 		.Add(fSoundOnMessageReceived)
 		.Add(fSoundOnMention)
+		.Add(fSoundsButton)
 	.End();
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
@@ -90,6 +97,7 @@ PreferencesNotifications::AttachedToWindow()
 	fNotifyNewMessage->SetTarget(this);
 	fSoundOnMessageReceived->SetTarget(this);
 	fSoundOnMention->SetTarget(this);
+	fSoundsButton->SetTarget(this);
 	
 	fNotifyProtocols->SetValue(
 		AppPreferences::Get()->NotifyProtocolStatus);
@@ -127,6 +135,9 @@ PreferencesNotifications::MessageReceived(BMessage* message)
 		case kSoundOnMention:
 			AppPreferences::Get()->SoundOnMention
 				= fSoundOnMention->Value();
+			break;
+		case kEditSounds:
+			BRoster().Launch("application/x-vnd.haiku-Sounds");
 			break;
 		default:
 			BView::MessageReceived(message);

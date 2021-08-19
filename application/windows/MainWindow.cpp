@@ -12,6 +12,7 @@
 
 #include <Application.h>
 #include <Alert.h>
+#include <Beep.h>
 #include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
@@ -62,6 +63,9 @@ MainWindow::MainWindow()
 	AddFilter(fServer);
 
 	_InitInterface();
+
+	add_system_beep_event(APP_MENTION_BEEP);
+	add_system_beep_event(APP_MESSAGE_BEEP);
 
 	//TODO check for errors here
 	ReplicantStatusView::InstallReplicant();

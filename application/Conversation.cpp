@@ -5,12 +5,14 @@
 
 #include "Conversation.h"
 
+#include <Beep.h>
 #include <Catalog.h>
 #include <DateTimeFormat.h>
 #include <Locale.h>
 #include <Notification.h>
 #include <StringFormat.h>
 
+#include "AppConstants.h"
 #include "AppPreferences.h"
 #include "Cardie.h"
 #include "ChatProtocolMessages.h"
@@ -93,6 +95,14 @@ Conversation::ImMessage(BMessage* msg)
 			bool mentioned = ((contact->GetName().IsEmpty() == false
 						&& text.IFindFirst(contact->GetName()) != B_ERROR)
 					|| (text.IFindFirst(contact->GetId()) != B_ERROR));
+
+			// Sound the bell, if appropriate
+			if (mentioned == true && winFocused == false
+					&& AppPreferences::Get()->SoundOnMention == true)
+				system_beep(APP_MENTION_BEEP);
+			else if (winFocused == false && (fUsers.CountItems() <= 2)
+					&& AppPreferences::Get()->SoundOnMessageReceived == true)
+				system_beep(APP_MESSAGE_BEEP);
 
 			// Send a notification, if appropriate
 			if (winFocused  == false && AppPreferences::Get()->NotifyNewMessage
