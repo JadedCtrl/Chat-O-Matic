@@ -56,10 +56,10 @@ RenderView::AppendTimestamp(time_t time)
 	}
 
 	if (time == 0) {
-		Append("[xx:xx] ", ui_color(B_LINK_HOVER_COLOR), B_BOLD_FACE);
+		Append("[xx:xx] ", ui_color(B_LINK_ACTIVE_COLOR), B_BOLD_FACE);
 		return;
 	}
 	char timestamp[9] = { '\0' };
 	strftime(timestamp, 8, "[%H:%M] ", tm);
-	Append(timestamp, ui_color(B_LINK_HOVER_COLOR), B_BOLD_FACE);
+	Append(timestamp, ui_color(B_LINK_ACTIVE_COLOR), B_BOLD_FACE);
 }
