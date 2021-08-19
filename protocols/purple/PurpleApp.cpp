@@ -264,7 +264,7 @@ PurpleApp::ImMessage(BMessage* msg)
 			meta.AddString("chat_id", purple_conversation_get_name(conv));
 			meta.AddString("chat_name", purple_conversation_get_title(conv));
 			meta.AddInt32("room_default_flags",
-				0 | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
+				0 | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS | ROOM_NOTIFY_DM);
 			if (chat != NULL)
 				meta.AddString("subject", purple_conv_chat_get_topic(chat));
 			SendMessage(purple_conversation_get_account(conv), meta);

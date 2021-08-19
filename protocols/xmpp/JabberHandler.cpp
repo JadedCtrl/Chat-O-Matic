@@ -244,8 +244,10 @@ JabberHandler::Process(BMessage* msg)
 				BMessage metadata(IM_MESSAGE);
 				metadata.AddInt32("im_what", IM_ROOM_METADATA);
 				metadata.AddString("chat_id", chat_id);
-				metadata.AddInt32("room_default_flags", 0 | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
-				metadata.AddInt32("room_disallowed_flags", 0 | ROOM_AUTOJOIN | ROOM_AUTOCREATE);
+				metadata.AddInt32("room_default_flags", 0 | ROOM_LOG_LOCALLY
+					| ROOM_POPULATE_LOGS | ROOM_NOTIFY_DM);
+				metadata.AddInt32("room_disallowed_flags", 0 | ROOM_AUTOJOIN
+					| ROOM_AUTOCREATE);
 				_SendMessage(&metadata);
 			}
 			break;
@@ -1766,8 +1768,8 @@ JabberHandler::handleMUCInfo(gloox::MUCRoom *room, int features,
 	metadata.AddInt32("im_what", IM_ROOM_METADATA);
 	metadata.AddString("chat_id", chat_id);
 	metadata.AddString("chat_name", name.c_str());
-	metadata.AddInt32("room_default_flags",
-		0 | ROOM_AUTOJOIN | ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
+	metadata.AddInt32("room_default_flags", 0 | ROOM_AUTOJOIN
+		| ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS | ROOM_NOTIFY_DM);
 	metadata.AddInt32("room_disallowed_flags", 0 | ROOM_AUTOCREATE);
 	_SendMessage(&metadata);
 }

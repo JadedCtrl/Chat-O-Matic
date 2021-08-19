@@ -233,7 +233,9 @@ IrcProtocol::Process(BMessage* msg)
 				meta.AddInt32("im_what", IM_ROOM_METADATA);
 				meta.AddString("chat_id", chat_id);
 				meta.AddInt32("room_default_flags",
-					ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS);
+					ROOM_LOG_LOCALLY | ROOM_POPULATE_LOGS | ROOM_NOTIFY_DM);
+				if (_IsChannelName(chat_id) == false)
+					meta.AddInt32("room_disallowed_flags", ROOM_AUTOJOIN);
 				_SendMsg(&meta);
 			}
 			break;
