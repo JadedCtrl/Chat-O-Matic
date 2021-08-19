@@ -4,7 +4,7 @@
 
 Chat-O-Matic is a multi-protocol chat program based on [Caya](https://github.com/Augustolo/Caya).
 
-![Screenshot](data/screenshots/update-3.png)
+![Screenshot](data/screenshots/update-final.png)
 
 It can use protocols through native add-ons as well as through libpurple,
 the library used by [Pidgin](https://pidgin.im/).
@@ -26,7 +26,7 @@ Or one-by-one:
 
 Chat-O-Matic itself requires the `expat_devel` package, the XMPP protocol requires
 `gloox_devel`, and the libpurple add-on requires `libpurple_devel` and
-`glib2_devel`― though it's worth noting that libpurple doesn't work on x86_gcc2.
+`glib2_devel`.
 
 
 ## Installation
