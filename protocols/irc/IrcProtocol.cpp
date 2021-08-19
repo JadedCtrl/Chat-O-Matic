@@ -19,7 +19,7 @@
 #include <libinterface/BitmapUtils.h>
 
 #include <AppConstants.h>
-#include <Cardie.h>
+#include <ChatOMatic.h>
 #include <ChatProtocolMessages.h>
 #include <Flags.h>
 #include <Utils.h>
@@ -85,7 +85,7 @@ status_t
 IrcProtocol::UpdateSettings(BMessage* settings)
 {
 	fNick = settings->FindString("nick");
-	fPartText = settings->GetString("part", "Cardie[0.1]: i've been liquified!");
+	fPartText = settings->GetString("part", "Chat-O-Matic[0.1]: i've been liquified!");
 	fUser = settings->FindString("ident");
 	fRealName = settings->FindString("real_name");
 	fServer = settings->FindString("server");
@@ -1380,7 +1380,7 @@ IrcProtocol::_AccountTemplate()
 	part.AddString("name", "part");
 	part.AddString("description", B_TRANSLATE("Part message:"));
 	part.AddInt32("type", B_STRING_TYPE);
-	part.AddString("default", "Cardie[0.1]: i've been liquified!");
+	part.AddString("default", "Chat-O-Matic[0.1]: i've been liquified!");
 	settings.AddMessage("setting", &part);
 
 	return settings;

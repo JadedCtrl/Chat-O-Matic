@@ -23,11 +23,6 @@ const rgb_color APP_SELEND_COLOR = {230, 113, 9};
 #define APP_MESSAGE_BEEP "Chat-o-Matic message"
 
 /**
- * Miscellaneous.
- */
-#define APP_UTF8_MUSICAL_NOTES "\xE2\x99\xAB"
-
-/**
  * Status codes.
  */
 enum UserStatus {

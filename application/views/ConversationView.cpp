@@ -23,6 +23,7 @@
 
 #include "AppMessages.h"
 #include "AppPreferences.h"
+#include "ChatOMatic.h"
 #include "ChatProtocolMessages.h"
 #include "Conversation.h"
 #include "NotifyMessage.h"
@@ -630,8 +631,10 @@ ConversationView::_UserMessage(const char* format, const char* bodyFormat,
 void
 ConversationView::_FakeChat()
 {
-	fNameTextView->SetText(B_TRANSLATE("Cardie setup"));
-	fSubjectTextView->SetText(B_TRANSLATE("No accounts configured, no joy."));
+	BString name(B_TRANSLATE("%app% setup"));
+	name.ReplaceAll("%app%", APP_NAME);
+	fNameTextView->SetText(name);
+	fSubjectTextView->SetText(B_TRANSLATE("No accounts enabled, no joy."));
 
 	BMessage obsv(IM_MESSAGE);
 	obsv.AddInt32("im_what", IM_MESSAGE_RECEIVED);

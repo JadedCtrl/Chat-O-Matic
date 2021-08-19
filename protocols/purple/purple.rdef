@@ -10,7 +10,7 @@ resource app_version {
 	variety = B_APPV_ALPHA,
 	internal = 0,
 
-	short_info = "Cardie libpurple add-on",
+	short_info = "Chat-O-Matic libpurple add-on",
 	long_info = "©2021 Jaidyn Levesque"
 };
 

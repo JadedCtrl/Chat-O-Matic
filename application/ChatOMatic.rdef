@@ -1,4 +1,4 @@
-#include "Cardie.h"
+#include "ChatOMatic.h"
 
 resource app_signature APP_SIGNATURE;
 
@@ -11,7 +11,7 @@ resource app_version {
 	internal = 0,
 
 	short_info = APP_NAME,
-	long_info = "©2009-2021 Cardie, Caya, & IMKit Contributors"
+	long_info = "©2009-2021 Chat-O-Matic, Caya, & IMKit Contributors"
 };
 
 resource app_flags B_SINGLE_LAUNCH;

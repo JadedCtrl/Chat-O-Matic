@@ -434,8 +434,8 @@ JabberHandler::UpdateSettings(BMessage* msg)
 	fClient->registerMessageSessionHandler(this);
 	fClient->registerMUCInvitationHandler(new InviteHandler(fClient, this));
 	fClient->rosterManager()->registerRosterListener(this);
-	fClient->disco()->setVersion("Cardie", VERSION);
-	fClient->disco()->setIdentity("client", "cardie");
+	fClient->disco()->setVersion("Chat-O-Matic", VERSION);
+	fClient->disco()->setIdentity("client", "chat-o-matic");
 	fClient->logInstance().registerLogHandler(gloox::LogLevelDebug,
 		gloox::LogAreaAll, this);
 
@@ -1354,7 +1354,7 @@ JabberHandler::_SettingsTemplate(const char* username, bool serverOption)
 	resourceText.AddString("name", "resource");
 	resourceText.AddString("description", B_TRANSLATE("Resource:"));
 	resourceText.AddInt32("type", 'CSTR');
-	resourceText.AddString("default", "Cardie");
+	resourceText.AddString("default", "Chat-O-Matic");
 	resourceText.AddString("error", B_TRANSLATE("You can't add an account "
 			"without a resource.\nDon't worry― it can be whatever string you "
 			"want."));

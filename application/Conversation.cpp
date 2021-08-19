@@ -14,7 +14,7 @@
 
 #include "AppConstants.h"
 #include "AppPreferences.h"
-#include "Cardie.h"
+#include "ChatOMatic.h"
 #include "ChatProtocolMessages.h"
 #include "RenderView.h"
 #include "ChatCommand.h"

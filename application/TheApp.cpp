@@ -22,7 +22,7 @@
 #include <librunview/Emoticor.h>
 
 #include "AboutWindow.h"
-#include "Cardie.h"
+#include "ChatOMatic.h"
 #include "AppMessages.h"
 #include "FilePanel.h"
 #include "MainWindow.h"

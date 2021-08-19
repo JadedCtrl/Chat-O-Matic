@@ -19,7 +19,7 @@
 #ifndef _PURPLE_H
 #define _PURPLE_H
 
-#define PURPLE_SIGNATURE "application/x-vnd.cardie.purple"
+#define PURPLE_SIGNATURE "application/x-vnd.chat-o-matic.purple"
 #define PURPLE_ADDON "purple"
 
 #endif // _PURPLE_H

@@ -14,7 +14,7 @@
 class BBitmap;
 
 
-// Cardie protocol interface version
+// Chat-O-Matic protocol interface version
 #define APP_VERSION_1_PRE_ALPHA_1		0x00000001
 #define APP_VERSION_1_ALPHA_1			0x00000100
 

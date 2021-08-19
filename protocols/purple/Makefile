@@ -8,7 +8,7 @@
 ## file:///system/develop/documentation/makefile-engine.html
 
 # The name of the binary.
-NAME = cardie/purple
+NAME = chat-o-matic/purple
 
 # The type of binary, must be one of:
 #	APP:	Application
@@ -18,7 +18,7 @@ NAME = cardie/purple
 TYPE = APP
 
 # If you plan to use localization, specify the application's MIME signature.
-APP_MIME_SIG = application/x-vnd.cardie.purple
+APP_MIME_SIG = application/x-vnd.chat-o-matic.purple
 
 #	The following lines tell Pe and Eddie where the SRCS, RDEFS, and RSRCS are
 #	so that Pe and Eddie can fill them in for you.

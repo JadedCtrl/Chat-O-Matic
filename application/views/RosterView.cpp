@@ -20,7 +20,7 @@
 
 #include "AppMessages.h"
 #include "AppPreferences.h"
-#include "Cardie.h"
+#include "ChatOMatic.h"
 #include "ChatProtocolMessages.h"
 #include "RosterItem.h"
 #include "RosterListView.h"

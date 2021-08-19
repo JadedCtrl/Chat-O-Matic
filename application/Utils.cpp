@@ -19,7 +19,7 @@
 
 #include <kernel/fs_attr.h>
 
-#include "Cardie.h"
+#include "ChatOMatic.h"
 #include "Utils.h"
 
 

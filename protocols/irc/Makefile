@@ -8,7 +8,7 @@
 ## file:///system/develop/documentation/makefile-engine.html
 
 # The name of the binary.
-NAME = cardie/irc
+NAME = chat-o-matic/irc
 
 # The type of binary, must be one of:
 #	APP:	Application
@@ -18,7 +18,7 @@ NAME = cardie/irc
 TYPE = SHARED
 
 # If you plan to use localization, specify the application's MIME signature.
-APP_MIME_SIG = application/x-vnd.cardie.irc
+APP_MIME_SIG = application/x-vnd.chat-o-matic.irc
 
 
 #	The following lines tell Pe and Eddie where the SRCS, RDEFS, and RSRCS are

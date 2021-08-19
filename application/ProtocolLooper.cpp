@@ -17,6 +17,7 @@
 
 #include "Account.h"
 #include "AppMessages.h"
+#include "ChatOMatic.h"
 #include "ChatProtocolMessages.h"
 #include "Conversation.h"
 #include "ConversationAccountItem.h"
@@ -263,7 +264,7 @@ ProtocolLooper::_InitChatView()
 
 	BMessage init(IM_MESSAGE);
 	init.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-	init.AddString("user_name", "Cardie");
+	init.AddString("user_name", APP_NAME);
 	init.AddString("body", B_TRANSLATE("I'm rearing to go!"));
 	fSystemChatView->MessageReceived(&init);
 

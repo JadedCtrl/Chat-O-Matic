@@ -28,7 +28,7 @@
 #include "Account.h"
 #include "AppMessages.h"
 #include "AppPreferences.h"
-#include "Cardie.h"
+#include "ChatOMatic.h"
 #include "ChatProtocol.h"
 #include "ConversationInfoWindow.h"
 #include "ConversationView.h"
@@ -284,7 +284,7 @@ Server::ImMessage(BMessage* msg)
 			if (status == STATUS_OFFLINE || status == STATUS_ONLINE) {
 				BMessage info(IM_MESSAGE);
 				info.AddInt32("im_what", IM_MESSAGE_RECEIVED);
-				info.AddString("user_name", "Cardie");
+				info.AddString("user_name", APP_NAME);
 				if (status == STATUS_OFFLINE)
 					info.AddString("body", B_TRANSLATE("Account now offline and disconnected."));
 				else

@@ -35,7 +35,7 @@
 #include <Path.h>
 #include <Roster.h>
 
-#include <Cardie.h>
+#include <ChatOMatic.h>
 #include <ChatProtocolMessages.h>
 #include <Flags.h>
 

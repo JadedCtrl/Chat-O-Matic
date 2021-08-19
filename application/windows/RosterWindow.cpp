@@ -114,7 +114,6 @@ RosterWindow::MessageReceived(BMessage* message)
 			fMessage->AddString("user_id", user_id);
 			fMessage->AddInt64("instance", instance);
 			fTarget->SendMessage(fMessage);
-			fMessage->PrintToStream();
 			PostMessage(B_QUIT_REQUESTED);
 			break;
 		}

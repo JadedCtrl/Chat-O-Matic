@@ -1,7 +1,8 @@
-# Cardie
+# ![Chat-O-Matic Icon](data/icons/AppIcon.png) Chat-O-Matic
+
 ![GSoC 2021](https://img.shields.io/badge/GSoC-2021-green.svg)
 
-Cardie is a multi-protocol chat program based on [Caya](https://github.com/Augustolo/Caya).
+Chat-O-Matic is a multi-protocol chat program based on [Caya](https://github.com/Augustolo/Caya).
 
 ![Screenshot](data/screenshots/update-3.png)
 
@@ -15,7 +16,7 @@ Protocols generally supported through libpurple include GroupWise, Zephyr, and
 
 
 ## Building
-You can make Cardie and its protocols with:
+You can make Chat-O-Matic and its protocols with:
 
 `$ make`
 
@@ -23,22 +24,22 @@ Or one-by-one:
 
 `$ make libs; make app; make protocols`
 
-Cardie itself requires the `expat_devel` package, the XMPP protocol requires
+Chat-O-Matic itself requires the `expat_devel` package, the XMPP protocol requires
 `gloox_devel`, and the libpurple add-on requires `libpurple_devel` and
 `glib2_devel`― though it's worth noting that libpurple doesn't work on x86_gcc2.
 
 
 ## Installation
-Protocol add-ons can be installed in any add-ons directory under `cardie`
-(i.e., `~/config/non-packaged/add-ons/cardie/`) or in the binary's CWD
-(`./cardie/`).
+Protocol add-ons can be installed in any add-ons directory under `chat-o-matic`
+(i.e., `~/config/non-packaged/add-ons/chat-o-matic/`) or in the binary's CWD
+(`./chat-o-matic/`).
 
 libpurple plugins can be installed to any lib directory under `purple-2`
 (i.e., `~/config/non-packaged/lib/purple-2/`).
 
 
 ## License
-Cardie itself is under the MIT license, but licenses vary for the included
+Chat-O-Matic is under the MIT license, but licenses vary for the included
 libraries and add-ons.
 
 The `xmpp` and `purple` add-ons are under the GPLv2+, and `irc` the MIT license.

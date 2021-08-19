@@ -8,7 +8,7 @@
 ## file:///system/develop/documentation/makefile-engine.html
 
 # The name of the binary.
-NAME = Cardie
+NAME = Chat-O-Matic
 
 # The type of binary, must be one of:
 #	APP:	Application
@@ -18,7 +18,7 @@ NAME = Cardie
 TYPE = APP
 
 # If you plan to use localization, specify the application's MIME signature.
-APP_MIME_SIG = application/x-vnd.cardie
+APP_MIME_SIG = application/x-vnd.chat-o-matic
 
 #	The following lines tell Pe and Eddie where the SRCS, RDEFS, and RSRCS are
 #	so that Pe and Eddie can fill them in for you.
@@ -87,7 +87,7 @@ SRCS = \
 
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
-RDEFS = Cardie.rdef \
+RDEFS = ChatOMatic.rdef \
 	data/misc/Templates.rdef \
 	data/icons/status/Away.rdef \
 	data/icons/status/Busy.rdef \

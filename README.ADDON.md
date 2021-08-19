@@ -46,9 +46,9 @@ to offline.
 `STATUS_OFFLINE` is for a momentary pause, i.e., the server is down or the user
 toggled the connection. The ChatProtocol will remain existent and active.
 
-If the status is set to offline by the protocol (and not the user!) Cardie will
-automatically attempt a reconnect after some time by trying to set the status
-to `STATUS_ONLINE`, which should toggle the connection.
+If the status is set to offline by the protocol (and not the user!)
+Chat-O-Matic will automatically attempt a reconnect after some time by trying to
+set the status to `STATUS_ONLINE`, which should toggle the connection.
 
 `IM_PROTOCOL_DISABLE` deletes the ChatProtocol, and should only be sent to the
 app when an irrecoverable error requiring user intervention has happened, i.e.,
@@ -93,10 +93,10 @@ BMessage('IMst') {
 ```
 
 The template is a BMessage with sub-messages named "setting", each with, at
-least, an internal "name" (the slot used by Cardie in the message parameter of
-`UpdateSettings()`), a user-friendly label ("description"), and the slot type
-in "type"― currently `B_INT32_TYPE`,` B_STRING_TYPE`, and `B_BOOL_TYPE` are
-accepted.
+least, an internal "name" (the slot used by Chat-O-Matic in the message
+parameter of `UpdateSettings()`), a user-friendly label ("description"), and
+the slot type in "type"― currently `B_INT32_TYPE`,` B_STRING_TYPE`, and
+`B_BOOL_TYPE` are accepted.
 
 By default, slots are not required, and it's accepted for the user to skip them.
 To make a slot required, put an error message into "error", warning the user
@@ -144,14 +144,14 @@ continuity a bit.
 # Joining a room
 The basic structure for joining a room should be like this, with each line being
 a subsequent response to the previous message:
-	* Cardie (`IM_JOIN_ROOM`/`IM_CREATE_CHAT`) → Protocol
-	* Protocol (`IM_ROOM_JOINED`/`IM_CHAT_CREATED`) → Cardie 
-	* Cardie (`IM_GET_ROOM_METADATA` & `IM_GET_ROOM_PARTICIPANTS`) → Protocol
-	* Protocol (`IM_ROOM_METADATA` & `IM_ROOM_PARTICIPANTS`) → Cardie
+	* App (`IM_JOIN_ROOM`/`IM_CREATE_CHAT`) → Protocol
+	* Protocol (`IM_ROOM_JOINED`/`IM_CHAT_CREATED`) → App
+	* App (`IM_GET_ROOM_METADATA` & `IM_GET_ROOM_PARTICIPANTS`) → Protocol
+	* Protocol (`IM_ROOM_METADATA` & `IM_ROOM_PARTICIPANTS`) → App 
 
 Preferably, `IM_ROOM_METADATA` and `IM_ROOM_PARTICIPANTS` should only be used as
-above (in response to a request from Cardie) since they are silent and don't
-explicitly tell the user what's happened― whereas messages like
+above (in response to a request from Chat-O-Matic) since they are silent and
+don't explicitly tell the user what's happened― whereas messages like
 `IM_ROOM_PARTICIPANT_JOINED` and `IM_ROOM_SUBJECT_SET` will inform the user of
 the change.
 

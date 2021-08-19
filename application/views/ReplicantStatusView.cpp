@@ -29,7 +29,7 @@
 
 #include "AppMessages.h"
 #include "AppPreferences.h"
-#include "Cardie.h"
+#include "ChatOMatic.h"
 #include "ChatProtocolMessages.h"
 #include "ReplicantMenuItem.h"
 #include "Utils.h"
