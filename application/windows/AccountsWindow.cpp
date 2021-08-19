@@ -70,6 +70,9 @@ AccountsWindow::AccountsWindow()
 	ProtocolManager* pm = ProtocolManager::Get();
 
 	fProtosMenu = new BPopUpMenu(NULL, true);
+	BObjectList<BitmapMenuItem> accountItems;
+	BObjectList<BitmapMenuItem> purpleItems;
+
 	for (uint32 i = 0; i < pm->CountProtocolAddOns(); i++) {
 		ChatProtocolAddOn* addOn = pm->ProtocolAddOnAt(i);
 		ProtocolSettings* settings = new ProtocolSettings(addOn);
@@ -83,8 +86,19 @@ AccountsWindow::AccountsWindow()
 
 		BitmapMenuItem* item = new BitmapMenuItem(
 			addOn->ProtoFriendlySignature(), msg, addOn->ProtoIcon());
-		fProtosMenu->AddItem(item);
+
+		if (BString(addOn->Signature()) == "purple")
+			purpleItems.AddItem(item);
+		else
+			accountItems.AddItem(item);
 	}
+
+	for (int i = 0; i < accountItems.CountItems(); i++)
+		fProtosMenu->AddItem(accountItems.ItemAt(i));
+	fProtosMenu->AddSeparatorItem();
+
+	for (int i = 0; i < purpleItems.CountItems(); i++)
+		fProtosMenu->AddItem(purpleItems.ItemAt(i));
 	fProtosMenu->SetTargetForItems(this);
 
 	MenuButton* proto = new MenuButton("addButton", B_TRANSLATE("Add"), NULL);
