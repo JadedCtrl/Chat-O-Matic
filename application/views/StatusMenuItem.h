@@ -9,7 +9,7 @@
 
 #include <libinterface/BitmapMenuItem.h>
 
-#include "AppConstants.h"
+#include "UserStatus.h"
 
 class BBitmap;
 

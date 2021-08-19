@@ -7,16 +7,17 @@
 #ifndef USER_H
 #define USER_H
 
-#include <String.h>
+#include <GraphicsDefs.h>
 #include <Message.h>
 #include <Messenger.h>
 #include <ObjectList.h>
 #include <Path.h>
+#include <String.h>
 
 #include <libsupport/KeyMap.h>
 
-#include "AppConstants.h"
 #include "Notifier.h"
+#include "UserStatus.h"
 
 class BBitmap;
 

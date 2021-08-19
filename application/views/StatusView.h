@@ -8,7 +8,7 @@
 
 #include <View.h>
 
-#include "AppConstants.h"
+#include "UserStatus.h"
 #include "Observer.h"
 
 class BPopUpMenu;

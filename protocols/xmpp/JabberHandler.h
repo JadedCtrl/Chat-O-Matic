@@ -32,9 +32,9 @@
 #include <gloox/vcardhandler.h>
 #include <gloox/vcardmanager.h>
 
-#include <AppConstants.h>
-#include <ChatProtocol.h>
 #include <libsupport/KeyMap.h>
+#include <ChatProtocol.h>
+#include <UserStatus.h>
 
 class BList;
 class InviteHandler;

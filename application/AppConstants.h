@@ -22,17 +22,4 @@ const rgb_color APP_SELEND_COLOR = {230, 113, 9};
 #define APP_MENTION_BEEP "Chat-o-Matic mention"
 #define APP_MESSAGE_BEEP "Chat-o-Matic message"
 
-/**
- * Status codes.
- */
-enum UserStatus {
-	STATUS_ONLINE			= 1,
-	STATUS_AWAY				= 2,
-	STATUS_DO_NOT_DISTURB	= 3,
- 	STATUS_CUSTOM_STATUS	= 4,
- 	STATUS_INVISIBLE		= 5,
-	STATUS_OFFLINE			= 6,
-	STATUS_STATUSES			= 7
-};
-
 #endif	// _APP_CONSTANTS_H

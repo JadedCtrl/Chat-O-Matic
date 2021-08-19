@@ -29,7 +29,7 @@
 #include <StringList.h>
 
 #include <libsupport/KeyMap.h>
-#include <AppConstants.h>
+#include <UserStatus.h>
 
 
 typedef KeyMap<BString, BString> StringMap;

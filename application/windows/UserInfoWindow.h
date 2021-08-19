@@ -14,8 +14,8 @@
 #include <TextView.h>
 #include <StringView.h>
 
-#include "AppConstants.h"
 #include "Observer.h"
+#include "UserStatus.h"
 
 class BitmapView;
 class User;

@@ -18,10 +18,10 @@
 
 #include <libinterface/BitmapUtils.h>
 
-#include <AppConstants.h>
 #include <ChatOMatic.h>
 #include <ChatProtocolMessages.h>
 #include <Flags.h>
+#include <UserStatus.h>
 #include <Utils.h>
 
 

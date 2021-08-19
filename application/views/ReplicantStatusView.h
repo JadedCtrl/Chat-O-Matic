@@ -13,8 +13,8 @@
 #include <Resources.h>
 #include <View.h>
 
-#include "AppConstants.h"
 #include "AppResources.h"
+#include "UserStatus.h"
 
 
 class BPopUpMenu;

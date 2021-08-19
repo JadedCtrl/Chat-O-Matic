@@ -7,8 +7,8 @@
 
 #include <Messenger.h>
 
-#include "AppConstants.h"
 #include "Notifier.h"
+#include "UserStatus.h"
 
 
 class StatusManager : public Notifier {
