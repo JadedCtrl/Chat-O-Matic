@@ -102,8 +102,8 @@ private:
 			int32		_RolePerms(UserRole role);
 			const char*	_RoleTitle(UserRole role);
 
-			const char*	_CachePath();
 			const char*	_ContactsCache();
+			void		 _JoinDefaultRooms();
 
 			// Read a data stream until newline found; if data found past
 			// newline, append to given buffer for later use

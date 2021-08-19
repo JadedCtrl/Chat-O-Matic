@@ -22,6 +22,7 @@
 #include <Cardie.h>
 #include <ChatProtocolMessages.h>
 #include <Flags.h>
+#include <Utils.h>
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -876,6 +877,7 @@ IrcProtocol::_MakeReady(BString nick, BString ident)
 	_SendIrc("MOTD\n");
 
 	_LoadContacts();
+	_JoinDefaultRooms();
 }
 
 
@@ -1241,25 +1243,25 @@ IrcProtocol::_RoleTitle(UserRole role)
 
 
 const char*
-IrcProtocol::_CachePath()
+IrcProtocol::_ContactsCache()
 {
-	BPath path;
-	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
-		return NULL;
-	path.Append(APP_NAME "/Cache/Accounts");
-	path.Append(fName);
-	if (create_directory(path.Path(), 0755) != B_OK)
-		return NULL;
+	BPath path(AccountCachePath(fName));
+	path.Append("contact_list");
 	return path.Path();
 }
 
 
-const char*
-IrcProtocol::_ContactsCache()
+void
+IrcProtocol::_JoinDefaultRooms()
 {
-	BPath path(_CachePath());
-	path.Append("contact_list");
-	return path.Path();
+	// Hardcoded default room… I'm so awful, aren't I? ;-)
+	if (fServer == "irc.oftc.net") {
+		BFile room(RoomCachePath(fName, "#haiku"), B_READ_ONLY);
+		if (room.InitCheck() != B_OK) {
+			BString cmd("JOIN #haiku");
+			_SendIrc(cmd);
+		}
+	}
 }
 
 
