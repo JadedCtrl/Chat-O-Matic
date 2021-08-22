@@ -98,8 +98,10 @@ MainWindow::QuitRequested()
 		button_index = alert->Go();
 	}
 
-	AppPreferences::Get()->MainWindowListWeight = fSplitView->ItemWeight(0);
-	AppPreferences::Get()->MainWindowChatWeight = fSplitView->ItemWeight(1);
+	AppPreferences::Get()->MainWindowListWeight
+		= fSplitView->ItemWeight((int32)0);
+	AppPreferences::Get()->MainWindowChatWeight
+		= fSplitView->ItemWeight((int32)1);
 	AppPreferences::Get()->MainWindowRect = Frame();
 
 	if(button_index == 0) {

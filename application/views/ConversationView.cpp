@@ -309,10 +309,10 @@ void
 ConversationView::GetWeights(float* horizChat, float* horizList,
 	float* vertChat, float* vertSend)
 {
-	*horizChat = fHorizSplit->ItemWeight(0);
-	*horizList = fHorizSplit->ItemWeight(1);
-	*vertChat = fVertSplit->ItemWeight(0);
-	*vertSend = fVertSplit->ItemWeight(1);
+	*horizChat = fHorizSplit->ItemWeight((int32)0);
+	*horizList = fHorizSplit->ItemWeight((int32)1);
+	*vertChat = fVertSplit->ItemWeight((int32)0);
+	*vertSend = fVertSplit->ItemWeight((int32)1);
 }
 
 
