@@ -75,8 +75,7 @@ LIBPATHS =
 #	Additional paths to look for system headers. These use the form
 #	"#include <header>". Directories that contain the files in SRCS are
 #	NOT auto-included here.
-SYSTEM_INCLUDE_PATHS = libs/ application/ \
-		$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY libpurple)
+SYSTEM_INCLUDE_PATHS = libs/ application/
 
 #	Additional paths paths to look for local headers. These use the form
 #	#include "header". Directories that contain the files in SRCS are
@@ -114,7 +113,8 @@ SYMBOLS :=
 DEBUGGER :=
 
 #	Specify any additional compiler flags to be used.
-COMPILER_FLAGS = $(shell pkg-config --cflags glib-2.0)
+COMPILER_FLAGS = $(shell pkg-config --cflags glib-2.0) \
+		$(shell pkg-config --cflags purple)
 
 
 #	Specify any additional linker flags to be used.
