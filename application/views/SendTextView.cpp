@@ -1,4 +1,3 @@
-#include <iostream>
 /*
  * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
  * All rights reserved. Distributed under the terms of the MIT license.
@@ -38,23 +37,28 @@ SendTextView::KeyDown(const char* bytes, int32 numBytes)
 	fCurrentIndex = 0;
 	fCurrentWord.SetTo("");
 
-	if ((bytes[0] == B_UP_ARROW) && (modifiers == 0)) {
-		_UpHistory();
-		return;
-	}
-	else if ((bytes[0] == B_DOWN_ARROW) && (modifiers == 0)) {
-		_DownHistory();
-		return;
-	}
+	for (int i = 0; i < numBytes; i++) {
+		if ((bytes[i] == B_UP_ARROW) && (modifiers == 0)) {
+			_UpHistory();
+			return;
+		}
+		else if ((bytes[i] == B_DOWN_ARROW) && (modifiers == 0)) {
+			_DownHistory();
+			return;
+		}
 
-	if ((bytes[0] == B_ENTER) && (modifiers & B_COMMAND_KEY))
-		Insert("\n");
-	else if ((bytes[0] == B_ENTER) && (modifiers == 0)) {
-		_AppendHistory();
-		fChatView->MessageReceived(new BMessage(APP_CHAT));
+		if ((bytes[i] == B_ENTER)
+				&& ((modifiers & B_COMMAND_KEY) || (modifiers & B_SHIFT_KEY))) {
+			Insert("\n");
+			return;
+		}
+		else if (bytes[i] == B_ENTER) {
+			_AppendHistory();
+			fChatView->MessageReceived(new BMessage(APP_CHAT));
+			return;
+		}
 	}
-	else
-		BTextView::KeyDown(bytes, numBytes);
+	BTextView::KeyDown(bytes, numBytes);
 }
 
 
