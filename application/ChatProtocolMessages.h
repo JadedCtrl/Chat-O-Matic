@@ -262,8 +262,8 @@ enum im_what_code {
 
 	/*!	Quietly add user(s) to the chat	→App
 		Shouldn't be sent automatically on joining a room.
-		Requires:	String "chat_id", StringList "user_id"
-		Accepts:	StringList "user_name" */
+		Requires:	String "chat_id", Strings "user_id"
+		Accepts:	Strings "user_name" */
 	IM_ROOM_PARTICIPANTS				= 159,
 
 	/*!	User has explicitly joined		→App
@@ -403,6 +403,28 @@ enum im_what_code {
 	/*!	User stopped typing				→App [unused]
 		Requires:	String "chat_id", String "user_id" */
 	IM_ROOM_PARTICIPANT_STOPPED_TYPING		= 211,
+
+
+	/*
+	 * Room directory messages
+	 */
+
+	/*! Request a list of rooms			→Protocol */
+	IM_GET_ROOM_DIRECTORY					= 230,
+
+	/*! Send a room in the directory	→App
+		This can be used to send either a list of publically available rooms
+		or a list of "hidden"/"disabled" rooms, one-by-one.
+
+		A room listed thanks to this message might be joined through
+		IM_JOIN_ROOM. Since IM_JOIN_ROOM accepts slots from the template, you
+		must fill in IM_ROOM_DIRECTORY messages with any required custom slots
+		you use for room-joining― the message you send will be actually be
+		copied and sent back verbatim (with im_what changed to IM_JOIN_ROOM)
+		to join.
+		Requires:	Strings "chat_id"
+		Allows:		String "chat_name", String "subject", int32 "user_count"*/
+	IM_ROOM_DIRECTORY						= 231,
 
 
 	/*

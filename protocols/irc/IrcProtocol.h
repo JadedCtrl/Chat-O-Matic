@@ -138,6 +138,7 @@ private:
 	// user might also use the /who command― if the user does, this is true
 	bool fWhoRequested;
 	bool fWhoIsRequested;
+	bool fListRequested;
 	BString fWhoIm;
 
 	bool fWriteLocked;

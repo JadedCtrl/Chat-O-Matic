@@ -118,6 +118,8 @@ IrcProtocol::Process(BMessage* msg)
 				fWhoIsRequested = true;
 			else if (command.ICompare("WHO") == 0)
 				fWhoRequested = true;
+			else if (command.ICompare("LIST") == 0)
+				fListRequested = true;
 
 			_SendIrc(line);
 			break;
@@ -352,6 +354,12 @@ IrcProtocol::Process(BMessage* msg)
 			_SendMsg(&info);
 			break;
 		}
+		case IM_GET_ROOM_DIRECTORY:
+		{
+			BString cmd("LIST");
+			_SendIrc(cmd);
+			break;
+		}
 		case IM_SET_ROOM_SUBJECT:
 		{
 			BString chat_id;
@@ -441,6 +449,7 @@ IrcProtocol::Connect()
 status_t
 IrcProtocol::Loop()
 {
+	fListRequested = false;
 	fWhoIsRequested = false;
 	fWhoRequested = false;
 	while (fSocket != NULL && fSocket->IsConnected() == true)
@@ -597,6 +606,20 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 			}
 			break;
 		}
+		case RPL_LIST:
+		{
+			BString chat_id = params.StringAt(1);
+			BString subject = params.Last();
+			int32 count = atoi(params.StringAt(2));
+
+			BMessage dir(IM_MESSAGE);
+			dir.AddInt32("im_what", IM_ROOM_DIRECTORY);
+			dir.AddString("chat_id", chat_id);
+			dir.AddString("subject", subject);
+			dir.AddInt32("user_count", count);
+			_SendMsg(&dir);
+			break;
+		}
 		case RPL_TOPIC:
 		{
 			BString chat_id = params.StringAt(1);
@@ -613,6 +636,9 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 
 	// Now, to determine if the line should be sent to system buffer
 	switch (numeric) {
+		case RPL_LISTEND:
+			fListRequested = false;
+			break;
 		case RPL_ENDOFWHO:
 			fWhoRequested = false;
 			break;
