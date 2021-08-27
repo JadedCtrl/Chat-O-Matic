@@ -21,7 +21,6 @@ class ConversationListView;
 class ConversationView;
 class ProtocolSettings;
 class RosterItem;
-class RosterEditWindow;
 class RosterWindow;
 class Server;
 class StatusView;
@@ -65,7 +64,6 @@ private:
 
 	Server*				fServer;
 	RosterWindow*		fRosterWindow;
-	RosterEditWindow*	fRosterEditWindow;
 	bool				fWorkspaceChanged;
 	BMenuBar*			fMenuBar;
 

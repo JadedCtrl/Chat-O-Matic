@@ -64,6 +64,7 @@ SRCS = \
 	application/views/InviteDialogue.cpp \
 	application/views/ReplicantStatusView.cpp \
 	application/views/ReplicantMenuItem.cpp \
+	application/views/RoomListRow.cpp \
 	application/views/RosterItem.cpp \
 	application/views/RosterListView.cpp \
 	application/views/RosterView.cpp \
@@ -79,6 +80,7 @@ SRCS = \
 	application/windows/ConversationInfoWindow.cpp \
 	application/windows/MainWindow.cpp \
 	application/windows/PreferencesWindow.cpp \
+	application/windows/RoomListWindow.cpp \
 	application/windows/RosterEditWindow.cpp \
 	application/windows/RosterWindow.cpp \
 	application/windows/TemplateWindow.cpp \
@@ -130,7 +132,7 @@ RSRCS =
 #	- 	if your library does not follow the standard library naming scheme,
 #		you need to specify the path to the library and it's name.
 #		(e.g. for mylib.a, specify "mylib.a" or "path/mylib.a")
-LIBS =  be expat interface localestub runview shared translation $(STDCPPLIBS)
+LIBS =  be columnlistview expat interface localestub runview shared translation $(STDCPPLIBS)
 
 
 #	Specify additional paths to directories following the standard libXXX.so
@@ -143,7 +145,9 @@ LIBPATHS =
 #	Additional paths to look for system headers. These use the form
 #	"#include <header>". Directories that contain the files in SRCS are
 #	NOT auto-included here.
-SYSTEM_INCLUDE_PATHS = libs/
+SYSTEM_INCLUDE_PATHS = libs/ \
+	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/interface)
+
 
 #	Additional paths paths to look for local headers. These use the form
 #	#include "header". Directories that contain the files in SRCS are

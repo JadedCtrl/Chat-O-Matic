@@ -660,6 +660,9 @@ IrcProtocol::_ProcessNumeric(int32 numeric, BString sender, BStringList params,
 			_SendMsg(&send);
 			break;
 		}
+		case RPL_LIST:
+			if (fListRequested == false)
+				break;
 		case RPL_WHOREPLY:
 			if (fWhoRequested == false)
 				break;

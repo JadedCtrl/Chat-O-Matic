@@ -23,6 +23,9 @@ const uint32 APP_NEW_ROOM = 'CYnr';
 //! Join a chat
 const uint32 APP_JOIN_ROOM = 'CYjr';
 
+//! Room directory
+const uint32 APP_ROOM_DIRECTORY = 'CYrd';
+
 //! Invite user to current chat
 const uint32 APP_SEND_INVITE = 'CYin';
 

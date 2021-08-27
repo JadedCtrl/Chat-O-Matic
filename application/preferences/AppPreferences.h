@@ -45,6 +45,7 @@ public:
 			float	ChatViewVertSendWeight;
 
 			BRect	MainWindowRect;
+			BRect	RoomDirectoryRect;
 
 private:
 	 const char*	_PreferencesPath();

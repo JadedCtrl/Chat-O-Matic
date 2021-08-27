@@ -56,6 +56,7 @@ AppPreferences::Load()
 	ChatViewVertSendWeight = settings.GetFloat("ChatViewVertSendWeight", 1);
 
 	MainWindowRect = settings.GetRect("MainWindowRect", BRect(0, 0, 600, 400));
+	RoomDirectoryRect = settings.GetRect("RoomDirectoryRect", BRect(0, 0, 630, 330));
 }
 
 
@@ -89,6 +90,7 @@ AppPreferences::Save()
 	settings.AddFloat("ChatViewVertSendWeight", ChatViewVertSendWeight);
 
 	settings.AddRect("MainWindowRect", MainWindowRect);
+	settings.AddRect("RoomDirectoryRect", RoomDirectoryRect);
 
 	if (file.InitCheck() == B_OK)
 		settings.Flatten(&file);

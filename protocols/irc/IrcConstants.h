@@ -41,6 +41,8 @@ enum UserRole {
 #define RPL_WHOISUSER 311
 #define RPL_ENDOFWHO 315
 #define RPL_ENDOFWHOIS 318
+#define RPL_LIST 322
+#define RPL_LISTEND 323
 #define RPL_TOPIC 332
 #define RPL_WHOREPLY 352
 #define RPL_NAMREPLY 353

@@ -35,6 +35,7 @@
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
 #include "ReplicantStatusView.h"
+#include "RoomListWindow.h"
 #include "RosterEditWindow.h"
 #include "RosterWindow.h"
 #include "StatusManager.h"
@@ -205,6 +206,11 @@ MainWindow::MessageReceived(BMessage* message)
 			fRosterWindow->Show();
 			break;
 		}
+		case APP_ROOM_DIRECTORY:
+		{
+			RoomListWindow::Get(fServer)->Show();
+			break;
+		}
 		case APP_EDIT_ROSTER:
 		{
 			RosterEditWindow::Get(fServer)->Show();
@@ -325,6 +331,10 @@ MainWindow::ImMessage(BMessage* msg)
 			fListView->AddAccount(msg->GetInt64("instance", -1));
 			break;
 		}
+		case IM_ROOM_DIRECTORY:
+			if (RoomListWindow::Check() == true)
+				RoomListWindow::Get(fServer)->PostMessage(msg);
+			break;
 		case IM_PROTOCOL_DISABLE:
 			fStatusView->MessageReceived(msg);
 			break;
@@ -513,6 +523,9 @@ MainWindow::_CreateMenuBar()
 		new BMessage(APP_NEW_ROOM), 'N', B_COMMAND_KEY));
 	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("New chat" B_UTF8_ELLIPSIS),
 		new BMessage(APP_NEW_CHAT), 'M', B_COMMAND_KEY));
+	chatMenu->AddSeparatorItem();
+	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("Room directory" B_UTF8_ELLIPSIS),
+		new BMessage(APP_ROOM_DIRECTORY)));
 	chatMenu->SetTargetForItems(this);
 
 	// Roster
