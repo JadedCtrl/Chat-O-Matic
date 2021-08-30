@@ -35,6 +35,7 @@
 typedef KeyMap<BString, BString> StringMap;
 typedef KeyMap<BString, thread_id> ThreadMap;
 typedef KeyMap<BString, GHashTable*> HashMap;
+typedef KeyMap<PurpleAccount*, PurpleRoomlist*> RoomMap;
 
 const uint32 G_MAIN_LOOP = 'GLml';
 const uint32 CHECK_APP = 'Paca';
@@ -85,6 +86,7 @@ public:
 	HashMap fInviteList;
 	StringMap fUserNicks; // Purple username → Nickname for Cardie
 	StringMap fAccounts; // Cardie account name → Purple username
+	RoomMap fRoomlists; // Purple account → Purple roomlist
 
 private:
 			void		_SendSysText(PurpleConversation* conv, const char* text);
@@ -98,6 +100,7 @@ private:
 
 			void		_ParseAccountTemplate(BMessage* settings);
 			GHashTable*	_ParseRoomTemplate(BMessage* msg);
+			GHashTable* _FindRoomlistComponents(BMessage* msg);
 
 		PurplePlugin*	_PluginFromMessage(BMessage* msg);
 	PurpleConnection*	_ConnectionFromMessage(BMessage* msg);
@@ -174,6 +177,10 @@ private:
 	 static void		ui_op_chat_rename_user(PurpleConversation* conv, 
 							const char* old_name, const char* new_name,
 							const char* new_alias);
+
+// Roomlist ui ops
+	 static void		ui_op_add_room(PurpleRoomlist* list,
+							PurpleRoomlistRoom* room);
 
 // Request ui ops
 	 static void*		ui_op_request_input(const char* title,

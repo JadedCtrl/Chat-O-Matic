@@ -232,14 +232,14 @@ PurpleApp::ImMessage(BMessage* msg)
 			SendMessage(account, created);
 			break;
 		}
+		case IM_JOIN_ROOM:
 		case IM_CREATE_ROOM:
 		{
-			serv_join_chat(_ConnectionFromMessage(msg), _ParseRoomTemplate(msg));
-			break;
-		}
-		case IM_JOIN_ROOM:
-		{
-			serv_join_chat(_ConnectionFromMessage(msg), _ParseRoomTemplate(msg));
+			PurpleConnection* conn = _ConnectionFromMessage(msg);
+			if (msg->GetBool("fromRoomlist", false) == false)
+				serv_join_chat(conn, _ParseRoomTemplate(msg));
+			else
+				serv_join_chat(conn, _FindRoomlistComponents(msg));
 			break;
 		}
 		case IM_LEAVE_ROOM:
@@ -297,6 +297,13 @@ PurpleApp::ImMessage(BMessage* msg)
 			parts.AddString("chat_id", purple_conversation_get_name(conv));
 			parts.AddStrings("user_id", user_ids);
 			SendMessage(purple_conversation_get_account(conv), parts);
+			break;
+		}
+		case IM_GET_ROOM_DIRECTORY:
+		{
+			PurpleConnection* conn = _ConnectionFromMessage(msg);
+			if (conn != NULL)
+				PurpleRoomlist* list = purple_roomlist_get_list(conn);
 			break;
 		}
 		case IM_GET_ROSTER:
@@ -895,6 +902,40 @@ PurpleApp::_ParseRoomTemplate(BMessage* msg)
 }
 
 
+GHashTable*
+PurpleApp::_FindRoomlistComponents(BMessage* msg)
+{
+	PurpleRoomlist* list = fRoomlists.ValueFor(_AccountFromMessage(msg));
+	if (list == NULL || list->rooms == NULL)
+		return NULL;
+
+	// Find the room by iterating over the account's roomlist
+	GList* rooms;
+	PurpleRoomlistRoom* room = NULL;
+	for (rooms = list->rooms; rooms; rooms = rooms->next) {
+		PurpleRoomlistRoom* testRoom = (PurpleRoomlistRoom*)rooms->data;
+		const char* name = purple_roomlist_room_get_name(testRoom);
+
+		if (strcmp(msg->FindString("chat_id"), name) == 0) {
+			room = testRoom;
+			break;
+		}
+	}
+
+	GList* listFields, *roomFields;
+	GHashTable* components = g_hash_table_new(g_str_hash, g_str_equal);
+	g_hash_table_replace(components, (void*)"name", room->name);
+	for (listFields = list->fields, roomFields = room->fields;
+		 listFields && roomFields;
+		 listFields = listFields->next, roomFields = roomFields->next)
+	{
+		PurpleRoomlistField* listField = (PurpleRoomlistField*)listFields->data;
+		g_hash_table_replace(components, listField->name, roomFields->data);
+	}
+	return components;
+}
+
+
 PurplePlugin*
 PurpleApp::_PluginFromMessage(BMessage* msg)
 {
@@ -1032,6 +1073,21 @@ static PurpleConversationUiOps _ui_op_conversation =
 };
 
 
+static PurpleRoomlistUiOps _ui_op_roomlist =
+{
+	NULL,
+	NULL,
+	NULL,
+	ui_op_add_room,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+
 static PurpleRequestUiOps _ui_op_request =
 {
 	ui_op_request_input,
@@ -1072,6 +1128,7 @@ init_ui_ops()
 	purple_eventloop_set_ui_ops(&_ui_op_eventloops);
 	purple_connections_set_ui_ops(&_ui_op_connection);
 	purple_conversations_set_ui_ops(&_ui_op_conversation);
+	purple_roomlist_set_ui_ops(&_ui_op_roomlist);
 	purple_request_set_ui_ops(&_ui_op_request);
 	purple_notify_set_ui_ops(&_ui_op_notify);
 }
@@ -1507,6 +1564,85 @@ ui_op_chat_rename_user(PurpleConversation* conv, const char* old_name,
 	joined.AddString("user_id", new_name);
 	joined.AddString("chat_id", purple_conversation_get_name(conv));
 	app->SendMessage(account, joined);
+}
+
+
+static void
+ui_op_add_room(PurpleRoomlist* list, PurpleRoomlistRoom* room)
+{
+	if (purple_roomlist_room_get_type(room) == PURPLE_ROOMLIST_ROOMTYPE_CATEGORY)
+	{
+		purple_roomlist_expand_category(list, room);
+		return;
+	}
+	const char* name = purple_roomlist_room_get_name(room);
+	if (name == NULL || BString(name).IsEmpty() == true)
+		return;
+
+	PurpleApp* app = (PurpleApp*)be_app;
+	PurpleAccount* account = list->account;
+	app->fRoomlists.AddItem(account, list);
+
+	BMessage dirMsg(IM_MESSAGE);
+	dirMsg.AddInt32("im_what", IM_ROOM_DIRECTORY);
+	dirMsg.AddString("chat_id", purple_roomlist_room_get_name(room));
+	dirMsg.AddBool("fromRoomlist", true);
+
+	// Add relevant fields to message
+	GList* roomIter, *listIter;
+	for (listIter = purple_roomlist_get_fields(list),
+				roomIter = purple_roomlist_room_get_fields(room);
+			roomIter && listIter;
+			roomIter = roomIter->next, listIter = listIter->next)
+	{
+		PurpleRoomlistField* listField = (PurpleRoomlistField*)listIter->data;
+		if (listField == NULL || purple_roomlist_field_get_hidden(listField))
+			continue;
+
+		const char* label = purple_roomlist_field_get_label(listField);
+		switch (purple_roomlist_field_get_type(listField)) {
+			case PURPLE_ROOMLIST_FIELD_INT:
+			{
+				int32 num = GPOINTER_TO_INT(roomIter->data);
+				if (strcmp(label, "Users") == 0)
+					dirMsg.AddInt32("user_count", num);
+				else
+					dirMsg.AddInt32(label, num);
+				break;
+			}
+			case PURPLE_ROOMLIST_FIELD_STRING:
+			{
+				const char* str = (const char*)roomIter->data;
+				if (strcmp(label, "Topic") == 0)
+					dirMsg.AddString("subject", str);
+				else
+					dirMsg.AddString(label, str);
+				break;
+			}
+		}
+	}
+
+	// Find the room's categor[y|ies], if any
+	BString category;
+	PurpleRoomlistRoom* parent = room;
+	while ((parent = purple_roomlist_room_get_parent(parent)) != NULL) {
+		const char* name = purple_roomlist_room_get_name(parent);
+		if (name == NULL || strcmp(name, "true") == 0
+				|| purple_roomlist_room_get_type(parent)
+					!= PURPLE_ROOMLIST_ROOMTYPE_CATEGORY)
+			continue;
+
+		if (category.IsEmpty() == false) {
+			category.Prepend("→");
+			category.Prepend(name);
+		}
+		else
+			category << name;
+	}
+	if (category.IsEmpty() == false)
+		dirMsg.AddString("category", category);
+
+	app->SendMessage(account, dirMsg);
 }
 
 
