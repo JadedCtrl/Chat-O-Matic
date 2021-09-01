@@ -62,6 +62,9 @@ const uint32 APP_USER_INFO = 'CYuw';
 //! Display a "room info" window
 const uint32 APP_ROOM_INFO = 'CYrw';
 
+//! Open the room's logs with TextSearch
+const uint32 APP_ROOM_SEARCH = 'CYrs';
+
 //! Toggle a specific flag for a room
 const uint32 APP_ROOM_FLAG = 'Rlag';
 

@@ -1,3 +1,4 @@
+#include <iostream>
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
@@ -16,6 +17,7 @@
 #include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
+#include <Roster.h>
 #include <ScrollView.h>
 #include <TranslationUtils.h>
 
@@ -209,6 +211,21 @@ MainWindow::MessageReceived(BMessage* message)
 		case APP_ROOM_DIRECTORY:
 		{
 			RoomListWindow::Get(fServer)->Show();
+			break;
+		}
+		case APP_ROOM_SEARCH:
+		{
+			if (fConversation != NULL) {
+				entry_ref ref;
+				BEntry entry(fConversation->CachePath().Path());
+				if (entry.GetRef(&ref) != B_OK)
+					break;
+
+				BMessage msg(B_REFS_RECEIVED);
+				msg.AddRef("refs", &ref);
+				BRoster roster;
+				roster.Launch("application/x-vnd.Haiku.TextSearch", &msg);
+			}
 			break;
 		}
 		case APP_EDIT_ROSTER:
@@ -518,15 +535,17 @@ MainWindow::_CreateMenuBar()
 	BMenu* chatMenu = new BMenu(B_TRANSLATE("Chat"));
 	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("Join room" B_UTF8_ELLIPSIS),
 		new BMessage(APP_JOIN_ROOM), 'J', B_COMMAND_KEY));
+	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("Room directory" B_UTF8_ELLIPSIS),
+		new BMessage(APP_ROOM_DIRECTORY)));
+	chatMenu->SetTargetForItems(this);
 	chatMenu->AddSeparatorItem();
 	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("New room" B_UTF8_ELLIPSIS),
 		new BMessage(APP_NEW_ROOM), 'N', B_COMMAND_KEY));
 	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("New chat" B_UTF8_ELLIPSIS),
 		new BMessage(APP_NEW_CHAT), 'M', B_COMMAND_KEY));
 	chatMenu->AddSeparatorItem();
-	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("Room directory" B_UTF8_ELLIPSIS),
-		new BMessage(APP_ROOM_DIRECTORY)));
-	chatMenu->SetTargetForItems(this);
+	chatMenu->AddItem(new BMenuItem(B_TRANSLATE("Find" B_UTF8_ELLIPSIS),
+		new BMessage(APP_ROOM_SEARCH), 'F', B_COMMAND_KEY));
 
 	// Roster
 	BMenu* rosterMenu = new BMenu(B_TRANSLATE("Roster"));

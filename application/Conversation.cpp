@@ -576,6 +576,10 @@ Conversation::_LogChatMessage(BMessage* msg)
 	BFile logFile(fCachePath.Path(), B_READ_WRITE | B_OPEN_AT_END | B_CREATE_FILE);
 	WriteAttributeMessage(&logFile, "Chat:logs", &logMsg);
 
+	BString mime = BString("text/plain");
+	logFile.WriteAttr("BEOS:TYPE", B_MIME_STRING_TYPE, 0, mime.String(),
+		mime.CountChars() + 1);
+
 	// Plain-text logs
 	// Gotta make sure the formatting's pretty!
 	BString date;

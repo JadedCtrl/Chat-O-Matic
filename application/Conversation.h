@@ -76,6 +76,8 @@ public:
 	void				SetFlags(int32 flags);
 	int32				DisallowedFlags() { return fDisallowedFlags; }
 
+	BPath				CachePath() { return fCachePath; }
+
 private:
 	void				_WarnUser(BString message);
 
