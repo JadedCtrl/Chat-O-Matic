@@ -18,10 +18,10 @@ RenderView::RenderView(const char* name)
 
 
 void
-RenderView::AppendGeneric(const char* message)
+RenderView::AppendGeneric(const char* message, int64 when)
 {
 	if (BString(message).IsEmpty() == true)	return;
-	AppendTimestamp(time(NULL));
+	AppendTimestamp(when);
 	Append(message, ui_color(B_PANEL_TEXT_COLOR), B_BOLD_FACE);
 	if (BString(message).EndsWith("\n") == false)	Append("\n");
 }

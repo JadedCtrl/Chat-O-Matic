@@ -12,7 +12,7 @@ class RenderView : public RunView {
 public:
 				RenderView(const char* name);
 
-		void	AppendGeneric(const char* message);
+		void	AppendGeneric(const char* message, int64 when);
 		void	AppendUserstamp(const char* nick, rgb_color nameColor);
 		void	AppendTimestamp(time_t time = 0);
 

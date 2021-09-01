@@ -387,6 +387,23 @@ ConversationView::_InitInterface()
 bool
 ConversationView::_AppendOrEnqueueMessage(BMessage* msg)
 {
+	// Fill the message with user information not provided by protocol
+	BString user_id = msg->FindString("user_id");
+	if (msg->FindString("user_id", &user_id) == B_OK) {
+		User* user = NULL;
+		if (fConversation != NULL)
+			user = fConversation->UserById(user_id);
+		if (user != NULL) {
+			if (msg->HasString("user_name") == false)
+				if (user->GetName().IsEmpty() == false)
+					msg->AddString("user_name", user->GetName());
+			msg->AddColor("user_color", user->fItemColor);
+		}
+		if (msg->HasString("user_name") == false)
+			msg->AddString("user_name", user_id);
+	}
+
+	// Fill the message with receive time if not provided
 	if (msg->HasInt64("when") == false)
 		msg->AddInt64("when", (int64)time(NULL));
 
@@ -423,31 +440,16 @@ ConversationView::_AppendMessage(BMessage* msg)
 	}
 
 	// Otherwise, it's message time!
-	int64 timeInt;
-	BString user_id;
+	int64 timeInt = msg->GetInt64("when", time(NULL));
 	BString user_name = msg->FindString("user_name");
+	rgb_color userColor = msg->GetColor("user_color", ui_color(B_PANEL_TEXT_COLOR));
 	BString body;
-	rgb_color userColor = ui_color(B_PANEL_TEXT_COLOR);
 
 	if (msg->FindString("body", &body) != B_OK)
 		return;
 
-	if (msg->FindInt64("when", &timeInt) != B_OK)
-		timeInt = (int64)time(NULL);
-
-	if (msg->FindString("user_id", &user_id) == B_OK) {
-		User* user = NULL;
-		if (fConversation != NULL
-				&& (user = fConversation->UserById(user_id)) != NULL) {
-			user_name = user->GetName();
-			userColor = user->fItemColor;
-		}
-		else if (user_name.IsEmpty() == true)
-			user_name = user_id;
-	}
-
 	if (user_name.IsEmpty() == true) {
-		fReceiveView->AppendGeneric(body);
+		fReceiveView->AppendGeneric(body, timeInt);
 		return;
 	}
 
@@ -455,7 +457,7 @@ ConversationView::_AppendMessage(BMessage* msg)
 		BString meMsg = "** ";
 		meMsg << user_name.String() << " ";
 		meMsg << body.RemoveFirst("/me ");
-		fReceiveView->AppendGeneric(meMsg.String());
+		fReceiveView->AppendGeneric(meMsg.String(), timeInt);
 		return;
 	}
 
