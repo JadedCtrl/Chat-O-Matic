@@ -11,7 +11,7 @@
 enum {
 	kNameColumn,
 	kDescColumn,
-	kIdColumn,
+	kCatColumn,
 	kUserColumn
 };
 
@@ -19,6 +19,7 @@ enum {
 class RoomListRow : public BRow {
 public:
 				RoomListRow(BMessage* msg);
+				~RoomListRow();
 
 	BMessage*	Message() { return fMessage; }
 	int64		Instance() { return fInstance; }

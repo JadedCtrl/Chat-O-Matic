@@ -423,7 +423,8 @@ enum im_what_code {
 		copied and sent back verbatim (with im_what changed to IM_JOIN_ROOM)
 		to join.
 		Requires:	Strings "chat_id"
-		Allows:		String "chat_name", String "subject", int32 "user_count"*/
+		Allows:		String "chat_name", String "subject", String "category",
+					int32 "user_count" */
 	IM_ROOM_DIRECTORY						= 231,
 
 
