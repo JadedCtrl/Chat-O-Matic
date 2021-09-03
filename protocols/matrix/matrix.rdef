@@ -1,0 +1,16 @@
+#include "Matrix.h"
+
+resource app_signature MATRIX_SIGNATURE;
+resource app_flags B_BACKGROUND_APP | B_MULTIPLE_LAUNCH;
+
+resource app_version {
+	major  = 0,
+	middle = 0,
+	minor  = 1,
+
+	variety = B_APPV_ALPHA,
+	internal = 0,
+
+	short_info = "Chat-O-Matic Matrix add-on",
+	long_info = "©2021 Jaidyn Levesque"
+};
