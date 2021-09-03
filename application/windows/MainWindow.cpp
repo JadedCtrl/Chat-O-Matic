@@ -1,4 +1,3 @@
-#include <iostream>
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
@@ -641,9 +640,8 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 
 	BString chat_id = msg->FindString("chat_id");
 	Conversation* chat = fServer->ConversationById(chat_id, msg->FindInt64("instance"));
-	ConversationItem* item = chat->GetListItem();
-
-	if (chat != NULL) {
+	ConversationItem* item;
+	if (chat != NULL && (item = chat->GetListItem()) != NULL) {
 		if (fListView->HasItem(item))
 			fListView->InvalidateItem(fListView->IndexOf(item));
 		else if (item != NULL) {

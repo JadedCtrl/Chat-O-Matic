@@ -136,20 +136,6 @@ ConversationView::ImMessage(BMessage* msg)
 				fReceiveView->ScrollToBottom();
 			break;
 		}
-		case IM_ROOM_JOINED:
-		{
-			BMessage msg;
-			msg.AddString("body", B_TRANSLATE("** You joined the room.\n"));
-			_AppendOrEnqueueMessage(&msg);
-			fReceiveView->ScrollToBottom();
-		}
-		case IM_ROOM_CREATED:
-		{
-			BMessage msg;
-			msg.AddString("body", B_TRANSLATE("** You created the room.\n"));
-			_AppendOrEnqueueMessage(&msg);
-			fReceiveView->ScrollToBottom();
-		}
 		case IM_ROOM_PARTICIPANT_JOINED:
 		{
 			_UserMessage(B_TRANSLATE("%user% has joined the room.\n"),

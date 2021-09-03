@@ -242,20 +242,20 @@ ConversationListView::_ConversationPopUp()
 }
 
 
-#define add_flag_item(name, flag) { \
-	msg = new BMessage(APP_ROOM_FLAG); \
-	msg->AddString("chat_id", id); \
-	msg->AddInt64("instance", instance); \
-	msg->AddInt32("flag", flag); \
-\
-	item = new BMenuItem(name, msg); \
-	item->SetTarget(Window()); \
-\
-	if (!(chat->DisallowedFlags() &flag)) { \
-		if (chat->GetFlags() & flag) \
-			item->SetMarked(true); \
-		menu->AddItem(item); \
-	} \
+#define add_flag_item(name, flag) {			\
+	msg = new BMessage(APP_ROOM_FLAG);		\
+	msg->AddString("chat_id", id);			\
+	msg->AddInt64("instance", instance);	\
+	msg->AddInt32("flag", flag);			\
+											\
+	item = new BMenuItem(name, msg);		\
+	item->SetTarget(Window());				\
+											\
+	if (!(chat->DisallowedFlags() &flag)) {	\
+		if (chat->GetFlags() & flag)		\
+			item->SetMarked(true);			\
+		menu->AddItem(item);				\
+	}										\
 }
 
 
