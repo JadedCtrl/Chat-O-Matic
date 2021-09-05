@@ -129,16 +129,25 @@ MatrixApp::Connect()
 void
 MatrixApp::StartLoop()
 {
-	BMessage ready(IM_MESSAGE);
-	ready.AddInt32("im_what", IM_PROTOCOL_READY);
-	SendMessage(ready);
+	client->get_profile(client->user_id().to_string(),
+		[this](const mtx::responses::Profile &res, mtx::http::RequestErr err)
+		{
+			if (err) {
+				print_error(err, "Failed getting own info after login…");
+				StartLoop();
+				snooze(1000000);
+				return;
+			}
+			BMessage ready(IM_MESSAGE);
+			ready.AddInt32("im_what", IM_PROTOCOL_READY);
+			SendMessage(ready);
 
-	BString mxId("@");
-	mxId << fUser << ":" << fServer;
-	BMessage init(IM_MESSAGE);
-	init.AddInt32("im_what", IM_OWN_CONTACT_INFO);
-	init.AddString("user_id", mxId);
-	SendMessage(init);
+			BMessage init(IM_MESSAGE);
+			init.AddInt32("im_what", IM_OWN_CONTACT_INFO);
+			init.AddString("user_id", client->user_id().to_string().c_str());
+			init.AddString("user_name", res.display_name.c_str());
+			SendMessage(init);
+		});
 
 	BMessage status(IM_MESSAGE);
 	status.AddInt32("im_what", IM_OWN_STATUS_SET);
