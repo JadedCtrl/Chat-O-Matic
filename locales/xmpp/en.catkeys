@@ -1,9 +1,10 @@
-1	English	application/x-vnd.cardie.xmpp	653330598
+1	English	application/x-vnd.chat-o-matic.xmpp	3527578450
 An invalid XMPP address or identifier was given. If you can, please try a different one.	JabberHandler ― Stanza errors		An invalid XMPP address or identifier was given. If you can, please try a different one.
 The HTTP/SOCKS5 proxy requires authentication.	JabberHandler ― Connection stream errors		The HTTP/SOCKS5 proxy requires authentication.
 The server or recipient don't provide this service.	JabberHandler ― Stanza errors		The server or recipient don't provide this service.
 The server is unable to properly connect to a remote entity that is required for authentication.	JabberHandler ― Connection stream errors		The server is unable to properly connect to a remote entity that is required for authentication.
 The initiating entity has sent XML that is not well-formed as defined by XML.	JabberHandler ― Connection stream errors		The initiating entity has sent XML that is not well-formed as defined by XML.
+XMPP identifier:	JabberProtocol		XMPP identifier:
 You don't have permssion to do this.	JabberHandler ― Stanza errors		You don't have permssion to do this.
 The entity has sent invalid XML over the stream to a server that performs validation.	JabberHandler ― Connection stream errors		The entity has sent invalid XML over the stream to a server that performs validation.
 The server is closing the active stream for this entity because a new stream has been initiated that conflicts with the existing stream.	JabberHandler ― Connection stream errors		The server is closing the active stream for this entity because a new stream has been initiated that conflicts with the existing stream.
@@ -33,7 +34,6 @@ A XML parse error occurred.	JabberHandler ― Connection stream errors		A XML pa
 Invalid	JabberHandler ― User roles		Invalid
 The server didn't offer TLS while it was set to be required, or TLS was not compiled in.	JabberHandler ― Connection stream errors		The server didn't offer TLS while it was set to be required, or TLS was not compiled in.
 The host initially used does not correspond to a hostname that is hosted by the server.	JabberHandler ― Connection stream errors		The host initially used does not correspond to a hostname that is hosted by the server.
-Jabber identifier:	JabberProtocol		Jabber identifier:
 That user's server doesn't exist.	JabberHandler ― Stanza errors		That user's server doesn't exist.
 You need to be properily authenticated before doing this.	JabberHandler ― Stanza errors		You need to be properily authenticated before doing this.
 The server lacks the system resources necessary to service the stream.	JabberHandler ― Connection stream errors		The server lacks the system resources necessary to service the stream.
@@ -53,6 +53,7 @@ The error condition is not one of those defined by the other condition in this l
 You can't do this before registration! Be sure your finished registering for your account.	JabberHandler ― Stanza errors		You can't do this before registration! Be sure your finished registering for your account.
 The server refuses to offer service, because payment is required.	JabberHandler ― Stanza errors		The server refuses to offer service, because payment is required.
 Owner	JabberHandler ― User roles		Owner
+Default	User role		Default
 The receiving entity acknowledges an <abort/> element sent by initiating entity; sent in reply to the <abort/> element.	JabberHandler ― Connection authentication errors		The receiving entity acknowledges an <abort/> element sent by initiating entity; sent in reply to the <abort/> element.
 The value of the 'version' attribute provided by the initiating entity in the stream header specifies a version of XMPP that is not supported by the server; the server may specify the version(s) it supports in the <text/> element.	JabberHandler ― Connection stream errors		The value of the 'version' attribute provided by the initiating entity in the stream header specifies a version of XMPP that is not supported by the server; the server may specify the version(s) it supports in the <text/> element.
 Member	JabberHandler ― User roles		Member
