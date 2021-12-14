@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 
+#include <AboutWindow.h>
 #include <Alert.h>
 #include <Catalog.h>
 #include <Path.h>
@@ -21,7 +22,6 @@
 
 #include <librunview/Emoticor.h>
 
-#include "AboutWindow.h"
 #include "ChatOMatic.h"
 #include "AppMessages.h"
 #include "FilePanel.h"
@@ -109,28 +109,21 @@ TheApp::AboutRequested()
 		"2009-2010 Andrea Anzani",
 		"2010-2015 Dario Casalinuovo",
 		"2009-2010 Pier Luigi Fiorini",
-		"2021 Jaidyn Levesque",
-		NULL
-	};
-
-	const char* authors[] = {
-		"Andrea Anzani",
-		"Dario Casalinuovo",
-		"Pier Luigi Fiorini",
-		"Jaidyn Levesque",
 		NULL
 	};
 
 	BString extraInfo(B_TRANSLATE("%app% is released under the MIT License.\n"
 		"Add-on and library licenses may vary.\n"
 		"Built: %buildDate%"));
-	extraInfo.ReplaceAll("%buildDate", BUILD_DATE);
+	extraInfo.ReplaceAll("%buildDate%", BUILD_DATE);
 	extraInfo.ReplaceAll("%app%", B_TRANSLATE_SYSTEM_NAME(APP_NAME));
 
-	AboutWindow* about = new AboutWindow(B_TRANSLATE_SYSTEM_NAME(APP_NAME),
-		holders, authors, extraInfo.String());
+	BAboutWindow* about = new BAboutWindow(B_TRANSLATE_SYSTEM_NAME(APP_NAME),
+		APP_SIGNATURE);
+	about->AddDescription(B_TRANSLATE("A multi-protocol chat program."));
+	about->AddCopyright(2021, "Jaidyn Levesque", holders);
+	about->AddExtraInfo(extraInfo);
 	about->Show();
-	delete about;
 }
 
 
