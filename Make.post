@@ -2,6 +2,8 @@ LIBPATHS = $(OBJ_DIR)
 PROTOCOL_DIR = $(OBJ_DIR)/chat-o-matic/
 
 DEBUG_ENABLED ?= false
-DEFINES := VERSION="\"0.0.2\"" \
+DEFINES = VERSION="\"0.0.2\"" \
 		BUILD_DATE="\"$(shell date +"%Y-%m-%d %H:%M")\"" \
-		DEBUG_ENABLED=$(DEBUG_ENABLED)
+		DEBUG_ENABLED=$(DEBUG_ENABLED) \
+		APP_NAME="\"$(APP_NAME)"\" \
+		APP_SIGNATURE="\"$(APP_SIGNATURE)"\"

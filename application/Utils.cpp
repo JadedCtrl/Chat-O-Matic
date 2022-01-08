@@ -19,7 +19,6 @@
 
 #include <kernel/fs_attr.h>
 
-#include "ChatOMatic.h"
 #include "Utils.h"
 
 

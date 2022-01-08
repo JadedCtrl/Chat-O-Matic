@@ -27,7 +27,6 @@
 #include <Roster.h>
 #include <TranslationUtils.h>
 
-#include <ChatOMatic.h>
 #include <ChatProtocolMessages.h>
 
 #include "Purple.h"

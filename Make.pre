@@ -1,0 +1,2 @@
+APP_NAME ?= Chat-O-Matic
+APP_SIGNATURE ?= application/x-vnd.chat-o-matic

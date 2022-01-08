@@ -23,7 +23,6 @@
 
 #include "AppMessages.h"
 #include "AppPreferences.h"
-#include "ChatOMatic.h"
 #include "ChatProtocolMessages.h"
 #include "Conversation.h"
 #include "NotifyMessage.h"

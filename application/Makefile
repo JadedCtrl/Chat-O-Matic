@@ -1,3 +1,5 @@
+include Make.pre
+
 ## Haiku Generic Makefile v2.6 ##
 
 ## Fill in this file to specify the project being created, and the referenced
@@ -8,7 +10,7 @@
 ## file:///system/develop/documentation/makefile-engine.html
 
 # The name of the binary.
-NAME = Chat-O-Matic
+NAME = $(APP_NAME)
 
 # The type of binary, must be one of:
 #	APP:	Application
@@ -18,7 +20,7 @@ NAME = Chat-O-Matic
 TYPE = APP
 
 # If you plan to use localization, specify the application's MIME signature.
-APP_MIME_SIG = application/x-vnd.chat-o-matic
+APP_MIME_SIG = $(APP_SIGNATURE)
 
 #	The following lines tell Pe and Eddie where the SRCS, RDEFS, and RSRCS are
 #	so that Pe and Eddie can fill them in for you.
@@ -169,7 +171,7 @@ LOCALES = en eo
 #	use. For example, setting DEFINES to "DEBUG=1" will cause the compiler
 #	option "-DDEBUG=1" to be used. Setting DEFINES to "DEBUG" would pass
 #	"-DDEBUG" on the compiler's command line.
-DEFINES := 
+DEFINES =
 
 #	Specify the warning level. Either NONE (suppress all warnings),
 #	ALL (enable all warnings), or leave blank (enable default warnings).
@@ -205,7 +207,6 @@ DRIVER_PATH =
 ## Include the Makefile-Engine
 DEVEL_DIRECTORY := /boot/system/develop/
 include $(DEVEL_DIRECTORY)/etc/makefile-engine
-
-include Makefile.common
+include Make.post
 
 CC = g++

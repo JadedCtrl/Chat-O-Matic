@@ -1,5 +1,3 @@
-#include "ChatOMatic.h"
-
 resource app_signature APP_SIGNATURE;
 
 resource app_version {

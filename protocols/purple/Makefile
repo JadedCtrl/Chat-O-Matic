@@ -1,3 +1,5 @@
+include Make.pre
+
 ## Haiku Generic Makefile v2.6 ##
 
 ## Fill in this file to specify the project being created, and the referenced
@@ -137,7 +139,7 @@ DRIVER_PATH =
 DEVEL_DIRECTORY := /boot/system/develop/
 include $(DEVEL_DIRECTORY)/etc/makefile-engine
 
-include Makefile.common
-include protocols/Makefile.common
-
 CATKEYS_DIR = locales/purple
+
+include Make.post
+include protocols/Makefile.common

@@ -29,7 +29,6 @@
 
 #include "AppMessages.h"
 #include "AppPreferences.h"
-#include "ChatOMatic.h"
 #include "ChatProtocolMessages.h"
 #include "ReplicantMenuItem.h"
 #include "Utils.h"

@@ -17,7 +17,6 @@
 
 #include "Account.h"
 #include "AppMessages.h"
-#include "ChatOMatic.h"
 #include "ChatProtocolMessages.h"
 #include "Conversation.h"
 #include "ConversationAccountItem.h"
