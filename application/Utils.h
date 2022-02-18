@@ -36,12 +36,17 @@ const char*	SettingsPath();
 const char*	AccountsPath();
 const char*	AccountPath(const char* signature, const char* subsignature);
 
-const char* CachePath();
-const char* AccountCachePath(const char* accountName);
-const char* RoomsCachePath(const char* accountName);
-const char* RoomCachePath(const char* accountName, const char* roomIdentifier);
-const char* UserCachePath(const char* accountName, const char* userIdentifier);
-const char* ContactCachePath(const char* accountName, const char* userIdentifier);
+BPath		CachePath();
+BPath		AccountCachePath(const char* accountName);
+BPath		RoomsCachePath(const char* accountName);
+BPath		RoomsCachePath(BPath accPath);
+BPath		RoomCachePath(const char* accountName, const char* roomIdentifier);
+BPath		RoomCachePath(BPath accPath, const char* roomIdentifier);
+BPath		UserCachePath(const char* accountName, const char* userIdentifier);
+BPath		UserCachePath(BPath accPath, const char* userIdentifier);
+BPath		ContactCachePath(const char* accountName, const char* userIdentifier);
+BPath		ContactCachePath(BPath accPath, const char* userIdentifier);
+BPath		AddOnCachePath(const char* signature);
 
 rgb_color	TintColor(rgb_color color, int severity);
 rgb_color	ForegroundColor(rgb_color background);
@@ -55,4 +60,3 @@ extern "C" status_t our_image(image_info& image);
 
 
 #endif	// _APP_UTILS_H
-

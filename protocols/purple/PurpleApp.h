@@ -26,6 +26,7 @@
 #include <Application.h>
 #include <FindDirectory.h>
 #include <ObjectList.h>
+#include <Path.h>
 #include <StringList.h>
 
 #include <libsupport/KeyMap.h>
@@ -86,7 +87,10 @@ public:
 	HashMap fInviteList;
 	StringMap fUserNicks; // Purple username → Nickname for Cardie
 	StringMap fAccounts; // Cardie account name → Purple username
+	StringMap fAccountCache; // Cardie account name → Cache path
 	RoomMap fRoomlists; // Purple account → Purple roomlist
+
+	BString fAddOnCache;
 
 private:
 			void		_SendSysText(PurpleConversation* conv, const char* text);

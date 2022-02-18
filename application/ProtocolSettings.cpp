@@ -49,7 +49,7 @@ ProtocolSettings::Accounts() const
 {
 	BObjectList<BString> list(true);
 
-	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
+	BPath path = AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature());
 
 	if (path.InitCheck() != B_OK)
 		return list;
@@ -93,7 +93,7 @@ ProtocolSettings::Load(const char* account, BMessage** settings)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
+	BPath path = AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature());
 
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
@@ -127,7 +127,7 @@ status_t
 ProtocolSettings::Save(const char* account, BMessage settings)
 {
 	// Find user's settings path
-	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
+	BPath path = AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature());
 
 	status_t ret;
 	if ((ret = path.InitCheck()) != B_OK)
@@ -146,7 +146,7 @@ ProtocolSettings::Rename(const char* from, const char* to)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
+	BPath path = AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature());
 
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;
@@ -168,7 +168,7 @@ ProtocolSettings::Delete(const char* account)
 	status_t ret = B_ERROR;
 
 	// Find user's settings path
-	BPath path(AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature()));
+	BPath path = AccountPath(fAddOn->Signature(), fAddOn->ProtoSignature());
 
 	if ((ret = path.InitCheck()) != B_OK)
 		return ret;

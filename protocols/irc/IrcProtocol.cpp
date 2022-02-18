@@ -1,5 +1,5 @@
 /*
- * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
+ * Copyright 2021-2022, Jaidyn Levesque <jadedctrl@teknik.io>
  * Copyright 2017, Akshay Agarwal <agarwal.akshay.akshay8@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
@@ -37,7 +37,7 @@ connect_thread(void* data)
 	IrcProtocol* protocol = (IrcProtocol*)data;
 	protocol->Connect();
 	status_t status = protocol->Loop();
-	exit(status);
+	return status;
 }
 
 
@@ -1275,7 +1275,7 @@ IrcProtocol::_RoleTitle(UserRole role)
 const char*
 IrcProtocol::_ContactsCache()
 {
-	BPath path(AccountCachePath(fName));
+	BPath path(fCachePath);
 	path.Append("contact_list");
 	return path.Path();
 }
@@ -1286,7 +1286,7 @@ IrcProtocol::_JoinDefaultRooms()
 {
 	// Hardcoded default room… I'm so awful, aren't I? ;-)
 	if (fServer == "irc.oftc.net") {
-		BFile room(RoomCachePath(fName, "#haiku"), B_READ_ONLY);
+		BFile room(RoomCachePath(fCachePath, "#haiku").Path(), B_READ_ONLY);
 		if (room.InitCheck() != B_OK) {
 			BString cmd("JOIN #haiku");
 			_SendIrc(cmd);

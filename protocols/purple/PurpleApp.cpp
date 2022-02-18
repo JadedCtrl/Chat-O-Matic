@@ -115,6 +115,11 @@ PurpleApp::MessageReceived(BMessage* msg)
 		{
 			BString accName = msg->FindString("account_name");
 			BString username = fAccounts.ValueFor(accName);
+			BString accountCache = msg->FindString("account_cache");
+			fAddOnCache = msg->FindString("addon_cache");
+
+			fAccountCache.AddItem(accName, accountCache);
+
 			int64 thread;
 			if (username.IsEmpty() == true
 					|| msg->FindInt64("thread_id", &thread) != B_OK)
@@ -1956,13 +1961,7 @@ purple_connection_error_name(const PurpleConnectionErrorInfo* error)
 const char*
 purple_cache()
 {
-	BPath path;
-	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
-		return NULL;
-	path.Append(APP_NAME "/Cache/Add-Ons/" PURPLE_ADDON);
-	if (create_directory(path.Path(), 0755) != B_OK)
-		return NULL;
-	return path.Path();
+	return ((PurpleApp*)be_app)->fAddOnCache;
 }
 
 
@@ -1970,26 +1969,25 @@ const char*
 account_cache(PurpleAccount* account)
 {
 	const char* purple_user = purple_account_get_username(account);
-	const char* cardie_user = NULL;
+	const char* app_user = NULL;
 
 	StringMap usernames = ((PurpleApp*)be_app)->fAccounts;
 	for (int i = 0; i < usernames.CountItems(); i++)
 		if (usernames.ValueAt(i) == purple_user) {
-			cardie_user = usernames.KeyAt(i);
+			app_user = usernames.KeyAt(i);
 			break;
 		}
-	if (cardie_user == NULL)
-		return NULL;
 
-	BPath path;
-	if (find_directory(B_USER_SETTINGS_DIRECTORY, &path) != B_OK)
-		return NULL;
-	path.Append(APP_NAME "/Cache/Accounts/");
-	path.Append(cardie_user);
+	const char* path = NULL;
+	if (app_user != NULL) {
+		bool found = false;
+		path = ((PurpleApp*)be_app)->fAccountCache.ValueFor(app_user, &found).String();
 
-	if (create_directory(path.Path(), 0755) != B_OK)
-		return NULL;
-	return path.Path();
+		if (found == false || create_directory(path, 0755) != B_OK)
+			path = NULL;
+	}
+
+	return path;
 }
 
 

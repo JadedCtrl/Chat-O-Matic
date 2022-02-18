@@ -31,11 +31,13 @@ Account::Account(bigtime_t instanceId, ChatProtocol* cayap,
 	fProtocol->Init(this);
 
 	// Find user's settings path
-	BPath path(AccountPath(addOnSignature, fProtocol->Signature()));
+	BPath path = AccountPath(addOnSignature, fProtocol->Signature());
 	if (path.InitCheck() == B_OK) {
 		path.Append(name);
 
 		fProtocol->SetName(name);
+		fProtocol->SetAccountCachePath(AccountCachePath(name));
+		fProtocol->SetAddOnCachePath(AddOnCachePath(addOnSignature));
 
 		// Load settings file
 		BFile file(path.Path(), B_READ_ONLY);

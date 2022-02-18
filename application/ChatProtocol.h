@@ -88,9 +88,11 @@ public:
 	//! Protocol icon
 	virtual BBitmap* Icon() const { return NULL; }
 
-	//! Add-on's path
-	virtual void SetAddOnPath(BPath path) = 0;
+	//! Pertinent paths
 	virtual BPath AddOnPath() = 0;
+	virtual void SetAddOnPath(BPath path) = 0;
+	virtual void SetAccountCachePath(BPath path) { };
+	virtual void SetAddOnCachePath(BPath path) { };
 
 	//! Name of account file (leaf)
 	virtual const char* GetName() = 0;

@@ -260,6 +260,8 @@ PurpleProtocol::UpdateSettings(BMessage* msg)
 
 	BMessage* account = new BMessage(PURPLE_REGISTER_THREAD);
 	account->AddInt64("thread_id", fBirdThread);
+	account->AddString("addon_cache", fAddOnCachePath.Path());
+	account->AddString("account_cache", fAccountCachePath.Path());
 	_SendPrplMessage(account);
 
 	resume_thread(fBirdThread);
@@ -330,6 +332,13 @@ PurpleProtocol::Icon() const
 }
 
 
+BPath
+PurpleProtocol::AddOnPath()
+{
+	return fAddOnPath;
+}
+
+
 void
 PurpleProtocol::SetAddOnPath(BPath path)
 {
@@ -337,10 +346,17 @@ PurpleProtocol::SetAddOnPath(BPath path)
 }
 
 
-BPath
-PurpleProtocol::AddOnPath()
+void
+PurpleProtocol::SetAccountCachePath(BPath path)
 {
-	return fAddOnPath;
+	fAccountCachePath = path;
+}
+
+
+void
+PurpleProtocol::SetAddOnCachePath(BPath path)
+{
+	fAddOnCachePath = path;
 }
 
 

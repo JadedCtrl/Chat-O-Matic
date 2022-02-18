@@ -627,7 +627,7 @@ Server::ImMessage(BMessage* msg)
 			// Join cached rooms
 			BEntry entry;
 			char fileName[B_FILE_NAME_LENGTH] = {'\0'};
-			BDirectory dir(RoomsCachePath(looper->Protocol()->GetName()));
+			BDirectory dir(RoomsCachePath(looper->Protocol()->GetName()).Path());
 
 			while (dir.GetNextEntry(&entry, true) == B_OK)
 				if (entry.GetName(fileName) == B_OK) {

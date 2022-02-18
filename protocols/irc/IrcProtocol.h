@@ -1,5 +1,5 @@
 /*
- * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
+ * Copyright 2021-2022, Jaidyn Levesque <jadedctrl@teknik.io>
  * Copyright 2017, Akshay Agarwal <agarwal.akshay.akshay8@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
@@ -45,6 +45,7 @@ public:
 
 	virtual BBitmap*	Icon() const;
 
+	virtual void		SetAccountCachepath(BPath path) { fCachePath = path; }
 	virtual	void		SetAddOnPath(BPath path) { fAddOnPath = path; }
 	virtual	BPath		AddOnPath() { return fAddOnPath; }
 
@@ -151,6 +152,7 @@ private:
 	BStringList fOfflineContacts;
 
 	BPath fAddOnPath;
+	BPath fCachePath;
 	BString fName;
 	ChatProtocolMessengerInterface* fMessenger;
 	bool fReady;

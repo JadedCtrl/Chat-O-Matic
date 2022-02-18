@@ -52,7 +52,7 @@ ChatProtocol*
 ChatProtocolAddOn::ProtocolAt(int32 i) const
 {
 	ChatProtocol* proto = fGetProtocol(i);
-	proto->SetAddOnPath(BPath(fPath.String()));
+	proto->SetAddOnPath(fPath.String());
 	return proto;
 }
 

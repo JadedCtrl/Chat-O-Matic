@@ -66,8 +66,10 @@ public:
 
 	virtual	BBitmap*	Icon() const;
 
-	virtual	void		SetAddOnPath(BPath path);
 	virtual	BPath		AddOnPath();
+	virtual	void		SetAddOnPath(BPath path);
+	virtual	void		SetAccountCachePath(BPath path);
+	virtual	void		SetAddOnCachePath(BPath path);
 
 	virtual	const char*	GetName();
 	virtual	void		SetName(const char* name);
@@ -92,6 +94,8 @@ private:
 
 	BString fName;
 	BPath fAddOnPath;
+	BPath fAccountCachePath;
+	BPath fAddOnCachePath;
 
 	BString fSignature;
 	BString fFriendlySignature;

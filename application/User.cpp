@@ -227,8 +227,7 @@ User::_EnsureCachePath()
 {
 	if (fCachePath.InitCheck() == B_OK)
 		return;
-	fCachePath.SetTo(UserCachePath(fLooper->Protocol()->GetName(),
-									   fID.String()));
+	fCachePath = UserCachePath(fLooper->Protocol()->GetName(), fID.String());
 }
 
 

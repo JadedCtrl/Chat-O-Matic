@@ -1,6 +1,6 @@
 /*
  * Copyright 2010, Pier Luigi Fiorini. All rights reserved.
- * Copyright 2021, Jaidyn Levesque. All rights reserved.
+ * Copyright 2021-2022, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the GPL v2 License.
  */
 #ifndef _JABBER_HANDLER_H

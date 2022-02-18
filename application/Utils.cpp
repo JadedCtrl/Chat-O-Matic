@@ -150,88 +150,104 @@ AccountPath(const char* signature, const char* subsignature)
 }
 
 
-const char*
+BPath
 CachePath()
 {
-	BPath path(SettingsPath());
-	if (path.InitCheck() != B_OK)
-		return NULL;
-
-	path.Append("Cache");
-	if (create_directory(path.Path(), 0755) != B_OK)
-		return NULL;
-	return path.Path();
+	BPath path = SettingsPath();
+	path.Append("Cache/");
+	create_directory(path.Path(), 0755);
+	return path;
 }
 
 
-const char*
+BPath
 AccountCachePath(const char* accountName)
 {
-	BPath path(CachePath());
-	path.Append("Accounts");
-	if (path.InitCheck() != B_OK)
-		return NULL;
-
+	BPath path = CachePath();
+	path.Append("Accounts/");
 	path.Append(accountName);
-	if (create_directory(path.Path(), 0755) != B_OK)
-		return NULL;
-	return path.Path();
+	create_directory(path.Path(), 0755);
+	return path;
 }
 
 
-const char*
+BPath
 RoomsCachePath(const char* accountName)
 {
-	BPath path(AccountCachePath(accountName));
-	if (path.InitCheck() != B_OK)
-		return NULL;
-
-	path.Append("Rooms");
-	if (create_directory(path.Path(), 0755) != B_OK)
-		return NULL;
-	return path.Path();
+	return RoomsCachePath(AccountCachePath(accountName));
 }
 
 
-const char*
+BPath
+RoomsCachePath(BPath accPath)
+{
+	accPath.Append("Rooms/");
+	create_directory(accPath.Path(), 0755);
+	return accPath;
+}
+
+
+BPath
 RoomCachePath(const char* accountName, const char* roomIdentifier)
 {
-	BPath path(RoomsCachePath(accountName));
-	if (path.InitCheck() != B_OK)
-		return NULL;
-
-	path.Append(roomIdentifier);
-	return path.Path();
+	return RoomCachePath(AccountCachePath(accountName), roomIdentifier);
 }
 
 
-const char*
+BPath
+RoomCachePath(BPath accPath, const char* roomIdentifier)
+{
+	BPath path = RoomsCachePath(accPath);
+	path.Append(roomIdentifier);
+	return path;
+}
+
+
+BPath
 UserCachePath(const char* accountName, const char* userIdentifier)
 {
-	BPath path(AccountCachePath(accountName));
-	if (path.InitCheck() != B_OK)
-		return NULL;
-
-	path.Append("Users");
-	if (create_directory(path.Path(), 0755) != B_OK)
-		return NULL;
-	path.Append(userIdentifier);
-	return path.Path();
+	return UserCachePath(AccountCachePath(accountName), userIdentifier);
 }
 
 
-const char*
+BPath
+UserCachePath(BPath accPath, const char* userIdentifier)
+{
+	accPath.Append("Users/");
+	create_directory(accPath.Path(), 0755);
+
+	accPath.Append(userIdentifier);
+	return accPath;
+}
+
+
+BPath
 ContactCachePath(const char* accountName, const char* userIdentifier)
 {
-	BPath path(AccountCachePath(accountName));
-	if (path.InitCheck() != B_OK)
-		return NULL;
-	path.Append("Contacts");
+	return ContactCachePath(AccountCachePath(accountName), userIdentifier);
+}
 
-	if (create_directory(path.Path(), 0755) != B_OK)
-		return NULL;
-	path.Append(userIdentifier);
-	return path.Path();
+
+BPath
+ContactCachePath(BPath accPath, const char* userIdentifier)
+{
+	accPath.Append("Contacts/");
+	create_directory(accPath.Path(), 0755);
+
+	accPath.Append(userIdentifier);
+	return accPath;
+}
+
+
+BPath
+AddOnCachePath(const char* signature)
+{
+	BPath path = CachePath();
+	path.Append("Add-Ons/");
+	path.Append(signature);
+
+	create_directory(path.Path(), 0755);
+	return path;
 }
 
 

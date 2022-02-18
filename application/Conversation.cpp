@@ -636,8 +636,7 @@ Conversation::_EnsureCachePath()
 {
 	if (fCachePath.InitCheck() == B_OK)
 		return;
-	fCachePath.SetTo(RoomCachePath(fLooper->Protocol()->GetName(),
-									   fID.String()));
+	fCachePath = RoomCachePath(fLooper->Protocol()->GetName(), fID.String());
 }
 
 
