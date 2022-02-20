@@ -1,0 +1,301 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+        <meta charset="UTF-8"/>
+	<title>Chat-O-Matic Documentation</title>
+	<link href='style.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+	<div align="center">
+	<h1>
+		<img width=32px src="img/AppIcon.png" />
+		Chat-O-Matic Documentation
+	</h1>
+	</div>
+
+	<p>Chat-O-Matic is a multi-protocol chat program based on
+	<a href="https://github.com/Numerio/Caya">Caya</a>, which has its own roots in the
+	<a href="http://www.eiman.tv/imkit/">IM kit</a> project. Several protocols are supported,
+	including <abbr title="Internet Relay Chat">IRC</abbr>,
+	<abbr title="Extensible Messaging and Presence Protocol">XMPP</abbr>, and more through
+	libpurple.
+
+	<nav>
+	<b>Contents</b>
+	<ul>
+		<li><a href="#window">Main window</a></li>
+		<ul>
+			<li><a href="#room_list">Room list</a></li>
+			<ul>
+				<li><a href="#room_flags">Room options</a></li>
+			</ul>
+			<li><a href="#room_header">Room header</a></li>
+			<li><a href="#user_list">User list</a></li>
+			<ul>
+				<li><a href="#moderation">Moderation</a></li>
+			</ul>
+			<li><a href="#chat_input">Chat input</a></li>
+			<ul>
+				<li><a href="#commands">Commands</a></li>
+			</ul>
+			<li><a href="#status">Status area</a></li>
+			<li><a href="#menu_bar">Menu-bar</a></li>
+		</ul>
+		<li><a href="#preferences">Preferences window</a></li>
+		<li><a href="#roster">Roster windows</a></li>
+		<li><a href="#rooms">Room creation/join windows</a></li>
+		<li><a href="#room_dir">Room directory</a></li>
+	</ul>
+	</nav>
+
+
+	<section id="window">
+	<h2>Main window</h2>
+
+	<img src="img/window.png" />
+
+
+	<section id="room_list">
+	<h3>Room list</h3>
+
+	<img src="img/chat-list.png" />
+	<p>Lists all joined chats that are attached to the current window, ordered by account.
+	Clicking a chat will select it, changing the text buffer,
+	<a href="#user_list">user-list</a>, and <a href="#room_header">room header</a>. If you
+	click on an <i>account's</i> list item, then that account's logs will be shown instead: This
+	might include anything from <abbr title="Message of the Day">MOTDs</abbr> to error messages,
+	depending on the protocol.</p>
+
+	<section id="room_flags">
+	<h4>Room options</h4>
+	<p>If you right-click on a room's list item, you can toggle several per-room options,
+	including:</p>
+	<table>
+		<tr><th>Flag</th><th>Description</th><th>Default</th></tr>
+		<tr><td>Auto-join</td>
+			<td>If the room will be joined after every start-up</td><td>✓</td>
+		</tr>
+		<tr><td>Log messages</td>
+			<td>Whether or not messages will be logged to disk</td><td>✓</td>
+		</tr>
+		<tr><td>Notify on every message</td>
+			<td>Notify if any message is sent to the room</td><td>❌</td></tr>
+		<tr><td>Notify on direct-messages</td>
+			<td>Notify if the user is mentioned, or if message received in one-on-one
+			chat</td><td>✓</td></tr>
+	</table>
+	</section>
+	</section>
+
+	<section id="room_header">
+	<h3>Room header</h3>
+
+	<img src="img/chat-header.png" />
+
+	<p>This little section displays a room's name, topic, and icon.</p>
+	<p>If you have permission to, you can also change a room's topic by clicking on the topic
+	text, typing what you'd like it to be, and hitting <span class="key">ENTER</span>. After
+	hitting <span class="key">ENTER</span>, the text will change back to the previous topic,
+	pending the protocol or server— after which it will update to the new topic.</p>
+	<p>Here, the room name is “#haiku” and the topic “Open-source operating system […].”</p>
+	</section>
+
+	<section>
+	<h3 id="user_list">User list</h3>
+
+	<img src="img/user-list.png" />
+
+	<p>This area has a calm, undemanding job— show a list of users in the room. On
+	right-clicking a user item, you'll see a pop-up menu with at least <i>User info…</i>.
+
+	<section>
+	<h4 id="moderation">Moderation</h4>
+	<p>Depending on your user's permissions, you might see more than <i>User info…</i> in the
+	user-list pop-up menus: <i>Ban user</i>, <i>Kick user</i>, <i>Mute user</i>,
+	<i>Deafen user</i>, and their reciprocals (<i>Unmute user</i>, <i>Undeafen user</i>).</p>
+
+	<p>By moderating through this right-click menu, though, you can't attach a message—
+	sometimes, for example, it's useful to give the victim a reason that you've kicked them
+	in the shins. For that, you can moderate through <a href="#commands">commands</a> as well.</p>
+	</section>
+
+	<section>
+	<h3 id="chat_input">Chat input</h3>
+
+	<img src="img/chat-input.png" />
+
+	<p>With the text-box, you can send messages and run commands. Type what you like, and hit
+	<span class="key">ENTER</span> to send. If you're typing someone's username or nickname,
+	hitting <span class="key">TAB</span> can auto-complete it.</p>
+	<p>Messages don't necessarily have to be only one line long— hence why you can resize the
+	text-box. <span class="key">ALT</span><span class="key">ENTER</span> starts a new line. If
+	you get lost, <span class="key">Page↑</span> and <span class="key">Page↓</span> are your
+	friends.</p>
+
+	<section>
+	<h4 id="commands">Commands</h4>
+	<p><i>Commands</i> let you perform some special action— they vary by protocol, but there are
+	some standard ones you can expect to work:</p>
+	<table>
+		<tr><th>Command</th><th>Description</th></tr>
+		<tr><td>/help</td><td>List all commands for the current protocol</td>
+		<tr><td>/invite <i>USER</i></td><td>Invite a user to the current room</td>
+		<tr><td>/kick <i>USER MESSAGE</i></td><td>Disconnect a user from the current room</td>
+		<tr><td>/ban <i>USER MESSAGE</i></td><td>Disconnect a user and prevent them from re-joining</td>
+		<tr><td>/unban <i>USER</i></td><td>Undo a user's ban</td>
+		<tr><td>/deafen <i>USER</i></td><td>Prevent a user from receiving any messages</td>
+		<tr><td>/undeafen <i>USER</i></td><td>Undo a user's deafening</td>
+		<tr><td>/mute <i>USER</i></td><td>Prevent a user from sending messages</td>
+		<tr><td>/unmute <i>USER</i></td><td>Undo a user's muting</td>
+	</table>
+	<p>As you might be able to tell, most of these are just aliases for
+	<a href="#moderation">moderation</a> through the <a href="#user_list">user list</a>.</p>
+	</section>
+	</section>
+
+	<section>
+	<h3 id="status">Status area</h3>
+
+	<img src="img/status-area.png" />
+
+	<p>In the status area, you can see your avatar (how cute!), change your nickname, and update
+	your current status.</p>
+	<p>Clicking on the nickname text-box (here it's “jaidedim”), you can then edit your nickname,
+	hitting <span class="key">ENTER</span> to update. After hitting
+	<span class="key">ENTER</span>, the text will change back to your previous nickname, pending
+	the protocol or server— after which it will update to the new nickname.</p>
+	<p>The status drop-down menu lets you change the status for the currently selected account
+	(here it's “Available”).</p>
+	<p>There is, next to the status menu, an account menu. By default “All” (the asterisk) is
+	selected, meaning that any changes to status or nickname will apply to all accounts. If
+	you'd like to change the nick or status of only a single account, you can select it from
+	this menu.</p>
+	</section>
+
+
+	<section>
+	<h3 id="menu_bar">Menu-bar</h3>
+
+	<img src="img/menu-bar.png" />
+
+	<p>In the <i>Program</i> menu, you'll find:
+	<ul>
+		<li>About…</li>
+		<li><a href="#preferences">Preferences…</a></li>
+		<li>Quit</li>
+	</ul>
+	</p>
+
+	<p>In the <i>Accounts</i> menu, you'll find a list of your accounts for
+	easy management. Through this menu, you can also select the <i>Accounts→Manage accounts…</i>
+	item to see the account management window, which lets you add and remove accounts.</p>
+
+	<p>In the <i>Chat</i> menu, you'll find:
+	<ul>
+		<li>Join room…</li>
+		<li><a href="#room_dir">Room directory…</a></li>
+		<li>New room…</li>
+		<li>New chat…</li>
+		<li>Find…</li>
+	</ul>
+	<i>Chat→Find…</i> (<span class="key">ALT</span><span class="key">F</span>) will open a
+	<b>TextSearch</b> window for searching the current room's logs (so long as logging
+	<a href="#room_flags">is enabled</a>). The other items are related to
+	<a href="#rooms">room creation/joining</a>.
+	</p>
+
+	<p>In the <i>Roster</i> menu, you'll find:
+	<ul>
+		<li>Edit roster…</li>
+		<li>Invite user…</li>
+	</ul>
+
+	<p>In the <i>Window</i> menu, you'll find two items that make switching between rooms
+	faster— <i>Window→Up</i> (<span class="key">ALT</span><span class="key">↑</span>) and
+	<i>Window→Down</i> (<span class="key">ALT</span><span class="key">↓</span>).</p>
+	</section>
+	</section>
+
+
+	<section>
+	<h2 id="preferences">Preferences window</h4>
+
+	<img src="img/pref-notifications.png" />
+
+	<p>Selecting <i>Program→Preferences</i> through the menu-bar (<span class="key">ALT</span>
+	<span class="key">,</span>), you'll see the Preferences window. Most of the options should
+	be self-explanatory, but there a couple that are noteworthy:<p>
+
+	<p>The <i>Notifications</i> tab lets you toggle whether or not you receive message-related
+	notifications and whether or not you'll be notified on a connection/disconnection.</p>
+
+	<p>You can also attach specific sounds to notifications through Haiku's <b>Sounds</b>
+	preferences, brought up through the <i>Edit sounds…</i> button. The beeps configurable
+	through <b>Sounds</b> are <i>Chat-O-Matic mention</i> and <i>Chat-O-Matic message</i>.</p>
+	</section>
+
+
+	<section>
+	<h2 id="roster">Roster/user windows</h2>
+
+	<img src="img/select-user.png" />
+
+	<p>Roster and user-selection windows (as in <i>Roster→Edit roster…</i>,
+	<i>Roster→Invite user…</i> and <i>Chat→New chat…</i> from the
+	<a href="#menu_bar">menu-bar</a>) display a list of your contacts,
+	allowing you to select one.</p>
+
+	<p>Through the account drop-down menu in the
+	bottom-left corner, you can filter the list, showing only contacts
+	of a specific account. In this example, “jaidedim-xmpp“, an XMPP
+	account, is selected.</p>
+
+	<p>By typing into the text-box at the top of the window, you can search
+	through the shown contacts— here, all contacts matching “Ash” are
+	shown. If you have an account selected, you can also use this text-box
+	to manually type in a username for selection. In this window, since
+	a specific account is selected, “Select user Ash…” is an item in the
+	list.</p>
+	</section>
+
+
+	<section>
+	<h2 id="rooms">Room creation/join windows</h2>
+
+	<img src="img/room-creation.png" />
+
+	<p>With <i>Chat→Join room…</i> and <i>Chat→New room…</i> in the
+	<a href="#menu_bar">menu-bar</a> (<span class="key">ALT</span><span class="key">J</span> and
+	<span class="key">ALT</span><span class="key">N</span>, respectively), you'll see a window
+	like the one above. For each protocol, the options and text-boxes shown will differ— for
+	<abbr title="Internet Relay Chat">IRC</abbr>, as in this image, the only option is the
+	channel-name.</p>
+
+	<p>You can select the account to join/create from through the account drop-down menu in the
+	bottom-left corner. Here, the account “oftc-irc” is selected, an
+	<abbr title="Internet Relay Chat">IRC</abbr> account.</p>
+
+	<p><i>Chat→Create chat…</i> (<span class="key">ALT</span><span class="key">M</span>), in
+	contrast, is used for creating one-on-one chats, and opens a
+	<a href="#roster">user-selection window</a> instead.</p>
+	</section>
+
+
+	<section>
+	<h2 id="room_dir">Room directory</h2>
+	
+	<img src="img/room-directory.png" />
+
+	<p>The room directory (accessible though <i>Chat→Room directory…</i> in the
+	<a href="#menu_bar">menu-bar</a>) lets you browse and join publically listed chatrooms— a
+	feature used extensively for <abbr title="Internet Relay Chat">IRC</abbr>,
+	<abbr title="Extensible Messaging and Presence Protocol">XMPP</abbr>, and some libpurple
+	add-ons.</p>
+
+	<p>Like other dialogues in Chat-O-Matic, you can select a specific account to act on though
+	the bottom-left account dropdown menu. In this image, “All” accounts is selected, so rooms
+	available to all the user's accounts are shown.</p>
+	</section>
+
+</body>
+</html>

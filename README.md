@@ -14,6 +14,8 @@ Protocols natively supported include IRC and XMPP.
 Protocols generally supported through libpurple include GroupWise, Zephyr, and
 [others through plugins](https://pidgin.im/plugins/?type=Protocol).
 
+You can find the user documentation [here](http://htmlpreview.github.io/?https://github.com/JadedCtrl/Chat-O-Matic/master/documentation/Documentation.html).
+
 
 ## Building
 You can make Chat-O-Matic and its protocols with:

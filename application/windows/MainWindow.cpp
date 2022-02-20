@@ -1,13 +1,14 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
- * Copyright 2021, Jaidyn Levesque. All rights reserved.
+ * Copyright 2021-2022, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  *		Andrea Anzani, andrea.anzani@gmail.com
  *		Pier Luigi Fiorini, pierluigi.fiorini@gmail.com
  *		Jaidyn Levesque, jadedctrl@teknik.io
+ *		Humdinger, humdingerb@gmail.com
  */
 
 #include <Application.h>
@@ -16,6 +17,7 @@
 #include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
+#include <PathFinder.h>
 #include <Roster.h>
 #include <ScrollView.h>
 #include <TranslationUtils.h>
@@ -278,6 +280,28 @@ MainWindow::MessageReceived(BMessage* message)
 			fListView->RemoveAccount(message->GetInt64("instance", -1));
 			break;
 		}
+		case APP_SHOW_HELP:
+		{
+			BPathFinder pathFinder;
+			BStringList paths;
+			BPath path;
+			BEntry entry;
+
+			status_t error = pathFinder.FindPaths(B_FIND_PATH_DOCUMENTATION_DIRECTORY,
+				"packages/chat_o_matic", paths);
+
+			for (int i = 0; i < paths.CountStrings(); ++i) {
+				if (error == B_OK && path.SetTo(paths.StringAt(i)) == B_OK
+					&& path.Append("Documentation.html") == B_OK)
+				{
+					entry = path.Path();
+					entry_ref ref;
+					entry.GetRef(&ref);
+					be_roster->Launch(&ref);
+				}
+			}
+			break;
+		}
 		case IM_MESSAGE:
 			ImMessage(message);
 			break;
@@ -522,6 +546,8 @@ MainWindow::_CreateMenuBar()
 	BMenu* programMenu = new BMenu(B_TRANSLATE("Program"));
 	programMenu->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS),
 		new BMessage(B_ABOUT_REQUESTED)));
+	programMenu->AddItem(new BMenuItem(B_TRANSLATE("Help" B_UTF8_ELLIPSIS),
+		new BMessage(APP_SHOW_HELP)));
 	programMenu->AddItem(new BMenuItem(B_TRANSLATE("Preferences" B_UTF8_ELLIPSIS),
 		new BMessage(APP_SHOW_SETTINGS), ',', B_COMMAND_KEY));
 	programMenu->AddItem(new BSeparatorItem());

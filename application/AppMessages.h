@@ -8,6 +8,9 @@
 //! Show settings window
 const uint32 APP_SHOW_SETTINGS = 'RPST';
 
+//! Show documentation
+const uint32 APP_SHOW_HELP = 'Rhlp';
+
 //! Show accounts window
 const uint32 APP_SHOW_ACCOUNTS = 'RPac';
 
