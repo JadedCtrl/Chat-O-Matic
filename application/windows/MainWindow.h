@@ -1,7 +1,7 @@
 /*
- * Copyright 2021, Jaidyn Levesque. All rights reserved.
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021-2022, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _MAIN_WINDOW_H
@@ -11,6 +11,8 @@
 
 #include "Server.h"
 
+class BCardLayout;
+class BLayoutItem;
 class BMenu;
 class BSplitView;
 class BTextView;
@@ -31,6 +33,7 @@ public:
 						MainWindow();
 
 			void		Start();
+			void		Show();
 	virtual	bool		QuitRequested();
 
 	virtual	void		MessageReceived(BMessage* message);
@@ -40,7 +43,7 @@ public:
 							bool active);
 
 			void		SetConversation(Conversation* chat);
-			void		SetConversationView(ConversationView* chatView);
+			void		SetConversationView(ConversationView* view);
 			void		RemoveConversation(Conversation* chat);
 			void		SortConversation(Conversation* chat);
 
@@ -52,11 +55,16 @@ private:
 			BMenuBar*	_CreateMenuBar();
 			BMenu*		_CreateAccountsMenu();
 			void		_RefreshAccountsMenu();
+			BMenu*		_CreateProtocolMenu();
 
 			void		_ToggleMenuItems();
 
 			ConversationItem*
 						_EnsureConversationItem(BMessage* msg);
+			void		_EnsureConversationView(Conversation* chat);
+
+			void		_ApplyWeights();
+			void		_SaveWeights();
 	
 			bool		_PopulateWithAccounts(BMenu* menu,
 							ProtocolSettings* settings);
@@ -67,15 +75,16 @@ private:
 	bool				fWorkspaceChanged;
 	BMenuBar*			fMenuBar;
 
+	KeyMap<Conversation*, BLayoutItem*> fChatList;
+
 	// Left panel, chat list
 	ConversationListView* fListView;
 	StatusView*			fStatusView;
 	BSplitView*			fSplitView;
 
 	// Right panel, chat
-	BSplitView*			fRightView;
+	BCardLayout*		fChatLayout;
 	Conversation*		fConversation;
-	ConversationView*	fChatView;
 	ConversationView*	fBackupChatView;
 };
 

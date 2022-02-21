@@ -17,6 +17,7 @@ public:
 	void  		AddItem(KEY k, TYPE t);
 
 	TYPE		ValueFor(KEY, bool* found = NULL) const;
+	KEY			KeyFor(TYPE, bool* found = NULL) const;
 
 	TYPE		RemoveItemAt(int32 position);
 	TYPE		RemoveItemFor(KEY);
@@ -65,6 +66,20 @@ KeyMap<KEY, TYPE>::ValueFor(KEY k, bool* found) const
 	if (i == fMap.end())
 		return NULL;
 	return i->second;
+}
+
+
+template<class KEY, class TYPE>
+inline KEY
+KeyMap<KEY, TYPE>::KeyFor(TYPE v, bool* found) const
+{
+	*found = false;
+	for (int32 i = 0; i < CountItems(); i++)
+		if (ValueAt(i) == v) {
+			*found = true;
+			return KeyAt(i);
+		}
+	return NULL;
 }
 
 

@@ -14,6 +14,7 @@
 #include <Application.h>
 #include <Alert.h>
 #include <Beep.h>
+#include <CardLayout.h>
 #include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
@@ -87,6 +88,15 @@ MainWindow::Start()
 }
 
 
+void
+MainWindow::Show()
+{
+	if (fChatLayout->CountItems() == 0)
+		SetConversation(NULL);
+	BWindow::Show();
+}
+
+
 bool
 MainWindow::QuitRequested()
 {
@@ -101,14 +111,20 @@ MainWindow::QuitRequested()
 		button_index = alert->Go();
 	}
 
-	AppPreferences::Get()->MainWindowListWeight
-		= fSplitView->ItemWeight((int32)0);
-	AppPreferences::Get()->MainWindowChatWeight
-		= fSplitView->ItemWeight((int32)1);
 	AppPreferences::Get()->MainWindowRect = Frame();
+	_SaveWeights();
 
-	if(button_index == 0) {
+	if (button_index == 0) {
 		fServer->Quit();
+
+		// ConversationViews will be removed by Server's deletion of Conversations,
+		// but some special views (protocol logs, the blank ConversationView)
+		// must be done manually
+		for (int i = fChatLayout->CountItems() - 1; i >= 0; i--)
+			fChatLayout->RemoveItem(i);
+		fChatLayout->RemoveSelf();
+		delete fChatLayout;
+
 		AppPreferences::Get()->Save();
 		ReplicantStatusView::RemoveReplicant();
 		be_app->PostMessage(B_QUIT_REQUESTED);
@@ -282,6 +298,7 @@ MainWindow::MessageReceived(BMessage* message)
 		}
 		case APP_SHOW_HELP:
 		{
+			// Borrowed from HaikuArchives/Calendar's _ShowHelp()
 			BPathFinder pathFinder;
 			BStringList paths;
 			BPath path;
@@ -394,79 +411,52 @@ MainWindow::WorkspaceActivated(int32 workspace, bool active)
 void
 MainWindow::SetConversation(Conversation* chat)
 {
-	fConversation = chat;
-	if (chat != NULL) {
-		SetConversationView(chat->GetView());
-
-		BString title(chat->GetName());
-		title << " ― " << APP_NAME;
-		SetTitle(title.String());
-	}
-	else {
-		SetConversationView(fBackupChatView);
+	if (chat == NULL) {
 		SetTitle(APP_NAME);
+		SetConversationView(fBackupChatView);
+		return;
 	}
+
+	_EnsureConversationView(chat);
+
+	bool found = false;
+	BLayoutItem* item = fChatList.ValueFor(chat, &found);
+	if (found == false)
+		return;
+
+	BString title(chat->GetName());
+	title << " ― " << APP_NAME;
+	SetTitle(title.String());
+
+	// Remove "Protocol" menu
+	BMenuItem* chatMenuItem = fMenuBar->FindItem(B_TRANSLATE("Chat"));
+	BMenuItem* protocolMenuItem = fMenuBar->FindItem(B_TRANSLATE("Protocol"));
+	if (protocolMenuItem != NULL)
+		fMenuBar->RemoveItem(protocolMenuItem);
+
+	// Populate new "Protocol" menu if need be
+	BMenu* protocolMenu = _CreateProtocolMenu();
+	if (protocolMenu != NULL)
+		fMenuBar->AddItem(protocolMenu, fMenuBar->IndexOf(chatMenuItem) + 1);
+
+	_SaveWeights();
+	fConversation = chat;
+	fChatLayout->SetVisibleItem(item);
+	_ApplyWeights();
 }
 
 
 void
-MainWindow::SetConversationView(ConversationView* chatView)
+MainWindow::SetConversationView(ConversationView* view)
 {
-	// Save split weights
-	float weightChat = fRightView->ItemWeight((int32)0);
-	float weightSend = fRightView->ItemWeight((int32)1);
-	float horizChat, horizList, vertChat, vertSend;
-	fChatView->GetWeights(&horizChat, &horizList, &vertChat, &vertSend);
+	int32 index = fChatLayout->IndexOfView(view);
+	if (index < 0) {
+		BLayoutItem* item = fChatLayout->AddView(view);
+		fChatLayout->SetVisibleItem(item);
+	} else
+		fChatLayout->SetVisibleItem(index);
 
-	fRightView->RemoveChild(fRightView->FindView("chatView"));
-	fChatView = chatView;
-
-	fRightView->AddChild(fChatView, 9);
-
-	// Remove "Protocol" menu
-	BMenuItem* chatMenuItem = fMenuBar->FindItem("Protocol");
-	BMenu* chatMenu;
-	if (chatMenuItem != NULL && (chatMenu = chatMenuItem->Submenu()) != NULL)
-		fMenuBar->RemoveItem(chatMenu);
-
-	// Add and populate "Protocol" menu, if appropriate
-	if (fConversation != NULL) {
-		ProtocolLooper* looper = fConversation->GetProtocolLooper();
-		BObjectList<BMessage> menuItems = looper->Protocol()->MenuBarItems();
-		for (int i = 0; i < menuItems.CountItems(); i++) {
-			BMessage* itemMsg = menuItems.ItemAt(i);
-			BMessage* msg = new BMessage(*itemMsg);
-			BMessage toSend;
-			msg->FindMessage("_msg", &toSend);
-			toSend.AddString("chat_id", fConversation->GetId());
-			toSend.AddInt64("instance", looper->GetInstance());
-			msg->ReplaceMessage("_msg", &toSend);
-
-			BMenuItem* item = new BMenuItem(msg);
-			if (item == NULL)
-				continue;
-			if (msg->GetBool("x_to_protocol", true) == true)
-				item->SetTarget(looper);
-			else
-				item->SetTarget(this);
-			chatMenu->AddItem(item);
-		}
-	}
-
-	// Apply saved weights
-	fSplitView->SetItemWeight(0, AppPreferences::Get()->MainWindowListWeight, true);
-	fSplitView->SetItemWeight(1, AppPreferences::Get()->MainWindowChatWeight, true);
-	fChatView->SetWeights(horizChat, horizList, vertChat, vertSend);
-	if (weightChat * weightSend != 0) {
-		fRightView->SetItemWeight(0, weightChat, true);
-		fRightView->SetItemWeight(1, weightSend, true);
-	}
-
-	// Save ChatView weights to settings
-	AppPreferences::Get()->ChatViewHorizChatWeight = horizChat;
-	AppPreferences::Get()->ChatViewHorizListWeight = horizList;
-	AppPreferences::Get()->ChatViewVertChatWeight = vertChat;
-	AppPreferences::Get()->ChatViewVertSendWeight = vertSend;
+	_ApplyWeights();
 }
 
 
@@ -474,6 +464,13 @@ void
 MainWindow::RemoveConversation(Conversation* chat)
 {
 	SetConversation(NULL);
+
+	bool found = false;
+	BLayoutItem* item = fChatList.ValueFor(chat, &found);
+	if (item != NULL)
+		item->RemoveSelf();
+	if (found == true)
+		fChatList.RemoveItemFor(chat);
 
 	int32 index = fListView->IndexOf(chat->GetListItem());
 	if (index > 0)
@@ -506,17 +503,8 @@ MainWindow::_InitInterface()
 		true, false, B_NO_BORDER);
 
 	// Right-side of window, Chat + Textbox
-	fRightView = new BSplitView(B_VERTICAL, 0);
+	fChatLayout = new BCardLayout();
 	fBackupChatView = new ConversationView();
-	fChatView = fBackupChatView;
-
-	// Load weights from settings
-	float horizChat, horizList, vertChat, vertSend;
-	horizChat = AppPreferences::Get()->ChatViewHorizChatWeight;
-	horizList = AppPreferences::Get()->ChatViewHorizListWeight;
-	vertChat = AppPreferences::Get()->ChatViewVertChatWeight;
-	vertSend = AppPreferences::Get()->ChatViewVertSendWeight;
-	fChatView->SetWeights(horizChat, horizList, vertChat, vertSend);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
 		.Add((fMenuBar = _CreateMenuBar()))
@@ -527,12 +515,11 @@ MainWindow::_InitInterface()
 					.Add(listScroll, 1)
 					.Add(fStatusView)
 				.End()
-				.Add(fRightView, 5)
+				.Add(fChatLayout, 5)
 			.End()
 		.End()
 	.End();
 
-	SetConversation(NULL);
 	_ToggleMenuItems();
 }
 
@@ -630,6 +617,40 @@ MainWindow::_RefreshAccountsMenu()
 }
 
 
+BMenu*
+MainWindow::_CreateProtocolMenu()
+{
+	if (fConversation == NULL)
+		return NULL;
+
+	ProtocolLooper* looper = fConversation->GetProtocolLooper();
+	BObjectList<BMessage> menuItems = looper->Protocol()->MenuBarItems();
+	if (menuItems.CountItems() == 0)
+		return NULL;
+
+	BMenu* menu = new BMenu(B_TRANSLATE("Protocol"));
+	for (int i = 0; i < menuItems.CountItems(); i++) {
+		BMessage* itemMsg = menuItems.ItemAt(i);
+		BMessage* msg = new BMessage(*itemMsg);
+		BMessage toSend;
+		msg->FindMessage("_msg", &toSend);
+		toSend.AddString("chat_id", fConversation->GetId());
+		toSend.AddInt64("instance", looper->GetInstance());
+		msg->ReplaceMessage("_msg", &toSend);
+
+		BMenuItem* item = new BMenuItem(msg);
+		if (item == NULL)
+			continue;
+		if (msg->GetBool("x_to_protocol", true) == true)
+			item->SetTarget(looper);
+		else
+			item->SetTarget(this);
+		menu->AddItem(item);
+	}
+	return menu;
+}
+
+
 void
 MainWindow::_ToggleMenuItems()
 {
@@ -661,10 +682,12 @@ MainWindow::_ToggleMenuItems()
 ConversationItem*
 MainWindow::_EnsureConversationItem(BMessage* msg)
 {
-	ChatMap chats = fServer->Conversations();
-
 	BString chat_id = msg->FindString("chat_id");
 	Conversation* chat = fServer->ConversationById(chat_id, msg->FindInt64("instance"));
+
+	_EnsureConversationView(chat);
+
+	// Add conversation item if necessary, return it
 	ConversationItem* item;
 	if (chat != NULL && (item = chat->GetListItem()) != NULL) {
 		if (fListView->HasItem(item))
@@ -679,6 +702,62 @@ MainWindow::_EnsureConversationItem(BMessage* msg)
 		return item;
 	}
 	return NULL;
+}
+
+
+void
+MainWindow::_EnsureConversationView(Conversation* chat)
+{
+	// Add conversation's view if necessary
+	bool added = false;
+	fChatList.ValueFor(chat, &added);
+
+	if (added == false) {
+		BLayoutItem* item = fChatLayout->AddView(chat->GetView());
+		if (item != NULL)
+			fChatList.AddItem(chat, item);
+	}
+}
+
+
+void
+MainWindow::_ApplyWeights()
+{
+	// Chat-list and chat-view splitter
+	fSplitView->SetItemWeight(0, AppPreferences::Get()->MainWindowListWeight, true);
+	fSplitView->SetItemWeight(1, AppPreferences::Get()->MainWindowChatWeight, true);
+
+	// Chat-view's weights
+	float horizChat, horizList, vertChat, vertSend;
+	horizChat = AppPreferences::Get()->ChatViewHorizChatWeight;
+	horizList = AppPreferences::Get()->ChatViewHorizListWeight;
+	vertChat = AppPreferences::Get()->ChatViewVertChatWeight;
+	vertSend = AppPreferences::Get()->ChatViewVertSendWeight;
+
+	BLayoutItem* item = fChatLayout->VisibleItem();
+	if (item != NULL)
+		((ConversationView*)item->View())->SetWeights(horizChat, horizList, vertChat, vertSend);
+}
+
+
+void
+MainWindow::_SaveWeights()
+{
+	// Chat-list and chat-view splitter
+	AppPreferences::Get()->MainWindowListWeight = fSplitView->ItemWeight((int32)0);
+	AppPreferences::Get()->MainWindowChatWeight = fSplitView->ItemWeight((int32)1);
+
+	// ChatView's weights
+	float horizChat, horizList, vertChat, vertSend;
+	BLayoutItem* item = fChatLayout->VisibleItem();
+	if (item == NULL)
+		return;
+	((ConversationView*)item->View())->GetWeights(&horizChat, &horizList, &vertChat, &vertSend);
+
+	AppPreferences::Get()->ChatViewHorizChatWeight = horizChat;
+	AppPreferences::Get()->ChatViewHorizListWeight = horizList;
+	AppPreferences::Get()->ChatViewVertChatWeight = vertChat;
+	AppPreferences::Get()->ChatViewVertSendWeight = vertSend;
 }
 
 
