@@ -71,7 +71,7 @@ ConversationItem::ObserveInteger(int32 what, int32 num)
 		case INT_NEW_MENTION:
 			fStatus |= kMentioned;
 			break;
-		case INT_WINDOW_FOCUSED:
+		case INT_CONV_VIEW_SELECTED:
 			fStatus = 0;
 			break;
 	}

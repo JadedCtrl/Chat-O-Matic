@@ -1,6 +1,6 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
- * Copyright 2021, Jaidyn Levesque. All rights reserved.
+ * Copyright 2021-2022, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  *
  * Authors:
@@ -67,7 +67,15 @@ ConversationView::AttachedToWindow()
 		if (fSubjectTextView->Text() != fConversation->GetSubject())
 			fSubjectTextView->SetText(fConversation->GetSubject());
 	}
-	NotifyInteger(INT_WINDOW_FOCUSED, 0);
+}
+
+
+void
+ConversationView::Show()
+{
+	BView::Show();
+
+	NotifyInteger(INT_CONV_VIEW_SELECTED, 0);
 	fSendView->MakeFocus(true);
 	fSendView->Invalidate();
 }
@@ -124,7 +132,7 @@ ConversationView::ImMessage(BMessage* msg)
 		case IM_MESSAGE_RECEIVED:
 		{
 			_AppendOrEnqueueMessage(msg);
-			fReceiveView->ScrollToBottom();
+			_ScrollToBottom();
 			break;
 		}
 		case IM_MESSAGE_SENT:
@@ -132,7 +140,7 @@ ConversationView::ImMessage(BMessage* msg)
 		{
 			_AppendOrEnqueueMessage(msg);
 			if (im_what == IM_MESSAGE_SENT)
-				fReceiveView->ScrollToBottom();
+				_ScrollToBottom();
 			break;
 		}
 		case IM_ROOM_PARTICIPANT_JOINED:
@@ -392,7 +400,7 @@ ConversationView::_AppendOrEnqueueMessage(BMessage* msg)
 	if (msg->HasInt64("when") == false)
 		msg->AddInt64("when", (int64)time(NULL));
 
-	// If not attached to the chat window, then re-handle this message
+	// If not attached to a chat window, then re-handle this message
 	// later [AttachedToWindow()], since you can't edit an unattached 
 	// RenderView.
 	if (Window() == NULL) {
@@ -504,6 +512,14 @@ ConversationView::_AppendMessage(BMessage* msg)
 
 
 void
+ConversationView::_ScrollToBottom()
+{
+	if (IsHidden() == false)
+		fReceiveView->ScrollToBottom();
+}
+
+
+void
 ConversationView::_EnableStartingFaces(BMessage* msg, int32 index, uint16* face,
 	UInt16IntMap* indices, int32* next)
 {
@@ -607,7 +623,7 @@ ConversationView::_UserMessage(const char* format, const char* bodyFormat,
 	BMessage newMsg;
 	newMsg.AddString("body", newBody);
 	_AppendOrEnqueueMessage(&newMsg);
-	fReceiveView->ScrollToBottom();
+	_ScrollToBottom();
 }
 
 

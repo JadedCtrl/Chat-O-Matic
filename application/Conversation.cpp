@@ -1,5 +1,5 @@
 /*
- * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
+ * Copyright 2021-2022, Jaidyn Levesque <jadedctrl@teknik.io>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -146,10 +146,10 @@ Conversation::ImMessage(BMessage* msg)
 
 			// Misc. features Caya contributors planned on adding 
 			BWindow* mainWin = ((TheApp*)be_app)->GetMainWindow();
-			if (win == NULL && AppPreferences::Get()->MarkUnreadWindow == true)
+			if (winFocus == false && AppPreferences::Get()->MarkUnreadWindow == true)
 				mainWin->SetTitle(BString(mainWin->Title()).Prepend("[!]"));
 
-			if (win == NULL && AppPreferences::Get()->MoveToCurrentWorkspace)
+			if (winFocus == false && AppPreferences::Get()->MoveToCurrentWorkspace)
 				mainWin->SetWorkspaces(B_CURRENT_WORKSPACE);
 
 			if (win == NULL && AppPreferences::Get()->RaiseOnMessageReceived)
@@ -157,9 +157,9 @@ Conversation::ImMessage(BMessage* msg)
 
 
 			// If unattached, highlight the ConversationItem
-			if (win == NULL && mentioned == true)
+			if ((win == NULL || GetView()->IsHidden() == true) && mentioned == true)
 				NotifyInteger(INT_NEW_MENTION, fNotifyMentionCount);
-			else if (win == NULL)
+			else if (win == NULL || GetView()->IsHidden())
 				NotifyInteger(INT_NEW_MESSAGE, fNotifyMessageCount);
 
 			break;
@@ -319,7 +319,7 @@ Conversation::ObserveString(int32 what, BString str)
 void
 Conversation::ObserveInteger(int32 what, int32 value)
 {
-	if (what == INT_WINDOW_FOCUSED) {
+	if (what == INT_CONV_VIEW_SELECTED) {
 		fNotifyMessageCount = 0;
 		fNotifyMentionCount = 0;
 	}

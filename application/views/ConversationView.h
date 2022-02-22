@@ -1,6 +1,6 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
- * Copyright 2021, Jaidyn Levesque. All rights reserved.
+ * Copyright 2021-2022, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _CHAT_VIEW_H
@@ -34,6 +34,7 @@ public:
 						ConversationView(Conversation* chat = NULL);
 
 	virtual void		AttachedToWindow();
+			void		Show();
 
 	virtual	void		MessageReceived(BMessage* message);
 			void		ImMessage(BMessage* msg);
@@ -57,6 +58,8 @@ private:
 
 			bool		_AppendOrEnqueueMessage(BMessage* msg);
 			void		_AppendMessage(BMessage* msg);
+
+			void		_ScrollToBottom();
 
 			// Helper functions for _AppendFormattedMessage()
 			void		_EnableStartingFaces(BMessage* msg, int32 index,
