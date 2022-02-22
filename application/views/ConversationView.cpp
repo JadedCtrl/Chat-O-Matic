@@ -145,16 +145,18 @@ ConversationView::ImMessage(BMessage* msg)
 		}
 		case IM_ROOM_PARTICIPANT_JOINED:
 		{
-			_UserMessage(B_TRANSLATE("%user% has joined the room.\n"),
-						 B_TRANSLATE("%user% has joined the room (%body%).\n"),
-						 msg);
+			if (AppPreferences::Get()->MembershipUpdates == true)
+				_UserMessage(B_TRANSLATE("%user% has joined the room.\n"),
+							 B_TRANSLATE("%user% has joined the room (%body%).\n"),
+							 msg);
 			break;
 		}
 		case IM_ROOM_PARTICIPANT_LEFT:
 		{
-			_UserMessage(B_TRANSLATE("%user% has left the room.\n"),
-						 B_TRANSLATE("%user% has left the room (%body%).\n"),
-						 msg);
+			if (AppPreferences::Get()->MembershipUpdates == true)
+				_UserMessage(B_TRANSLATE("%user% has left the room.\n"),
+							 B_TRANSLATE("%user% has left the room (%body%).\n"),
+							 msg);
 			break;
 		}
 		case IM_ROOM_PARTICIPANT_KICKED:

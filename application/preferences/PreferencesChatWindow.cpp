@@ -1,7 +1,7 @@
 /*
  * Copyright 2010, Oliver Ruiz Dorantes. All rights reserved.
  * Copyright 2012, Dario Casalinuovo. All rights reserved.
- * Copyright 2021, Jaidyn Levesque. All rights reserved.
+ * Copyright 2021-2022, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 
@@ -21,6 +21,7 @@
 
 
 const uint32 kIgnoreEmoticons = 'CBhe';
+const uint32 kMembershipUpdates = 'CBmu';
 
 
 PreferencesChatWindow::PreferencesChatWindow()
@@ -28,6 +29,9 @@ PreferencesChatWindow::PreferencesChatWindow()
 {
 	BBox* chatBox = new BBox("chatBox");
 	chatBox->SetLabel(B_TRANSLATE("Chat settings"));
+
+	fMembershipUpdates = new BCheckBox("MembershipUpdates",
+		B_TRANSLATE("Show join/part messages"), new BMessage(kMembershipUpdates));
 
 	fIgnoreEmoticons = new BCheckBox("IgnoreEmoticons",
 		B_TRANSLATE("Ignore emoticons"), new BMessage(kIgnoreEmoticons));
@@ -38,6 +42,7 @@ PreferencesChatWindow::PreferencesChatWindow()
 
 	BLayoutBuilder::Group<>(chatBox, B_VERTICAL)
 		.SetInsets(spacing, spacing * 2, spacing, spacing)
+		.Add(fMembershipUpdates)
 		.Add(fIgnoreEmoticons)
 	.End();
 
@@ -54,6 +59,8 @@ PreferencesChatWindow::AttachedToWindow()
 {
 	fIgnoreEmoticons->SetTarget(this);
 	fIgnoreEmoticons->SetValue(AppPreferences::Get()->IgnoreEmoticons);
+	fMembershipUpdates->SetTarget(this);
+	fMembershipUpdates->SetValue(AppPreferences::Get()->MembershipUpdates);
 }
 
 
@@ -62,8 +69,10 @@ PreferencesChatWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
 		case kIgnoreEmoticons:
-			AppPreferences::Get()->IgnoreEmoticons
-				= fIgnoreEmoticons->Value();
+			AppPreferences::Get()->IgnoreEmoticons = fIgnoreEmoticons->Value();
+			break;
+		case kMembershipUpdates:
+			AppPreferences::Get()->MembershipUpdates = fMembershipUpdates->Value();
 			break;
 		default:
 			BView::MessageReceived(message);

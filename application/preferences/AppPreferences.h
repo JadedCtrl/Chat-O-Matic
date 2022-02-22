@@ -1,7 +1,7 @@
 /*
  * Copyright 2010, Oliver Ruiz Dorantes. All rights reserved.
  * Copyright 2012, Casalinuovo Dario. All rights reserved.
- * Copyright 2021, Jaidyn Levesque <jadedctrl@teknik.io>
+ * Copyright 2021-2022, Jaidyn Levesque <jadedctrl@teknik.io>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #ifndef _APP_PREFERENCES_H
@@ -33,6 +33,7 @@ public:
 			bool	DisableQuitConfirm;
 
 			bool 	IgnoreEmoticons;
+			bool	MembershipUpdates;
 			
 			bool	HideOffline;
 

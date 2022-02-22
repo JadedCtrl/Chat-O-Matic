@@ -19,6 +19,7 @@ public:
 
 private:
 	BCheckBox*		fIgnoreEmoticons;
+	BCheckBox*		fMembershipUpdates;
 };
 
 #endif	// _PREFERENCES_BEHAVIOR_H

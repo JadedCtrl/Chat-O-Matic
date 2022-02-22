@@ -44,6 +44,7 @@ AppPreferences::Load()
 	HideDeskbar = settings.GetBool("HideDeskbar", false);
 	DisableReplicant = settings.GetBool("DisableReplicant", true);
 	DisableQuitConfirm = settings.GetBool("DisableQuitConfirm", false);
+	MembershipUpdates = settings.GetBool("MembershipUpdates", true);
 	IgnoreEmoticons = settings.GetBool("IgnoreEmoticons", true);
 	HideOffline = settings.GetBool("HideOffline", false);
 
@@ -79,6 +80,7 @@ AppPreferences::Save()
 	settings.AddBool("DisableReplicant", DisableReplicant);
 	settings.AddBool("DisableQuitConfirm", DisableQuitConfirm);
 	settings.AddBool("IgnoreEmoticons", IgnoreEmoticons);
+	settings.AddBool("MembershipUpdates", MembershipUpdates);
 	settings.AddBool("HideOffline", HideOffline);
 
 	settings.AddFloat("MainWindowListWeight", MainWindowListWeight);
