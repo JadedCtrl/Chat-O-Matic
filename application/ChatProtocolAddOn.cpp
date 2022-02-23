@@ -27,6 +27,13 @@ ChatProtocolAddOn::ChatProtocolAddOn(image_id image, const char* path, int32 sub
 }
 
 
+ChatProtocolAddOn::~ChatProtocolAddOn()
+{
+	delete fIcon;
+	unload_add_on(fImage);
+}
+
+
 status_t
 ChatProtocolAddOn::InitCheck() const
 {

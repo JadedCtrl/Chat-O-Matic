@@ -17,6 +17,7 @@ class ChatProtocolAddOn {
 public:
 					ChatProtocolAddOn(image_id image, const char* path,
 						int32 subProto=0);
+					~ChatProtocolAddOn();
 
 	status_t		InitCheck() const;
 

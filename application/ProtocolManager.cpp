@@ -47,10 +47,18 @@ ProtocolManager::Init(BDirectory dir, BHandler* target)
 		if (id < 0)
 			continue;
 
-		// If add-on's API version fits then load accounts…
+		// Refuse to load add-on under some circumstances…
 		ChatProtocolAddOn* addOn = new ChatProtocolAddOn(id, path.Path());
-		if (addOn->Version() != APP_VERSION)
+		if (addOn->Version() != APP_VERSION || ProtocolAddOn(addOn->Signature()) != NULL) {
+			if (addOn->Version() != APP_VERSION)
+				printf("%s not loaded, due to insufficient version (%i v %i).\n",
+					addOn->Signature(), addOn->Version(), APP_VERSION);
+			else if (ProtocolAddOn(addOn->Signature()) != NULL)
+				printf("%s not loaded, due to another instance already having been loaded.\n",
+					addOn->Signature());
+			delete addOn;
 			continue;
+		}
 		ret = true;
 
 		// If add-on has multiple protocols, also load them
