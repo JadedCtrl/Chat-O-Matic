@@ -17,11 +17,10 @@ class AccountsMenu;
 class BitmapView;
 class EnterTextView;
 class MenuButton;
-class Server;
 
 class StatusView : public BView, public Observer {
 public:
-							StatusView(const char* name, Server* server);
+							StatusView(const char* name);
 
 	virtual	void			AttachedToWindow();
 	virtual	void			MessageReceived(BMessage* msg);
@@ -45,8 +44,6 @@ private:
 	MenuButton*				fAccountsButton;
 	AccountsMenu*			fAccountsMenu;
 	int64					fAccount;
-
-	Server*					fServer;
 };
 
 #endif	// _STATUS_VIEW_H

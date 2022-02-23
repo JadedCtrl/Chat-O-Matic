@@ -13,11 +13,13 @@
 #include "ProtocolLooper.h"
 
 #include <Bitmap.h>
+#include <Catalog.h>
 #include <String.h>
 
 #include "Account.h"
 #include "AppMessages.h"
 #include "ChatProtocolMessages.h"
+#include "Contact.h"
 #include "Conversation.h"
 #include "ConversationAccountItem.h"
 #include "ConversationView.h"
@@ -251,6 +253,10 @@ ProtocolLooper::LoadCommands()
 		fCommands.AddItem(cmd->GetName(), cmd);
 	}
 }
+
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "Protocol system buffer"
 
 
 void

@@ -27,9 +27,7 @@
 #include "ChatProtocolMessages.h"
 #include "ProtocolManager.h"
 #include "ProtocolSettings.h"
-#include "MainWindow.h"
 #include "Server.h"
-#include "TheApp.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -288,8 +286,7 @@ int64
 AccountsWindow::_AccountInstance(const char* account)
 {
 	bool found = false;
-	AccountInstances accs =
-		((TheApp*)be_app)->GetMainWindow()->GetServer()->GetAccounts();
+	AccountInstances accs = Server::Get()->GetAccounts();
 	int64 instance = accs.ValueFor(BString(account), &found);
 
 	if (found == false)

@@ -36,10 +36,9 @@ const int32 kSelectAccount = 'SVsa';
 const int32 kSetNick = 'SVsn';
 
 
-StatusView::StatusView(const char* name, Server* server)
+StatusView::StatusView(const char* name)
 	:
 	BView(name, B_WILL_DRAW),
-	fServer(server),
 	fAccount(-1)
 {
 	// Nick name
@@ -85,7 +84,7 @@ StatusView::StatusView(const char* name, Server* server)
 
 	// Changing the account used
 	fAccountsMenu = new AccountsMenu("statusAccountsMenu",
-		BMessage(kSelectAccount), new BMessage(kSelectAccount), fServer);
+		BMessage(kSelectAccount), new BMessage(kSelectAccount));
 	fAccountsButton = new MenuButton("statusAccountsButton", "", new BMessage());
 	fAccountsButton->SetMenu(fAccountsMenu);
 
@@ -195,9 +194,9 @@ StatusView::_SetToAccount()
 {
 	int64 instance = fAccount;
 	if (instance == -1)
-		instance = fServer->GetActiveAccounts().ValueAt(0);
+		instance = Server::Get()->GetActiveAccounts().ValueAt(0);
 
-	ProtocolLooper* looper = fServer->GetProtocolLooper(instance);
+	ProtocolLooper* looper = Server::Get()->GetProtocolLooper(instance);
 	if (looper == NULL || looper->GetOwnContact() == NULL)
 		return;
 	Contact* contact = looper->GetOwnContact();

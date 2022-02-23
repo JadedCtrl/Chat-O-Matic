@@ -48,6 +48,9 @@
 #define B_TRANSLATION_CONTEXT "Server"
 
 
+Server* Server::fInstance = NULL;
+
+
 Server::Server()
 	:
 	BMessageFilter(B_ANY_DELIVERY, B_ANY_SOURCE)
@@ -79,6 +82,15 @@ Server::Server()
 	}
 
 	fStarted = false;
+}
+
+
+Server*
+Server::Get()
+{
+	if (fInstance == NULL)
+		fInstance = new Server();
+	return fInstance;
 }
 
 

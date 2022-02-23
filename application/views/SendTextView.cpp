@@ -9,9 +9,7 @@
 #include <Window.h>
 
 #include "AppMessages.h"
-#include "MainWindow.h"
 #include "Server.h"
-#include "TheApp.h"
 
 
 SendTextView::SendTextView(const char* name, ConversationView* convView)
@@ -126,8 +124,7 @@ SendTextView::_CommandNames()
 	if (fCurrentIndex == 0) {
 		int64 instance = fChatView->GetConversation()->GetProtocolLooper()->GetInstance();
 		BStringList cmdNames;
-		CommandMap cmds =
-			((TheApp*)be_app)->GetMainWindow()->GetServer()->Commands(instance);
+		CommandMap cmds = Server::Get()->Commands(instance);
 
 		for (int i = 0; i < cmds.CountItems(); i++)
 			cmdNames.Add(cmds.KeyAt(i));

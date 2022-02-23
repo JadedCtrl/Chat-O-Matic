@@ -26,8 +26,6 @@ class UserListView;
 
 const uint32 kClearText = 'CVct';
 
-typedef KeyMap<uint16, int32> UInt16IntMap;
-
 
 class ConversationView : public BGroupView, public Observer, public Notifier {
 public:
@@ -54,6 +52,8 @@ public:
 							float vertChat, float vertSend);
 
 private:
+	typedef KeyMap<uint16, int32> UInt16IntMap;
+
 			void		_InitInterface();
 
 			bool		_AppendOrEnqueueMessage(BMessage* msg);

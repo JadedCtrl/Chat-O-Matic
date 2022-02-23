@@ -14,18 +14,17 @@
 
 #include <GroupView.h>
 
-#include "Server.h"
+#include "Maps.h"
 
 class BStringItem;
 class BTextControl;
 class RosterItem;
 class RosterListView;
-class Server;
 
 
 class RosterView : public BGroupView {
 public:
-	RosterView(const char* title, Server* server, bigtime_t account = -1);
+	RosterView(const char* title, bigtime_t account = -1);
 
 			void		MessageReceived(BMessage* message);
 			void		ImMessage(BMessage* msg);
@@ -46,7 +45,6 @@ public:
 private:
 			RosterMap	_RosterMap();
 
-	Server*				fServer;
 	RosterListView*		fListView;
 	BTextControl*		fSearchBox;
 	bigtime_t			fAccount;

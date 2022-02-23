@@ -24,9 +24,12 @@
 #include "AppMessages.h"
 #include "AppPreferences.h"
 #include "ChatProtocolMessages.h"
+#include "Maps.h"
+#include "ProtocolLooper.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
 #include "RosterView.h"
+#include "Server.h"
 #include "TemplateWindow.h"
 
 
@@ -47,14 +50,13 @@ const char* kEditTitle = B_TRANSLATE("Editing contact");
 RosterEditWindow* RosterEditWindow::fInstance = NULL;
 
 
-RosterEditWindow::RosterEditWindow(Server* server)
+RosterEditWindow::RosterEditWindow()
 	:
 	BWindow(BRect(0, 0, 300, 400), B_TRANSLATE("Roster"), B_FLOATING_WINDOW,
 		B_AUTO_UPDATE_SIZE_LIMITS),
-	fServer(server),
 	fEditingWindow(NULL)
 {
-	fRosterView = new RosterView("buddyView", server);
+	fRosterView = new RosterView("buddyView");
 	fRosterView->SetInvocationMessage(new BMessage(kEditMember));
 	fRosterView->SetManualString(BString("Add %user% as contact"
 		B_UTF8_ELLIPSIS));
@@ -104,10 +106,10 @@ RosterEditWindow::~RosterEditWindow()
 
 
 RosterEditWindow*
-RosterEditWindow::Get(Server* server)
+RosterEditWindow::Get()
 {
 	if (fInstance == NULL) {
-		fInstance = new RosterEditWindow(server);
+		fInstance = new RosterEditWindow();
 	}
 	return fInstance;
 }
@@ -172,7 +174,7 @@ RosterEditWindow::MessageReceived(BMessage* message)
 
 			fEditingWindow =
 				new TemplateWindow(title, "roster",
-					edit, fServer, instance);
+					edit, instance);
 			fEditingWindow->Show();
 
 			if (ritem == NULL) {
@@ -188,7 +190,7 @@ RosterEditWindow::MessageReceived(BMessage* message)
 			add->AddInt32("im_what", IM_ROSTER_ADD_CONTACT);
 			TemplateWindow* win =
 				new TemplateWindow(B_TRANSLATE(kAddTitle), "roster",
-					add, fServer);
+					add);
 			win->Show();
 			break;
 		}
@@ -216,7 +218,7 @@ RosterEditWindow::MessageReceived(BMessage* message)
 		}
 		case kSelAccount:
 		{
-			AccountInstances accounts = fServer->GetActiveAccounts();
+			AccountInstances accounts = Server::Get()->GetActiveAccounts();
 
 			int index = message->FindInt32("index") - 1;
 			if (index < 0 || index > (accounts.CountItems() - 1))

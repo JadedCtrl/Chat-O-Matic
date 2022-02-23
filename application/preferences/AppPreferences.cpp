@@ -6,6 +6,8 @@
 
 #include "AppPreferences.h"
 
+#include <Path.h>
+
 #include "Utils.h"
 
 

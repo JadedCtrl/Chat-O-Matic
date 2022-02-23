@@ -29,12 +29,11 @@ const uint32 kJoinRoom = 'join';
 RoomListWindow* RoomListWindow::fInstance = NULL;
 
 
-RoomListWindow::RoomListWindow(Server* server)
+RoomListWindow::RoomListWindow()
 	:
 	BWindow(AppPreferences::Get()->RoomDirectoryRect,
 		B_TRANSLATE("Room directory"), B_FLOATING_WINDOW,
 		B_NOT_ZOOMABLE | B_AUTO_UPDATE_SIZE_LIMITS),
-	fServer(server),
 	fAccount(-1)
 {
 	_InitInterface();
@@ -42,7 +41,7 @@ RoomListWindow::RoomListWindow(Server* server)
 
 	BMessage* request = new BMessage(IM_MESSAGE);
 	request->AddInt32("im_what", IM_GET_ROOM_DIRECTORY);
-	server->SendAllProtocolMessage(request);
+	Server::Get()->SendAllProtocolMessage(request);
 }
 
 
@@ -61,10 +60,10 @@ RoomListWindow::~RoomListWindow()
 
 
 RoomListWindow*
-RoomListWindow::Get(Server* server)
+RoomListWindow::Get()
 {
 	if (fInstance == NULL)
-		fInstance = new RoomListWindow(server);
+		fInstance = new RoomListWindow();
 	return fInstance;
 }
 
@@ -147,7 +146,7 @@ RoomListWindow::MessageReceived(BMessage* msg)
 			if (row != NULL) {
 				BMessage* joinMsg = row->Message();
 				joinMsg->ReplaceInt32("im_what", IM_JOIN_ROOM);
-				fServer->SendProtocolMessage(joinMsg);
+				Server::Get()->SendProtocolMessage(joinMsg);
 				Quit();
 			}
 			break;
@@ -179,7 +178,7 @@ RoomListWindow::_InitInterface()
 	fListView->AddColumn(users, kUserColumn);
 
 	AccountsMenu* accsMenu = new AccountsMenu("accounts", BMessage(kSelectAcc),
-		new BMessage(kSelectAll), fServer);
+		new BMessage(kSelectAll));
 	BMenuField* accsField = new BMenuField(NULL, accsMenu);
 
 	fJoinButton = new BButton("joinRoom", B_TRANSLATE("Join"),

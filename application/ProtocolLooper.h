@@ -11,21 +11,15 @@
 #include <ObjectList.h>
 #include <String.h>
 
-#include <libsupport/KeyMap.h>
-
 #include "ChatProtocol.h"
 #include "ChatCommand.h"
+#include "Maps.h"
 
 class Contact;
 class Conversation;
 class ConversationAccountItem;
 class ConversationView;
 class User;
-
-
-typedef KeyMap<BString, Conversation*> ChatMap;
-typedef KeyMap<BString, Contact*> RosterMap;
-typedef KeyMap<BString, User*> UserMap;
 
 
 class ProtocolLooper : public BLooper {

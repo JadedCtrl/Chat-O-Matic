@@ -140,7 +140,7 @@ ProtocolManager::AddAccount(ChatProtocolAddOn* addOn, const char* account,
 {
 	// If already active, don't double-dip!
 	bool active = false;
-	_Server()->GetActiveAccounts().ValueFor(BString(account), &active);
+	Server::Get()->GetActiveAccounts().ValueFor(BString(account), &active);
 	if (active == true)
 		return;
 
@@ -165,7 +165,7 @@ ProtocolManager::AddAccount(ChatProtocolAddOn* addOn, const char* account,
 
 	fProtocolMap.AddItem(instanceId, cayap);
 
-	_Server()->AddProtocolLooper(instanceId, cayap);
+	Server::Get()->AddProtocolLooper(instanceId, cayap);
 }
 
 
@@ -189,7 +189,7 @@ ProtocolManager::DisableAccount(ProtocolSettings* settings, const char* account)
 {
 	bool active = false;
 	int64 instance
-		= _Server()->GetActiveAccounts().ValueFor(BString(account), &active);
+		= Server::Get()->GetActiveAccounts().ValueFor(BString(account), &active);
 	if (active == false)
 		return;
 
@@ -214,7 +214,7 @@ ProtocolManager::ToggleAccount(ProtocolSettings* settings, const char* account)
 {
 	bool active = false;
 	int64 instance
-		= _Server()->GetActiveAccounts().ValueFor(BString(account), &active);
+		= Server::Get()->GetActiveAccounts().ValueFor(BString(account), &active);
 
 	if (active == true)
 		DisableAccount(settings, account);
@@ -279,12 +279,4 @@ MainWindow*
 ProtocolManager::_MainWin()
 {
 	return ((TheApp*)be_app)->GetMainWindow();
-}
-
-
-Server*
-ProtocolManager::_Server()
-{
-	MainWindow* win = _MainWin();
-	return win ? win->GetServer() : NULL;
 }

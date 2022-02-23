@@ -23,6 +23,7 @@
 #include "ChatProtocolMessages.h"
 #include "RosterItem.h"
 #include "RosterListView.h"
+#include "Server.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -32,11 +33,10 @@
 const uint32 kSearchContact = 'RWSC';
 
 
-RosterView::RosterView(const char* title, Server* server, bigtime_t account)
+RosterView::RosterView(const char* title, bigtime_t account)
 	:
 	BGroupView(title, B_VERTICAL, B_USE_DEFAULT_SPACING),
 	fAccount(-1),
-	fServer(server),
 	fManualItem(new BStringItem("")),
 	fManualStr("Select user %user%" B_UTF8_ELLIPSIS)
 {
@@ -121,7 +121,7 @@ RosterView::ImMessage(BMessage* msg)
 				|| user_id.IsEmpty() == true)
 				return;
 
-			Contact* contact = fServer->ContactById(user_id, instance);
+			Contact* contact = Server::Get()->ContactById(user_id, instance);
 			if (contact == NULL)
 				return;
 
@@ -189,7 +189,7 @@ RosterView::ImMessage(BMessage* msg)
 				|| msg->FindInt64("instance", &instance) != B_OK
 				|| user_id.IsEmpty() == true)
 				return;
-			Contact* contact = fServer->ContactById(user_id, instance);
+			Contact* contact = Server::Get()->ContactById(user_id, instance);
 			if (contact == NULL)
 				return;
 			RosterItem*	rosterItem = contact->GetRosterItem();
@@ -208,7 +208,7 @@ RosterView::ImMessage(BMessage* msg)
 				|| user_id.IsEmpty() == true)
 				return;
 
-			Contact* contact = fServer->ContactById(user_id, instance);
+			Contact* contact = Server::Get()->ContactById(user_id, instance);
 			if (contact == NULL)
 				return;
 
@@ -268,9 +268,9 @@ RosterView::_RosterMap()
 {
 	RosterMap contacts;
 	if (fAccount < 0)
-		contacts = fServer->Contacts();
+		contacts = Server::Get()->Contacts();
 	else {
-		ProtocolLooper* looper = fServer->GetProtocolLooper(fAccount);
+		ProtocolLooper* looper = Server::Get()->GetProtocolLooper(fAccount);
 		contacts = looper->Contacts();
 	}
 	return contacts;

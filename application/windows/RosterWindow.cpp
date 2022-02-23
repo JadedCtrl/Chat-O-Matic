@@ -25,6 +25,7 @@
 #include "RosterItem.h"
 #include "RosterListView.h"
 #include "RosterView.h"
+#include "Server.h"
 
 
 const uint32 kSendMessage = 'RWSM';
@@ -33,20 +34,19 @@ const uint32 kSelNoAccount = 'RWNA';
 
 
 RosterWindow::RosterWindow(const char* title, BMessage* selectMsg,
-	BMessenger* messenger, Server* server, bigtime_t instance)
+	BMessenger* messenger, bigtime_t instance)
 	:
 	BWindow(BRect(0, 0, 300, 400), title, B_FLOATING_WINDOW,
 		B_AUTO_UPDATE_SIZE_LIMITS),
 	fTarget(messenger),
-	fMessage(selectMsg),
-	fServer(server)
+	fMessage(selectMsg)
 {
-	fRosterView = new RosterView("buddyView", server, instance),
+	fRosterView = new RosterView("buddyView", instance);
 	fRosterView->SetInvocationMessage(new BMessage(kSendMessage));
 
 	fOkButton = new BButton("OK", new BMessage(kSendMessage));
 
-	AccountInstances accounts = fServer->GetActiveAccounts();
+	AccountInstances accounts = Server::Get()->GetActiveAccounts();
 
 	// If a specific instance is given, disallow selecting other accounts
 	// In fact, don't even bother populating with them
@@ -119,7 +119,7 @@ RosterWindow::MessageReceived(BMessage* message)
 		}
 		case kSelAccount:
 		{
-			AccountInstances accounts = fServer->GetActiveAccounts();
+			AccountInstances accounts = Server::Get()->GetActiveAccounts();
 
 			int index = message->FindInt32("index") - 1;
 			if (index < 0 || index > (accounts.CountItems() - 1))

@@ -20,6 +20,7 @@
 
 #include "AccountsMenu.h"
 #include "ChatProtocolMessages.h"
+#include "Server.h"
 #include "TemplateView.h"
 
 
@@ -33,11 +34,10 @@ const uint32 kAccSelected = 'JWas';
 
 
 TemplateWindow::TemplateWindow(const char* title, const char* templateType,
-	BMessage* msg, Server* server, bigtime_t instance)
+	BMessage* msg, bigtime_t instance)
 	:
 	BWindow(BRect(0, 0, 400, 100), title, B_FLOATING_WINDOW,
 		B_NOT_RESIZABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
-	fServer(server),
 	fSelectedAcc(instance),
 	fTemplate(NULL),
 	fTemplateType(templateType),
@@ -51,11 +51,10 @@ TemplateWindow::TemplateWindow(const char* title, const char* templateType,
 
 
 TemplateWindow::TemplateWindow(const char* title, ProtocolTemplate* temp,
-	BMessage* msg, Server* server, bigtime_t instance)
+	BMessage* msg, bigtime_t instance)
 	:
 	BWindow(BRect(0, 0, 400, 100), title, B_FLOATING_WINDOW,
 		B_NOT_RESIZABLE | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE),
-	fServer(server),
 	fSelectedAcc(-1),
 	fTemplate(temp),
 	fMessage(msg)
@@ -99,7 +98,7 @@ TemplateWindow::MessageReceived(BMessage* msg)
 				break;
 			}
 
-			ProtocolLooper* looper = fServer->GetProtocolLooper(fSelectedAcc);
+			ProtocolLooper* looper = Server::Get()->GetProtocolLooper(fSelectedAcc);
 			if (looper == NULL)
 				break;
 			looper->PostMessage(settings);
@@ -131,7 +130,7 @@ void
 TemplateWindow::_InitInterface(bigtime_t instance)
 {
 	fTemplateView = new TemplateView("template");
-	AccountInstances accounts = fServer->GetActiveAccounts();
+	AccountInstances accounts = Server::Get()->GetActiveAccounts();
 
 	if (instance > -1) {
 		BMenu* accountMenu = new BMenu("accountMenu");
@@ -185,7 +184,7 @@ TemplateWindow::_LoadTemplate()
 	if (fTemplateType.IsEmpty() == true)
 		return;
 
-	ProtocolLooper* looper = fServer->GetProtocolLooper(fSelectedAcc);
+	ProtocolLooper* looper = Server::Get()->GetProtocolLooper(fSelectedAcc);
 	if (looper == NULL)
 		return;
 

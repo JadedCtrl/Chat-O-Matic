@@ -89,7 +89,7 @@ TheApp::ReadyToRun()
 
 		if (win == false) {
 			BString msg(B_TRANSLATE("No protocols found!\nPlease make sure %app% was installed correctly."));
-			msg.ReplaceAll("%app%", APP_NAME);
+			msg.ReplaceAll("%app%", B_TRANSLATE_SYSTEM_NAME(APP_NAME));
 			BAlert* alert = new BAlert("", msg.String(), B_TRANSLATE("Ouch!"));
 			alert->Go();
 			PostMessage(B_QUIT_REQUESTED);

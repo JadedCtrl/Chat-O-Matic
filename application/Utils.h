@@ -14,7 +14,7 @@
 #include <Resources.h>
 
 #include "AppConstants.h"
-#include "Server.h"
+#include "UserStatus.h"
 
 class BMenu;
 

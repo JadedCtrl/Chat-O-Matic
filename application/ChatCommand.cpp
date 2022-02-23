@@ -10,7 +10,9 @@
 
 #include "Conversation.h"
 #include "MainWindow.h"
+#include "ProtocolLooper.h"
 #include "TheApp.h"
+#include "User.h"
 
 
 #undef B_TRANSLATION_CONTEXT

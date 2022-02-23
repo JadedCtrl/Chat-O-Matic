@@ -10,22 +10,18 @@
 #include <Path.h>
 #include <StringList.h>
 
-#include <libsupport/KeyMap.h>
-
+#include "Maps.h"
+#include "Notifier.h"
 #include "Observer.h"
-#include "Role.h"
-#include "Server.h"
-#include "User.h"
 
 class BBitmap;
+class Contact;
 class ConversationItem;
 class ConversationView;
 class ProtocolLooper;
+class Role;
 class Server;
-
-
-typedef KeyMap<BString, User*> UserMap;
-typedef KeyMap<BString, Role*> RoleMap;
+class User;
 
 
 class Conversation : public Notifier, public Observer {
@@ -79,6 +75,8 @@ public:
 	BPath				CachePath() { return fCachePath; }
 
 private:
+	typedef KeyMap<BString, Role*> RoleMap;
+
 	void				_WarnUser(BString message);
 
 	void				_LogChatMessage(BMessage* msg);
@@ -95,8 +93,6 @@ private:
 	bool				_IsDefaultIcon(BBitmap* icon);
 
 	void				_SortConversationList();
-
-	Server*				_GetServer();
 
 	BMessenger	fMessenger;
 	ProtocolLooper*	fLooper;

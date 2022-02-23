@@ -13,7 +13,6 @@
 class BButton;
 class BColumnListView;
 class RoomListRow;
-class Server;
 
 
 typedef KeyMap<int64, BObjectList<RoomListRow>*> RowMap;
@@ -21,10 +20,10 @@ typedef KeyMap<int64, BObjectList<RoomListRow>*> RowMap;
 
 class RoomListWindow : public BWindow {
 public:
-							RoomListWindow(Server* server);
+							RoomListWindow();
 							~RoomListWindow();
 
-	static RoomListWindow*	Get(Server* server);
+	static RoomListWindow*	Get();
 	static bool				Check();
 
 	virtual void			MessageReceived(BMessage* msg);	
@@ -40,7 +39,6 @@ private:
 	RowMap fRows;
 	int64 fAccount;
 
-	Server* fServer;
 	static RoomListWindow* fInstance;
 };
 

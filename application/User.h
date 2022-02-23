@@ -14,8 +14,7 @@
 #include <Path.h>
 #include <String.h>
 
-#include <libsupport/KeyMap.h>
-
+#include "Maps.h"
 #include "Notifier.h"
 #include "UserStatus.h"
 
@@ -24,9 +23,6 @@ class BBitmap;
 class Conversation;
 class ProtocolLooper;
 class UserPopUp;
-
-
-typedef KeyMap<BString, Conversation*> ChatMap;
 
 
 class User : public Notifier {

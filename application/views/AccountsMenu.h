@@ -10,13 +10,10 @@
 #include "Observer.h"
 
 class ProtocolLooper;
-class Server;
 
 
 class AccountsMenu : public BPopUpMenu, public Observer {
 public:
-					AccountsMenu(const char* name, BMessage msg,
-						BMessage* allMsg, Server* server);
 					AccountsMenu(const char* name, BMessage msg,
 						BMessage* allMsg = NULL);
 					~AccountsMenu();
@@ -37,7 +34,6 @@ private:
 	BMessage fAccountMessage;
 	BMessage* fAllMessage;
 	static int64 fDefaultSelection;
-	Server* fServer;
 };
 
 #endif // _ACCOUNTS_MENU_H

@@ -12,10 +12,11 @@
 #include <libsupport/KeyMap.h>
 #include <libsupport/List.h>
 
+#include "Maps.h"
+
 class Conversation;
 class User;
 
-typedef KeyMap<BString, User*> UserMap;
 
 
 enum cmd_arg_type
@@ -60,8 +61,5 @@ private:
 	bool fToProto;
 	List<int32> fArgTypes;
 };
-
-
-typedef KeyMap<BString, ChatCommand*> CommandMap;
 
 #endif // CHAT_COMMAND_H

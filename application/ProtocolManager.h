@@ -64,7 +64,6 @@ private:
 									BEntry accountEntry, BHandler* target);
 
 			MainWindow*			_MainWin();
-			Server*				_Server();
 
 			AddOnMap			fAddOnMap;
 			ProtocolMap			fProtocolMap;

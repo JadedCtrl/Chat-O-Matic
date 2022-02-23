@@ -41,6 +41,7 @@
 #include "RoomListWindow.h"
 #include "RosterEditWindow.h"
 #include "RosterWindow.h"
+#include "Server.h"
 #include "StatusManager.h"
 #include "StatusView.h"
 #include "TemplateWindow.h"
@@ -59,12 +60,10 @@ MainWindow::MainWindow()
 		B_TRANSLATE_SYSTEM_NAME(APP_NAME), B_TITLED_WINDOW, 0),
 	fWorkspaceChanged(false),
 	fConversation(NULL),
-	fRosterWindow(NULL),
-	fServer(NULL)
+	fRosterWindow(NULL)
 {
 	// Filter messages using Server
-	fServer = new Server();
-	AddFilter(fServer);
+	AddFilter(Server::Get());
 
 	_InitInterface();
 
@@ -84,7 +83,7 @@ MainWindow::Start()
 		MessageReceived(new BMessage(APP_SHOW_ACCOUNTS));
 
 	// Login all accounts
-	fServer->LoginAll();
+	Server::Get()->LoginAll();
 }
 
 
@@ -115,7 +114,7 @@ MainWindow::QuitRequested()
 	_SaveWeights();
 
 	if (button_index == 0) {
-		fServer->Quit();
+		Server::Get()->Quit();
 
 		// ConversationViews will be removed by Server's deletion of Conversations,
 		// but some special views (protocol logs, the blank ConversationView)
@@ -181,7 +180,7 @@ MainWindow::MessageReceived(BMessage* message)
 			newMsg->AddInt32("im_what", IM_CREATE_CHAT);
 
 			fRosterWindow = new RosterWindow(B_TRANSLATE("Invite contact to "
-				"chat" B_UTF8_ELLIPSIS), newMsg, new BMessenger(this), fServer);
+				"chat" B_UTF8_ELLIPSIS), newMsg, new BMessenger(this));
 			fRosterWindow->Show();
 			break;
 		}
@@ -191,7 +190,7 @@ MainWindow::MessageReceived(BMessage* message)
 			createMsg->AddInt32("im_what", IM_CREATE_ROOM);
 
 			TemplateWindow* win = new TemplateWindow(B_TRANSLATE("Create room"),
-				"create_room", createMsg, fServer);
+				"create_room", createMsg);
 			win->Show();
 			break;
 		}
@@ -201,7 +200,7 @@ MainWindow::MessageReceived(BMessage* message)
 			joinMsg->AddInt32("im_what", IM_JOIN_ROOM);
 
 			TemplateWindow* win = new TemplateWindow(B_TRANSLATE("Join a room"),
-				"join_room", joinMsg, fServer);
+				"join_room", joinMsg);
 			win->Show();
 			break;
 		}
@@ -218,7 +217,7 @@ MainWindow::MessageReceived(BMessage* message)
 			ProtocolLooper* plooper = fConversation->GetProtocolLooper();
 			BLooper* looper = (BLooper*)plooper;
 			fRosterWindow = new RosterWindow(B_TRANSLATE("Invite contact to "
-				"chat" B_UTF8_ELLIPSIS), invite, new BMessenger(looper), fServer,
+				"chat" B_UTF8_ELLIPSIS), invite, new BMessenger(looper),
 				plooper->GetInstance());
 
 			fRosterWindow->Show();
@@ -226,7 +225,7 @@ MainWindow::MessageReceived(BMessage* message)
 		}
 		case APP_ROOM_DIRECTORY:
 		{
-			RoomListWindow::Get(fServer)->Show();
+			RoomListWindow::Get()->Show();
 			break;
 		}
 		case APP_ROOM_SEARCH:
@@ -246,7 +245,7 @@ MainWindow::MessageReceived(BMessage* message)
 		}
 		case APP_EDIT_ROSTER:
 		{
-			RosterEditWindow::Get(fServer)->Show();
+			RosterEditWindow::Get()->Show();
 			break;
 		}
 		case APP_MOVE_UP:
@@ -340,7 +339,7 @@ MainWindow::ImMessage(BMessage* msg)
 		{
 			int64 instance;
 			if (msg->FindInt64("instance", &instance) == B_OK) {
-				ProtocolLooper* looper = fServer->GetProtocolLooper(instance);
+				ProtocolLooper* looper = Server::Get()->GetProtocolLooper(instance);
 				if (looper != NULL) {
 					Contact* contact = looper->GetOwnContact();
 					contact->RegisterObserver(fStatusView);
@@ -375,7 +374,7 @@ MainWindow::ImMessage(BMessage* msg)
 			if (fRosterWindow != NULL)
 				fRosterWindow->PostMessage(msg);
 			if (RosterEditWindow::Check() == true)
-				RosterEditWindow::Get(fServer)->PostMessage(msg);
+				RosterEditWindow::Get()->PostMessage(msg);
 			break;
 		}
 		case IM_PROTOCOL_READY: {
@@ -389,7 +388,7 @@ MainWindow::ImMessage(BMessage* msg)
 		}
 		case IM_ROOM_DIRECTORY:
 			if (RoomListWindow::Check() == true)
-				RoomListWindow::Get(fServer)->PostMessage(msg);
+				RoomListWindow::Get()->PostMessage(msg);
 			break;
 		case IM_PROTOCOL_DISABLE:
 			fStatusView->MessageReceived(msg);
@@ -496,7 +495,7 @@ MainWindow::_InitInterface()
 {
 	// Left side of window, Roomlist + Status
 	fListView = new ConversationListView("roomList");
-	fStatusView = new StatusView("statusView", fServer);
+	fStatusView = new StatusView("statusView");
 	fSplitView = new BSplitView(B_HORIZONTAL, 0);
 
 	BScrollView* listScroll = new BScrollView("roomListScroll", fListView,
@@ -662,7 +661,8 @@ MainWindow::_ToggleMenuItems()
 	if (chatMenu == NULL || rosterMenu == NULL)
 		return;
 
-	bool enabled = (fServer != NULL && fServer->GetAccounts().CountItems() > 0);
+	Server* server = Server::Get();
+	bool enabled = (server != NULL && server->GetAccounts().CountItems() > 0);
 
 	for (int i = 0; i < chatMenu->CountItems(); i++)
 		chatMenu->ItemAt(i)->SetEnabled(enabled);
@@ -683,7 +683,7 @@ ConversationItem*
 MainWindow::_EnsureConversationItem(BMessage* msg)
 {
 	BString chat_id = msg->FindString("chat_id");
-	Conversation* chat = fServer->ConversationById(chat_id, msg->FindInt64("instance"));
+	Conversation* chat = Server::Get()->ConversationById(chat_id, msg->FindInt64("instance"));
 
 	_EnsureConversationView(chat);
 
@@ -775,7 +775,7 @@ MainWindow::_PopulateWithAccounts(BMenu* menu, ProtocolSettings* settings)
 
 		BString toggleLabel = B_TRANSLATE("Enable");
 		bool isActive = false;
-		int64 instance = fServer->GetActiveAccounts().ValueFor(*account, &isActive);
+		int64 instance = Server::Get()->GetActiveAccounts().ValueFor(*account, &isActive);
 		if (isActive == true)
 			toggleLabel = B_TRANSLATE("Disable");
 

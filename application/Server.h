@@ -1,6 +1,7 @@
 /*
  * Copyright 2009-2011, Andrea Anzani. All rights reserved.
  * Copyright 2009-2011, Pier Luigi Fiorini. All rights reserved.
+ * Copyright 2021-2022, Jaidyn Levesque. All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 #ifndef _SERVER_H
@@ -25,14 +26,10 @@ class RosterItem;
 class ProtocolLooper;
 
 
-typedef KeyMap<bigtime_t, ProtocolLooper*> ProtocolLoopers;
-typedef KeyMap<BString, bigtime_t> AccountInstances;
-typedef KeyMap<BString, bool> BoolMap;
-
-
 class Server: public BMessageFilter, public Notifier {
 public:
 							Server();
+	 static	Server*			Get();
 			void			Quit();
 			void			LoginAll();
 			void			Login(ProtocolLooper* looper);
@@ -70,6 +67,9 @@ public:
 			BObjectList<BMessage> UserPopUpItems();
 
 private:
+	typedef KeyMap<BString, bool> BoolMap;
+	typedef KeyMap<bigtime_t, ProtocolLooper*> ProtocolLoopers;
+
 			ProtocolLooper*	_LooperFromMessage(BMessage* message);
 
 			Contact*		_EnsureContact(BMessage* message);
@@ -86,6 +86,8 @@ private:
 								notification_type type=B_INFORMATION_NOTIFICATION);
 
 			void			_ReplicantStatusNotify(UserStatus status);
+
+			static Server* fInstance;
 
 			ProtocolLoopers	fLoopers;
 			AccountInstances fAccounts;

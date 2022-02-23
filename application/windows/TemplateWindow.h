@@ -10,7 +10,6 @@
 #include <Window.h>
 
 #include "ProtocolTemplate.h"
-#include "Server.h"
 
 class BAlert;
 class BMenu;
@@ -26,12 +25,12 @@ public:
 						 * 	via ChatProtocol::SettingsTemplate() */
 						TemplateWindow(const char* title,
 							const char* templateType, BMessage* msg,
-							Server* server, bigtime_t instance = -1);
+							bigtime_t instance = -1);
 
 						/*! Use only the given template. */
 						TemplateWindow(const char* title,
 							ProtocolTemplate* temp, BMessage* msg,
-							Server* server, bigtime_t instance = -1);
+							bigtime_t instance = -1);
 
 	virtual	void		MessageReceived(BMessage* msg);
 
@@ -41,7 +40,6 @@ private:
 			void		_InitInterface(bigtime_t instance);
 			void		_LoadTemplate();
 
-	Server*				fServer;
 	int64				fSelectedAcc;
 	BMenuField*			fMenuField;
 

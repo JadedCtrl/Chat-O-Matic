@@ -11,10 +11,8 @@
 #include <stdio.h>
 
 #include "ChatProtocolMessages.h"
-#include "MainWindow.h"
 #include "NotifyMessage.h"
 #include "Server.h"
-#include "TheApp.h"
 
 
 static StatusManager* fInstance = NULL;
@@ -52,14 +50,12 @@ StatusManager::SetNickname(BString nick, int64 instance)
 	msg->AddString("user_name", nick);
 
 	// Send message
-	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
-	MainWindow* win = theApp->GetMainWindow();
 	if (instance > -1) {
 		msg->AddInt64("instance", instance);
-		win->GetServer()->SendProtocolMessage(msg);
+		Server::Get()->SendProtocolMessage(msg);
 	}
 	else
-		win->GetServer()->SendAllProtocolMessage(msg);
+		Server::Get()->SendAllProtocolMessage(msg);
 }
 
 
@@ -91,15 +87,12 @@ StatusManager::SetStatus(UserStatus status, const char* str, int64 instance)
 		msg->AddString("message", str);
 
 	// Send message
-	TheApp* theApp = reinterpret_cast<TheApp*>(be_app);
-	MainWindow* win = theApp->GetMainWindow();
-
 	if (instance > -1) {
 		msg->AddInt64("instance", instance);
-		win->GetServer()->SendProtocolMessage(msg);
+		Server::Get()->SendProtocolMessage(msg);
 	}
 	else
-		win->GetServer()->SendAllProtocolMessage(msg);
+		Server::Get()->SendAllProtocolMessage(msg);
 
 	// Notify status change
 	fStatus = status;

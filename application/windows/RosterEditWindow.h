@@ -14,8 +14,6 @@
 
 #include <Window.h>
 
-#include "Server.h"
-
 class BMenuField;
 class RosterItem;
 class RosterView;
@@ -26,9 +24,9 @@ class TemplateWindow;
    the server with contact info, once a contact is selected. */
 class RosterEditWindow : public BWindow {
 public:
-								RosterEditWindow(Server* server);
+								RosterEditWindow();
 								~RosterEditWindow();
-	static	RosterEditWindow*	Get(Server* server);
+	static	RosterEditWindow*	Get();
 	static	bool				Check();
 
 			void				MessageReceived(BMessage* message);
@@ -40,7 +38,6 @@ private:
 	BString				fEditingUser;
 	TemplateWindow*		fEditingWindow;
 
-	Server*				fServer;
 	RosterView*			fRosterView;
 
 	static	RosterEditWindow* fInstance;

@@ -13,11 +13,9 @@
 #include "AppMessages.h"
 #include "ChatProtocolMessages.h"
 #include "Conversation.h"
-#include "MainWindow.h"
 #include "ProtocolLooper.h"
 #include "Role.h"
 #include "Server.h"
-#include "TheApp.h"
 #include "User.h"
 #include "UserInfoWindow.h"
 #include "UserItem.h"
@@ -108,8 +106,7 @@ UserListView::_UserPopUp()
 
 	Role* selected_role = fChat->GetRole(selected_user->GetId());
 
-	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
-	BObjectList<BMessage> items = server->UserPopUpItems();
+	BObjectList<BMessage> items = Server::Get()->UserPopUpItems();
 	BObjectList<BMessage> protoItems = fChat->GetProtocolLooper()->Protocol()->UserPopUpItems();
 	items.AddList(&protoItems);
 

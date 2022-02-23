@@ -25,6 +25,7 @@
 #include "NotifyMessage.h"
 #include "ProtocolLooper.h"
 #include "ProtocolManager.h"
+#include "Role.h"
 #include "Server.h"
 #include "TheApp.h"
 #include "Utils.h"
@@ -186,7 +187,7 @@ Conversation::ImMessage(BMessage* msg)
 
 			BString name = CommandName(body);
 			BString args = CommandArgs(body);
-			ChatCommand* cmd = _GetServer()->CommandById(name, fLooper->GetInstance());
+			ChatCommand* cmd = Server::Get()->CommandById(name, fLooper->GetInstance());
 
 			if (cmd == NULL) {
 				if (name == "me")
@@ -655,7 +656,7 @@ Conversation::_EnsureUser(BMessage* msg, bool implicit)
 		user = serverUser;
 	// Not anywhere; create user
 	else if (user == NULL) {
-		user = new User(id, _GetServer()->Looper());
+		user = new User(id, Server::Get()->Looper());
 		user->SetProtocolLooper(fLooper);
 		fLooper->AddUser(user);
 	}
@@ -758,11 +759,4 @@ Conversation::_SortConversationList()
 {
 	if (fUsers.CountItems() <= 2 || fUsers.CountItems() == 3)
 		((TheApp*)be_app)->GetMainWindow()->SortConversation(this);
-}
-
-
-Server*
-Conversation::_GetServer()
-{
-	return ((TheApp*)be_app)->GetMainWindow()->GetServer();
 }

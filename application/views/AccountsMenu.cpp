@@ -14,9 +14,7 @@
 
 #include "AccountMenuItem.h"
 #include "ImageCache.h"
-#include "MainWindow.h"
 #include "Server.h"
-#include "TheApp.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -26,33 +24,23 @@
 int64 AccountsMenu::fDefaultSelection = -1;
 
 
-AccountsMenu::AccountsMenu(const char* name, BMessage msg, BMessage* allMsg,
-	Server* server)
+AccountsMenu::AccountsMenu(const char* name, BMessage msg, BMessage* allMsg)
 	:
 	BPopUpMenu(name),
 	fAccountMessage(msg),
-	fAllMessage(allMsg),
-	fServer(server)
+	fAllMessage(allMsg)
 {
 	_PopulateMenu();
 	SetRadioMode(true);
 	SetLabelFromMarked(true);
-	fServer->RegisterObserver(this);
-}
-
-
-AccountsMenu::AccountsMenu(const char* name, BMessage msg, BMessage* allMsg)
-	:
-	AccountsMenu(name, msg, allMsg,
-		((TheApp*)be_app)->GetMainWindow()->GetServer())
-{
+	Server::Get()->RegisterObserver(this);
 }
 
 
 AccountsMenu::~AccountsMenu()
 {
 	delete fAllMessage;
-	fServer->UnregisterObserver(this);
+	Server::Get()->UnregisterObserver(this);
 }
 
 
@@ -80,7 +68,7 @@ AccountsMenu::_PopulateMenu()
 			icon, 0, 0, false));
 	}
 
-	AccountInstances accounts = fServer->GetActiveAccounts();
+	AccountInstances accounts = Server::Get()->GetActiveAccounts();
 
 	// Add protocol item if not already in menu
 	for (int i = 0; i < accounts.CountItems(); i++) {
@@ -98,7 +86,7 @@ AccountsMenu::_PopulateMenu()
 		if (FindItem(label.String()) != NULL)
 			continue;
 
-		ProtocolLooper* looper = fServer->GetProtocolLooper(instance);
+		ProtocolLooper* looper = Server::Get()->GetProtocolLooper(instance);
 		BBitmap* icon = _EnsureProtocolIcon(label.String(), looper);
 
 		BMessage* message = new BMessage(fAccountMessage);

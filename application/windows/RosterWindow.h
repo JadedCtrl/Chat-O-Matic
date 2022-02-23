@@ -14,8 +14,6 @@
 
 #include <Window.h>
 
-#include "Server.h"
-
 class BMenuField;
 class RosterItem;
 class RosterView;
@@ -26,7 +24,7 @@ class RosterView;
 class RosterWindow : public BWindow {
 public:
 	RosterWindow(const char* title, BMessage* selectMsg, BMessenger* messenger,
-		Server* server, bigtime_t instance = -1);
+		bigtime_t instance = -1);
 
 			void		MessageReceived(BMessage* message);
 
@@ -35,8 +33,6 @@ public:
 private:
 	BButton*			fOkButton;
 	BMenuField*			fAccountField;
-
-	Server*				fServer;
 
 	RosterView*			fRosterView;
 	BMessenger*			fTarget;

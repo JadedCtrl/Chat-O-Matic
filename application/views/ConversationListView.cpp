@@ -15,10 +15,10 @@
 #include "Conversation.h"
 #include "ConversationAccountItem.h"
 #include "ConversationItem.h"
+#include "Flags.h"
 #include "MainWindow.h"
 #include "ProtocolLooper.h"
 #include "Server.h"
-#include "TheApp.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -167,8 +167,7 @@ ConversationListView::RemoveConversation(Conversation* chat)
 void
 ConversationListView::AddAccount(int64 instance)
 {
-	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
-	ProtocolLooper* looper = server->GetProtocolLooper(instance);
+	ProtocolLooper* looper = Server::Get()->GetProtocolLooper(instance);
 	if (looper == NULL)
 		return;
 	AddItem(looper->GetListItem());
@@ -190,7 +189,7 @@ ConversationListView::RemoveAccount(int64 instance)
 		}
 	}
 	if (CountItems() == 0)
-		((TheApp*)be_app)->GetMainWindow()->SetConversation(NULL);
+		((MainWindow*)Window())->SetConversation(NULL);
 }
 
 
@@ -215,7 +214,6 @@ ConversationListView::_ConversationPopUp()
 	Conversation* chat = item->GetConversation();
 	ProtocolLooper* looper = chat->GetProtocolLooper();
 
-	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
 	_AddDefaultItems(menu, chat);
 	BObjectList<BMessage> items = looper->Protocol()->ChatPopUpItems();
 
@@ -302,7 +300,7 @@ ConversationListView::_BlankPopUp()
 {
 	bool enabled = false;
 
-	Server* server = ((TheApp*)be_app)->GetMainWindow()->GetServer();
+	Server* server = Server::Get();
 	if (server != NULL && server->GetAccounts().CountItems() > 0)
 		enabled = true;
 

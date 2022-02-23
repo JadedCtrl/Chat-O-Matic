@@ -9,7 +9,7 @@
  
 #include <Window.h>
 
-#include "Server.h"
+#include "libsupport/KeyMap.h"
 
 class BCardLayout;
 class BLayoutItem;
@@ -24,7 +24,6 @@ class ConversationView;
 class ProtocolSettings;
 class RosterItem;
 class RosterWindow;
-class Server;
 class StatusView;
 
 
@@ -47,8 +46,6 @@ public:
 			void		RemoveConversation(Conversation* chat);
 			void		SortConversation(Conversation* chat);
 
-			Server*		GetServer() const { return fServer; }
-
 private:
 			void		_InitInterface();
 
@@ -70,7 +67,6 @@ private:
 							ProtocolSettings* settings);
 			void		_ReplaceMenu(const char* name, BMenu* newMenu);
 
-	Server*				fServer;
 	RosterWindow*		fRosterWindow;
 	bool				fWorkspaceChanged;
 	BMenuBar*			fMenuBar;
