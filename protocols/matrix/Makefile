@@ -42,7 +42,7 @@ SRCS = \
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
 RDEFS = \
-	data/icons/protocols/IRC.rdef \
+	data/icons/protocols/Matrix.rdef \
 	protocols/matrix/matrix.rdef \
 
 #	Specify the resource files to use. Full or relative paths can be used.
