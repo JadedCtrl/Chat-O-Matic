@@ -158,8 +158,7 @@ MatrixProtocol::Commands()
 BBitmap*
 MatrixProtocol::Icon() const
 {
-	return NULL;
-//	return ReadNodeIcon(fAddOnPath.Path(), B_LARGE_ICON, true);
+	return ReadNodeIcon(fAddOnPath.Path(), B_LARGE_ICON, true);
 }
 
 
