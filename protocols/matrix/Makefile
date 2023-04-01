@@ -42,7 +42,7 @@ SRCS = \
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
 RDEFS = \
-	data/icons/protocols/IRC.rdef \
+	data/icons/protocols/Matrix.rdef \
 	protocols/matrix/matrix.rdef \
 
 #	Specify the resource files to use. Full or relative paths can be used.
@@ -65,7 +65,7 @@ RSRCS =
 #	- 	if your library does not follow the standard library naming scheme,
 #		you need to specify the path to the library and it's name.
 #		(e.g. for mylib.a, specify "mylib.a" or "path/mylib.a")
-LIBS =  be bnetapi localestub matrix_client network $(STDCPPLIBS)
+LIBS =  be bnetapi localestub interface matrix_client network $(STDCPPLIBS)
 
 
 #	Specify additional paths to directories following the standard libXXX.so

@@ -12,7 +12,6 @@
 #include <MessageRunner.h>
 #include <Roster.h>
 
-#include <ChatOMatic.h>
 #include <ChatProtocolMessages.h>
 #include <Flags.h>
 #include <UserStatus.h>

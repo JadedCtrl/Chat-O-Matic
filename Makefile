@@ -12,6 +12,9 @@ irc:
 xmpp:
 	$(MAKE) -f protocols/xmpp/Makefile
 
+matrix:
+	$(MAKE) -f protocols/matrix/Makefile
+
 purple:
 ifneq ($(shell uname -m), x86_gcc2)
 	$(MAKE) -f protocols/purple/Makefile
