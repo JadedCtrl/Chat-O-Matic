@@ -64,7 +64,7 @@ KeyMap<KEY, TYPE>::ValueFor(KEY k, bool* found) const
 	}
 
 	if (i == fMap.end())
-		return NULL;
+		return 0;
 	return i->second;
 }
 
