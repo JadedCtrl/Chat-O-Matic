@@ -23,6 +23,8 @@
 #include <ScrollView.h>
 #include <TranslationUtils.h>
 
+#include <stdio.h>
+
 #include "AccountDialog.h"
 #include "AccountsWindow.h"
 #include "AppMessages.h"
@@ -683,7 +685,12 @@ ConversationItem*
 MainWindow::_EnsureConversationItem(BMessage* msg)
 {
 	BString chat_id = msg->FindString("chat_id");
-	Conversation* chat = Server::Get()->ConversationById(chat_id, msg->FindInt64("instance"));
+	int64 conversation_id = msg->FindInt64("instance");
+	Conversation* chat = Server::Get()->ConversationById(chat_id, conversation_id);
+	if (chat == NULL) {
+		printf("error: Conversation %" B_PRId64 " in '%s' not found!\n", conversation_id, chat_id);
+		return NULL;
+	}
 
 	_EnsureConversationView(chat);
 
