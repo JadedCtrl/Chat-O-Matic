@@ -153,6 +153,12 @@ MatrixApp::StartLoop()
 	status.AddInt32("status", (int32)STATUS_ONLINE);
 	SendMessage(status);
 
+	BMessage syncStatus(IM_MESSAGE);
+	syncStatus.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+	syncStatus.AddString("user_name", APP_NAME);
+	syncStatus.AddString("body", B_TRANSLATE("Synchronizing with Matrix server. Please wait..."));
+	SendMessage(syncStatus);
+
 	mtx::http::SyncOpts opts;
 	opts.timeout = 0;
 	client->sync(opts, &initial_sync_handler);
