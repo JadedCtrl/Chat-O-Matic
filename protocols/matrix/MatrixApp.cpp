@@ -303,6 +303,7 @@ room_sync(mtx::responses::Rooms rooms)
 				BMessage msg(IM_MESSAGE);
 				msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
 				msg.AddString("body", event->content.body.c_str());
+				msg.AddInt64("when", event->origin_server_ts / 1000);
 				msg.AddString("chat_id", chat_id);
 				msg.AddString("user_id", event->sender.c_str());
 				app->SendMessage(msg);
