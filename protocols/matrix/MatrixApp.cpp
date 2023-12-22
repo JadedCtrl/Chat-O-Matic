@@ -282,6 +282,20 @@ room_sync(mtx::responses::Rooms rooms)
 			app->fRoomList.Add(BString(chat_id));
 		}
 
+		// Grab the latest room metadata
+		BMessage metadataMsg(IM_MESSAGE);
+		metadataMsg.AddInt32("im_what", IM_ROOM_METADATA);
+		metadataMsg.AddString("chat_id", chat_id);
+		for (const auto &e : room.state.events) {
+			auto ev = std::get_if<mtx::events::StateEvent<mtx::events::state::Name>>(&e);
+			if (ev != nullptr) {
+				metadataMsg.AddString("chat_name", ev->content.name.c_str());
+				break;
+			}
+		}
+		((MatrixApp*)be_app)->SendMessage(metadataMsg);
+
+		// Grab the room timeline and add it
 		for (mtx::events::collections::TimelineEvents &ev : room.timeline.events)
 			if (auto event = std::get_if<mtx::events::RoomEvent<mtx::events::msg::Text>>(&ev);
 					event != nullptr)
