@@ -153,6 +153,12 @@ MatrixApp::StartLoop()
 	status.AddInt32("status", (int32)STATUS_ONLINE);
 	SendMessage(status);
 
+	BMessage syncStatus(IM_MESSAGE);
+	syncStatus.AddInt32("im_what", IM_MESSAGE_RECEIVED);
+	syncStatus.AddString("user_name", APP_NAME);
+	syncStatus.AddString("body", B_TRANSLATE("Synchronizing with Matrix server. Please wait..."));
+	SendMessage(syncStatus);
+
 	mtx::http::SyncOpts opts;
 	opts.timeout = 0;
 	client->sync(opts, &initial_sync_handler);
@@ -276,6 +282,20 @@ room_sync(mtx::responses::Rooms rooms)
 			app->fRoomList.Add(BString(chat_id));
 		}
 
+		// Grab the latest room metadata
+		BMessage metadataMsg(IM_MESSAGE);
+		metadataMsg.AddInt32("im_what", IM_ROOM_METADATA);
+		metadataMsg.AddString("chat_id", chat_id);
+		for (const auto &e : room.state.events) {
+			auto ev = std::get_if<mtx::events::StateEvent<mtx::events::state::Name>>(&e);
+			if (ev != nullptr) {
+				metadataMsg.AddString("chat_name", ev->content.name.c_str());
+				break;
+			}
+		}
+		((MatrixApp*)be_app)->SendMessage(metadataMsg);
+
+		// Grab the room timeline and add it
 		for (mtx::events::collections::TimelineEvents &ev : room.timeline.events)
 			if (auto event = std::get_if<mtx::events::RoomEvent<mtx::events::msg::Text>>(&ev);
 					event != nullptr)
@@ -283,6 +303,7 @@ room_sync(mtx::responses::Rooms rooms)
 				BMessage msg(IM_MESSAGE);
 				msg.AddInt32("im_what", IM_MESSAGE_RECEIVED);
 				msg.AddString("body", event->content.body.c_str());
+				msg.AddInt64("when", event->origin_server_ts / 1000);
 				msg.AddString("chat_id", chat_id);
 				msg.AddString("user_id", event->sender.c_str());
 				app->SendMessage(msg);
